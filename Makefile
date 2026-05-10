@@ -1,4 +1,4 @@
-.PHONY: all build test style-check clean
+.PHONY: all build test style-check evidence clean
 
 all: build
 
@@ -11,6 +11,9 @@ test:
 style-check:
 	./scripts/style-check.sh
 	./scripts/check-configs.sh
+
+evidence:
+	./scripts/package-evidence.sh
 
 clean:
 	rm -rf build out coverage
