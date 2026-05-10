@@ -36,6 +36,13 @@ mkdir -p build/tests
 
 ./build/tests/test_guest_uart
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/unit/test_freertos_integration.c \
+	src/guest/rtos/freertos_integration.c \
+	-o build/tests/test_freertos_integration
+
+./build/tests/test_freertos_integration
+
 echo "[test] running integration isolation flow"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_isolation_flow.c \
