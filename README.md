@@ -48,9 +48,15 @@ Key baseline artifacts:
 - docs/methodology/CI_TROUBLESHOOTING.md
 - docs/methodology/IMX95_EVIDENCE_TEMPLATE.md
 - docs/methodology/BENCHMARK_BASELINE.md
+- docs/methodology/VIRTUAL_PLATFORM_VALIDATION.md
+- docs/methodology/PHYSICAL_BOARD_VALIDATION.md
+- docs/methodology/VERCEL_DEPLOYMENT.md
 - docs/architecture/THESIS_DEEP_DIVE.md
 - docs/architecture/NAMING_RATIONALE.md
 - docs/porting/IMX95_VALIDATION_RUNBOOK.md
+- docs/porting/CROSS_OS_VIRTUALIZATION_RUNBOOK.md
+- docs/roadmap/ONE_YEAR_RELEASE_PLAN.md
+- docs/roadmap/releases/README.md
 - include/haven/stage2.h
 - include/haven/irq_ownership.h
 - include/haven/budget_sched.h
@@ -93,3 +99,12 @@ Evidence packaging:
 Benchmark automation:
 - ./scripts/benchmark-baseline.py
 - .github/workflows/benchmark.yml
+
+Cross-platform validation automation:
+- ./scripts/qemu-smoke.sh
+- .github/workflows/cross-os.yml
+
+Vercel deployment:
+- site/index.html
+- vercel.json
+- .github/workflows/vercel.yml
