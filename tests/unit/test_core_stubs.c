@@ -53,6 +53,8 @@ static void test_budget_contract(void) {
       .partition_id = 1, .period_ns = 1000000, .budget_ns = 500000};
   struct hv_budget bad = {
       .partition_id = 1, .period_ns = 100000, .budget_ns = 200000};
+  struct hv_budget unconfigured = {
+      .partition_id = 2, .period_ns = 1000000, .budget_ns = 100000};
 
   assert(hv_budget_sched_init() == HV_OK);
   assert(hv_budget_set(NULL) == HV_EINVAL);
@@ -61,8 +63,13 @@ static void test_budget_contract(void) {
   assert(hv_budget_consume(0, 1000) == HV_EINVAL);
   assert(hv_budget_consume(1, 0) == HV_EINVAL);
   assert(hv_budget_consume(1, 1000) == HV_OK);
+  assert(hv_budget_consume(2, 1000) == HV_EPERM);
+  assert(hv_budget_consume(1, 600000) == HV_EPERM);
+  assert(hv_budget_set(&unconfigured) == HV_OK);
+  assert(hv_budget_consume(257, 1000) == HV_ENOSPC);
   assert(hv_budget_reset_period(0) == HV_EINVAL);
   assert(hv_budget_reset_period(1000000) == HV_OK);
+  assert(hv_budget_consume(1, 200000) == HV_OK);
 }
 
 int main(void) {
