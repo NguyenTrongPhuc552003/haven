@@ -18,8 +18,10 @@ static void test_stage2_contract(void) {
 }
 
 static void test_irq_contract(void) {
-  struct hv_irq_route route = {.irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
-  struct hv_irq_route foreign_route = {.irq_id = 32, .owner_partition_id = 2, .target_cpu = 0};
+  struct hv_irq_route route = {
+      .irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
+  struct hv_irq_route foreign_route = {
+      .irq_id = 32, .owner_partition_id = 2, .target_cpu = 0};
 
   assert(hv_irq_owner_init() == HV_OK);
   assert(hv_irq_assign(NULL) == HV_EINVAL);
