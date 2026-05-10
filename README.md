@@ -41,6 +41,8 @@ Out of scope:
 
 Key baseline artifacts:
 - docs/methodology/CHAPTER_TRACEABILITY.md
+- docs/architecture/THESIS_DEEP_DIVE.md
+- docs/architecture/NAMING_RATIONALE.md
 - include/haven/stage2.h
 - include/haven/irq_ownership.h
 - include/haven/budget_sched.h
