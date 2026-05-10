@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+
+echo "[hook:pre-commit] running style checks"
+./scripts/style-check.sh
+
+echo "[hook:pre-commit] running config checks"
+./scripts/check-configs.sh
+
+echo "[hook:pre-commit] ok"
