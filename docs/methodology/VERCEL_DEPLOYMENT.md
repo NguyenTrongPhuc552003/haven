@@ -93,10 +93,10 @@ npm run preview    # preview the built site
 
 ## Content sections
 
-| URL prefix | Description |
-|---|---|
-| `/getting-started/` | Introduction, quick-start, repository structure |
-| `/architecture/` | Isolation model, Stage-2 MMU, IRQ, SMMU, budget scheduler |
-| `/platform/` | i.MX95, QEMU arm64, porting guide |
-| `/thesis/` | Background, traceability, evaluation, milestones, evidence |
-| `/reference/` | API, FAQ, changelog, contributing, security |
+| URL prefix          | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| `/getting-started/` | Introduction, quick-start, repository structure            |
+| `/architecture/`    | Isolation model, Stage-2 MMU, IRQ, SMMU, budget scheduler  |
+| `/platform/`        | i.MX95, QEMU arm64, porting guide                          |
+| `/thesis/`          | Background, traceability, evaluation, milestones, evidence |
+| `/reference/`       | API, FAQ, changelog, contributing, security                |

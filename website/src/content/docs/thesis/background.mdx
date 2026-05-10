@@ -82,26 +82,6 @@ The temporal isolation mechanism in Haven draws on the **budget-based scheduling
 
 ---
 
-## Connection to Bachelor's Thesis
-
-This master's thesis builds on the author's bachelor's thesis work:
-
-> Nguyen Trong Phuc. *"Robot nhện Hexapod ứng dụng trong do thám địa hình"* (Hexapod Reconnaissance Robot). Bachelor's Thesis, University of Science, Ho Chi Minh City, 2024. [[Source]](https://github.com/NguyenTrongPhuc552003/final-hexapod-thesis)
-
-The hexapod thesis established the author's foundation in **layered embedded system architecture, Linux kernel driver development (I2C, PWM), and real-time control loops on BeagleBone AI** running Linux. Several design patterns carry over directly:
-
-| Bachelor's thesis element | Haven application |
-|---|---|
-| Linux kernel I2C/PWM drivers in C | Linux guest driver layer (`drivers/linux/`) |
-| Layered HAL / application separation | Partition interface model (EL1/EL0 guest vs EL2 hypervisor) |
-| 50 Hz hard real-time control loop | FreeRTOS partition deadline guarantees |
-| BeagleBone AI (ARM Cortex-A15) Linux | NXP i.MX95 A55 Linux partition |
-| 24-hour endurance test methodology | Haven temporal isolation validation protocol |
-
-The transition from a single-SoC embedded control application to a multi-partition hypervisor represents a natural graduate-level progression: the bachelor's thesis showed *how to build real-time embedded software inside a Linux environment*; the master's thesis asks *how to guarantee that real-time Linux and an RTOS can coexist without interfering with each other*.
-
----
-
 ## Summary of Contributions
 
 <CardGrid>
