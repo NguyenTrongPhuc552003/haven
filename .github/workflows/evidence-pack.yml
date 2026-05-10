@@ -1,0 +1,39 @@
+name: evidence-pack
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make python3
+
+      - name: Run preflight
+        run: ./scripts/ci-preflight.sh
+
+      - name: Capture metadata
+        run: ./scripts/ci-metadata.sh
+
+      - name: Package evidence
+        run: |
+          mkdir -p build/evidence
+          cp -r docs/methodology build/evidence/methodology
+          cp -r docs/porting build/evidence/porting
+          cp build/ci/metadata.txt build/evidence/metadata.txt
+
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-evidence-${{ github.run_id }}
+          retention-days: 30
+          path: build/evidence
