@@ -25,6 +25,16 @@ echo "[test] running integration isolation flow"
 
 ./build/tests/test_isolation_flow
 
+echo "[test] running integration negative isolation flow"
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/integration/test_isolation_negative.c \
+	src/core/mm/stage2.c \
+	src/core/irq/ownership.c \
+	src/core/sched/budget.c \
+	-o build/tests/test_isolation_negative
+
+./build/tests/test_isolation_negative
+
 echo "[test] validating configuration schema"
 ./scripts/check-configs.sh
 
