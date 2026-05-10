@@ -19,3 +19,20 @@ Use DCO sign-off on commits:
 - Isolation-sensitive changes require design notes.
 - New platform support must include configuration and validation updates.
 - Performance-affecting changes must include benchmark evidence.
+
+## Local hooks setup
+
+Enable repository-managed hooks:
+
+- ./scripts/setup-hooks.sh
+
+Hooks enforce:
+- pre-commit: style and config checks
+- commit-msg: conventional subject prefixes
+- pre-push: build and test verification
+
+## AI workflow conventions
+
+- Read AGENTS.md for role-specific agent behavior.
+- Use .github/skills/thesis-evidence/SKILL.md at milestone boundaries.
+- Keep chapter traceability current for every completed milestone.
