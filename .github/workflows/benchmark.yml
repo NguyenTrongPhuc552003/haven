@@ -1,0 +1,37 @@
+name: benchmark-baseline
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    env:
+      CC: ${{ matrix.compiler }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc clang make python3
+
+      - name: Generate benchmark baseline
+        run: ./scripts/benchmark-baseline.py
+
+      - name: Upload baseline artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ matrix.compiler }}-${{ github.run_id }}
+          retention-days: 30
+          path: build/benchmarks/baseline.json
