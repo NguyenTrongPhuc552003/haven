@@ -1,0 +1,41 @@
+name: nightly-validation
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nightly-preflight:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    env:
+      CC: ${{ matrix.compiler }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc clang make python3
+
+      - name: Preflight
+        run: ./scripts/ci-preflight.sh
+
+      - name: Capture metadata
+        run: ./scripts/ci-metadata.sh
+
+      - name: Upload nightly artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-${{ matrix.compiler }}-${{ github.run_id }}
+          path: |
+            build/libhaven_core.a
+            build/ci/metadata.txt
