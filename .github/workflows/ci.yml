@@ -5,6 +5,13 @@ on:
     branches: [ main ]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-check:
     runs-on: ubuntu-latest
@@ -23,11 +30,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc clang make python3
 
-      - name: Build (${{ matrix.compiler }})
-        run: ./scripts/build.sh
+      - name: Preflight (${{ matrix.compiler }})
+        run: ./scripts/ci-preflight.sh
 
-      - name: Style Check (${{ matrix.compiler }})
-        run: ./scripts/style-check.sh
+      - name: Capture metadata (${{ matrix.compiler }})
+        run: ./scripts/ci-metadata.sh
 
-      - name: Test (${{ matrix.compiler }})
-        run: ./scripts/test.sh
+      - name: Upload build artifacts (${{ matrix.compiler }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: haven-${{ matrix.compiler }}-${{ github.sha }}
+          path: |
+            build/libhaven_core.a
+            build/ci/metadata.txt
