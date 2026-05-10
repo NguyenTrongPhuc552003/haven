@@ -42,6 +42,7 @@ Out of scope:
 Key baseline artifacts:
 - docs/methodology/CHAPTER_TRACEABILITY.md
 - docs/methodology/AI_WORKFLOW_PLAYBOOK.md
+- docs/methodology/CI_STRATEGY.md
 - docs/architecture/THESIS_DEEP_DIVE.md
 - docs/architecture/NAMING_RATIONALE.md
 - include/haven/stage2.h
