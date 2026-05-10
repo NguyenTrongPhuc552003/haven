@@ -43,3 +43,10 @@ Use this template for each validation campaign on the primary thesis platform.
 1. Chapter mapping updates:
 2. Milestone updates:
 3. Benchmark raw data locations:
+
+## Repository evidence layout
+
+Generated evidence package paths:
+1. build/evidence/imx95/logs
+2. build/evidence/imx95/metrics
+3. build/evidence/imx95/captures
