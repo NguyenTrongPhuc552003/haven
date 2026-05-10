@@ -15,6 +15,13 @@ mkdir -p build/tests
 
 ./build/tests/test_core_stubs
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/unit/test_smmu_dma.c \
+	src/core/dma/smmu.c \
+	-o build/tests/test_smmu_dma
+
+./build/tests/test_smmu_dma
+
 echo "[test] running integration isolation flow"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_isolation_flow.c \
