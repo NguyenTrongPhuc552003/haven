@@ -41,6 +41,7 @@ Out of scope:
 
 Key baseline artifacts:
 - docs/methodology/CHAPTER_TRACEABILITY.md
+- docs/methodology/AI_WORKFLOW_PLAYBOOK.md
 - docs/architecture/THESIS_DEEP_DIVE.md
 - docs/architecture/NAMING_RATIONALE.md
 - include/haven/stage2.h
@@ -75,3 +76,5 @@ Please read:
 - SECURITY.md
 - CODE_OF_CONDUCT.md
 - docs/safety/THREAT_MODEL.md
+- .github/copilot-instructions.md
+- AGENTS.md
