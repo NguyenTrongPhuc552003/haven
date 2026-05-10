@@ -1,0 +1,12 @@
+# Default owner
+* @NguyenTrongPhuc552003
+
+# Isolation-critical paths
+/src/core/mm/ @NguyenTrongPhuc552003
+/src/core/irq/ @NguyenTrongPhuc552003
+/src/core/sched/ @NguyenTrongPhuc552003
+/include/haven/ @NguyenTrongPhuc552003
+
+# CI and process governance
+/.github/workflows/ @NguyenTrongPhuc552003
+/docs/methodology/ @NguyenTrongPhuc552003
