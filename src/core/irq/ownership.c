@@ -1,8 +1,6 @@
 #include "haven/irq_ownership.h"
 
-hv_status_t hv_irq_owner_init(void) {
-  return HV_OK;
-}
+hv_status_t hv_irq_owner_init(void) { return HV_OK; }
 
 hv_status_t hv_irq_assign(const struct hv_irq_route *route) {
   if (route == NULL || route->irq_id == 0U) {

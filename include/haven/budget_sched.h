@@ -3,10 +3,11 @@
 
 #include "types.h"
 
-struct hv_budget {
-  hv_u32 partition_id;
-  hv_u64 period_ns;
-  hv_u64 budget_ns;
+struct hv_budget
+{
+    hv_u32 partition_id;
+    hv_u64 period_ns;
+    hv_u64 budget_ns;
 };
 
 hv_status_t hv_budget_sched_init(void);

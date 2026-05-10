@@ -1,8 +1,6 @@
 #include "haven/budget_sched.h"
 
-hv_status_t hv_budget_sched_init(void) {
-  return HV_OK;
-}
+hv_status_t hv_budget_sched_init(void) { return HV_OK; }
 
 hv_status_t hv_budget_set(const struct hv_budget *budget) {
   if (budget == NULL || budget->partition_id == 0U) {

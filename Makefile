@@ -10,6 +10,7 @@ test:
 
 style-check:
 	./scripts/style-check.sh
+	./scripts/check-configs.sh
 
 clean:
 	rm -rf build out coverage

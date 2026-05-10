@@ -1,7 +1,16 @@
 #!/usr/bin/env sh
 set -eu
 
-echo "[build] haven scaffold build step"
-mkdir -p build
+echo "[build] compiling haven core stubs"
+mkdir -p build/obj
 
-echo "[build] done"
+cc -std=c11 -Wall -Wextra -Werror -Iinclude -c src/core/mm/stage2.c -o build/obj/stage2.o
+cc -std=c11 -Wall -Wextra -Werror -Iinclude -c src/core/irq/ownership.c -o build/obj/ownership.o
+cc -std=c11 -Wall -Wextra -Werror -Iinclude -c src/core/sched/budget.c -o build/obj/budget.o
+
+ar rcs build/libhaven_core.a \
+	build/obj/stage2.o \
+	build/obj/ownership.o \
+	build/obj/budget.o
+
+echo "[build] produced build/libhaven_core.a"

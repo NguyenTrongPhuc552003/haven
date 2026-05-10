@@ -1,0 +1,52 @@
+#include <assert.h>
+
+#include "haven/budget_sched.h"
+#include "haven/irq_ownership.h"
+#include "haven/stage2.h"
+
+static void test_stage2_contract(void) {
+  struct hv_mem_region regions[1] = {
+      {.ipa_base = 0x1000, .pa_base = 0x2000, .size = 0x1000, .attrs = 0}};
+  struct hv_partition_mem cfg = {
+      .partition_id = 1, .regions = regions, .region_count = 1};
+
+  assert(hv_stage2_init() == HV_OK);
+  assert(hv_stage2_map_partition(NULL) == HV_EINVAL);
+  assert(hv_stage2_map_partition(&cfg) == HV_OK);
+  assert(hv_stage2_unmap_partition(0) == HV_EINVAL);
+  assert(hv_stage2_unmap_partition(1) == HV_OK);
+}
+
+static void test_irq_contract(void) {
+  struct hv_irq_route route = {.irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
+
+  assert(hv_irq_owner_init() == HV_OK);
+  assert(hv_irq_assign(NULL) == HV_EINVAL);
+  assert(hv_irq_assign(&route) == HV_OK);
+  assert(hv_irq_revoke(0, 1) == HV_EINVAL);
+  assert(hv_irq_revoke(32, 1) == HV_OK);
+  assert(hv_irq_is_owned_by(0, 1) == HV_EINVAL);
+  assert(hv_irq_is_owned_by(32, 1) == HV_OK);
+}
+
+static void test_budget_contract(void) {
+  struct hv_budget good = {.partition_id = 1, .period_ns = 1000000, .budget_ns = 500000};
+  struct hv_budget bad = {.partition_id = 1, .period_ns = 100000, .budget_ns = 200000};
+
+  assert(hv_budget_sched_init() == HV_OK);
+  assert(hv_budget_set(NULL) == HV_EINVAL);
+  assert(hv_budget_set(&bad) == HV_EINVAL);
+  assert(hv_budget_set(&good) == HV_OK);
+  assert(hv_budget_consume(0, 1000) == HV_EINVAL);
+  assert(hv_budget_consume(1, 0) == HV_EINVAL);
+  assert(hv_budget_consume(1, 1000) == HV_OK);
+  assert(hv_budget_reset_period(0) == HV_EINVAL);
+  assert(hv_budget_reset_period(1000000) == HV_OK);
+}
+
+int main(void) {
+  test_stage2_contract();
+  test_irq_contract();
+  test_budget_contract();
+  return 0;
+}

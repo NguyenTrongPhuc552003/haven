@@ -3,17 +3,19 @@
 
 #include "types.h"
 
-struct hv_mem_region {
-  hv_u64 ipa_base;
-  hv_u64 pa_base;
-  hv_u64 size;
-  hv_u64 attrs;
+struct hv_mem_region
+{
+    hv_u64 ipa_base;
+    hv_u64 pa_base;
+    hv_u64 size;
+    hv_u64 attrs;
 };
 
-struct hv_partition_mem {
-  hv_u32 partition_id;
-  const struct hv_mem_region *regions;
-  hv_u32 region_count;
+struct hv_partition_mem
+{
+    hv_u32 partition_id;
+    const struct hv_mem_region *regions;
+    hv_u32 region_count;
 };
 
 hv_status_t hv_stage2_init(void);
