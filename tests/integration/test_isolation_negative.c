@@ -5,6 +5,29 @@
 #include "haven/stage2.h"
 
 static void run_negative_isolation_flow(void) {
+  struct hv_mem_region zero_size_region = {
+      .ipa_base = 0x60000000,
+      .pa_base = 0x60000000,
+      .size = 0,
+      .attrs = 0,
+  };
+  struct hv_mem_region valid_region = {
+      .ipa_base = 0x61000000,
+      .pa_base = 0x61000000,
+      .size = 0x1000,
+      .attrs = 0,
+  };
+  struct hv_partition_mem zero_size_cfg = {
+      .partition_id = 7,
+      .regions = &zero_size_region,
+      .region_count = 1,
+  };
+  struct hv_partition_mem valid_cfg = {
+      .partition_id = 8,
+      .regions = &valid_region,
+      .region_count = 1,
+  };
+
   struct hv_irq_route owner_route = {
       .irq_id = 64,
       .owner_partition_id = 7,
@@ -23,11 +46,17 @@ static void run_negative_isolation_flow(void) {
       .budget_ns = 200000,
   };
 
+  assert(hv_stage2_init() == HV_OK);
   assert(hv_irq_owner_init() == HV_OK);
   assert(hv_budget_sched_init() == HV_OK);
 
   assert(hv_stage2_map_partition(NULL) == HV_EINVAL);
+  assert(hv_stage2_map_partition(&zero_size_cfg) == HV_EINVAL);
+  assert(hv_stage2_map_partition(&valid_cfg) == HV_OK);
+  assert(hv_stage2_map_partition(&valid_cfg) == HV_EPERM);
   assert(hv_stage2_unmap_partition(0) == HV_EINVAL);
+  assert(hv_stage2_unmap_partition(valid_cfg.partition_id) == HV_OK);
+  assert(hv_stage2_unmap_partition(valid_cfg.partition_id) == HV_EPERM);
 
   assert(hv_irq_assign(&owner_route) == HV_OK);
   assert(hv_irq_assign(&foreign_route) == HV_EPERM);
