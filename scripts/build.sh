@@ -12,11 +12,15 @@ mkdir -p build/obj
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -c src/core/dma/smmu.c -o build/obj/smmu.o
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -c src/core/exc/el2_exceptions.c -o build/obj/el2_exceptions.o
 
+echo "[build] compiling haven guest drivers"
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -c src/guest/drivers/uart.c -o build/obj/uart.o
+
 ar rcs build/libhaven_core.a \
 	build/obj/stage2.o \
 	build/obj/ownership.o \
 	build/obj/budget.o \
 	build/obj/smmu.o \
-	build/obj/el2_exceptions.o
+	build/obj/el2_exceptions.o \
+	build/obj/uart.o
 
 echo "[build] produced build/libhaven_core.a"

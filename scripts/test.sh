@@ -29,6 +29,13 @@ mkdir -p build/tests
 
 ./build/tests/test_el2_exceptions
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/unit/test_guest_uart.c \
+	src/guest/drivers/uart.c \
+	-o build/tests/test_guest_uart
+
+./build/tests/test_guest_uart
+
 echo "[test] running integration isolation flow"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_isolation_flow.c \
