@@ -1,0 +1,54 @@
+name: cross-os-validation
+
+on:
+  schedule:
+    - cron: "15 3 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Linux toolchain
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make python3 qemu-system-arm qemu-system-aarch64
+
+      - name: Setup macOS toolchain
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install make python qemu
+
+      - name: Setup Windows toolchain
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            make
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-python
+            mingw-w64-ucrt-x86_64-qemu
+
+      - name: Preflight
+        run: ./scripts/ci-preflight.sh
+
+      - name: QEMU smoke
+        run: ./scripts/qemu-smoke.sh
