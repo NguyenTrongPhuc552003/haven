@@ -25,11 +25,7 @@ jobs:
         run: ./scripts/ci-metadata.sh
 
       - name: Package evidence
-        run: |
-          mkdir -p build/evidence
-          cp -r docs/methodology build/evidence/methodology
-          cp -r docs/porting build/evidence/porting
-          cp build/ci/metadata.txt build/evidence/metadata.txt
+        run: ./scripts/package-evidence.sh
 
       - name: Upload evidence artifact
         uses: actions/upload-artifact@v4
