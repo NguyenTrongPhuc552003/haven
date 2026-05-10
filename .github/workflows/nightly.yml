@@ -36,6 +36,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-${{ matrix.compiler }}-${{ github.run_id }}
+          retention-days: 30
           path: |
             build/libhaven_core.a
+            build/tests/test_core_stubs
+            build/obj/stage2.o
+            build/obj/ownership.o
+            build/obj/budget.o
             build/ci/metadata.txt
