@@ -1,10 +1,12 @@
 #!/usr/bin/env sh
 set -eu
 
+CC_BIN="${CC:-cc}"
+
 echo "[test] running unit tests"
 mkdir -p build/tests
 
-cc -std=c11 -Wall -Wextra -Werror -Iinclude \
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_core_stubs.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
