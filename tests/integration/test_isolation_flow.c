@@ -6,8 +6,14 @@
 
 static void run_isolation_flow(void) {
   struct hv_mem_region regions[] = {
-      {.ipa_base = 0x40000000, .pa_base = 0x40000000, .size = 0x2000, .attrs = 0},
-      {.ipa_base = 0x50000000, .pa_base = 0x50000000, .size = 0x2000, .attrs = 0},
+      {.ipa_base = 0x40000000,
+       .pa_base = 0x40000000,
+       .size = 0x2000,
+       .attrs = 0},
+      {.ipa_base = 0x50000000,
+       .pa_base = 0x50000000,
+       .size = 0x2000,
+       .attrs = 0},
   };
 
   struct hv_partition_mem partition = {
