@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        run: sudo apt-get update
+
+      - name: Build
+        run: ./scripts/build.sh
+
+      - name: Style Check
+        run: ./scripts/style-check.sh
+
+      - name: Test
+        run: ./scripts/test.sh

@@ -1,0 +1,67 @@
+# haven
+
+Hypervisor for Asymmetric Virtualization ENforcement and isolation.
+
+Haven is a static partition hypervisor research repository for heterogeneous SoCs,
+focused on enforcing spatial and temporal isolation between Linux and RTOS domains.
+
+## Thesis Context
+
+Title:
+Static Partition Hypervisor for Asymmetric Multiprocessing: Enforcing Spatial and Temporal Isolation Between Linux and RTOS on a Heterogeneous SoC
+
+Core claims:
+- Spatial isolation: a partition cannot access memory/devices assigned to another.
+- Temporal isolation: overload in one partition cannot violate bounded latency in another.
+
+## Scope
+
+In scope:
+- Static partition definition at build/deploy time.
+- Stage-2 memory isolation policy.
+- Device and interrupt partitioning policy.
+- CPU budget and deterministic scheduling for mixed criticality.
+- Linux plus RTOS coexistence on heterogeneous SoCs.
+
+Out of scope:
+- Dynamic VM creation or migration.
+- Cloud orchestration features.
+- Overcommit-based scheduling models.
+
+## Repository Map
+
+- src/: hypervisor core and platform code.
+- include/: interface and architecture headers.
+- configs/: static partition configurations per target.
+- drivers/: Linux and guest-side integration helpers.
+- tests/: unit, integration, and isolation validation.
+- docs/: architecture, safety, methodology, and roadmap.
+- verification/: placeholders for formal artifacts.
+- scripts/: build, test, style, and release helpers.
+
+## Quick Start
+
+Prerequisites:
+- clang or gcc toolchain
+- make
+- qemu-system-aarch64 (recommended for initial validation)
+
+Bootstrap:
+- ./scripts/build.sh
+- ./scripts/test.sh
+
+## Evaluation Plan
+
+Primary metrics:
+- Memory isolation violation attempts blocked.
+- Interrupt routing correctness.
+- Worst-case latency/jitter under Linux stress.
+- RTOS deadline miss rate under interference.
+
+## Governance
+
+Please read:
+- CONTRIBUTING.md
+- SECURITY.md
+- CODE_OF_CONDUCT.md
+- docs/safety/THREAT_MODEL.md

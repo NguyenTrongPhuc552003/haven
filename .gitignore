@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Build outputs
+build/
+out/
+*.o
+*.a
+*.so
+*.elf
+*.bin
+*.map
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Tooling
+compile_commands.json
+coverage/
