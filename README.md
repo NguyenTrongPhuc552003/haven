@@ -47,6 +47,7 @@ Key baseline artifacts:
 - docs/methodology/GITHUB_PROTECTION_SETUP.md
 - docs/methodology/CI_TROUBLESHOOTING.md
 - docs/methodology/IMX95_EVIDENCE_TEMPLATE.md
+- docs/methodology/BENCHMARK_BASELINE.md
 - docs/architecture/THESIS_DEEP_DIVE.md
 - docs/architecture/NAMING_RATIONALE.md
 - docs/porting/IMX95_VALIDATION_RUNBOOK.md
@@ -88,3 +89,7 @@ Please read:
 Evidence packaging:
 - make evidence
 - .github/workflows/evidence-pack.yml
+
+Benchmark automation:
+- ./scripts/benchmark-baseline.py
+- .github/workflows/benchmark.yml
