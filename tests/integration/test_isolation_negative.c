@@ -31,9 +31,12 @@ static void run_negative_isolation_flow(void) {
 
   assert(hv_irq_assign(&owner_route) == HV_OK);
   assert(hv_irq_assign(&foreign_route) == HV_EPERM);
-  assert(hv_irq_is_owned_by(owner_route.irq_id, foreign_route.owner_partition_id) == HV_EPERM);
-  assert(hv_irq_revoke(owner_route.irq_id, foreign_route.owner_partition_id) == HV_EPERM);
-  assert(hv_irq_revoke(owner_route.irq_id, owner_route.owner_partition_id) == HV_OK);
+  assert(hv_irq_is_owned_by(owner_route.irq_id,
+                            foreign_route.owner_partition_id) == HV_EPERM);
+  assert(hv_irq_revoke(owner_route.irq_id, foreign_route.owner_partition_id) ==
+         HV_EPERM);
+  assert(hv_irq_revoke(owner_route.irq_id, owner_route.owner_partition_id) ==
+         HV_OK);
 
   assert(hv_budget_set(&invalid_budget) == HV_EINVAL);
   assert(hv_budget_consume(0, 1000) == HV_EINVAL);
