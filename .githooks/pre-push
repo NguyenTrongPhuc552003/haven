@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+
+echo "[hook:pre-push] building"
+./scripts/build.sh
+
+echo "[hook:pre-push] testing"
+./scripts/test.sh
+
+echo "[hook:pre-push] ok"
