@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -eu
+
+msg_file="$1"
+first_line="$(head -n 1 "$msg_file")"
+
+case "$first_line" in
+  feat:*|fix:*|docs:*|test:*|build:*|ci:*|refactor:*|chore:*)
+    ;;
+  *)
+    echo "[hook:commit-msg] invalid subject: $first_line"
+    echo "Use Conventional Commit prefix: feat|fix|docs|test|build|ci|refactor|chore"
+    exit 1
+    ;;
+esac
