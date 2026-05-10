@@ -18,7 +18,8 @@ static void test_stage2_contract(void) {
 }
 
 static void test_irq_contract(void) {
-  struct hv_irq_route route = {.irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
+  struct hv_irq_route route = {
+      .irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
 
   assert(hv_irq_owner_init() == HV_OK);
   assert(hv_irq_assign(NULL) == HV_EINVAL);
@@ -30,8 +31,10 @@ static void test_irq_contract(void) {
 }
 
 static void test_budget_contract(void) {
-  struct hv_budget good = {.partition_id = 1, .period_ns = 1000000, .budget_ns = 500000};
-  struct hv_budget bad = {.partition_id = 1, .period_ns = 100000, .budget_ns = 200000};
+  struct hv_budget good = {
+      .partition_id = 1, .period_ns = 1000000, .budget_ns = 500000};
+  struct hv_budget bad = {
+      .partition_id = 1, .period_ns = 100000, .budget_ns = 200000};
 
   assert(hv_budget_sched_init() == HV_OK);
   assert(hv_budget_set(NULL) == HV_EINVAL);
