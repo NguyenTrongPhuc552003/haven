@@ -1,0 +1,127 @@
+---
+title: Architecture Overview
+description: High-level design of the Haven static partition hypervisor.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Haven is a **static partition hypervisor** that runs at EL2 on ARM64 SoCs.
+Its sole purpose is to enforce resource ownership boundaries between concurrently
+running guests — primarily a Linux domain and one or more RTOS domains.
+
+## Design Principles
+
+1. **Static configuration** — all partition boundaries are fixed at compile time.
+   No partition is created, migrated, or destroyed at runtime.
+2. **Minimal TCB** — the hypervisor core is a few thousand lines of C with no
+   dynamic allocation, no floating-point, and no unbounded loops in the critical
+   path.
+3. **Deny by default** — any access not explicitly permitted by the partition
+   configuration is intercepted at EL2 and faulted.
+4. **Deterministic behavior over feature breadth** — a bounded WCET for every
+   EL2 exit is more valuable than a richer feature set.
+5. **Evidence-first development** — every architectural claim is tied to a
+   measurable, reproducible test or benchmark.
+
+## Privilege Level Map
+
+```
+EL3 ─── Secure Monitor (TF-A / ATF) — not part of Haven TCB
+         │
+EL2 ─── Haven hypervisor
+         │  ┌─────────────────────────────────────────┐
+         │  │  Stage-2 MMU  │  IRQ Router  │  SMMU    │
+         │  │  Budget Sched │  EL2 exc     │  Timer   │
+         │  └─────────────────────────────────────────┘
+         │
+EL1 ─── Guest OS kernels (Linux, FreeRTOS SMP port)
+         │
+EL0 ─── Guest userspace (Linux apps, RTOS tasks)
+```
+
+<Aside type="note">
+  On Cortex-M class cores there is no EL2. Haven's temporal partitioning for
+  M-class cores relies on core affinity pinning — the M-core is dedicated to
+  the RTOS partition and the A-cluster runs Linux. Stage-2 is enforced only
+  on A-class cores.
+</Aside>
+
+## Subsystem Responsibilities
+
+### mm — Stage-2 MMU
+
+Maps the guest's Intermediate Physical Address (IPA) space to Physical
+Addresses (PA). Each partition gets an independent set of stage-2 page tables.
+Accesses to IPAs not in the partition's map trigger a stage-2 fault to EL2.
+
+→ [Stage-2 MMU deep dive](/architecture/stage2-mmu/)
+
+### irq — Interrupt Ownership
+
+Maintains a static IRQ → partition ownership table programmed into the GIC at
+boot. Any interrupt arriving for an unowned partition is re-routed or dropped
+at EL2.
+
+→ [IRQ Ownership deep dive](/architecture/irq-ownership/)
+
+### sched — Budget Scheduler
+
+Implements `(budget, period)` temporal accounting for partitions that share
+A-class cores. At each period boundary the scheduler recharges budgets.
+A partition that exhausts its budget is preempted and cannot execute until
+the next period.
+
+→ [Budget Scheduler deep dive](/architecture/budget-scheduler/)
+
+### dma — SMMU Policy
+
+Programs SMMU stream ID tables so that each DMA-capable peripheral can only
+access IPAs belonging to its owning partition. Any out-of-bounds DMA access
+triggers an SMMU fault.
+
+→ [SMMU / DMA Isolation deep dive](/architecture/smmu-dma/)
+
+### exc — EL2 Exception Handler
+
+Handles all synchronous and asynchronous exceptions taken to EL2:
+stage-2 faults, SMMU faults, WFI/WFE traps, and hypercall (HVC) interfaces.
+
+## Boot Sequence
+
+```
+Power on
+  │
+  ▼
+TF-A (EL3) — sets up secure world, jumps to Haven at EL2
+  │
+  ▼
+Haven EL2 init
+  ├─ hv_stage2_init()     — zero stage-2 tables
+  ├─ hv_irq_owner_init()  — zero IRQ ownership map
+  ├─ hv_budget_sched_init() — zero budget state
+  ├─ hv_smmu_init()       — reset SMMU stream tables
+  │
+  ├─ Load partition config (compile-time baked or from secure storage)
+  │
+  ├─ hv_stage2_map_partition()  — for each partition
+  ├─ hv_irq_assign()            — for each interrupt route
+  ├─ hv_budget_set()            — for each partition budget
+  ├─ hv_smmu_map_device()       — for each DMA device
+  │
+  ▼
+Launch Linux partition  (EL1, A55 cores 0–3)
+Launch RTOS partition   (EL1 or bare-metal on M7)
+  │
+  ▼
+Steady state — EL2 handles faults and budget preemptions only
+```
+
+## File Map
+
+| Subsystem | Source | Header |
+|---|---|---|
+| Stage-2 MMU | `src/core/mm/stage2.c` | `include/haven/stage2.h` |
+| IRQ ownership | `src/core/irq/ownership.c` | `include/haven/irq_ownership.h` |
+| Budget scheduler | `src/core/sched/budget.c` | `include/haven/budget_sched.h` |
+| SMMU / DMA | `src/core/dma/smmu.c` | `include/haven/smmu.h` |
+| EL2 exceptions | `src/core/exc/el2_exceptions.c` | `include/haven/el2_exceptions.h` |

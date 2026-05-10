@@ -1,0 +1,134 @@
+---
+title: Budget Scheduler
+description: Temporal isolation via budget-based CPU scheduling at EL2.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Overview
+
+The budget scheduler enforces temporal isolation on shared CPU cores. It
+implements a simplified **Constant Bandwidth Server (CBS)** model: each
+partition is assigned a `(budget_ns, period_ns)` pair. During any period,
+a partition may consume at most `budget_ns` nanoseconds of CPU time. When
+the budget is exhausted, the partition is preempted until the next period.
+
+## Data Model
+
+```c
+/* include/haven/budget_sched.h */
+struct hv_budget {
+    hv_u32 partition_id;
+    hv_u64 period_ns;    /* Scheduling period in nanoseconds */
+    hv_u64 budget_ns;    /* Maximum CPU time per period */
+};
+```
+
+Internal accounting state (per partition):
+
+```c
+struct hv_budget_state {
+    hv_u64 period_ns;
+    hv_u64 budget_ns;
+    hv_u64 remaining_ns;   /* Remaining budget in current period */
+    hv_u64 last_entry_ns;  /* Timestamp of last partition entry */
+    int    active;
+};
+```
+
+Source: `src/core/sched/budget.c`  
+Header: `include/haven/budget_sched.h`
+
+## API
+
+```c
+/* Initialize budget state — mark all partitions inactive */
+hv_status_t hv_budget_sched_init(void);
+
+/* Configure a partition's budget */
+hv_status_t hv_budget_set(const struct hv_budget *budget);
+
+/* Consume budget for a partition (called on EL2 exit to guest) */
+hv_status_t hv_budget_consume(hv_u32 partition_id, hv_u64 delta_ns);
+
+/* Check whether a partition has remaining budget */
+hv_status_t hv_budget_check(hv_u32 partition_id);
+
+/* Replenish budget at period boundary */
+hv_status_t hv_budget_replenish(hv_u32 partition_id);
+```
+
+## Scheduling Loop
+
+```
+EL2 timer fires (at period boundary or budget expiry)
+  │
+  ├─ For each active partition:
+  │     hv_budget_replenish()  →  remaining ← budget_ns
+  │
+  ├─ Select next runnable partition (highest priority, has remaining budget)
+  │
+  └─ ERET to selected partition's EL1
+         │
+         During partition execution:
+           EL2 tracks wall-clock time via system counter (CNTVCT_EL0)
+           On EL2 entry (any cause): hv_budget_consume(Δt)
+           If remaining ≤ 0: preempt, select next partition
+```
+
+<Aside type="note">
+  The current stub implementation in `src/core/sched/budget.c` validates the
+  `(budget, period)` invariants and tracks state but does not yet integrate
+  with the ARM generic timer (CNTHP_TVAL_EL2). Timer-driven preemption is a
+  Release 2 deliverable.
+</Aside>
+
+## Validation Rules
+
+`hv_budget_set()` enforces:
+
+1. `partition_id < HV_MAX_BUDGET_PARTITIONS`
+2. `period_ns > 0`
+3. `budget_ns > 0`
+4. `budget_ns ≤ period_ns` (a partition cannot claim more than 100% of a period)
+5. Sum of all `budget_ns / period_ns` across partitions ≤ 1.0 (admission control)
+
+If any rule fails, `HV_EINVAL` is returned and the configuration is rejected.
+
+## Timer Integration (Planned)
+
+Haven uses `CNTHP_TVAL_EL2` (EL2 physical timer) to program preemption
+deadlines:
+
+```c
+// Set timer to fire at budget_remaining from now
+write_sysreg(budget_remaining_ticks, CNTHP_TVAL_EL2);
+write_sysreg(CNTHP_CTL_ENABLE, CNTHP_CTL_EL2);
+```
+
+On timer expiry, `CNTHP_CTL_EL2.ISTATUS` is set, triggering a Physical Timer
+interrupt to EL2.
+
+## Config Example
+
+```yaml
+# configs/arm64/imx95-devkit.yaml
+timing:
+  period_us: 10000        # 10 ms epoch
+  budgets_us:
+    linux_a55: 8000       # 80% — Linux gets most of the A-cluster
+    rtos_m7:   1500       # 15% — RTOS fallback on A55 (if M7 unavailable)
+    hypervisor: 500       # 5%  — EL2 overhead reserve
+```
+
+## Relationship to RTOS Latency
+
+For a periodic RTOS task with period T and worst-case execution time C, the
+WCRT under budget scheduling is:
+
+```
+WCRT = C + ceil(C / B_rtos) × (P_epoch - B_rtos)
+```
+
+where `B_rtos` is the RTOS budget per epoch and `P_epoch` is the epoch
+period. This bound is the primary thesis evaluation metric for Chapter 4.

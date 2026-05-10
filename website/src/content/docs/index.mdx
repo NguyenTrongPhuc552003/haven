@@ -1,0 +1,78 @@
+---
+title: Haven — Static Partition Hypervisor
+description: Enforcing spatial and temporal isolation between Linux and RTOS on a heterogeneous SoC.
+template: splash
+hero:
+  title: |
+    Partition <strong>once</strong>,
+    isolate <strong>forever</strong>.
+  tagline: >
+    Haven is a research static partition hypervisor for heterogeneous SoCs.
+    Fix CPU, memory, and interrupt ownership at compile time — then enforce it
+    in hardware at EL2 with no runtime overhead.
+  actions:
+    - text: Get Started
+      link: /getting-started/introduction/
+      icon: right-arrow
+      variant: primary
+    - text: Architecture Deep Dive
+      link: /architecture/overview/
+      icon: open-book
+      variant: secondary
+    - text: View on GitHub
+      link: https://github.com/NguyenTrongPhuc552003/haven
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <Card title="Spatial Isolation" icon="shield">
+    Stage-2 page tables enforce per-partition memory boundaries.
+    SMMU policies extend this to DMA-capable peripherals.
+    No cross-partition access is possible after boot.
+  </Card>
+  <Card title="Temporal Isolation" icon="clock">
+    Budget-based EL2 scheduler assigns CPU time to each partition.
+    Linux load spikes cannot delay RTOS deadlines beyond a proven bound.
+  </Card>
+  <Card title="Minimal TCB" icon="approve-check">
+    The trusted computing base is a few thousand lines of C.
+    No dynamic allocation, no garbage collection, no unbounded loops
+    in the core isolation path.
+  </Card>
+  <Card title="Thesis-grade Evidence" icon="document">
+    Every claim maps to a measurable artifact: latency distributions,
+    isolation fault-injection results, and chapter traceability matrices.
+  </Card>
+</CardGrid>
+
+## System Architecture
+
+```
+┌──────────────────────────────────────────────────┐
+│               Guest Partitions (EL1/EL0)         │
+│   ┌─────────────────┐   ┌──────────────────────┐ │
+│   │  Linux (A55×4)  │   │  FreeRTOS (M7 / A55) │ │
+│   └────────┬────────┘   └──────────┬───────────┘ │
+├────────────┼───────────────────────┼─────────────┤
+│            │       EL2 — Haven     │             │
+│   ┌────────▼────────────────────────▼───────────┐ │
+│   │  Stage-2 MMU │ IRQ Router │ Budget Sched    │ │
+│   │  SMMU policy │ EL2 exc handler │ Time acct  │ │
+│   └────────────────────────────────────────────┘ │
+├──────────────────────────────────────────────────┤
+│               Hardware (ARM64 SoC)               │
+│   Cortex-A55 × 4  │  GIC-700  │  SMMU-700       │
+│   Cortex-M7 (MCU) │  DDR5     │  Peripherals    │
+└──────────────────────────────────────────────────┘
+```
+
+## Primary Platform
+
+| Board | SoC | Cores | Status |
+|---|---|---|---|
+| NXP i.MX95 Dev Kit | i.MX95 | Cortex-A55 × 4 + Cortex-M7 | Primary target |
+| QEMU virt (arm64) | virtual | Cortex-A57 (emulated) | CI gating |
+| NXP i.MX8QM-MEK | i.MX8QM | Cortex-A53 × 4 + Cortex-M4 | Secondary validation |

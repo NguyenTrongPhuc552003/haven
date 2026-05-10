@@ -1,0 +1,118 @@
+---
+title: Isolation Model
+description: Formal definition of spatial and temporal isolation in Haven.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Definitions
+
+**Partition** — a named, static resource domain with exclusive ownership of:
+- A set of physical memory regions.
+- A set of CPU cores (or a CPU time budget on shared cores).
+- A set of interrupt lines.
+- A set of DMA-capable peripheral stream IDs.
+
+**Spatial isolation** — for all partitions P₁ ≠ P₂, no instruction executing
+in P₁ can read or modify any physical address owned by P₂, and no DMA issued
+by a peripheral owned by P₁ can read or write any address owned by P₂.
+
+**Temporal isolation** — for all partitions P₁ ≠ P₂ sharing a CPU core, the
+scheduling behavior of P₁ cannot cause the worst-case response time of P₂'s
+highest-priority task to exceed its declared budget.
+
+## Spatial Isolation Mechanisms
+
+### Stage-2 Translation
+
+Every memory access issued by a guest at EL1/EL0 passes through two translation
+stages:
+
+```
+Virtual Address (VA)
+  └─ Stage-1 (guest OS MMU, EL1 controlled)
+      └─ Intermediate Physical Address (IPA)
+          └─ Stage-2 (Haven MMU, EL2 controlled)
+              └─ Physical Address (PA)
+```
+
+Haven owns stage-2. The guest cannot modify stage-2 entries. When a guest
+accesses an IPA not mapped in its stage-2 table, a **Data Abort (stage-2 fault)**
+is taken to EL2. The fault handler records the violation and terminates or
+suspends the offending partition.
+
+### SMMU for DMA
+
+DMA masters (PCIe, USB, Ethernet, display controllers) use physical addresses
+directly — they bypass the CPU MMU. Haven programs the SMMU stream ID → context
+bank → stage-2 table mapping so that each DMA master's address space is exactly
+the same as its owning partition's stage-2 map.
+
+A DMA transaction to an out-of-partition address triggers an **SMMU fault**
+raised to EL2.
+
+### Peripheral Ownership
+
+Peripheral MMIO ranges are listed in the partition config. Any IPA that falls
+within a peripheral's MMIO range but is not mapped in the accessing partition's
+stage-2 table triggers a stage-2 fault. Peripherals not listed in any
+partition's config are not accessible from EL1 at all.
+
+<Aside type="caution">
+  Haven's current implementation uses stub stage-2 tables. The actual ARM LPAE
+  descriptor programming for i.MX95 is a Release 2 deliverable.
+</Aside>
+
+## Temporal Isolation Mechanisms
+
+### Core Partitioning
+
+Where the SoC topology permits, the preferred mechanism is to assign disjoint
+core sets to each partition. On the i.MX95, cores 0–3 (Cortex-A55) run Linux
+and core 100 (Cortex-M7, MCU domain) runs FreeRTOS. The M7 cannot be
+preempted by the A55 cluster at all — hard temporal separation by design.
+
+### Budget-Based Scheduling
+
+When multiple partitions share A-class cores (e.g., a secondary RTOS running
+on A55 cores), the budget scheduler enforces:
+
+```
+For each partition P with (budget_ns, period_ns):
+  - At period start, P.remaining ← budget_ns
+  - Each time P executes, P.remaining -= elapsed_ns
+  - When P.remaining ≤ 0, P is preempted; a timer fires at next period boundary
+  - At period boundary, P.remaining ← budget_ns  (replenishment)
+```
+
+This is a simplified **constant bandwidth server** model. It guarantees that
+P cannot consume more than `budget_ns / period_ns` fraction of the shared core.
+
+### Cache and Bus Interference
+
+Haven's current model does not account for cache or interconnect interference.
+This is declared as a **known limitation** in the thesis:
+→ [Assumptions and Non-Goals](/docs/safety/ASSUMPTIONS.md)
+
+## Policy Table (configs/arm64/imx95-devkit.yaml)
+
+```yaml
+timing:
+  period_us: 10000       # 10 ms scheduling epoch
+  budgets_us:
+    linux_a55: 8000      # 80% of each epoch
+    rtos_m7:   1500      # 15% (when on A-cluster fallback)
+    hypervisor: 500      # 5% reserved for EL2 overhead
+```
+
+## Failure Mode Policy
+
+| Violation | Haven response |
+|---|---|
+| Stage-2 fault (CPU) | Suspend partition, log fault to EL2 journal |
+| SMMU fault (DMA) | Abort DMA transaction, log, optionally suspend partition |
+| Budget overrun | Preempt partition, defer to next period |
+| IRQ to unowned partition | Drop or reroute to EL2 handler |
+
+All failure modes are **fail-closed**: the default action is to deny the
+violating access and preserve the other partition's invariants.

@@ -1,0 +1,60 @@
+---
+title: Security Policy
+description: How to report vulnerabilities and Haven's security response process.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<Aside type="caution">
+  Haven is a research prototype. It is not certified and should not be deployed
+  in production safety-critical systems without independent security evaluation.
+</Aside>
+
+## Scope
+
+Security vulnerabilities in Haven are issues that could allow:
+- A guest partition to read or modify another partition's memory.
+- A guest partition to affect another partition's CPU time in an unbounded way.
+- A DMA-capable peripheral to access memory outside its owning partition.
+- An attacker in EL1 to gain EL2 privileges.
+
+## Reporting
+
+Report security issues **privately** via [GitHub Security Advisories](https://github.com/NguyenTrongPhuc552003/haven/security/advisories/new)
+or by direct contact with the maintainer.
+
+Please include:
+- Affected component and version.
+- Step-by-step reproduction.
+- Impact assessment (which isolation invariant is broken).
+- Suggested remediation if available.
+
+**Do not open a public GitHub issue for security vulnerabilities.**
+
+## Response Targets
+
+| Stage | Target |
+|---|---|
+| Initial acknowledgement | 3 business days |
+| Triage result | 7 business days |
+| Fix timeline (critical) | 14 business days |
+| Fix timeline (high) | 30 business days |
+
+## Security Assumptions
+
+Haven's security model depends on:
+
+1. Hardware virtualization extensions are enabled and functioning correctly.
+2. Secure boot chain establishes a trusted hypervisor image (TF-A BL31 integrity).
+3. Platform firmware provides valid hardware configuration metadata.
+4. The compiler and toolchain are not malicious (assumed trusted build environment).
+
+## Non-Goals
+
+Haven does **not** defend against:
+- Microarchitectural side channels (Spectre, Meltdown, Rowhammer).
+- Physical attacks (JTAG, power analysis, fault injection).
+- Compromised TF-A or boot chain.
+- Vulnerabilities in guest OS kernels (Linux, FreeRTOS) themselves.
+
+These are documented in `docs/safety/THREAT_MODEL.md`.

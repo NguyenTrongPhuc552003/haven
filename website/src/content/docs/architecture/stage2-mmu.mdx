@@ -1,0 +1,127 @@
+---
+title: Stage-2 MMU
+description: Implementation of ARM stage-2 page tables for memory partition isolation.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Overview
+
+Stage-2 translation is the primary spatial isolation mechanism for CPU-initiated
+memory accesses. Haven programs stage-2 page tables at boot and treats them as
+read-only thereafter — no partition can modify its own or another partition's
+stage-2 map.
+
+## ARM LPAE Stage-2 Format
+
+```
+Stage-2 Level 0 (VTTBR_EL2 points here)
+  └─ Level 1 table (1 GB granule entries)
+      └─ Level 2 table (2 MB block entries)
+          └─ Level 3 table (4 KB page entries)
+```
+
+Each entry can be:
+- **Block entry** — maps a contiguous 2 MB or 1 GB region (preferred for
+  large partition regions).
+- **Page entry** — maps a single 4 KB page.
+- **Invalid** — triggers a stage-2 Data Abort on access (the isolation
+  enforcement mechanism).
+
+## Haven Memory Attribute Encoding
+
+```c
+/* include/haven/stage2.h */
+struct hv_mem_region {
+    hv_u64 ipa_base;   /* Guest Intermediate Physical Address base */
+    hv_u64 pa_base;    /* Physical Address base */
+    hv_u64 size;       /* Region size in bytes */
+    hv_u64 attrs;      /* Stage-2 attribute flags (see below) */
+};
+```
+
+Attribute flag bits (encoded in `attrs`):
+
+| Bit range | Field | Meaning |
+|---|---|---|
+| [1:0] | EntryType | 1 = block, 3 = page |
+| [5:2] | MemAttr | Device-nGnRnE, Normal WB, Normal NC |
+| [7:6] | S2AP | 0 = none, 1 = RO, 2 = WO, 3 = RW |
+| [9:8] | SH | 0 = NS, 2 = OS, 3 = IS |
+| [10] | AF | Access flag (must be 1 for valid entry) |
+
+## API
+
+```c
+/* Initialize stage-2 state — zero all partition maps */
+hv_status_t hv_stage2_init(void);
+
+/* Map all regions in a partition's memory descriptor */
+hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *pmem);
+
+/* Query whether a partition IPA access is permitted */
+hv_status_t hv_stage2_check_access(hv_u32 partition_id, hv_u64 ipa, hv_u64 size);
+```
+
+Source: `src/core/mm/stage2.c`  
+Header: `include/haven/stage2.h`
+
+## Overlap Detection
+
+Haven's boot-time mapper rejects configurations where two partitions' IPA
+ranges overlap. The overlap check runs in O(n²) over region count:
+
+```c
+static hv_u8 hv_region_overlaps(const struct hv_mem_region *a,
+                                 const struct hv_mem_region *b)
+{
+    return (a->ipa_base < b->ipa_base + b->size) &&
+           (b->ipa_base < a->ipa_base + a->size);
+}
+```
+
+If an overlap is detected, `hv_stage2_map_partition()` returns `HV_EINVAL`
+and the boot sequence is halted.
+
+## Stage-2 Fault Handling
+
+When a guest accesses an unmapped IPA, the hardware raises a synchronous
+exception at EL2 with ESR_EL2.EC = 0b100100 (Data Abort from lower EL).
+The EL2 exception handler:
+
+1. Reads FAR_EL2 to obtain the faulting IPA.
+2. Reads HPFAR_EL2 to get the physical address that was accessed.
+3. Looks up the owning partition by IPA range.
+4. Logs the violation to the EL2 audit journal.
+5. Suspends the violating partition (or returns a synthetic fault to the guest).
+
+<Aside type="note">
+  The current implementation in `src/core/mm/stage2.c` maintains a per-partition
+  `mapped` flag as a stub. The full LPAE descriptor programming targeting the
+  i.MX95 SMMU-700 is planned for Release 2.
+</Aside>
+
+## VMID Assignment
+
+Each partition is assigned a unique **VMID** (Virtual Machine Identifier).
+The VMID is embedded in TLB entries so that TLB flushes can be scoped to a
+single partition without invalidating other partitions' mappings.
+
+Haven reserves VMID 0 for the hypervisor and assigns VMIDs 1–N to partitions
+in configuration order.
+
+## i.MX95 Memory Map Example
+
+```yaml
+# configs/arm64/imx95-devkit.yaml
+memory:
+  linux_a55:
+    base: 0x80000000   # 2 GB — Linux DDR region
+    size: 0x40000000   # 1 GB
+  rtos_m7:
+    base: 0xC0000000   # 3 GB — RTOS DDR region
+    size: 0x04000000   # 64 MB
+  shared:
+    base: 0xC4000000   # Shared communication buffer (both partitions RW)
+    size: 0x01000000   # 16 MB
+```

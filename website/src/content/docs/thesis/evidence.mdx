@@ -1,0 +1,95 @@
+---
+title: Evidence Templates
+description: Structured templates for capturing thesis validation evidence.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Evidence packages are the link between thesis claims and reproducible reality.
+Every milestone boundary produces a committed evidence snapshot.
+
+## Campaign Metadata Template
+
+```markdown
+## Campaign metadata
+
+1. Date (UTC): YYYY-MM-DDTHH:MM:SSZ
+2. Operator: Nguyen Trong Phuc
+3. Commit hash: (git rev-parse HEAD)
+4. Board revision: NXP i.MX95 Dev Kit rev X.Y
+5. Toolchain: aarch64-linux-gnu-gcc 12.3.0 / clang 16.0.6
+6. Host environment: macOS 14 / Ubuntu 22.04
+
+## Configuration snapshot
+
+1. Partition config: configs/arm64/imx95-devkit.yaml
+2. Linux image: Yocto Kirkstone, kernel 6.6.x-lts
+3. RTOS image: FreeRTOS 10.6.2
+4. Haven build: (git describe --tags)
+
+## Spatial isolation results
+
+| Test | Result | Fault type logged | Partition affected |
+|---|---|---|---|
+| Cross-partition memory read | PASS/FAIL | Stage-2 data abort | Linux |
+| Cross-partition DMA write | PASS/FAIL | SMMU fault | Ethernet |
+| IRQ injection | PASS/FAIL | EL2 drop | RTOS |
+| Peripheral access violation | PASS/FAIL | Stage-2 fault | Linux |
+
+## Temporal isolation results
+
+| Metric | Value | Unit | Bound |
+|---|---|---|---|
+| Mean task period deviation | — | µs | < 10 |
+| Maximum task period deviation | — | µs | < 50 |
+| Deadline miss count (1000 runs) | — | count | 0 |
+| Budget overrun events | — | per epoch | 0 |
+
+## EL2 overhead measurement
+
+| Workload | Native (no EL2) | Haven EL2 | Overhead |
+|---|---|---|---|
+| 1M cache-miss accesses | — ms | — ms | < 5% |
+| Context switch latency | — µs | — µs | < 5% |
+
+## Artifacts
+
+- `build/evidence/imx95/logs/uart-linux.log`
+- `build/evidence/imx95/logs/uart-rtos.log`
+- `build/evidence/imx95/metrics/latency.csv`
+- `build/evidence/imx95/captures/board-boot.png`
+- `build/evidence/metadata.txt`
+```
+
+<Aside type="tip">
+  Run `make evidence` to auto-populate `build/evidence/` with a fresh
+  metadata snapshot and copies of the methodology docs.
+</Aside>
+
+## Generating an Evidence Package
+
+```sh
+# Full CI preflight first
+./scripts/ci-preflight.sh
+
+# Package evidence
+make evidence
+
+# Inspect
+ls build/evidence/imx95/
+cat build/evidence/metadata.txt
+```
+
+## Archiving for Thesis
+
+At each milestone boundary, tag the commit and archive the evidence:
+
+```sh
+git tag -a v0.2.0 -m "Release 2 — isolation mechanisms"
+git push origin v0.2.0
+
+# Archive the evidence snapshot
+tar czf haven-evidence-$(git describe --tags).tar.gz build/evidence/
+```
+
+Store the archive alongside the thesis document in the submission package.

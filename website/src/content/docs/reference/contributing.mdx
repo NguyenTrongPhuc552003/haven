@@ -1,0 +1,79 @@
+---
+title: Contributing
+description: How to contribute to Haven.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+## Workflow
+
+<Steps>
+
+1. **Open an issue** describing your motivation and scope before writing code.
+
+2. **Fork** the repository and create a feature branch:
+   ```sh
+   git checkout -b feat/my-feature
+   ```
+
+3. **Make focused changes.** Each PR should do one thing. Avoid combining
+   refactors with feature additions.
+
+4. **Add tests** for all behavior changes in `src/core/` modules.
+
+5. **Run the full preflight** locally before pushing:
+   ```sh
+   ./scripts/ci-preflight.sh
+   ```
+
+6. **Sign your commits** with DCO:
+   ```sh
+   git commit -s -m "feat(mm): add LPAE block entry mapping"
+   ```
+
+7. **Open a pull request** using the PR template. Fill in all sections,
+   especially the "Isolation impact" section for any change touching
+   `src/core/mm/`, `src/core/irq/`, or `src/core/sched/`.
+
+</Steps>
+
+## Review Expectations
+
+- Isolation-sensitive changes (anything in `src/core/`) require design notes
+  and a review from the Isolation Guardian agent before merge.
+- All PRs require the CI matrix to pass (gcc + clang on ubuntu-latest).
+- Style must pass (`make style-check`).
+
+## Commit Message Convention
+
+```
+<type>(<scope>): <short description>
+
+[optional body]
+
+Signed-off-by: Your Name <your@email.com>
+```
+
+Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`  
+Scopes: `mm`, `irq`, `sched`, `smmu`, `exc`, `platform`, `config`, `ci`, `docs`, `website`
+
+## Code Style
+
+- C11, tabs (8-column), `snake_case`, Linux-style conventions.
+- No dynamic allocation in core runtime paths.
+- No floating-point in scheduling paths.
+- Keep functions small and explicit in purpose.
+
+Full style guide: `CODING_STYLE.md`
+
+## CODEOWNERS
+
+Isolation-critical paths require owner review:
+
+| Path | Owner |
+|---|---|
+| `src/core/mm/` | @NguyenTrongPhuc552003 |
+| `src/core/irq/` | @NguyenTrongPhuc552003 |
+| `src/core/sched/` | @NguyenTrongPhuc552003 |
+| `include/haven/` | @NguyenTrongPhuc552003 |
+| `.github/workflows/` | @NguyenTrongPhuc552003 |

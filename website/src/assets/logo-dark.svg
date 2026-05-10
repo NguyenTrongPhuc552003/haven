@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 32" fill="none">
+  <rect x="0" y="6" width="20" height="20" rx="4" fill="#2563eb"/>
+  <text x="6" y="21" font-family="monospace" font-size="13" font-weight="bold" fill="#fff">H</text>
+  <text x="28" y="22" font-family="system-ui" font-size="14" font-weight="600" fill="#e2e8f0">haven</text>
+</svg>

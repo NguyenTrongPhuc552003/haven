@@ -12,384 +12,393 @@
  * @file tests/unit/test_freertos_integration.c
  */
 
+#include <assert.h>
 #include <haven/freertos_integration.h>
 #include <stdio.h>
-#include <assert.h>
 
 #define TEST_PASS(msg) printf("[PASS] %s\n", msg)
-#define TEST_FAIL(msg) do { printf("[FAIL] %s\n", msg); assert(0); } while(0)
+#define TEST_FAIL(msg)                                                         \
+  do {                                                                         \
+    printf("[FAIL] %s\n", msg);                                                \
+    assert(0);                                                                 \
+  } while (0)
 
 /**
  * Test: Initialize FreeRTOS integration.
  */
 static void test_freertos_init(void) {
-	hv_status_t status = hv_freertos_init();
-	assert(status == HV_OK);
-	TEST_PASS("freertos_init: basic initialization");
+  hv_status_t status = hv_freertos_init();
+  assert(status == HV_OK);
+  TEST_PASS("freertos_init: basic initialization");
 }
 
 /**
  * Test: Create FreeRTOS partition.
  */
 static void test_freertos_create_partition(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 32,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 32,
+      .timer_frequency = 1000,
+  };
 
-	/* Create partition. */
-	status = hv_freertos_create_partition(&config, &part_id);
-	assert(status == HV_OK);
-	assert(part_id == 0);
-	TEST_PASS("freertos_create_partition: basic creation");
+  /* Create partition. */
+  status = hv_freertos_create_partition(&config, &part_id);
+  assert(status == HV_OK);
+  assert(part_id == 0);
+  TEST_PASS("freertos_create_partition: basic creation");
 
-	/* Create another partition. */
-	config.partition = 1;
-	status = hv_freertos_create_partition(&config, &part_id);
-	assert(status == HV_OK);
-	assert(part_id == 1);
-	TEST_PASS("freertos_create_partition: multiple partitions");
+  /* Create another partition. */
+  config.partition = 1;
+  status = hv_freertos_create_partition(&config, &part_id);
+  assert(status == HV_OK);
+  assert(part_id == 1);
+  TEST_PASS("freertos_create_partition: multiple partitions");
 
-	/* Negative: NULL config. */
-	status = hv_freertos_create_partition(NULL, &part_id);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_create_partition: rejects NULL config");
+  /* Negative: NULL config. */
+  status = hv_freertos_create_partition(NULL, &part_id);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_create_partition: rejects NULL config");
 
-	/* Negative: NULL partition_id. */
-	status = hv_freertos_create_partition(&config, NULL);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_create_partition: rejects NULL partition_id");
+  /* Negative: NULL partition_id. */
+  status = hv_freertos_create_partition(&config, NULL);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_create_partition: rejects NULL partition_id");
 
-	/* Negative: Invalid partition number in config. */
-	config.partition = 256;
-	status = hv_freertos_create_partition(&config, &part_id);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_create_partition: rejects invalid partition");
+  /* Negative: Invalid partition number in config. */
+  config.partition = 256;
+  status = hv_freertos_create_partition(&config, &part_id);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_create_partition: rejects invalid partition");
 }
 
 /**
  * Test: Register FreeRTOS task.
  */
 static void test_freertos_register_task(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	hv_freertos_create_partition(&config, &part_id);
+  hv_freertos_create_partition(&config, &part_id);
 
-	/* Register task. */
-	status = hv_freertos_register_task(part_id, 1, 10, 0x1000);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_register_task: task registered");
+  /* Register task. */
+  status = hv_freertos_register_task(part_id, 1, 10, 0x1000);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_register_task: task registered");
 
-	/* Register multiple tasks. */
-	status = hv_freertos_register_task(part_id, 2, 20, 0x2000);
-	assert(status == HV_OK);
-	status = hv_freertos_register_task(part_id, 3, 30, 0x3000);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_register_task: multiple tasks");
+  /* Register multiple tasks. */
+  status = hv_freertos_register_task(part_id, 2, 20, 0x2000);
+  assert(status == HV_OK);
+  status = hv_freertos_register_task(part_id, 3, 30, 0x3000);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_register_task: multiple tasks");
 
-	/* Negative: Invalid partition. */
-	status = hv_freertos_register_task(99, 4, 10, 0x4000);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_register_task: rejects invalid partition");
+  /* Negative: Invalid partition. */
+  status = hv_freertos_register_task(99, 4, 10, 0x4000);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_register_task: rejects invalid partition");
 
-	/* Negative: Task ID 0. */
-	status = hv_freertos_register_task(part_id, 0, 10, 0x5000);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_register_task: rejects task ID 0");
+  /* Negative: Task ID 0. */
+  status = hv_freertos_register_task(part_id, 0, 10, 0x5000);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_register_task: rejects task ID 0");
 }
 
 /**
  * Test: Save/restore task context.
  */
 static void test_freertos_context_operations(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	hv_freertos_create_partition(&config, &part_id);
-	hv_freertos_register_task(part_id, 1, 10, 0x1000);
+  hv_freertos_create_partition(&config, &part_id);
+  hv_freertos_register_task(part_id, 1, 10, 0x1000);
 
-	hv_task_context_t ctx = {
-		.task_id = 1,
-		.priority = 10,
-		.state = HV_TASK_RUNNING,
-		.sp = 0x1000,
-		.pc = 0x80000000,
-	};
+  hv_task_context_t ctx = {
+      .task_id = 1,
+      .priority = 10,
+      .state = HV_TASK_RUNNING,
+      .sp = 0x1000,
+      .pc = 0x80000000,
+  };
 
-	/* Save context. */
-	status = hv_freertos_save_context(part_id, &ctx);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_context: save succeeds");
+  /* Save context. */
+  status = hv_freertos_save_context(part_id, &ctx);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_context: save succeeds");
 
-	/* Restore context. */
-	status = hv_freertos_restore_context(part_id, &ctx);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_context: restore succeeds");
+  /* Restore context. */
+  status = hv_freertos_restore_context(part_id, &ctx);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_context: restore succeeds");
 
-	/* Negative: NULL context. */
-	status = hv_freertos_save_context(part_id, NULL);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_context: rejects NULL context");
+  /* Negative: NULL context. */
+  status = hv_freertos_save_context(part_id, NULL);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_context: rejects NULL context");
 
-	/* Negative: Invalid partition. */
-	status = hv_freertos_save_context(99, &ctx);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_context: rejects invalid partition");
+  /* Negative: Invalid partition. */
+  status = hv_freertos_save_context(99, &ctx);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_context: rejects invalid partition");
 }
 
 /**
  * Test: Allocate shared memory region.
  */
 static void test_freertos_shared_memory(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part1, part2, region_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part1, part2, region_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	/* Create two partitions. */
-	config.partition = 0;
-	hv_freertos_create_partition(&config, &part1);
-	config.partition = 1;
-	hv_freertos_create_partition(&config, &part2);
+  /* Create two partitions. */
+  config.partition = 0;
+  hv_freertos_create_partition(&config, &part1);
+  config.partition = 1;
+  hv_freertos_create_partition(&config, &part2);
 
-	/* Allocate shared region. */
-	status = hv_freertos_allocate_shared_region(part1, part2, 0x1000, HV_SHARED_RW, &region_id);
-	assert(status == HV_OK);
-	assert(region_id == 0);
-	TEST_PASS("freertos_shared_memory: allocation succeeds");
+  /* Allocate shared region. */
+  status = hv_freertos_allocate_shared_region(part1, part2, 0x1000,
+                                              HV_SHARED_RW, &region_id);
+  assert(status == HV_OK);
+  assert(region_id == 0);
+  TEST_PASS("freertos_shared_memory: allocation succeeds");
 
-	/* Get shared address for partition 1. */
-	hv_u64 addr;
-	status = hv_freertos_get_shared_address(region_id, part1, &addr);
-	assert(status == HV_OK);
-	assert(addr > 0);
-	TEST_PASS("freertos_shared_memory: get address succeeds");
+  /* Get shared address for partition 1. */
+  hv_u64 addr;
+  status = hv_freertos_get_shared_address(region_id, part1, &addr);
+  assert(status == HV_OK);
+  assert(addr > 0);
+  TEST_PASS("freertos_shared_memory: get address succeeds");
 
-	/* Get shared address for partition 2. */
-	status = hv_freertos_get_shared_address(region_id, part2, &addr);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_shared_memory: both partitions can access");
+  /* Get shared address for partition 2. */
+  status = hv_freertos_get_shared_address(region_id, part2, &addr);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_shared_memory: both partitions can access");
 
-	/* Negative: Misaligned size. */
-	status = hv_freertos_allocate_shared_region(part1, part2, 0x1001, HV_SHARED_RW, &region_id);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_shared_memory: rejects misaligned size");
+  /* Negative: Misaligned size. */
+  status = hv_freertos_allocate_shared_region(part1, part2, 0x1001,
+                                              HV_SHARED_RW, &region_id);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_shared_memory: rejects misaligned size");
 
-	/* Negative: Access for unauthorized partition. */
-	status = hv_freertos_get_shared_address(region_id, 99, &addr);
-	assert(status == HV_EPERM);
-	TEST_PASS("freertos_shared_memory: denies unauthorized access");
+  /* Negative: Access for unauthorized partition. */
+  status = hv_freertos_get_shared_address(region_id, 99, &addr);
+  assert(status == HV_EPERM);
+  TEST_PASS("freertos_shared_memory: denies unauthorized access");
 }
 
 /**
  * Test: Deliver timer interrupts.
  */
 static void test_freertos_timer_delivery(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	hv_freertos_create_partition(&config, &part_id);
+  hv_freertos_create_partition(&config, &part_id);
 
-	/* Deliver timer. */
-	status = hv_freertos_deliver_timer(part_id);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_timer: delivery succeeds");
+  /* Deliver timer. */
+  status = hv_freertos_deliver_timer(part_id);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_timer: delivery succeeds");
 
-	/* Deliver multiple timers. */
-	for (int i = 0; i < 100; i++) {
-		status = hv_freertos_deliver_timer(part_id);
-		assert(status == HV_OK);
-	}
-	TEST_PASS("freertos_timer: multiple deliveries");
+  /* Deliver multiple timers. */
+  for (int i = 0; i < 100; i++) {
+    status = hv_freertos_deliver_timer(part_id);
+    assert(status == HV_OK);
+  }
+  TEST_PASS("freertos_timer: multiple deliveries");
 
-	/* Negative: Invalid partition. */
-	status = hv_freertos_deliver_timer(99);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_timer: rejects invalid partition");
+  /* Negative: Invalid partition. */
+  status = hv_freertos_deliver_timer(99);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_timer: rejects invalid partition");
 }
 
 /**
  * Test: IRQ routing for FreeRTOS.
  */
 static void test_freertos_irq_routing(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	hv_freertos_create_partition(&config, &part_id);
+  hv_freertos_create_partition(&config, &part_id);
 
-	/* Route IRQ. */
-	status = hv_freertos_route_irq(part_id, 10);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_irq: route succeeds");
+  /* Route IRQ. */
+  status = hv_freertos_route_irq(part_id, 10);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_irq: route succeeds");
 
-	/* Unroute IRQ. */
-	status = hv_freertos_unroute_irq(part_id, 10);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_irq: unroute succeeds");
+  /* Unroute IRQ. */
+  status = hv_freertos_unroute_irq(part_id, 10);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_irq: unroute succeeds");
 
-	/* Negative: Invalid partition. */
-	status = hv_freertos_route_irq(99, 10);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_irq: rejects invalid partition");
+  /* Negative: Invalid partition. */
+  status = hv_freertos_route_irq(99, 10);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_irq: rejects invalid partition");
 
-	/* Negative: Invalid IRQ. */
-	status = hv_freertos_route_irq(part_id, 256);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_irq: rejects invalid irq");
+  /* Negative: Invalid IRQ. */
+  status = hv_freertos_route_irq(part_id, 256);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_irq: rejects invalid irq");
 }
 
 /**
  * Test: Partition destruction.
  */
 static void test_freertos_destroy_partition(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	hv_freertos_create_partition(&config, &part_id);
-	hv_freertos_register_task(part_id, 1, 10, 0x1000);
+  hv_freertos_create_partition(&config, &part_id);
+  hv_freertos_register_task(part_id, 1, 10, 0x1000);
 
-	/* Destroy partition. */
-	status = hv_freertos_destroy_partition(part_id);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_destroy: destruction succeeds");
+  /* Destroy partition. */
+  status = hv_freertos_destroy_partition(part_id);
+  assert(status == HV_OK);
+  TEST_PASS("freertos_destroy: destruction succeeds");
 
-	/* Negative: Double destroy. */
-	status = hv_freertos_destroy_partition(part_id);
-	assert(status == HV_EPERM);
-	TEST_PASS("freertos_destroy: denies double destroy");
+  /* Negative: Double destroy. */
+  status = hv_freertos_destroy_partition(part_id);
+  assert(status == HV_EPERM);
+  TEST_PASS("freertos_destroy: denies double destroy");
 
-	/* Negative: Invalid partition. */
-	status = hv_freertos_destroy_partition(99);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_destroy: rejects invalid partition");
+  /* Negative: Invalid partition. */
+  status = hv_freertos_destroy_partition(99);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_destroy: rejects invalid partition");
 }
 
 /**
  * Test: Statistics tracking.
  */
 static void test_freertos_statistics(void) {
-	hv_freertos_init();
+  hv_freertos_init();
 
-	hv_u32 part_id;
-	hv_status_t status;
-	hv_freertos_config_t config = {
-		.partition = 0,
-		.cpu_cores = 1,
-		.time_budget_us = 10000,
-		.max_tasks = 4,
-		.timer_frequency = 1000,
-	};
+  hv_u32 part_id;
+  hv_status_t status;
+  hv_freertos_config_t config = {
+      .partition = 0,
+      .cpu_cores = 1,
+      .time_budget_us = 10000,
+      .max_tasks = 4,
+      .timer_frequency = 1000,
+  };
 
-	hv_freertos_create_partition(&config, &part_id);
-	hv_freertos_register_task(part_id, 1, 10, 0x1000);
-	hv_freertos_register_task(part_id, 2, 20, 0x2000);
+  hv_freertos_create_partition(&config, &part_id);
+  hv_freertos_register_task(part_id, 1, 10, 0x1000);
+  hv_freertos_register_task(part_id, 2, 20, 0x2000);
 
-	/* Deliver some timers. */
-	for (int i = 0; i < 50; i++) {
-		hv_freertos_deliver_timer(part_id);
-	}
+  /* Deliver some timers. */
+  for (int i = 0; i < 50; i++) {
+    hv_freertos_deliver_timer(part_id);
+  }
 
-	/* Save context to increment context_switches. */
-	hv_task_context_t ctx = {.task_id = 1};
-	hv_freertos_save_context(part_id, &ctx);
+  /* Save context to increment context_switches. */
+  hv_task_context_t ctx = {.task_id = 1};
+  hv_freertos_save_context(part_id, &ctx);
 
-	/* Get statistics. */
-	hv_u32 task_count;
-	hv_u64 context_switches, timer_ticks;
-	status = hv_freertos_get_stats(part_id, &task_count, &context_switches, &timer_ticks);
-	assert(status == HV_OK);
-	assert(task_count == 2);
-	assert(context_switches >= 1);
-	assert(timer_ticks == 50);
-	TEST_PASS("freertos_statistics: stats retrieved correctly");
+  /* Get statistics. */
+  hv_u32 task_count;
+  hv_u64 context_switches, timer_ticks;
+  status = hv_freertos_get_stats(part_id, &task_count, &context_switches,
+                                 &timer_ticks);
+  assert(status == HV_OK);
+  assert(task_count == 2);
+  assert(context_switches >= 1);
+  assert(timer_ticks == 50);
+  TEST_PASS("freertos_statistics: stats retrieved correctly");
 
-	/* Negative: NULL output pointers. */
-	status = hv_freertos_get_stats(part_id, NULL, &context_switches, &timer_ticks);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_statistics: rejects NULL pointers");
+  /* Negative: NULL output pointers. */
+  status =
+      hv_freertos_get_stats(part_id, NULL, &context_switches, &timer_ticks);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_statistics: rejects NULL pointers");
 
-	/* Negative: Invalid partition. */
-	status = hv_freertos_get_stats(99, &task_count, &context_switches, &timer_ticks);
-	assert(status == HV_EINVAL);
-	TEST_PASS("freertos_statistics: rejects invalid partition");
+  /* Negative: Invalid partition. */
+  status =
+      hv_freertos_get_stats(99, &task_count, &context_switches, &timer_ticks);
+  assert(status == HV_EINVAL);
+  TEST_PASS("freertos_statistics: rejects invalid partition");
 }
 
 /**
  * Main test runner.
  */
 int main(void) {
-	printf("\n=== FreeRTOS Integration Unit Tests ===\n\n");
+  printf("\n=== FreeRTOS Integration Unit Tests ===\n\n");
 
-	test_freertos_init();
-	test_freertos_create_partition();
-	test_freertos_register_task();
-	test_freertos_context_operations();
-	test_freertos_shared_memory();
-	test_freertos_timer_delivery();
-	test_freertos_irq_routing();
-	test_freertos_destroy_partition();
-	test_freertos_statistics();
+  test_freertos_init();
+  test_freertos_create_partition();
+  test_freertos_register_task();
+  test_freertos_context_operations();
+  test_freertos_shared_memory();
+  test_freertos_timer_delivery();
+  test_freertos_irq_routing();
+  test_freertos_destroy_partition();
+  test_freertos_statistics();
 
-	printf("\n=== All FreeRTOS integration tests passed ===\n\n");
-	return 0;
+  printf("\n=== All FreeRTOS integration tests passed ===\n\n");
+  return 0;
 }

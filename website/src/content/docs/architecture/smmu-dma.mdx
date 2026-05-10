@@ -1,0 +1,111 @@
+---
+title: SMMU / DMA Isolation
+description: System MMU configuration for DMA-capable peripheral isolation.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Overview
+
+CPUs access memory through the stage-2 MMU. DMA-capable peripherals (Ethernet,
+USB, PCIe, display, etc.) bypass the CPU MMU and issue physical addresses directly
+to the memory interconnect. Without a System MMU (SMMU), a peripheral assigned
+to one partition could corrupt any physical address.
+
+Haven programs the **SMMU-700** (as used on i.MX95) to extend stage-2 isolation
+to all DMA transactions.
+
+## SMMU Architecture (ARM SMMUv3)
+
+```
+DMA master (PCIe, Ethernet…)
+  │  issues (StreamID, VA)
+  ▼
+SMMU stream table lookup (StreamID → STE → CD → S2 table)
+  │
+  ├─ Stage-1 (if enabled): VA → IPA  (guest-controlled)
+  │
+  └─ Stage-2: IPA → PA  (Haven-controlled, same table as CPU stage-2)
+      │
+      ├─ Match  → allow transaction to physical address
+      └─ Fault  → SMMU fault event → EL2 fault handler
+```
+
+Each DMA master is identified by a **Stream ID** assigned by the platform.
+Haven maps each StreamID to the owning partition's stage-2 context.
+
+## API
+
+```c
+/* include/haven/smmu.h */
+
+/* Initialize SMMU — disable all stream IDs */
+hv_status_t hv_smmu_init(void);
+
+/* Map a DMA device to a partition */
+hv_status_t hv_smmu_map_device(hv_u32 stream_id, hv_u32 partition_id);
+
+/* Revoke a device mapping */
+hv_status_t hv_smmu_unmap_device(hv_u32 stream_id, hv_u32 partition_id);
+
+/* Check whether a StreamID→partition binding is valid */
+hv_status_t hv_smmu_check_device(hv_u32 stream_id, hv_u32 partition_id);
+```
+
+Source: `src/core/dma/smmu.c`  
+Header: `include/haven/smmu.h`
+
+## Stream ID Table
+
+```c
+#define HV_MAX_SMMU_DEVICES 256
+static struct {
+    hv_u32  owner_partition_id;
+    hv_u32  stream_id;
+    int     configured;
+} smmu_state[HV_MAX_SMMU_DEVICES];
+```
+
+A StreamID with `configured = 0` is blocked at the SMMU — all transactions
+from it are faulted. This is the deny-by-default posture.
+
+## SMMUv3 Register Programming
+
+| Register | Purpose |
+|---|---|
+| `SMMU_IDR0` | Feature detection (S2P, S1P, HTTU, …) |
+| `SMMU_CR0` | Enable SMMU (`SMMUEN = 1`) |
+| `SMMU_STRTAB_BASE` | Base address of linear stream table |
+| `SMMU_STRTAB_BASE_CFG` | Table size and format |
+| `SMMU_GERRORN` | Global error reporting |
+| `SMMU_EVENTQ_BASE` | Event queue for fault reporting to EL2 |
+
+<Aside type="note">
+  The i.MX95 SMMU-700 uses a 2-level stream table format. Haven's implementation
+  currently programs a linear table as a stub. 2-level table support is a
+  Release 2 deliverable.
+</Aside>
+
+## Fault Handling
+
+SMMU faults are reported via an event queue (circular buffer). The Haven
+EL2 fault handler polls this queue on every timer interrupt:
+
+1. Dequeue fault event.
+2. Extract `StreamID`, faulting `IOVA`, `type` (read/write), `fault code`.
+3. Look up owning partition.
+4. Log fault to audit journal.
+5. Optionally suspend the DMA master's partition.
+
+## Config Example
+
+```yaml
+# configs/arm64/imx95-devkit.yaml
+# (DMA device assignment is derived from interrupt and memory config;
+#  explicit stream_id fields are a planned enhancement)
+memory:
+  linux_a55:
+    dma_devices: [eth0, usb0, pcie0]  # planned field
+  rtos_m7:
+    dma_devices: [sai1, flexio]       # planned field
+```

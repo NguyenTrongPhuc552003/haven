@@ -1,0 +1,99 @@
+---
+title: QEMU arm64
+description: QEMU virt machine configuration for reproducible CI and developer testing.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+QEMU arm64 is the **secondary validation and CI gating platform**. All tests
+that pass on QEMU are required to pass before any PR is merged. QEMU does not
+replace i.MX95 for thesis evidence, but it provides a fast, reproducible
+environment available on macOS, Linux, and Windows.
+
+## Machine Configuration
+
+```sh
+qemu-system-aarch64 \
+  -machine virt,virtualization=on,gic-version=3 \
+  -cpu cortex-a57 \
+  -m 2048 \
+  -nographic \
+  -bios /path/to/haven.elf
+```
+
+Key flags:
+- `virtualization=on` — enables EL2 mode (required for Haven).
+- `gic-version=3` — uses GICv3, matching the i.MX95 GIC-700 interface.
+
+## Partition Config
+
+```yaml
+# configs/arm64/qemu-virt.yaml
+target: qemu-virt-arm64
+cpus:
+  linux:      [0, 1]
+  rtos:       [2]
+  hypervisor: [3]
+memory:
+  linux:
+    base: 0x40000000
+    size: 0x40000000   # 1 GB
+  rtos:
+    base: 0x80000000
+    size: 0x04000000   # 64 MB
+  shared:
+    base: 0x84000000
+    size: 0x00100000   # 1 MB shared buffer
+interrupts:
+  linux: [32, 33, 34, 35]
+  rtos:  [48, 49]
+timing:
+  period_us: 10000
+```
+
+## Smoke Test
+
+```sh
+./scripts/qemu-smoke.sh
+```
+
+This verifies `qemu-system-aarch64` is reachable and prints the version.
+Full partition boot in QEMU is a Release 2 deliverable.
+
+## CI Matrix
+
+QEMU validation runs in the CI pipeline (`ci.yml`) on every PR against
+`ubuntu-latest` with both `gcc` and `clang`. The nightly workflow
+(`nightly.yml`) additionally runs on macOS and Windows (WSL2).
+
+```yaml
+# .github/workflows/ci.yml (excerpt)
+strategy:
+  matrix:
+    compiler: [gcc, clang]
+    os: [ubuntu-latest]
+```
+
+<Aside type="tip">
+  To reproduce the CI environment locally on macOS:
+  ```sh
+  # Install QEMU via Homebrew
+  brew install qemu
+  # Run full preflight
+  CC=clang ./scripts/ci-preflight.sh
+  ```
+</Aside>
+
+## Limitations vs i.MX95
+
+| Feature | QEMU | i.MX95 |
+|---|---|---|
+| GICv3 | Emulated | Hardware |
+| SMMU | Not emulated (planned) | Hardware SMMU-700 |
+| ARM generic timer | Emulated | Hardware |
+| M-class core | Not modelled | Real Cortex-M7 |
+| Latency measurement | Emulated time only | Real hardware cycles |
+| Thesis evidence grade | CI gate only | Primary evidence |
+
+SMMU emulation in QEMU requires the `virt` machine SMMU device (`-device arm-smmuv3`).
+Integration is planned for Release 3.

@@ -1,0 +1,94 @@
+---
+title: Evaluation Plan
+description: Research questions, measurement strategy, and bench setup for the thesis evaluation.
+---
+
+## Research Questions
+
+1. **RQ1 — Spatial isolation**: Does Haven prevent unauthorized memory and device
+   access across partitions under deliberate violation attempts?
+
+2. **RQ2 — Temporal isolation**: Does Haven bound RTOS task latency under maximum
+   Linux CPU load to within a predictable worst-case?
+
+3. **RQ3 — TCB size**: Is the Haven trusted computing base small enough to be
+   manually auditable (< 10 KLOC)?
+
+4. **RQ4 — Overhead**: What is the EL2 exit latency overhead introduced by Haven
+   relative to a native (no-hypervisor) baseline?
+
+## Measurement Strategy
+
+### RQ1 — Isolation Tests
+
+| Test | Method | Pass Condition |
+|---|---|---|
+| Cross-partition memory read | Linux partition attempts to read RTOS IPA | Stage-2 fault, Linux does not receive data |
+| Cross-partition DMA write | Ethernet (Linux) DMA targets RTOS PA | SMMU fault, RTOS memory unchanged |
+| IRQ injection | Linux issues SGI to RTOS core | EL2 drops, RTOS does not execute handler |
+| Peripheral access | Linux accesses RTOS-owned UART MMIO | Stage-2 fault |
+
+All tests are in `tests/isolation/` (planned) and `tests/integration/test_isolation_negative.c`.
+
+### RQ2 — Latency Measurements
+
+**Setup**:
+- RTOS runs a periodic task at 1 kHz on the M7 core (or A55 with budget).
+- Linux runs `stress-ng --cpu 4 --io 4 --vm 2` to create maximum load.
+- RTOS task measures its actual period using a hardware timer (GPT or LPIT).
+
+**Metrics collected**:
+- Mean task period deviation (µs).
+- Maximum task period deviation (µs) — worst-case response time.
+- Deadline miss count (task period > 1 ms + ε).
+- Budget overrun events per epoch.
+
+**Target bounds** (to be validated):
+- Mean deviation: < 10 µs.
+- Maximum deviation: < 50 µs (with 10 ms budget epoch).
+- Deadline miss rate: 0 under sustained Linux load.
+
+### RQ3 — TCB Size
+
+Count with `cloc src/core/`:
+
+```sh
+cloc src/core/ --include-lang=C,C/C++\ Header
+```
+
+Target: < 5000 SLOC (excluding comments and blank lines).
+
+### RQ4 — EL2 Exit Overhead
+
+Measure using ARM PMU cycle counter:
+1. Baseline: native Linux on A55 (no EL2).
+2. Haven: Linux under Haven EL2 with RTOS partition active.
+3. Metric: wall-clock time for 1M cache-miss memory accesses.
+
+Expected overhead: < 5% for workloads not involving frequent EL2 exits.
+
+## Bench Setup
+
+| Component | Specification |
+|---|---|
+| Board | NXP i.MX95 Dev Kit |
+| Linux image | Yocto Kirkstone, kernel 6.6 LTS |
+| RTOS image | FreeRTOS 10.6.2 |
+| Haven build | `CC=aarch64-linux-gnu-gcc make build` |
+| Load generator | `stress-ng 0.17.x` |
+| Timer measurement | ARM Generic Timer (CNTPCT_EL0), 1 ns resolution |
+| UART capture | `minicom -D /dev/ttyUSB0 -b 115200 -C capture.log` |
+
+## Evidence Package
+
+After each campaign run:
+
+```sh
+make evidence
+```
+
+This produces `build/evidence/imx95/` with:
+- `logs/` — UART captures.
+- `metrics/` — raw CSV latency data.
+- `captures/` — photos/screenshots.
+- `metadata.txt` — commit hash, toolchain, board revision.

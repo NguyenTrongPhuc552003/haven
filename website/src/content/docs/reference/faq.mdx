@@ -1,0 +1,84 @@
+---
+title: FAQ
+description: Frequently asked questions about Haven.
+---
+
+## General
+
+**What is Haven?**
+
+Haven is a research static partition hypervisor for ARM64 heterogeneous SoCs.
+It enforces spatial and temporal isolation between a Linux partition and an
+RTOS partition by running a minimal TCB at EL2.
+
+**Is Haven production-ready?**
+
+No. Haven is a thesis research prototype. It is not certified, does not
+claim to be free of vulnerabilities, and should not be used in safety-critical
+production systems without independent evaluation.
+
+**How is Haven different from Jailhouse?**
+
+Jailhouse (by Siemens) is the closest open-source analogue. Key differences:
+- Haven targets ARM64 AArch64 only; Jailhouse also supports x86.
+- Haven integrates a budget scheduler as a first-class component; Jailhouse
+  relies on core partitioning only.
+- Haven targets heterogeneous A+M SoCs explicitly; Jailhouse is primarily
+  designed for symmetric A-class clusters.
+
+**How is Haven different from Bao Hypervisor?**
+
+Bao (from University of Minho) is architecturally very similar. Haven differs
+in that it is a thesis artifact with explicit chapter traceability, evidence
+packaging, and a documented evaluation plan.
+
+## Technical
+
+**Why EL2 and not EL3 (TrustZone)?**
+
+EL2 is the standard ARM hypervisor privilege level. EL3 (Secure Monitor /
+TrustZone) is reserved for the secure world (TF-A). Haven uses EL2 to avoid
+conflating hypervisor policy with secure world management.
+
+**Does Haven support live migration?**
+
+No. Static means static — partition boundaries are fixed at compile time.
+Live migration is explicitly out of scope.
+
+**Can I add more than two partitions?**
+
+Yes. The `HV_MAX_PARTITIONS` constant (currently 256) limits the number of
+stage-2 contexts. The partition config YAML supports any number of named
+partitions up to this limit.
+
+**Does Haven support 32-bit ARM (AArch32)?**
+
+Not planned. Haven targets AArch64 EL2 exclusively.
+
+**What compiler standard does Haven use?**
+
+C11 (`-std=c11`). All code compiles with `-Wall -Wextra -Werror` under both
+GCC 12+ and Clang 16+.
+
+## Development
+
+**How do I run the tests?**
+
+```sh
+make test
+```
+
+**How do I add a new test?**
+
+1. Add a `.c` file to `tests/unit/` or `tests/integration/`.
+2. Add the compile and run commands to `scripts/test.sh`.
+3. Ensure the new test compiles and passes locally before opening a PR.
+
+**Can I contribute?**
+
+Yes. See [Contributing](/reference/contributing/) for the full workflow.
+
+**Where do I report security issues?**
+
+See [Security Policy](/reference/security/). Use GitHub Security Advisories
+for private disclosure.

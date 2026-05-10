@@ -1,0 +1,101 @@
+---
+title: IRQ Ownership
+description: Static interrupt routing and ownership enforcement in Haven.
+---
+
+## Overview
+
+Every physical interrupt is statically assigned to exactly one partition at
+boot time. Haven programs the GIC (Generic Interrupt Controller) priority,
+affinity, and routing registers, then intercepts any interrupt that arrives
+for a partition on a core that does not belong to that partition.
+
+## IRQ Route Structure
+
+```c
+/* include/haven/irq_ownership.h */
+struct hv_irq_route {
+    hv_u32 irq_id;              /* INTID (GIC SPI number) */
+    hv_u32 owner_partition_id;  /* Owning partition */
+    hv_u32 target_cpu;          /* Affinity target core (mpidr low bits) */
+};
+```
+
+## API
+
+```c
+/* Initialize IRQ ownership table — mark all IRQs as unowned */
+hv_status_t hv_irq_owner_init(void);
+
+/* Assign an IRQ to a partition */
+hv_status_t hv_irq_assign(const struct hv_irq_route *route);
+
+/* Revoke an IRQ assignment (only used during error recovery) */
+hv_status_t hv_irq_revoke(hv_u32 irq_id, hv_u32 owner_partition_id);
+
+/* Query ownership (used by EL2 exception handler) */
+hv_status_t hv_irq_check_owner(hv_u32 irq_id, hv_u32 partition_id);
+```
+
+Source: `src/core/irq/ownership.c`  
+Header: `include/haven/irq_ownership.h`
+
+## Ownership Table
+
+The implementation maintains a flat array indexed by INTID:
+
+```c
+#define HV_MAX_IRQ_ID 1024U
+static hv_u32 irq_owner_map[HV_MAX_IRQ_ID];
+```
+
+A value of `0` means unowned. The hypervisor never exposes an unowned
+interrupt to any partition — it either logs and drops it, or routes it
+to the EL2 audit handler.
+
+## Violation Handling
+
+```
+Physical IRQ fires (e.g., INTID 48)
+  │
+  └─ EL2 intercepts (GIC configured with routing mode = EL2)
+      │
+      ├─ Lookup irq_owner_map[48]
+      │
+      ├─ Match? → forward to partition's virtual GIC (GICV)
+      │
+      └─ No match (or wrong partition active) → log violation, drop
+```
+
+## Config Example
+
+```yaml
+# configs/arm64/imx95-devkit.yaml
+interrupts:
+  linux_a55: [32, 33, 34, 35, 36, 40, 41]   # Ethernet, USB, UART, …
+  rtos_m7:   [160, 161]                       # M7 timer, M7 GPIO
+```
+
+Each INTID in the list is assigned to that partition's `owner_partition_id`
+during `hv_irq_assign()` at boot.
+
+## GICv3 Routing
+
+Haven targets GICv3/GICv4 as used on the i.MX95:
+
+| Register | Purpose | Haven action |
+|---|---|---|
+| `GICD_IROUTER<n>` | Affinity routing | Set to target core MPIDR |
+| `GICD_ICFGR<n>` | Edge/level | Preserve from platform data |
+| `GICR_ISENABLER` | Per-redistributor enable | Enable only owned IRQs |
+| `ICC_SRE_EL2` | System register enable at EL2 | Set during Haven init |
+| `ICH_HCR_EL2` | Hypervisor control | Enable virtual CPU interface |
+
+## SPIs vs SGIs vs PPIs
+
+| Type | INTID range | Haven policy |
+|---|---|---|
+| SGI (Software Generated) | 0–15 | Allowed between cores in same partition |
+| PPI (Per-Processor Private) | 16–31 | Assigned to core owner's partition |
+| SPI (Shared Peripheral) | 32–1019 | Statically assigned per config |
+| LPI (Locality-specific) | 8192+ | Planned for ITS support in Release 3 |

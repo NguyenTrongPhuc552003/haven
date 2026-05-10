@@ -1,0 +1,98 @@
+---
+title: Milestones & Roadmap
+description: 12-month execution plan with four quarterly releases.
+---
+
+## Timeline
+
+```
+Month  1  2  3  4  5  6  7  8  9  10 11 12
+       ─────────────────────────────────────
+R1     ████████████
+R2                 ████████████
+R3                             ████████████
+R4                                         ████████████
+       │           │           │           │
+       M1         M2,M3      M4,M5         M6
+```
+
+## Milestones
+
+| ID | Name | Description | Target |
+|---|---|---|---|
+| **M1** | Repository and architecture baseline | Full structure, governance, docs, CI | Month 3 |
+| **M2** | Minimal boot and partition bring-up | Boot hypervisor; launch Linux + RTOS | Month 6 |
+| **M3** | Isolation enforcement | Implement + validate memory/device separation | Month 6 |
+| **M4** | Temporal guarantees | Budget controls, latency bounds | Month 9 |
+| **M5** | Full validation campaign | i.MX95 evidence, cross-OS validation | Month 9 |
+| **M6** | Thesis submission | Full evidence archive, traceability complete | Month 12 |
+
+## Release 1 (Months 1–3) — Foundation
+
+**Theme**: Engineering rigor and baseline infrastructure.
+
+Deliverables:
+- Stable repository process and CI/hook quality gates. ✓
+- Executable unit and integration smoke tests. ✓
+- Benchmark and evidence packaging baseline. ✓
+- Initial i.MX95 bring-up runbook and evidence templates. ✓
+
+Mandatory checks:
+- PR CI and nightly CI pass (gcc + clang). ✓
+- Integration flow test passes. ✓
+- Config validation passes. ✓
+
+## Release 2 (Months 4–6) — Isolation Mechanisms
+
+**Theme**: Core isolation mechanism maturity.
+
+Deliverables:
+- Stage-2 mapping implementation (beyond current stubs).
+- IRQ ownership table with invalid-path denials.
+- Budget scheduler accounting and reset semantics.
+- Negative integration tests for unauthorized access.
+
+Mandatory checks:
+- All Release 1 checks still pass.
+- `test_isolation_negative` catches all denied accesses.
+- Stage-2 fault handling verified on QEMU.
+
+## Release 3 (Months 7–9) — Platform Validation
+
+**Theme**: Platform validation depth and mixed-environment verification.
+
+Deliverables:
+- Full i.MX95 validation campaign with repeatable evidence capture.
+- Cross-OS virtual validation (macOS / Linux / Windows).
+- QEMU workflow with SMMU emulation.
+- Secondary heterogeneous board baseline (i.MX8QM-MEK or equivalent).
+
+Mandatory checks:
+- All Release 2 checks still pass.
+- i.MX95 UART logs captured and archived.
+- Latency measurements within declared bounds.
+
+## Release 4 (Months 10–12) — Thesis Lock
+
+**Theme**: Quality freeze and submission-grade packaging.
+
+Deliverables:
+- Full regression rerun across virtual and physical targets.
+- Final benchmark and evidence archives.
+- Thesis chapter traceability completion.
+- Final risk and limitations report.
+
+Mandatory checks:
+- All Release 3 checks still pass.
+- `build/evidence/` archive committed and tagged.
+- Chapter traceability matrix complete.
+- No open P0 issues.
+
+## Current Status
+
+```
+[R1] ████████████████████████████████ COMPLETE
+[R2] ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ IN PROGRESS
+[R3] ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ PLANNED
+[R4] ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ PLANNED
+```

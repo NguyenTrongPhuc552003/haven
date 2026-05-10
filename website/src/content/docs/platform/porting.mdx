@@ -1,0 +1,106 @@
+---
+title: Porting Guide
+description: Checklist and process for bringing Haven up on a new heterogeneous SoC.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+## When to Port
+
+Add a new board only when:
+1. You have access to the hardware or a validated QEMU model.
+2. A partition config (`.yaml`) is committed under `configs/arm64/`.
+3. CI for the new board is explicitly configured and green.
+
+## Porting Checklist
+
+<Steps>
+
+1. **CPU topology and affinity**
+
+    - Identify Cortex-A and Cortex-M/R cores and their MPIDR values.
+    - Decide the partition-to-core assignment.
+    - Write the `cpus:` section of the config YAML.
+
+2. **Memory map**
+
+    - Identify DDR regions and reserved platform memory.
+    - Assign non-overlapping IPA ranges to each partition.
+    - Write the `memory:` section of the config YAML.
+    - Verify with `check-configs.py` that there are no overlaps.
+
+3. **Interrupt controller**
+
+    - Identify GIC base address and version.
+    - Map all peripheral SPIs to owning partitions.
+    - Write the `interrupts:` section of the config YAML.
+
+4. **Timer source and calibration**
+
+    - Identify the system counter frequency (`CNTFRQ_EL0`).
+    - Set `timing.period_us` to a value that gives at least 100 ticks per period.
+
+5. **UART and early boot logging**
+
+    - Identify the debug UART base address and baud rate.
+    - Add a platform UART init stub under `src/platform/<board>/`.
+    - Verify Haven EL2 can print to UART before enabling guest partitions.
+
+6. **SMMU configuration**
+
+    - Identify SMMU base address and stream ID assignments.
+    - Map each DMA peripheral to its owning partition.
+    - Test with `test_smmu_dma` on the new target.
+
+7. **TF-A / firmware chain**
+
+    - Ensure TF-A BL31 hands off to Haven at EL2.
+    - Verify `SCR_EL3.HCE = 1` and `HCR_EL2.VM = 1` are set before the handoff.
+
+8. **Add CI configuration**
+
+    - Add the new board's config to `check-configs.py` expected files list.
+    - Add a workflow step or nightly job to validate the config.
+
+9. **Document the platform**
+
+    - Create `docs/porting/<board>.md` with hardware setup notes.
+    - Create a platform page under `website/src/content/docs/platform/`.
+    - Link from the Porting Guide sidebar entry.
+
+</Steps>
+
+## Platform Hook Points
+
+```c
+/* src/platform/<board>/init.c (template) */
+
+void platform_early_init(void)
+{
+    /* UART init — must be first */
+    platform_uart_init(UART_BASE, UART_BAUD);
+}
+
+void platform_memory_init(void)
+{
+    /* Register board-specific reserved memory regions */
+}
+
+void platform_irq_init(void)
+{
+    /* GIC distributor and redistributor base addresses */
+}
+
+void platform_smmu_init(void)
+{
+    /* SMMU base address and stream table configuration */
+}
+```
+
+## Supported Boards
+
+| Board | Config | Status |
+|---|---|---|
+| NXP i.MX95 Dev Kit | `configs/arm64/imx95-devkit.yaml` | Primary target |
+| QEMU virt (arm64) | `configs/arm64/qemu-virt.yaml` | CI gate |
+| NXP i.MX8QM-MEK | `configs/arm64/imx8qm-mek.yaml` | Secondary validation |

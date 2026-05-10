@@ -1,0 +1,43 @@
+target: nxp-imx95-devkit
+description: Candidate static partition profile for initial i.MX95 Dev Kit bring-up and mixed Linux plus FreeRTOS validation.
+
+cpus:
+  linux_a55: [0, 1, 2, 3]
+  service_a55: [4, 5]
+  hypervisor_a55: [6, 7]
+  rtos_m7: [100]
+
+memory:
+  linux_a55:
+    base: 0x90000000
+    size: 0x50000000
+  service_a55:
+    base: 0x88000000
+    size: 0x04000000
+  hypervisor_reserved:
+    base: 0x86000000
+    size: 0x02000000
+  rtos_m7_tcm:
+    base: 0x20000000
+    size: 0x00100000
+  shared_mailbox:
+    base: 0xBF000000
+    size: 0x00100000
+
+interrupts:
+  linux_a55: [32, 33, 34, 35, 36, 40, 41]
+  service_a55: [72, 73]
+  rtos_m7: [160, 161]
+
+timing:
+  period_us: 10000
+  budgets_us:
+    linux_a55: 6200
+    service_a55: 1800
+    rtos_m7: 1500
+    hypervisor: 500
+
+notes:
+  - Candidate baseline only; final CPU ownership must match the shipped i.MX95 firmware topology.
+  - Memory ranges must be reconciled against the board reference manual and bootloader reservations before first hardware boot.
+  - CPU id 100 represents the M7 RTOS domain in this abstract configuration model.
