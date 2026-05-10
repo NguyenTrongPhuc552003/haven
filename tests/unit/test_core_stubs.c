@@ -18,16 +18,20 @@ static void test_stage2_contract(void) {
 }
 
 static void test_irq_contract(void) {
-  struct hv_irq_route route = {
-      .irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
+  struct hv_irq_route route = {.irq_id = 32, .owner_partition_id = 1, .target_cpu = 0};
+  struct hv_irq_route foreign_route = {.irq_id = 32, .owner_partition_id = 2, .target_cpu = 0};
 
   assert(hv_irq_owner_init() == HV_OK);
   assert(hv_irq_assign(NULL) == HV_EINVAL);
   assert(hv_irq_assign(&route) == HV_OK);
+  assert(hv_irq_assign(&foreign_route) == HV_EPERM);
   assert(hv_irq_revoke(0, 1) == HV_EINVAL);
+  assert(hv_irq_revoke(32, 2) == HV_EPERM);
+  assert(hv_irq_is_owned_by(32, 2) == HV_EPERM);
+  assert(hv_irq_is_owned_by(2048, 1) == HV_ENOSPC);
   assert(hv_irq_revoke(32, 1) == HV_OK);
   assert(hv_irq_is_owned_by(0, 1) == HV_EINVAL);
-  assert(hv_irq_is_owned_by(32, 1) == HV_OK);
+  assert(hv_irq_is_owned_by(32, 1) == HV_EPERM);
 }
 
 static void test_budget_contract(void) {
