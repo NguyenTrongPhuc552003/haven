@@ -1,9 +1,9 @@
 ---
 title: NXP i.MX95 Dev Kit
-description: Primary thesis validation platform — bring-up, configuration, and evidence capture.
+description: Primary thesis validation platform - bring-up, configuration, and evidence capture.
 ---
 
-import { Aside, Steps } from "@astrojs/starlight/components";
+import { Aside } from "@astrojs/starlight/components";
 
 The **NXP i.MX95 Dev Kit** is the primary and source-of-truth thesis platform.
 All performance claims, isolation measurements, and chapter evidence are
@@ -11,15 +11,15 @@ captured here. QEMU is used for CI gating; i.MX95 is used for thesis-grade evide
 
 ## SoC Overview
 
-| Parameter | Value |
-|---|---|
-| SoC | NXP i.MX95 |
+| Parameter   | Value                         |
+| ----------- | ----------------------------- |
+| SoC         | NXP i.MX95                    |
 | CPU cluster | 6× Cortex-A55 @ up to 1.8 GHz |
-| MCU domain | 1× Cortex-M7 @ up to 800 MHz |
-| Memory | LPDDR5 up to 8 GB |
-| GIC | GICv3 (GIC-700) |
-| SMMU | SMMUv3 (SMMU-700) |
-| Boot chain | TF-A + U-Boot |
+| MCU domain  | 1× Cortex-M7 @ up to 800 MHz  |
+| Memory      | LPDDR5 up to 8 GB             |
+| GIC         | GICv3 (GIC-700)               |
+| SMMU        | SMMUv3 (SMMU-700)             |
+| Boot chain  | TF-A + U-Boot                 |
 
 ## Partition Topology
 
@@ -32,56 +32,44 @@ cpus:
 ```
 
 <Aside type="note">
-  The M7 core is in a separate power domain. Haven's EL2 on the A55 cluster
-  cannot preempt it — temporal isolation on the M7 relies on hardware domain
-  separation, not the budget scheduler.
+    The M7 core is in a separate power domain. Haven's EL2 on the A55 cluster
+    cannot preempt it - temporal isolation on the M7 relies on hardware domain
+    separation, not the budget scheduler.
 </Aside>
 
 ## Hardware Setup
 
-<Steps>
+**1. Board power and UART**
 
-1. **Board power and UART**
+Connect UART debug cable (USB-C on the board's debug port) to host.
+Set baud rate: 115200 8N1. Expected first output: TF-A boot log.
 
-    Connect UART debug cable (USB-C on the board's debug port) to host.
-    Set baud rate: 115200 8N1. Expected first output: TF-A boot log.
+**2. Boot media**
 
-2. **Boot media**
+Haven targets SD card boot in early development. eMMC boot is the
+Release 3 target. Prepare SD card with TF-A + U-Boot + Haven EL2 image.
 
-    Haven targets SD card boot in early development. eMMC boot is the
-    Release 3 target. Prepare SD card with TF-A + U-Boot + Haven EL2 image.
+**3. JTAG (optional)**
 
-3. **JTAG (optional)**
+Connect SEGGER J-Link or Lauterbach TRACE32 for bare-metal debugging
+during early bring-up.
 
-    Connect SEGGER J-Link or Lauterbach TRACE32 for bare-metal debugging
-    during early bring-up.
+**4. Network**
 
-4. **Network**
-
-    1 GbE is available for TFTP boot during development. Assign a static IP
-    on the dev subnet and configure U-Boot `bootcmd` to TFTP the Haven image.
-
-</Steps>
+1 GbE is available for TFTP boot during development. Assign a static IP
+on the dev subnet and configure U-Boot `bootcmd` to TFTP the Haven image.
 
 Full hardware setup procedure: `docs/porting/IMX95_HARDWARE_SETUP.md`
 
 ## Validation Runbook
 
-<Steps>
-
 1. Flash TF-A BL2 + BL31 to SD card partition 1.
 2. Flash U-Boot to SD card partition 2.
 3. Build Haven core and package with Linux and FreeRTOS images.
 4. TFTP or flash the combined image.
-5. Boot and observe:
-   - TF-A log: `NOTICE: BL31: v2.x...`
-   - Haven log: `[haven] stage2 init` / `[haven] irq init` / ...
-   - Linux boot log on UART0.
-   - FreeRTOS tick log on UART2 (M7 console).
+5. Boot and observe: TF-A log (`NOTICE: BL31: v2.x...`), Haven log (`[haven] stage2 init`), Linux boot log on UART0, FreeRTOS tick log on UART2 (M7 console).
 6. Run isolation smoke tests via serial terminal.
 7. Capture UART logs and store in `build/evidence/imx95/logs/`.
-
-</Steps>
 
 Full runbook: `docs/porting/IMX95_VALIDATION_RUNBOOK.md`
 
@@ -100,11 +88,11 @@ Template: `docs/methodology/IMX95_EVIDENCE_TEMPLATE.md`
 
 ## Roadmap Status
 
-| Milestone | Status |
-|---|---|
-| M1: Repository and architecture baseline | Complete |
-| M2: Boot hypervisor on i.MX95 | Planned (Release 2) |
-| M3: Isolation enforcement on i.MX95 | Planned (Release 2–3) |
-| M4: Temporal guarantees measured | Planned (Release 3) |
-| M5: Full validation campaign | Planned (Release 3) |
-| M6: Thesis submission artifacts | Planned (Release 4) |
+| Milestone                                | Status                |
+| ---------------------------------------- | --------------------- |
+| M1: Repository and architecture baseline | Complete              |
+| M2: Boot hypervisor on i.MX95            | Planned (Release 2)   |
+| M3: Isolation enforcement on i.MX95      | Planned (Release 2–3) |
+| M4: Temporal guarantees measured         | Planned (Release 3)   |
+| M5: Full validation campaign             | Planned (Release 3)   |
+| M6: Thesis submission artifacts          | Planned (Release 4)   |

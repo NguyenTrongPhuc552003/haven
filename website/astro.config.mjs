@@ -7,7 +7,7 @@ export default defineConfig({
     starlight({
       title: "Haven",
       description:
-        "Static Partition Hypervisor for Asymmetric Multiprocessing — enforcing spatial and temporal isolation between Linux and RTOS on a heterogeneous SoC.",
+        "Static Partition Hypervisor for Asymmetric Multiprocessing - enforcing spatial and temporal isolation between Linux and RTOS on a heterogeneous SoC.",
       logo: {
         light: "./src/assets/logo-light.svg",
         dark: "./src/assets/logo-dark.svg",

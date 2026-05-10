@@ -40,17 +40,17 @@ Every milestone boundary produces a committed evidence snapshot.
 
 | Metric | Value | Unit | Bound |
 |---|---|---|---|
-| Mean task period deviation | — | µs | < 10 |
-| Maximum task period deviation | — | µs | < 50 |
-| Deadline miss count (1000 runs) | — | count | 0 |
-| Budget overrun events | — | per epoch | 0 |
+| Mean task period deviation | - | µs | < 10 |
+| Maximum task period deviation | - | µs | < 50 |
+| Deadline miss count (1000 runs) | - | count | 0 |
+| Budget overrun events | - | per epoch | 0 |
 
 ## EL2 overhead measurement
 
 | Workload | Native (no EL2) | Haven EL2 | Overhead |
 |---|---|---|---|
-| 1M cache-miss accesses | — ms | — ms | < 5% |
-| Context switch latency | — µs | — µs | < 5% |
+| 1M cache-miss accesses | - ms | - ms | < 5% |
+| Context switch latency | - µs | - µs | < 5% |
 
 ## Artifacts
 
@@ -62,8 +62,8 @@ Every milestone boundary produces a committed evidence snapshot.
 ```
 
 <Aside type="tip">
-  Run `make evidence` to auto-populate `build/evidence/` with a fresh
-  metadata snapshot and copies of the methodology docs.
+    Run `make evidence` to auto-populate `build/evidence/` with a fresh
+    metadata snapshot and copies of the methodology docs.
 </Aside>
 
 ## Generating an Evidence Package
@@ -85,7 +85,7 @@ cat build/evidence/metadata.txt
 At each milestone boundary, tag the commit and archive the evidence:
 
 ```sh
-git tag -a v0.2.0 -m "Release 2 — isolation mechanisms"
+git tag -a v0.2.0 -m "Release 2 - isolation mechanisms"
 git push origin v0.2.0
 
 # Archive the evidence snapshot

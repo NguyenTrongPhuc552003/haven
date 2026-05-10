@@ -14,7 +14,7 @@ Haven sits at the intersection of three active research areas: **real-time hyper
 ## Primary Reference: The Omnivisor (ECRTS 2024)
 
 <Aside type="note" title="Citation">
-D. Ottaviano, F. Ciraolo, M. Caccamo, R. Mancuso. *"The Omnivisor: A real-time static partitioning hypervisor extension for heterogeneous core virtualization over MPSoCs."* Proceedings of the 36th Euromicro Conference on Real-Time Systems (ECRTS 2024). [[PDF]](https://cs-people.bu.edu/rmancuso/files/papers/Omnivisor_ECRTS24.pdf) [[Code]](https://github.com/DanieleOttaviano/Omnivisor)
+    D. Ottaviano, F. Ciraolo, M. Caccamo, R. Mancuso. *"The Omnivisor: A real-time static partitioning hypervisor extension for heterogeneous core virtualization over MPSoCs."* Proceedings of the 36th Euromicro Conference on Real-Time Systems (ECRTS 2024). [[PDF]](https://cs-people.bu.edu/rmancuso/files/papers/Omnivisor_ECRTS24.pdf) [[Code]](https://github.com/DanieleOttaviano/Omnivisor)
 </Aside>
 
 The Omnivisor is the closest academic precedent to Haven. It extends a static partitioning hypervisor to support **heterogeneous core virtualization** on MPSoCs, enabling mixed-criticality workloads to run on cores with different ISAs or power domains inside the same SoC.
@@ -22,20 +22,20 @@ The Omnivisor is the closest academic precedent to Haven. It extends a static pa
 ### Key Omnivisor contributions
 
 - A hypervisor framework that assigns individual CPU cores to isolated partitions at boot time, with no dynamic migration.
-- Stage-2 MMU enforcement for per-partition memory regions — identical in principle to Haven's `hv_stage2_map_partition()` design.
+- Stage-2 MMU enforcement for per-partition memory regions - identical in principle to Haven's `hv_stage2_map_partition()` design.
 - Real-time scheduling guarantees that bound inter-partition temporal interference.
 - Validation on an NXP i.MX8 platform with a Linux partition and a bare-metal RTOS partition co-running under EL2.
 
 ### How Haven differs from Omnivisor
 
-| Dimension | Omnivisor (ECRTS 2024) | Haven (this thesis) |
-|---|---|---|
-| Target platform | NXP i.MX8 (Cortex-A53 cluster) | NXP i.MX95 (Cortex-A55 + Cortex-M7) |
-| Core heterogeneity | Homogeneous cores, heterogeneous partitions | True AMP: application and MCU cores co-isolated |
-| SMMU / IOMMU isolation | Partial | Explicit per-partition stream ID policy |
-| Budget scheduler | EDF-based | Fixed-budget EL2 scheduler with overrun detection |
-| Verification artefacts | Single-platform demo | Reproducible QEMU CI + i.MX95 hardware evidence |
-| Thesis traceability | Not applicable | Full chapter-level claim-to-evidence mapping |
+| Dimension              | Omnivisor (ECRTS 2024)                      | Haven (this thesis)                               |
+| ---------------------- | ------------------------------------------- | ------------------------------------------------- |
+| Target platform        | NXP i.MX8 (Cortex-A53 cluster)              | NXP i.MX95 (Cortex-A55 + Cortex-M7)               |
+| Core heterogeneity     | Homogeneous cores, heterogeneous partitions | True AMP: application and MCU cores co-isolated   |
+| SMMU / IOMMU isolation | Partial                                     | Explicit per-partition stream ID policy           |
+| Budget scheduler       | EDF-based                                   | Fixed-budget EL2 scheduler with overrun detection |
+| Verification artefacts | Single-platform demo                        | Reproducible QEMU CI + i.MX95 hardware evidence   |
+| Thesis traceability    | Not applicable                              | Full chapter-level claim-to-evidence mapping      |
 
 Haven's primary contribution over Omnivisor is the **asymmetric core topology**: the Cortex-M7 MCU domain on i.MX95 runs inside its own Haven partition, co-isolated with the Linux A55 cluster through a unified EL2 control path. The Omnivisor demonstrates that the concept is sound; Haven extends and validates it on the AMP-native i.MX95 platform.
 
@@ -59,46 +59,46 @@ The asymmetry between the A55 cluster (Linux, EL2 hypervisor, full MMU) and the 
 
 ### Static partitioning hypervisors
 
-| System | Partition model | Platform | Notes |
-|---|---|---|---|
-| **Jailhouse** | Static cells, Linux host | ARM, x86 | Open source, widely deployed |
-| **Bao** | Static cells, no host OS | ARM, RISC-V | Minimal TCB, EL2/HS-mode |
-| **XVisor** | Type-1 with static guests | ARM64 | Richer guest support |
-| **Omnivisor** | Heterogeneous cores | NXP i.MX8 | ECRTS 2024, closest predecessor |
-| **Haven** | AMP spatial + temporal | NXP i.MX95 | This thesis |
+| System        | Partition model           | Platform    | Notes                           |
+| ------------- | ------------------------- | ----------- | ------------------------------- |
+| **Jailhouse** | Static cells, Linux host  | ARM, x86    | Open source, widely deployed    |
+| **Bao**       | Static cells, no host OS  | ARM, RISC-V | Minimal TCB, EL2/HS-mode        |
+| **XVisor**    | Type-1 with static guests | ARM64       | Richer guest support            |
+| **Omnivisor** | Heterogeneous cores       | NXP i.MX8   | ECRTS 2024, closest predecessor |
+| **Haven**     | AMP spatial + temporal    | NXP i.MX95  | This thesis                     |
 
 ### Mixed-criticality scheduling
 
 The temporal isolation mechanism in Haven draws on the **budget-based scheduling** literature:
 
-- **MCTI (Mixed-Criticality Task-based Isolation)** — Mancuso et al., Real-Time Systems Journal 2024. Provides a formal framework for isolating mixed-criticality tasks on shared multicore platforms.
-- **MemPol / E-WarP** — Sohal et al., RTSS 2020; and follow-up work. Bandwidth regulation alongside CPU budget enforcement.
-- **Coherence-Aided Memory Bandwidth Regulation** — Izhbirdeev et al., RTSS 2024 (Best Paper). Demonstrates that cache coherence traffic is a critical interference vector that must be accounted for alongside CPU time.
+- **MCTI (Mixed-Criticality Task-based Isolation)** - Mancuso et al., Real-Time Systems Journal 2024. Provides a formal framework for isolating mixed-criticality tasks on shared multicore platforms.
+- **MemPol / E-WarP** - Sohal et al., RTSS 2020; and follow-up work. Bandwidth regulation alongside CPU budget enforcement.
+- **Coherence-Aided Memory Bandwidth Regulation** - Izhbirdeev et al., RTSS 2024 (Best Paper). Demonstrates that cache coherence traffic is a critical interference vector that must be accounted for alongside CPU time.
 
 ### SMMU and DMA isolation
 
-- **ARM SMMU Architecture Specification (SMMUv3)** — the authoritative reference for stream ID-based DMA isolation used in Haven's `hv_smmu_assign_device()`.
-- **IOMMU-based partition isolation in Jailhouse** — a practical reference for assigning PCIe and platform device streams to cells without host OS involvement.
+- **ARM SMMU Architecture Specification (SMMUv3)** - the authoritative reference for stream ID-based DMA isolation used in Haven's `hv_smmu_assign_device()`.
+- **IOMMU-based partition isolation in Jailhouse** - a practical reference for assigning PCIe and platform device streams to cells without host OS involvement.
 
 ---
 
 ## Summary of Contributions
 
 <CardGrid>
-  <Card title="Spatial Isolation" icon="shield">
-    Stage-2 page tables + SMMU stream policy enforce hard memory and DMA
-    boundaries that no existing work has validated on the i.MX95 AMP topology.
-  </Card>
-  <Card title="Temporal Isolation" icon="clock">
-    A budget-based EL2 scheduler with overrun detection, validated against the
-    Omnivisor baseline on an equivalent mixed-criticality workload.
-  </Card>
-  <Card title="AMP Extension" icon="laptop">
-    First published isolation design that covers both A55 (EL2 MMU) and M7
-    (hardware firewall) domains under a unified EL2 control path.
-  </Card>
-  <Card title="Reproducible Evidence" icon="document">
-    QEMU CI gate + i.MX95 hardware measurements, structured as
-    chapter-traceability artefacts to satisfy thesis examination requirements.
-  </Card>
+    <Card title="Spatial Isolation" icon="shield">
+        Stage-2 page tables + SMMU stream policy enforce hard memory and DMA
+        boundaries that no existing work has validated on the i.MX95 AMP topology.
+    </Card>
+    <Card title="Temporal Isolation" icon="clock">
+        A budget-based EL2 scheduler with overrun detection, validated against the
+        Omnivisor baseline on an equivalent mixed-criticality workload.
+    </Card>
+    <Card title="AMP Extension" icon="laptop">
+        First published isolation design that covers both A55 (EL2 MMU) and M7
+        (hardware firewall) domains under a unified EL2 control path.
+    </Card>
+    <Card title="Reproducible Evidence" icon="document">
+        QEMU CI gate + i.MX95 hardware measurements, structured as
+        chapter-traceability artefacts to satisfy thesis examination requirements.
+    </Card>
 </CardGrid>

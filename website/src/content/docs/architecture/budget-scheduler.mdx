@@ -36,13 +36,13 @@ struct hv_budget_state {
 };
 ```
 
-Source: `src/core/sched/budget.c`  
+Source: `src/core/sched/budget.c`
 Header: `include/haven/budget_sched.h`
 
 ## API
 
 ```c
-/* Initialize budget state — mark all partitions inactive */
+/* Initialize budget state - mark all partitions inactive */
 hv_status_t hv_budget_sched_init(void);
 
 /* Configure a partition's budget */
@@ -77,10 +77,10 @@ EL2 timer fires (at period boundary or budget expiry)
 ```
 
 <Aside type="note">
-  The current stub implementation in `src/core/sched/budget.c` validates the
-  `(budget, period)` invariants and tracks state but does not yet integrate
-  with the ARM generic timer (CNTHP_TVAL_EL2). Timer-driven preemption is a
-  Release 2 deliverable.
+    The current stub implementation in `src/core/sched/budget.c` validates the
+    `(budget, period)` invariants and tracks state but does not yet integrate
+    with the ARM generic timer (CNTHP_TVAL_EL2). Timer-driven preemption is a
+    Release 2 deliverable.
 </Aside>
 
 ## Validation Rules
@@ -116,9 +116,9 @@ interrupt to EL2.
 timing:
   period_us: 10000        # 10 ms epoch
   budgets_us:
-    linux_a55: 8000       # 80% — Linux gets most of the A-cluster
-    rtos_m7:   1500       # 15% — RTOS fallback on A55 (if M7 unavailable)
-    hypervisor: 500       # 5%  — EL2 overhead reserve
+    linux_a55: 8000       # 80% - Linux gets most of the A-cluster
+    rtos_m7:   1500       # 15% - RTOS fallback on A55 (if M7 unavailable)
+    hypervisor: 500       # 5%  - EL2 overhead reserve
 ```
 
 ## Relationship to RTOS Latency

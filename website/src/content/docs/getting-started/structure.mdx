@@ -9,52 +9,52 @@ The repository follows a layered structure where each directory has a single,
 clear ownership.
 
 <FileTree>
-- haven/
-  - .github/
+    - haven/
+    - .github/
     - workflows/       CI pipeline definitions (ci.yml, nightly.yml, benchmark.yml, …)
     - agents/          Specialized Copilot agent definitions
     - CODEOWNERS       Isolation-critical path ownership
     - copilot-instructions.md  AI assistant context
-  - src/
+    - src/
     - core/
-      - mm/            Stage-2 page table management (`stage2.c`)
-      - irq/           Interrupt ownership and routing (`ownership.c`)
-      - sched/         Budget-based temporal scheduler (`budget.c`)
-      - dma/           SMMU / IOMMU policy (`smmu.c`)
-      - exc/           EL2 exception handler (`el2_exceptions.c`)
-      - arch/          Architecture-specific EL2 helpers (arm64)
-      - time/          Timer and budget accounting
-      - iommu/         IOMMU abstraction layer
+    - mm/            Stage-2 page table management (`stage2.c`)
+    - irq/           Interrupt ownership and routing (`ownership.c`)
+    - sched/         Budget-based temporal scheduler (`budget.c`)
+    - dma/           SMMU / IOMMU policy (`smmu.c`)
+    - exc/           EL2 exception handler (`el2_exceptions.c`)
+    - arch/          Architecture-specific EL2 helpers (arm64)
+    - time/          Timer and budget accounting
+    - iommu/         IOMMU abstraction layer
     - guest/
-      - drivers/       Guest UART driver stub (`uart.c`)
-      - rtos/          FreeRTOS integration layer (`freertos_integration.c`)
+    - drivers/       Guest UART driver stub (`uart.c`)
+    - rtos/          FreeRTOS integration layer (`freertos_integration.c`)
     - common/          Shared utilities
     - platform/        Board-specific initialisation hooks
-  - include/
+    - include/
     - haven/
-      - types.h        Primitive typedefs (hv_u32, hv_u64, hv_status_t)
-      - stage2.h       Stage-2 MMU API
-      - irq_ownership.h  IRQ ownership API
-      - budget_sched.h   Budget scheduler API
-      - smmu.h         SMMU API
-      - el2_exceptions.h  EL2 exception API
-      - guest_uart.h   Guest UART API
-      - freertos_integration.h  FreeRTOS API
+    - types.h        Primitive typedefs (hv_u32, hv_u64, hv_status_t)
+    - stage2.h       Stage-2 MMU API
+    - irq_ownership.h  IRQ ownership API
+    - budget_sched.h   Budget scheduler API
+    - smmu.h         SMMU API
+    - el2_exceptions.h  EL2 exception API
+    - guest_uart.h   Guest UART API
+    - freertos_integration.h  FreeRTOS API
     - arch/            Architecture-specific headers
-  - configs/
+    - configs/
     - arm64/
-      - imx95-devkit.yaml   Primary thesis platform config
-      - imx8qm-mek.yaml     Secondary heterogeneous board config
-      - qemu-virt.yaml      CI and developer QEMU config
+    - imx95-devkit.yaml   Primary thesis platform config
+    - imx8qm-mek.yaml     Secondary heterogeneous board config
+    - qemu-virt.yaml      CI and developer QEMU config
     - riscv/           (planned)
     - x86/             (planned)
-  - tests/
+    - tests/
     - unit/            Stub contracts, EL2 exc, SMMU, FreeRTOS, UART
     - integration/     Isolation flow, negative isolation tests
     - isolation/       Planned cross-partition violation tests
     - selftests/       Planned kernel selftests
     - demos/           Planned demo scenarios
-  - scripts/
+    - scripts/
     - build.sh         Core C build
     - test.sh          Test runner
     - style-check.sh   Shell syntax + C syntax-only check
@@ -66,20 +66,20 @@ clear ownership.
     - qemu-smoke.sh    QEMU availability check
     - setup-hooks.sh   Git hook installer
     - release.sh       Release workflow
-  - docs/
+    - docs/
     - architecture/    OVERVIEW, ISOLATION_MODEL, THESIS_DEEP_DIVE
     - methodology/     CI strategy, benchmarks, chapter traceability
     - porting/         i.MX95 setup, validation runbooks, porting guide
     - roadmap/         Milestones, release specs (R1–R4)
     - safety/          Threat model, assumptions
     - api/             API placeholder
-  - website/           This Astro Starlight documentation site
-  - build/             Generated artefacts (gitignored)
-  - verification/      Coq and Isabelle formal proofs (planned)
-  - tools/
+    - website/           This Astro Starlight documentation site
+    - build/             Generated artefacts (gitignored)
+    - verification/      Coq and Isabelle formal proofs (planned)
+    - tools/
     - config-gen/      Config compiler tooling (planned)
     - analysis/        Static analysis scripts
-  - drivers/
+    - drivers/
     - linux/           Linux guest driver modules (planned)
     - guest-tools/     Guest userspace tools (planned)
 </FileTree>

@@ -17,17 +17,17 @@ typedef int32_t  hv_status_t;
 
 ### Status Codes
 
-| Code | Value | Meaning |
-|---|---|---|
-| `HV_OK` | 0 | Success |
-| `HV_EINVAL` | -22 | Invalid argument |
-| `HV_EPERM` | -1 | Permission denied (partition violation) |
-| `HV_ENOSPC` | -28 | No space (table full) |
-| `HV_ENOTSUP` | -95 | Operation not supported |
+| Code         | Value | Meaning                                 |
+| ------------ | ----- | --------------------------------------- |
+| `HV_OK`      | 0     | Success                                 |
+| `HV_EINVAL`  | -22   | Invalid argument                        |
+| `HV_EPERM`   | -1    | Permission denied (partition violation) |
+| `HV_ENOSPC`  | -28   | No space (table full)                   |
+| `HV_ENOTSUP` | -95   | Operation not supported                 |
 
 ---
 
-## stage2.h — Stage-2 MMU
+## stage2.h - Stage-2 MMU
 
 ```c
 struct hv_mem_region {
@@ -48,19 +48,19 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *pmem);
 hv_status_t hv_stage2_check_access(hv_u32 partition_id, hv_u64 ipa, hv_u64 size);
 ```
 
-**`hv_stage2_init`** — Must be called once before any other stage-2 function.
+**`hv_stage2_init`** - Must be called once before any other stage-2 function.
 Zeroes all partition mapping state.
 
-**`hv_stage2_map_partition`** — Maps all `regions` in `pmem` into the
+**`hv_stage2_map_partition`** - Maps all `regions` in `pmem` into the
 partition's stage-2 page tables. Returns `HV_EINVAL` if any region overlaps
 with an existing mapping or if `partition_id ≥ HV_MAX_PARTITIONS`.
 
-**`hv_stage2_check_access`** — Returns `HV_OK` if `[ipa, ipa+size)` is fully
+**`hv_stage2_check_access`** - Returns `HV_OK` if `[ipa, ipa+size)` is fully
 within the partition's mapped range. Returns `HV_EPERM` otherwise.
 
 ---
 
-## irq_ownership.h — Interrupt Ownership
+## irq_ownership.h - Interrupt Ownership
 
 ```c
 struct hv_irq_route {
@@ -75,18 +75,18 @@ hv_status_t hv_irq_revoke(hv_u32 irq_id, hv_u32 owner_partition_id);
 hv_status_t hv_irq_check_owner(hv_u32 irq_id, hv_u32 partition_id);
 ```
 
-**`hv_irq_owner_init`** — Marks all `HV_MAX_IRQ_ID` (1024) IRQs as unowned.
+**`hv_irq_owner_init`** - Marks all `HV_MAX_IRQ_ID` (1024) IRQs as unowned.
 
-**`hv_irq_assign`** — Assigns `route->irq_id` to `route->owner_partition_id`.
+**`hv_irq_assign`** - Assigns `route->irq_id` to `route->owner_partition_id`.
 Returns `HV_EINVAL` if `irq_id ≥ HV_MAX_IRQ_ID`. Returns `HV_EPERM` if
 the IRQ is already assigned to a different partition.
 
-**`hv_irq_revoke`** — Removes the assignment. Returns `HV_EPERM` if
+**`hv_irq_revoke`** - Removes the assignment. Returns `HV_EPERM` if
 `owner_partition_id` does not currently own the IRQ.
 
 ---
 
-## budget_sched.h — Budget Scheduler
+## budget_sched.h - Budget Scheduler
 
 ```c
 struct hv_budget {
@@ -102,15 +102,15 @@ hv_status_t hv_budget_check(hv_u32 partition_id);
 hv_status_t hv_budget_replenish(hv_u32 partition_id);
 ```
 
-**`hv_budget_set`** — Validates `budget_ns ≤ period_ns` and `period_ns > 0`.
+**`hv_budget_set`** - Validates `budget_ns ≤ period_ns` and `period_ns > 0`.
 Returns `HV_EINVAL` on violation.
 
-**`hv_budget_consume`** — Subtracts `delta_ns` from the partition's remaining
+**`hv_budget_consume`** - Subtracts `delta_ns` from the partition's remaining
 budget. Returns `HV_EPERM` when the budget is exhausted (remaining ≤ 0).
 
 ---
 
-## smmu.h — SMMU / DMA Isolation
+## smmu.h - SMMU / DMA Isolation
 
 ```c
 hv_status_t hv_smmu_init(void);
@@ -119,7 +119,7 @@ hv_status_t hv_smmu_unmap_device(hv_u32 stream_id, hv_u32 partition_id);
 hv_status_t hv_smmu_check_device(hv_u32 stream_id, hv_u32 partition_id);
 ```
 
-**`hv_smmu_map_device`** — Associates `stream_id` with `partition_id`'s
+**`hv_smmu_map_device`** - Associates `stream_id` with `partition_id`'s
 stage-2 context. Returns `HV_ENOSPC` if `HV_MAX_SMMU_DEVICES` is reached.
 
 ---

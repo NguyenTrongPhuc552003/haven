@@ -24,7 +24,7 @@ struct hv_irq_route {
 ## API
 
 ```c
-/* Initialize IRQ ownership table — mark all IRQs as unowned */
+/* Initialize IRQ ownership table - mark all IRQs as unowned */
 hv_status_t hv_irq_owner_init(void);
 
 /* Assign an IRQ to a partition */
@@ -37,7 +37,7 @@ hv_status_t hv_irq_revoke(hv_u32 irq_id, hv_u32 owner_partition_id);
 hv_status_t hv_irq_check_owner(hv_u32 irq_id, hv_u32 partition_id);
 ```
 
-Source: `src/core/irq/ownership.c`  
+Source: `src/core/irq/ownership.c`
 Header: `include/haven/irq_ownership.h`
 
 ## Ownership Table
@@ -50,7 +50,7 @@ static hv_u32 irq_owner_map[HV_MAX_IRQ_ID];
 ```
 
 A value of `0` means unowned. The hypervisor never exposes an unowned
-interrupt to any partition — it either logs and drops it, or routes it
+interrupt to any partition - it either logs and drops it, or routes it
 to the EL2 audit handler.
 
 ## Violation Handling
@@ -83,19 +83,19 @@ during `hv_irq_assign()` at boot.
 
 Haven targets GICv3/GICv4 as used on the i.MX95:
 
-| Register | Purpose | Haven action |
-|---|---|---|
-| `GICD_IROUTER<n>` | Affinity routing | Set to target core MPIDR |
-| `GICD_ICFGR<n>` | Edge/level | Preserve from platform data |
-| `GICR_ISENABLER` | Per-redistributor enable | Enable only owned IRQs |
-| `ICC_SRE_EL2` | System register enable at EL2 | Set during Haven init |
-| `ICH_HCR_EL2` | Hypervisor control | Enable virtual CPU interface |
+| Register          | Purpose                       | Haven action                 |
+| ----------------- | ----------------------------- | ---------------------------- |
+| `GICD_IROUTER<n>` | Affinity routing              | Set to target core MPIDR     |
+| `GICD_ICFGR<n>`   | Edge/level                    | Preserve from platform data  |
+| `GICR_ISENABLER`  | Per-redistributor enable      | Enable only owned IRQs       |
+| `ICC_SRE_EL2`     | System register enable at EL2 | Set during Haven init        |
+| `ICH_HCR_EL2`     | Hypervisor control            | Enable virtual CPU interface |
 
 ## SPIs vs SGIs vs PPIs
 
-| Type | INTID range | Haven policy |
-|---|---|---|
-| SGI (Software Generated) | 0–15 | Allowed between cores in same partition |
-| PPI (Per-Processor Private) | 16–31 | Assigned to core owner's partition |
-| SPI (Shared Peripheral) | 32–1019 | Statically assigned per config |
-| LPI (Locality-specific) | 8192+ | Planned for ITS support in Release 3 |
+| Type                        | INTID range | Haven policy                            |
+| --------------------------- | ----------- | --------------------------------------- |
+| SGI (Software Generated)    | 0–15        | Allowed between cores in same partition |
+| PPI (Per-Processor Private) | 16–31       | Assigned to core owner's partition      |
+| SPI (Shared Peripheral)     | 32–1019     | Statically assigned per config          |
+| LPI (Locality-specific)     | 8192+       | Planned for ITS support in Release 3    |

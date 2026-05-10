@@ -22,8 +22,8 @@ qemu-system-aarch64 \
 ```
 
 Key flags:
-- `virtualization=on` — enables EL2 mode (required for Haven).
-- `gic-version=3` — uses GICv3, matching the i.MX95 GIC-700 interface.
+- `virtualization=on` - enables EL2 mode (required for Haven).
+- `gic-version=3` - uses GICv3, matching the i.MX95 GIC-700 interface.
 
 ## Partition Config
 
@@ -75,25 +75,25 @@ strategy:
 ```
 
 <Aside type="tip">
-  To reproduce the CI environment locally on macOS:
-  ```sh
-  # Install QEMU via Homebrew
-  brew install qemu
-  # Run full preflight
-  CC=clang ./scripts/ci-preflight.sh
-  ```
+    To reproduce the CI environment locally on macOS:
+    ```sh
+    # Install QEMU via Homebrew
+    brew install qemu
+    # Run full preflight
+    CC=clang ./scripts/ci-preflight.sh
+    ```
 </Aside>
 
 ## Limitations vs i.MX95
 
-| Feature | QEMU | i.MX95 |
-|---|---|---|
-| GICv3 | Emulated | Hardware |
-| SMMU | Not emulated (planned) | Hardware SMMU-700 |
-| ARM generic timer | Emulated | Hardware |
-| M-class core | Not modelled | Real Cortex-M7 |
-| Latency measurement | Emulated time only | Real hardware cycles |
-| Thesis evidence grade | CI gate only | Primary evidence |
+| Feature               | QEMU                   | i.MX95               |
+| --------------------- | ---------------------- | -------------------- |
+| GICv3                 | Emulated               | Hardware             |
+| SMMU                  | Not emulated (planned) | Hardware SMMU-700    |
+| ARM generic timer     | Emulated               | Hardware             |
+| M-class core          | Not modelled           | Real Cortex-M7       |
+| Latency measurement   | Emulated time only     | Real hardware cycles |
+| Thesis evidence grade | CI gate only           | Primary evidence     |
 
 SMMU emulation in QEMU requires the `virt` machine SMMU device (`-device arm-smmuv3`).
 Integration is planned for Release 3.

@@ -16,24 +16,24 @@ Computer Engineering:
 ## The Problem
 
 Modern heterogeneous SoCs ship multiple cores of fundamentally different classes
-on a single die — a Cortex-A cluster running Linux, a Cortex-M running FreeRTOS,
-optionally a Cortex-R for hard real-time — but there is **no standard mechanism**
+on a single die - a Cortex-A cluster running Linux, a Cortex-M running FreeRTOS,
+optionally a Cortex-R for hard real-time - but there is **no standard mechanism**
 to guarantee that a bug or compromise in one partition cannot corrupt or starve
 another.
 
 Existing solutions fall into one of two camps:
 
-| Approach | Examples | Problem |
-|---|---|---|
-| Full dynamic hypervisor | Xen, KVM | Large TCB, non-deterministic latency, certification-hostile |
-| Bare-metal co-existence | No hypervisor | No isolation guarantee, shared memory races |
-| Commercial RTOS partitioner | QNX Hypervisor, Integrity | Proprietary, non-auditable |
+| Approach                    | Examples                  | Problem                                                     |
+| --------------------------- | ------------------------- | ----------------------------------------------------------- |
+| Full dynamic hypervisor     | Xen, KVM                  | Large TCB, non-deterministic latency, certification-hostile |
+| Bare-metal co-existence     | No hypervisor             | No isolation guarantee, shared memory races                 |
+| Commercial RTOS partitioner | QNX Hypervisor, Integrity | Proprietary, non-auditable                                  |
 
 <Aside type="note">
-  The closest open-source reference implementations are
-  [Jailhouse](https://github.com/siemens/jailhouse) by Siemens and the
-  [Bao Hypervisor](https://github.com/bao-project/bao-hypervisor) from the
-  University of Minho. Haven builds on the lessons of both.
+    The closest open-source reference implementations are
+    [Jailhouse](https://github.com/siemens/jailhouse) by Siemens and the
+    [Bao Hypervisor](https://github.com/bao-project/bao-hypervisor) from the
+    University of Minho. Haven builds on the lessons of both.
 </Aside>
 
 ## The Approach
@@ -47,7 +47,7 @@ Haven runs at **EL2** (the ARM hypervisor privilege level). At boot it:
 5. Activates a budget-based scheduler that enforces CPU time allocations.
 
 After boot, the configuration is **immutable**. No partition can be created,
-migrated, or destroyed at runtime. This is the defining "static" property — it
+migrated, or destroyed at runtime. This is the defining "static" property - it
 makes formal analysis tractable and reduces the trusted computing base to a few
 thousand lines of C.
 
@@ -62,7 +62,7 @@ Partition A **cannot read or write** partition B's memory or devices, enforced b
 - **Stage-2 translation** for CPU-initiated accesses (EL1/EL0 → EL2 → physical).
 - **SMMU** policies for all DMA-capable peripheral accesses.
 - **Static peripheral ownership** with deny-by-default: any access to an
-  unowned peripheral triggers a stage-2 fault handled at EL2.
+unowned peripheral triggers a stage-2 fault handled at EL2.
 
 ### Temporal Isolation
 
@@ -70,50 +70,50 @@ Partition A consuming 100% CPU **cannot delay** partition B beyond a bounded
 worst-case, enforced by:
 
 - **CPU partitioning**: RTOS and Linux assigned to disjoint core sets where
-  the SoC topology permits.
+the SoC topology permits.
 - **Budget scheduler**: on shared cores, each partition is given a `(budget, period)`
-  pair; the EL2 scheduler preempts overrunners and recharges budgets at period
-  boundaries.
+pair; the EL2 scheduler preempts overrunners and recharges budgets at period
+boundaries.
 
 ## Why "Static" Is the Right Choice
 
-| Property | Static partition | Dynamic hypervisor |
-|---|---|---|
-| TCB size | ~5 KLOC C | 100 KLOC+ |
-| Formal analysis | Tractable | Very hard |
-| IEC 61508 / ISO 26262 | Feasible | Not feasible |
-| Runtime reconfiguration | Not supported | Supported |
-| RTOS latency bound | Provable | Statistical only |
+| Property                | Static partition | Dynamic hypervisor |
+| ----------------------- | ---------------- | ------------------ |
+| TCB size                | ~5 KLOC C        | 100 KLOC+          |
+| Formal analysis         | Tractable        | Very hard          |
+| IEC 61508 / ISO 26262   | Feasible         | Not feasible       |
+| Runtime reconfiguration | Not supported    | Supported          |
+| RTOS latency bound      | Provable         | Statistical only   |
 
 The gold standard for the security proof side is
-[seL4](https://sel4.systems/) — the first formally verified OS microkernel.
+[seL4](https://sel4.systems/) - the first formally verified OS microkernel.
 Haven does not aim for seL4-level formal verification, but it inherits the
 same architectural principle: **minimize what must be trusted**.
 
 ## Thesis Scope
 
 <CardGrid>
-  <Card title="Primary Board" icon="laptop">
-    NXP i.MX95 Dev Kit — Cortex-A55 × 4 + Cortex-M7. All thesis claims are
-    measured here.
-  </Card>
-  <Card title="CI Platform" icon="setting">
-    QEMU virt arm64 — all tests gate on this for reproducible CI across
-    macOS, Linux, and Windows.
-  </Card>
-  <Card title="Timeline" icon="rocket">
-    12-month, four-release plan. Release 1 (months 1–3) completes the
-    foundation; Release 4 (months 10–12) delivers thesis-submission-grade
-    evidence packages.
-  </Card>
-  <Card title="Non-Goals" icon="warning">
-    Haven does not defend against microarchitectural side channels (Spectre,
-    Meltdown). It does not provide live migration or dynamic partition creation.
-  </Card>
+    <Card title="Primary Board" icon="laptop">
+        NXP i.MX95 Dev Kit - Cortex-A55 × 4 + Cortex-M7. All thesis claims are
+        measured here.
+    </Card>
+    <Card title="CI Platform" icon="setting">
+        QEMU virt arm64 - all tests gate on this for reproducible CI across
+        macOS, Linux, and Windows.
+    </Card>
+    <Card title="Timeline" icon="rocket">
+        12-month, four-release plan. Release 1 (months 1–3) completes the
+        foundation; Release 4 (months 10–12) delivers thesis-submission-grade
+        evidence packages.
+    </Card>
+    <Card title="Non-Goals" icon="warning">
+        Haven does not defend against microarchitectural side channels (Spectre,
+        Meltdown). It does not provide live migration or dynamic partition creation.
+    </Card>
 </CardGrid>
 
 ## Next Steps
 
-- [Quick Start](/getting-started/quickstart/) — build Haven, run QEMU smoke test.
-- [Architecture Overview](/architecture/overview/) — full design rationale.
-- [Chapter Traceability](/thesis/traceability/) — how each repo artifact maps to a thesis chapter.
+- [Quick Start](/getting-started/quickstart/) - build Haven, run QEMU smoke test.
+- [Architecture Overview](/architecture/overview/) - full design rationale.
+- [Chapter Traceability](/thesis/traceability/) - how each repo artifact maps to a thesis chapter.

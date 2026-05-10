@@ -3,95 +3,87 @@ title: Quick Start
 description: Build Haven, run unit tests, and verify QEMU smoke test in under 10 minutes.
 ---
 
-import { Aside, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## Prerequisites
 
-| Tool | Minimum version | Purpose |
-|---|---|---|
-| GCC or Clang | gcc 12 / clang 16 | C11 cross-compilation |
-| QEMU | 8.0 | arm64 smoke validation |
-| Python | 3.10 | Config validation scripts |
-| GNU Make | 4.3 | Build orchestration |
+| Tool         | Minimum version   | Purpose                   |
+| ------------ | ----------------- | ------------------------- |
+| GCC or Clang | gcc 12 / clang 16 | C11 cross-compilation     |
+| QEMU         | 8.0               | arm64 smoke validation    |
+| Python       | 3.10              | Config validation scripts |
+| GNU Make     | 4.3               | Build orchestration       |
 
 <Tabs>
-  <TabItem label="macOS (OrbStack)">
-    ```sh
-    brew install gcc llvm qemu python3 make
-    # Verify
-    qemu-system-aarch64 --version
-    ```
-  </TabItem>
-  <TabItem label="Ubuntu / Debian">
-    ```sh
-    sudo apt update
-    sudo apt install build-essential gcc-aarch64-linux-gnu clang \
-        qemu-system-arm python3 make
-    ```
-  </TabItem>
-  <TabItem label="Fedora / RHEL">
-    ```sh
-    sudo dnf install gcc gcc-aarch64-linux-gnu clang \
-        qemu-system-aarch64 python3 make
-    ```
-  </TabItem>
+    <TabItem label="macOS (OrbStack)">
+        ```sh
+        brew install gcc llvm qemu python3 make
+        # Verify
+        qemu-system-aarch64 --version
+        ```
+    </TabItem>
+    <TabItem label="Ubuntu / Debian">
+        ```sh
+        sudo apt update
+        sudo apt install build-essential gcc-aarch64-linux-gnu clang \
+            qemu-system-arm python3 make
+        ```
+    </TabItem>
+    <TabItem label="Fedora / RHEL">
+        ```sh
+        sudo dnf install gcc gcc-aarch64-linux-gnu clang \
+            qemu-system-aarch64 python3 make
+        ```
+    </TabItem>
 </Tabs>
 
 ## Clone and Build
 
-<Steps>
+**1. Clone the repository**
 
-1. **Clone the repository**
+```sh
+git clone https://github.com/NguyenTrongPhuc552003/haven.git
+cd haven
+```
 
-    ```sh
-    git clone https://github.com/NguyenTrongPhuc552003/haven.git
-    cd haven
-    ```
+**2. Install git hooks** (optional but recommended)
 
-2. **Install git hooks** (optional but recommended)
+```sh
+./scripts/setup-hooks.sh
+```
 
-    ```sh
-    ./scripts/setup-hooks.sh
-    ```
+**3. Build core stubs**
 
-3. **Build core stubs**
+```sh
+make build
+# or explicitly with a compiler:
+CC=clang make build
+```
 
-    ```sh
-    make build
-    # or explicitly with a compiler:
-    CC=clang make build
-    ```
+Expected output: `[build] compiling haven core stubs`
 
-    Expected output:
-    ```
-    [build] compiling haven core stubs
-    ```
+**4. Run the full test suite**
 
-4. **Run the full test suite**
+```sh
+make test
+```
 
-    ```sh
-    make test
-    ```
+All test binaries are compiled and executed. You should see no assertion failures.
 
-    All test binaries are compiled and executed. You should see no assertion
-    failures.
+**5. Run style and config checks**
 
-5. **Run style and config checks**
+```sh
+make style-check
+```
 
-    ```sh
-    make style-check
-    ```
+**6. Run the QEMU smoke test**
 
-6. **Run the QEMU smoke test**
+```sh
+./scripts/qemu-smoke.sh
+```
 
-    ```sh
-    ./scripts/qemu-smoke.sh
-    ```
-
-    This verifies `qemu-system-aarch64` is reachable. Full QEMU partition boot
-    is a Release 2 milestone.
-
-</Steps>
+This verifies `qemu-system-aarch64` is reachable. Full QEMU partition boot
+is a Release 2 milestone.
 
 ## Run the Full CI Preflight Locally
 
@@ -103,11 +95,11 @@ This runs `build → style-check → test → check-configs` in sequence, identi
 to what the CI pipeline executes.
 
 <Aside type="tip">
-  Set `CC=clang` or `CC=gcc` to match a specific CI matrix leg:
-  ```sh
-  CC=clang ./scripts/ci-preflight.sh
-  CC=gcc   ./scripts/ci-preflight.sh
-  ```
+    Set `CC=clang` or `CC=gcc` to match a specific CI matrix leg:
+    ```sh
+    CC=clang ./scripts/ci-preflight.sh
+    CC=gcc   ./scripts/ci-preflight.sh
+    ```
 </Aside>
 
 ## Capture a Benchmark Baseline
@@ -123,7 +115,7 @@ track performance trends over time.
 
 ```
 haven/
-├── src/core/          # EL2 hypervisor — mm, irq, sched, dma, exc
+├── src/core/          # EL2 hypervisor - mm, irq, sched, dma, exc
 ├── include/haven/     # Public headers (stage2.h, irq_ownership.h, …)
 ├── configs/arm64/     # Static partition YAML configs
 ├── tests/             # unit/, integration/, isolation/

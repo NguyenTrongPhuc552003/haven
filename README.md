@@ -1,110 +1,158 @@
-# haven
+# Haven
 
-Hypervisor for Asymmetric Virtualization ENforcement and isolation.
+**Hypervisor for Asymmetric Virtualization ENforcement and isolation**
 
-Haven is a static partition hypervisor research repository for heterogeneous SoCs,
-focused on enforcing spatial and temporal isolation between Linux and RTOS domains.
+[![CI](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml/badge.svg)](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml)
+[![Docs](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/vercel.yml/badge.svg)](https://haven-tau-eight.vercel.app/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0--dev-orange.svg)](VERSION)
+[![Platform](https://img.shields.io/badge/platform-ARM64%20AArch64-lightgrey.svg)](configs/arm64/)
 
-## Thesis Context
+> **Master's Thesis** - Computer Engineering  
+> *Static Partition Hypervisor for Asymmetric Multiprocessing: Enforcing Spatial and Temporal Isolation Between Linux and RTOS on a Heterogeneous SoC*
 
-Title:
-Static Partition Hypervisor for Asymmetric Multiprocessing: Enforcing Spatial and Temporal Isolation Between Linux and RTOS on a Heterogeneous SoC
+**Live documentation → [haven-tau-eight.vercel.app](https://haven-tau-eight.vercel.app/)**
 
-Core claims:
-- Spatial isolation: a partition cannot access memory/devices assigned to another.
-- Temporal isolation: overload in one partition cannot violate bounded latency in another.
+---
 
-## Scope
+## Overview
 
-In scope:
-- Static partition definition at build/deploy time.
-- Stage-2 memory isolation policy.
-- Device and interrupt partitioning policy.
-- CPU budget and deterministic scheduling for mixed criticality.
-- Linux plus RTOS coexistence on heterogeneous SoCs.
+Haven is a static partition hypervisor research artifact that runs at **EL2** on ARM64 SoCs. It enforces hard spatial and temporal isolation between a Linux domain and an RTOS domain on heterogeneous SoCs where application-class cores (Cortex-A) and microcontroller cores (Cortex-M) coexist on a single die.
 
-Out of scope:
-- Dynamic VM creation or migration.
-- Cloud orchestration features.
-- Overcommit-based scheduling models.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  Guest Partitions (EL1/EL0)                 │
+│  ┌───────────────────────┐   ┌───────────────────────────┐  │
+│  │   Linux  (A55 × 4)    │   │  FreeRTOS  (M7 / A55)     │  │
+│  └───────────┬───────────┘   └─────────────┬─────────────┘  │
+├──────────────┼─────────────────────────────┼────────────────┤
+│              │          EL2 - Haven        │                │
+│  ┌───────────▼─────────────────────────────▼─────────────┐  │
+│  │  Stage-2 MMU │ IRQ Ownership   │ Budget Scheduler     │  │
+│  │  SMMU Policy │ EL2 Exc Handler │ Time Accounting      │  │
+│  └───────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│              Hardware - NXP i.MX95 (ARM64 SoC)              │
+│     Cortex-A55 × 4  │  Cortex-M7  │  GIC-700  │  SMMU-700   │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Repository Map
+### Core Guarantees
 
-- src/: hypervisor core and platform code.
-- include/: interface and architecture headers.
-- configs/: static partition configurations per target.
-- drivers/: Linux and guest-side integration helpers.
-- tests/: unit, integration, and isolation validation.
-- docs/: architecture, safety, methodology, and roadmap.
-- verification/: placeholders for formal artifacts.
-- scripts/: build, test, style, and release helpers.
+| Property               | Mechanism                                     | Status           |
+| ---------------------- | --------------------------------------------- | ---------------- |
+| **Spatial isolation**  | Stage-2 page tables, SMMU stream policy       | Stub implemented |
+| **Temporal isolation** | Budget-based EL2 scheduler, overrun detection | Stub implemented |
+| **IRQ ownership**      | Deny-by-default interrupt routing table       | Stub implemented |
+| **DMA isolation**      | Per-partition SMMU context                    | Stub implemented |
+| **Minimal TCB**        | No dynamic alloc, no FP, bounded loops        | By design        |
 
-Key baseline artifacts:
-- docs/methodology/CHAPTER_TRACEABILITY.md
-- docs/methodology/AI_WORKFLOW_PLAYBOOK.md
-- docs/methodology/CI_STRATEGY.md
-- docs/methodology/BRANCH_PROTECTION_POLICY.md
-- docs/methodology/GITHUB_PROTECTION_SETUP.md
-- docs/methodology/CI_TROUBLESHOOTING.md
-- docs/methodology/IMX95_EVIDENCE_TEMPLATE.md
-- docs/methodology/BENCHMARK_BASELINE.md
-- docs/methodology/VIRTUAL_PLATFORM_VALIDATION.md
-- docs/methodology/PHYSICAL_BOARD_VALIDATION.md
-- docs/methodology/VERCEL_DEPLOYMENT.md
-- docs/architecture/THESIS_DEEP_DIVE.md
-- docs/architecture/NAMING_RATIONALE.md
-- docs/porting/IMX95_VALIDATION_RUNBOOK.md
-- docs/porting/CROSS_OS_VIRTUALIZATION_RUNBOOK.md
-- docs/roadmap/ONE_YEAR_RELEASE_PLAN.md
-- docs/roadmap/releases/README.md
-- include/haven/stage2.h
-- include/haven/irq_ownership.h
-- include/haven/budget_sched.h
-- configs/arm64/qemu-virt.yaml
-- configs/arm64/imx8qm-mek.yaml
+---
 
 ## Quick Start
 
-Prerequisites:
-- clang or gcc toolchain
-- make
-- qemu-system-aarch64 (recommended for initial validation)
+**Prerequisites:** `gcc` or `clang`, `make`, `python3`, `qemu-system-aarch64` (optional)
 
-Bootstrap:
-- ./scripts/build.sh
-- ./scripts/test.sh
+```sh
+git clone https://github.com/NguyenTrongPhuc552003/haven.git
+cd haven
+./scripts/build.sh       # compile all C modules
+./scripts/test.sh        # run unit + integration tests
+./scripts/check-configs.sh  # validate partition configs
+```
 
-## Evaluation Plan
+Or with Make:
 
-Primary metrics:
-- Memory isolation violation attempts blocked.
-- Interrupt routing correctness.
-- Worst-case latency/jitter under Linux stress.
-- RTOS deadline miss rate under interference.
+```sh
+make build
+make test
+make style-check
+make evidence       # package evaluation artifacts
+```
+
+---
+
+## Repository Structure
+
+```
+haven/
+├── src/core/           # EL2 hypervisor core (mm, irq, sched, dma, exc)
+├── src/guest/          # Guest-side drivers (UART, FreeRTOS integration)
+├── src/platform/       # Board-specific bring-up (i.MX95, QEMU)
+├── include/haven/      # Public API headers
+├── configs/arm64/      # Static partition configs (YAML)
+├── drivers/            # Linux and guest tool drivers
+├── tests/              # Unit, integration, and isolation tests
+├── docs/               # Architecture, methodology, roadmap, safety docs
+├── docs/thesis/        # Master thesis working documents
+├── verification/       # Formal verification artifacts (Coq, Isabelle)
+├── website/            # Astro Starlight documentation portal
+├── scripts/            # Build, test, CI, and release automation
+└── .github/workflows/  # CI matrix (gcc/clang, QEMU smoke, Vercel deploy)
+```
+
+**Key source modules:**
+
+| Module           | File                                    | Purpose                                     |
+| ---------------- | --------------------------------------- | ------------------------------------------- |
+| Stage-2 MMU      | `src/core/mm/stage2.c`                  | Partition memory mapping and access control |
+| IRQ Ownership    | `src/core/irq/ownership.c`              | Interrupt routing table, deny-by-default    |
+| Budget Scheduler | `src/core/sched/budget.c`               | CPU time budget tracking and enforcement    |
+| SMMU / DMA       | `src/core/dma/smmu.c`                   | Stream-ID-based DMA partition isolation     |
+| EL2 Exceptions   | `src/core/exc/el2_exceptions.c`         | EL2 exception dispatch and fault handling   |
+| Guest UART       | `src/guest/drivers/uart.c`              | Isolated guest UART port abstraction        |
+| FreeRTOS Port    | `src/guest/rtos/freertos_integration.c` | FreeRTOS partition state management         |
+
+---
+
+## Validation Platforms
+
+| Board                  | SoC     | CPU Topology               | Role                      |
+| ---------------------- | ------- | -------------------------- | ------------------------- |
+| **NXP i.MX95 Dev Kit** | i.MX95  | Cortex-A55 × 4 + Cortex-M7 | Primary - thesis evidence |
+| **QEMU virt (arm64)**  | virtual | Cortex-A57 (emulated)      | CI gating - reproducible  |
+| **NXP i.MX8QM-MEK**    | i.MX8QM | Cortex-A53 × 4 + Cortex-M4 | Secondary validation      |
+
+---
+
+## CI / CD
+
+| Workflow            | Trigger      | Purpose                                                    |
+| ------------------- | ------------ | ---------------------------------------------------------- |
+| `ci.yml`            | push / PR    | Build (gcc + clang), style check, unit + integration tests |
+| `nightly.yml`       | nightly      | Extended test matrix                                       |
+| `benchmark.yml`     | push to main | Baseline performance capture                               |
+| `cross-os.yml`      | push / PR    | QEMU smoke test on ubuntu/macos                            |
+| `evidence-pack.yml` | manual       | Package thesis evidence archive                            |
+| `vercel.yml`        | push to main | Build and deploy documentation portal                      |
+
+---
+
+## Thesis Context
+
+**Research questions:**
+1. Can stage-2 page tables and SMMU stream policy enforce hard spatial isolation between Linux and FreeRTOS on a real AMP SoC under deliberate violation attempts?
+2. Can a budget-based EL2 scheduler bound RTOS latency under worst-case Linux load on shared cores?
+
+**Chapter-to-artifact traceability:** [`docs/methodology/CHAPTER_TRACEABILITY.md`](docs/methodology/CHAPTER_TRACEABILITY.md)  
+**Evaluation plan:** [`docs/methodology/EVALUATION_PLAN.md`](docs/methodology/EVALUATION_PLAN.md)  
+**One-year roadmap:** [`docs/roadmap/ONE_YEAR_RELEASE_PLAN.md`](docs/roadmap/ONE_YEAR_RELEASE_PLAN.md)
+
+---
 
 ## Governance
 
-Please read:
-- CONTRIBUTING.md
-- SECURITY.md
-- CODE_OF_CONDUCT.md
-- docs/safety/THREAT_MODEL.md
-- .github/copilot-instructions.md
-- AGENTS.md
+| Document                                                     | Purpose                             |
+| ------------------------------------------------------------ | ----------------------------------- |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md)                         | Contribution workflow and DCO       |
+| [`SECURITY.md`](SECURITY.md)                                 | Vulnerability reporting             |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)                   | Community standards                 |
+| [`docs/safety/THREAT_MODEL.md`](docs/safety/THREAT_MODEL.md) | Adversary model and security claims |
+| [`docs/safety/ASSUMPTIONS.md`](docs/safety/ASSUMPTIONS.md)   | Hardware and platform assumptions   |
+| [`AGENTS.md`](AGENTS.md)                                     | AI agent roles and policies         |
 
-Evidence packaging:
-- make evidence
-- .github/workflows/evidence-pack.yml
+---
 
-Benchmark automation:
-- ./scripts/benchmark-baseline.py
-- .github/workflows/benchmark.yml
+## License
 
-Cross-platform validation automation:
-- ./scripts/qemu-smoke.sh
-- .github/workflows/cross-os.yml
-
-Vercel deployment:
-- site/index.html
-- vercel.json
-- .github/workflows/vercel.yml
+[Apache License 2.0](LICENSE) - see the file for full terms.

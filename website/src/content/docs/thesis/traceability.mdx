@@ -11,47 +11,47 @@ document and the Haven repository.
 
 ## Traceability Matrix
 
-| Chapter | Thesis Claim | Repository Deliverables | Evidence Artifacts |
-|---|---|---|---|
-| **Ch. 1 — Introduction** | Heterogeneous SoCs need partition-level isolation | `docs/architecture/OVERVIEW.md`, `docs/architecture/THESIS_DEEP_DIVE.md` | Literature references |
-| **Ch. 2 — Background** | Static partition hypervisors are the right approach | `docs/architecture/ISOLATION_MODEL.md`, `docs/safety/THREAT_MODEL.md` | Jailhouse/Bao comparison |
-| **Ch. 3 — Design** | Haven's architecture enforces spatial and temporal invariants | `src/core/mm/`, `src/core/irq/`, `src/core/sched/`, `include/haven/` | Code review + unit test pass |
-| **Ch. 4 — Implementation** | Stage-2, IRQ ownership, SMMU, budget scheduler are implemented correctly | All source modules, test results | `build/tests/test_*` pass logs |
-| **Ch. 5 — Evaluation** | Isolation holds under violation attempts; RTOS latency is bounded | `tests/integration/`, `tests/isolation/` | `build/evidence/imx95/metrics/` |
-| **Ch. 6 — Discussion** | TCB is minimal; formal analysis is tractable | `verification/coq/`, `verification/isabelle/` | LOC count, proof sketches |
-| **Ch. 7 — Conclusion** | Haven demonstrates feasibility on real i.MX95 hardware | Full evidence package | `build/evidence/` archive |
+| Chapter                    | Thesis Claim                                                             | Repository Deliverables                                                  | Evidence Artifacts              |
+| -------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------- |
+| **Ch. 1 - Introduction**   | Heterogeneous SoCs need partition-level isolation                        | `docs/architecture/OVERVIEW.md`, `docs/architecture/THESIS_DEEP_DIVE.md` | Literature references           |
+| **Ch. 2 - Background**     | Static partition hypervisors are the right approach                      | `docs/architecture/ISOLATION_MODEL.md`, `docs/safety/THREAT_MODEL.md`    | Jailhouse/Bao comparison        |
+| **Ch. 3 - Design**         | Haven's architecture enforces spatial and temporal invariants            | `src/core/mm/`, `src/core/irq/`, `src/core/sched/`, `include/haven/`     | Code review + unit test pass    |
+| **Ch. 4 - Implementation** | Stage-2, IRQ ownership, SMMU, budget scheduler are implemented correctly | All source modules, test results                                         | `build/tests/test_*` pass logs  |
+| **Ch. 5 - Evaluation**     | Isolation holds under violation attempts; RTOS latency is bounded        | `tests/integration/`, `tests/isolation/`                                 | `build/evidence/imx95/metrics/` |
+| **Ch. 6 - Discussion**     | TCB is minimal; formal analysis is tractable                             | `verification/coq/`, `verification/isabelle/`                            | LOC count, proof sketches       |
+| **Ch. 7 - Conclusion**     | Haven demonstrates feasibility on real i.MX95 hardware                   | Full evidence package                                                    | `build/evidence/` archive       |
 
 ## Milestone Mapping
 
-| Repository Milestone | Thesis Chapters Supported |
-|---|---|
-| M1: Repository and architecture baseline | Ch. 1, Ch. 2 |
-| M2: Minimal boot and partition bring-up | Ch. 3, Ch. 4 (partial) |
-| M3: Isolation enforcement | Ch. 4, Ch. 5 (partial) |
-| M4: Temporal guarantees | Ch. 4, Ch. 5 |
-| M5: Full validation campaign | Ch. 5, Ch. 6 |
-| M6: Thesis submission artifacts | Ch. 7, all appendices |
+| Repository Milestone                     | Thesis Chapters Supported |
+| ---------------------------------------- | ------------------------- |
+| M1: Repository and architecture baseline | Ch. 1, Ch. 2              |
+| M2: Minimal boot and partition bring-up  | Ch. 3, Ch. 4 (partial)    |
+| M3: Isolation enforcement                | Ch. 4, Ch. 5 (partial)    |
+| M4: Temporal guarantees                  | Ch. 4, Ch. 5              |
+| M5: Full validation campaign             | Ch. 5, Ch. 6              |
+| M6: Thesis submission artifacts          | Ch. 7, all appendices     |
 
 ## Release Deliverables
 
-### Release 1 (Months 1–3) — Foundation
+### Release 1 (Months 1–3) - Foundation
 - Stable repository process and CI quality gates.
 - Executable unit and integration smoke tests.
 - Benchmark and evidence packaging baseline.
 - Initial i.MX95 bring-up runbook and evidence templates.
 
-### Release 2 (Months 4–6) — Isolation Mechanisms
+### Release 2 (Months 4–6) - Isolation Mechanisms
 - Stage-2 mapping beyond current stubs.
 - IRQ ownership with invalid-path denials.
 - Budget scheduler accounting and reset semantics.
 - Negative integration tests for unauthorized access.
 
-### Release 3 (Months 7–9) — Platform Validation
+### Release 3 (Months 7–9) - Platform Validation
 - Full i.MX95 validation campaign with repeatable evidence.
 - Cross-OS virtual validation completion.
 - Secondary heterogeneous board baseline.
 
-### Release 4 (Months 10–12) — Thesis Lock
+### Release 4 (Months 10–12) - Thesis Lock
 - Full regression rerun.
 - Final benchmark and evidence archives.
 - Thesis chapter traceability completion.

@@ -39,7 +39,7 @@ Haven maps each StreamID to the owning partition's stage-2 context.
 ```c
 /* include/haven/smmu.h */
 
-/* Initialize SMMU — disable all stream IDs */
+/* Initialize SMMU - disable all stream IDs */
 hv_status_t hv_smmu_init(void);
 
 /* Map a DMA device to a partition */
@@ -52,7 +52,7 @@ hv_status_t hv_smmu_unmap_device(hv_u32 stream_id, hv_u32 partition_id);
 hv_status_t hv_smmu_check_device(hv_u32 stream_id, hv_u32 partition_id);
 ```
 
-Source: `src/core/dma/smmu.c`  
+Source: `src/core/dma/smmu.c`
 Header: `include/haven/smmu.h`
 
 ## Stream ID Table
@@ -66,24 +66,24 @@ static struct {
 } smmu_state[HV_MAX_SMMU_DEVICES];
 ```
 
-A StreamID with `configured = 0` is blocked at the SMMU — all transactions
+A StreamID with `configured = 0` is blocked at the SMMU - all transactions
 from it are faulted. This is the deny-by-default posture.
 
 ## SMMUv3 Register Programming
 
-| Register | Purpose |
-|---|---|
-| `SMMU_IDR0` | Feature detection (S2P, S1P, HTTU, …) |
-| `SMMU_CR0` | Enable SMMU (`SMMUEN = 1`) |
-| `SMMU_STRTAB_BASE` | Base address of linear stream table |
-| `SMMU_STRTAB_BASE_CFG` | Table size and format |
-| `SMMU_GERRORN` | Global error reporting |
-| `SMMU_EVENTQ_BASE` | Event queue for fault reporting to EL2 |
+| Register               | Purpose                                |
+| ---------------------- | -------------------------------------- |
+| `SMMU_IDR0`            | Feature detection (S2P, S1P, HTTU, …)  |
+| `SMMU_CR0`             | Enable SMMU (`SMMUEN = 1`)             |
+| `SMMU_STRTAB_BASE`     | Base address of linear stream table    |
+| `SMMU_STRTAB_BASE_CFG` | Table size and format                  |
+| `SMMU_GERRORN`         | Global error reporting                 |
+| `SMMU_EVENTQ_BASE`     | Event queue for fault reporting to EL2 |
 
 <Aside type="note">
-  The i.MX95 SMMU-700 uses a 2-level stream table format. Haven's implementation
-  currently programs a linear table as a stub. 2-level table support is a
-  Release 2 deliverable.
+    The i.MX95 SMMU-700 uses a 2-level stream table format. Haven's implementation
+    currently programs a linear table as a stub. 2-level table support is a
+    Release 2 deliverable.
 </Aside>
 
 ## Fault Handling

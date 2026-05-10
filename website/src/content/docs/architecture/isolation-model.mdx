@@ -7,17 +7,17 @@ import { Aside } from "@astrojs/starlight/components";
 
 ## Definitions
 
-**Partition** — a named, static resource domain with exclusive ownership of:
+**Partition** - a named, static resource domain with exclusive ownership of:
 - A set of physical memory regions.
 - A set of CPU cores (or a CPU time budget on shared cores).
 - A set of interrupt lines.
 - A set of DMA-capable peripheral stream IDs.
 
-**Spatial isolation** — for all partitions P₁ ≠ P₂, no instruction executing
+**Spatial isolation** - for all partitions P₁ ≠ P₂, no instruction executing
 in P₁ can read or modify any physical address owned by P₂, and no DMA issued
 by a peripheral owned by P₁ can read or write any address owned by P₂.
 
-**Temporal isolation** — for all partitions P₁ ≠ P₂ sharing a CPU core, the
+**Temporal isolation** - for all partitions P₁ ≠ P₂ sharing a CPU core, the
 scheduling behavior of P₁ cannot cause the worst-case response time of P₂'s
 highest-priority task to exceed its declared budget.
 
@@ -44,7 +44,7 @@ suspends the offending partition.
 ### SMMU for DMA
 
 DMA masters (PCIe, USB, Ethernet, display controllers) use physical addresses
-directly — they bypass the CPU MMU. Haven programs the SMMU stream ID → context
+directly - they bypass the CPU MMU. Haven programs the SMMU stream ID → context
 bank → stage-2 table mapping so that each DMA master's address space is exactly
 the same as its owning partition's stage-2 map.
 
@@ -59,8 +59,8 @@ stage-2 table triggers a stage-2 fault. Peripherals not listed in any
 partition's config are not accessible from EL1 at all.
 
 <Aside type="caution">
-  Haven's current implementation uses stub stage-2 tables. The actual ARM LPAE
-  descriptor programming for i.MX95 is a Release 2 deliverable.
+    Haven's current implementation uses stub stage-2 tables. The actual ARM LPAE
+    descriptor programming for i.MX95 is a Release 2 deliverable.
 </Aside>
 
 ## Temporal Isolation Mechanisms
@@ -70,7 +70,7 @@ partition's config are not accessible from EL1 at all.
 Where the SoC topology permits, the preferred mechanism is to assign disjoint
 core sets to each partition. On the i.MX95, cores 0–3 (Cortex-A55) run Linux
 and core 100 (Cortex-M7, MCU domain) runs FreeRTOS. The M7 cannot be
-preempted by the A55 cluster at all — hard temporal separation by design.
+preempted by the A55 cluster at all - hard temporal separation by design.
 
 ### Budget-Based Scheduling
 
@@ -107,12 +107,12 @@ timing:
 
 ## Failure Mode Policy
 
-| Violation | Haven response |
-|---|---|
-| Stage-2 fault (CPU) | Suspend partition, log fault to EL2 journal |
-| SMMU fault (DMA) | Abort DMA transaction, log, optionally suspend partition |
-| Budget overrun | Preempt partition, defer to next period |
-| IRQ to unowned partition | Drop or reroute to EL2 handler |
+| Violation                | Haven response                                           |
+| ------------------------ | -------------------------------------------------------- |
+| Stage-2 fault (CPU)      | Suspend partition, log fault to EL2 journal              |
+| SMMU fault (DMA)         | Abort DMA transaction, log, optionally suspend partition |
+| Budget overrun           | Preempt partition, defer to next period                  |
+| IRQ to unowned partition | Drop or reroute to EL2 handler                           |
 
 All failure modes are **fail-closed**: the default action is to deny the
 violating access and preserve the other partition's invariants.
