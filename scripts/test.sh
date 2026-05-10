@@ -22,6 +22,13 @@ mkdir -p build/tests
 
 ./build/tests/test_smmu_dma
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/unit/test_el2_exceptions.c \
+	src/core/exc/el2_exceptions.c \
+	-o build/tests/test_el2_exceptions
+
+./build/tests/test_el2_exceptions
+
 echo "[test] running integration isolation flow"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_isolation_flow.c \
