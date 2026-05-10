@@ -44,6 +44,7 @@ Key baseline artifacts:
 - docs/methodology/AI_WORKFLOW_PLAYBOOK.md
 - docs/methodology/CI_STRATEGY.md
 - docs/methodology/BRANCH_PROTECTION_POLICY.md
+- docs/methodology/GITHUB_PROTECTION_SETUP.md
 - docs/methodology/CI_TROUBLESHOOTING.md
 - docs/methodology/IMX95_EVIDENCE_TEMPLATE.md
 - docs/architecture/THESIS_DEEP_DIVE.md
@@ -83,3 +84,7 @@ Please read:
 - docs/safety/THREAT_MODEL.md
 - .github/copilot-instructions.md
 - AGENTS.md
+
+Evidence packaging:
+- make evidence
+- .github/workflows/evidence-pack.yml
