@@ -45,6 +45,11 @@ static void run_negative_isolation_flow(void) {
       .period_ns = 100000,
       .budget_ns = 200000,
   };
+  struct hv_budget tight_budget = {
+      .partition_id = 7,
+      .period_ns = 100000,
+      .budget_ns = 20000,
+  };
 
   assert(hv_stage2_init() == HV_OK);
   assert(hv_irq_owner_init() == HV_OK);
@@ -68,7 +73,11 @@ static void run_negative_isolation_flow(void) {
          HV_OK);
 
   assert(hv_budget_set(&invalid_budget) == HV_EINVAL);
+  assert(hv_budget_set(&tight_budget) == HV_OK);
   assert(hv_budget_consume(0, 1000) == HV_EINVAL);
+  assert(hv_budget_consume(tight_budget.partition_id, 10000) == HV_OK);
+  assert(hv_budget_consume(tight_budget.partition_id, 15000) == HV_EPERM);
+  assert(hv_budget_consume(3, 1000) == HV_EPERM);
   assert(hv_budget_reset_period(0) == HV_EINVAL);
 }
 
