@@ -39,6 +39,14 @@ Out of scope:
 - verification/: placeholders for formal artifacts.
 - scripts/: build, test, style, and release helpers.
 
+Key baseline artifacts:
+- docs/methodology/CHAPTER_TRACEABILITY.md
+- include/haven/stage2.h
+- include/haven/irq_ownership.h
+- include/haven/budget_sched.h
+- configs/arm64/qemu-virt.yaml
+- configs/arm64/imx8qm-mek.yaml
+
 ## Quick Start
 
 Prerequisites:

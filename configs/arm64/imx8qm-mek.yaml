@@ -1,0 +1,38 @@
+target: nxp-imx8qm-mek
+description: Starter static partition profile for a heterogeneous A53 plus M4 platform.
+
+cpus:
+  linux_a53: [0, 1, 2]
+  safety_a53: [3]
+  rtos_m4: [100]
+
+memory:
+  linux_a53:
+    base: 0x80200000
+    size: 0x5FE00000
+  safety_a53:
+    base: 0xE2000000
+    size: 0x02000000
+  rtos_m4_tcm:
+    base: 0x1FFE0000
+    size: 0x00020000
+  shared_mailbox:
+    base: 0xB0000000
+    size: 0x00100000
+
+interrupts:
+  linux_a53: [32, 33, 34, 40, 41]
+  safety_a53: [70, 71]
+  rtos_m4: [200, 201]
+
+timing:
+  period_us: 5000
+  budgets_us:
+    linux_a53: 3200
+    safety_a53: 1200
+    rtos_m4: 500
+    hypervisor: 100
+
+notes:
+  - CPU id 100 represents the M4 domain in this abstract model.
+  - Final values must be aligned with board manual and firmware memory map.

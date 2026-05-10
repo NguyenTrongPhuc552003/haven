@@ -14,3 +14,6 @@ M4: Temporal guarantees
 
 M5: Thesis evidence package
 - Consolidate results, threats, limitations, and reproducibility kit.
+
+Traceability reference:
+- docs/methodology/CHAPTER_TRACEABILITY.md maps thesis chapters to deliverables.

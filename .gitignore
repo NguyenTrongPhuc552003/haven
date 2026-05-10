@@ -19,5 +19,7 @@ __pycache__/
 *.pyc
 
 # Tooling
+.vscode/
+.idea/
 compile_commands.json
 coverage/

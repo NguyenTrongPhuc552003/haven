@@ -1,0 +1,29 @@
+target: qemu-virt-arm64
+description: Baseline static partition profile for QEMU virt.
+
+cpus:
+  linux: [0, 1]
+  rtos: [2]
+  hypervisor: [3]
+
+memory:
+  linux:
+    base: 0x40000000
+    size: 0x40000000
+  rtos:
+    base: 0x80000000
+    size: 0x04000000
+  shared:
+    base: 0x84000000
+    size: 0x01000000
+
+interrupts:
+  linux: [32, 33, 34, 35]
+  rtos: [48, 49]
+
+timing:
+  period_us: 10000
+  budgets_us:
+    linux: 7000
+    rtos: 2500
+    hypervisor: 500
