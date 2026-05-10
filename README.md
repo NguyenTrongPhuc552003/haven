@@ -43,8 +43,12 @@ Key baseline artifacts:
 - docs/methodology/CHAPTER_TRACEABILITY.md
 - docs/methodology/AI_WORKFLOW_PLAYBOOK.md
 - docs/methodology/CI_STRATEGY.md
+- docs/methodology/BRANCH_PROTECTION_POLICY.md
+- docs/methodology/CI_TROUBLESHOOTING.md
+- docs/methodology/IMX95_EVIDENCE_TEMPLATE.md
 - docs/architecture/THESIS_DEEP_DIVE.md
 - docs/architecture/NAMING_RATIONALE.md
+- docs/porting/IMX95_VALIDATION_RUNBOOK.md
 - include/haven/stage2.h
 - include/haven/irq_ownership.h
 - include/haven/budget_sched.h
