@@ -17,6 +17,9 @@ export default defineConfig({
         dark: "./src/assets/logo-dark.svg",
         replacesTitle: false,
       },
+      components: {
+        Head: "./src/components/Head.astro",
+      },
       social: {
         github: "https://github.com/NguyenTrongPhuc552003/haven",
       },

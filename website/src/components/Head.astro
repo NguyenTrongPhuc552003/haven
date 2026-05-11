@@ -1,0 +1,7 @@
+---
+import SpeedInsights from "@vercel/speed-insights/astro";
+const { head } = Astro.locals.starlightRoute || { head: [] };
+---
+
+<SpeedInsights />
+{head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
