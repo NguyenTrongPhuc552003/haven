@@ -32,6 +32,7 @@ static void hv_timer_program_earliest_deadline(void) {
   hv_u64 earliest = 0;
   hv_u32 i;
 
+  /* Partition 0 is reserved by the timer API contract and never active. */
   for (i = 1; i < HV_MAX_TIMER_PARTITIONS; ++i) {
     if (!timer_state[i].active) {
       continue;

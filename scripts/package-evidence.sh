@@ -185,9 +185,7 @@ if [ "$TARGET_PLATFORM" = "imx95" ]; then
   # Append before the closing brace using a portable sed replacement.
   if [ -f build/evidence/summary.json ]; then
     # Remove last closing brace and re-add with the new field appended.
-    sed '$d' build/evidence/summary.json > build/evidence/summary.json.tmp
-    sed '$ s/$/,/' build/evidence/summary.json.tmp > build/evidence/summary.json.tmp2
-    mv build/evidence/summary.json.tmp2 build/evidence/summary.json.tmp
+    sed -e '$d' -e '$ s/$/,/' build/evidence/summary.json > build/evidence/summary.json.tmp
     cat >> build/evidence/summary.json.tmp << IMXEOF
   "imx95_evidence_count": ${IMX95_EVIDENCE_COUNT}
 }

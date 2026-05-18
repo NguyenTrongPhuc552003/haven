@@ -34,5 +34,6 @@ qemu-system-aarch64 \
     -nographic \
     -bios none \
     -device loader,file="$HAVEN_BIN",addr="$HV_LOAD_ADDR",cpu-num=0 \
+    # Seed reset vector so CPU0 starts at HV_LOAD_ADDR after reset.
     -device loader,addr=0x0,data="$HV_LOAD_ADDR",data-len=8,cpu-num=0 \
     "${@}"

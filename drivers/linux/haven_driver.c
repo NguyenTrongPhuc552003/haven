@@ -42,8 +42,9 @@ static long haven_hvc(uint64_t func_id, uint64_t arg, uint64_t *result)
 		: "memory", "x2", "x3"
 	);
 
-	if (result)
+	if (result) {
 		*result = _arg;
+	}
 	return (long)status;
 }
 
