@@ -64,19 +64,19 @@ static void test_timer_check_deadline(void) {
 
   hv_timer_set_deadline(1, 5000ULL);
 
-  /* Check before deadline — not expired. */
+  /* Check before deadline - not expired. */
   s = hv_timer_check_deadline(1, 4000ULL, &expired);
   assert(s == HV_OK);
   assert(expired == 0);
   TEST_PASS("timer_check_deadline: not expired before deadline");
 
-  /* Check at deadline — expired. */
+  /* Check at deadline - expired. */
   s = hv_timer_check_deadline(1, 5000ULL, &expired);
   assert(s == HV_OK);
   assert(expired == 1);
   TEST_PASS("timer_check_deadline: expired at exact deadline");
 
-  /* Check past deadline — still expired. */
+  /* Check past deadline - still expired. */
   s = hv_timer_check_deadline(1, 9000ULL, &expired);
   assert(s == HV_OK);
   assert(expired == 1);

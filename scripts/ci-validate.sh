@@ -1,14 +1,14 @@
 #!/usr/bin/env sh
-# ci-validate.sh — Structured V1/V2/V3 validation transcript
+# ci-validate.sh - Structured V1/V2/V3 validation transcript
 #
 # Runs the three validation levels defined in
 # docs/methodology/VIRTUAL_PLATFORM_VALIDATION.md and writes a structured
 # transcript to build/evidence/validation-transcript.json.
 #
 # Validation levels:
-#   V1 — Environment sanity: toolchain + shell compatibility
-#   V2 — Repository preflight: build, style-check, test, config-check
-#   V3 — QEMU workflow sanity: qemu available + invocation + artifact collection
+#   V1 - Environment sanity: toolchain + shell compatibility
+#   V2 - Repository preflight: build, style-check, test, config-check
+#   V3 - QEMU workflow sanity: qemu available + invocation + artifact collection
 #
 # Exit code:
 #   0  All levels that could run have passed.
@@ -40,7 +40,7 @@ check_cmd() {
 }
 
 # -----------------------------------------------------------------------
-# V1 — Environment sanity
+# V1 - Environment sanity
 # -----------------------------------------------------------------------
 echo "[ci-validate] V1: environment sanity"
 
@@ -70,7 +70,7 @@ fi
 echo "[ci-validate] V1 done: ${V1_STATUS}"
 
 # -----------------------------------------------------------------------
-# V2 — Repository preflight
+# V2 - Repository preflight
 # -----------------------------------------------------------------------
 echo "[ci-validate] V2: repository preflight"
 
@@ -83,14 +83,14 @@ if ./scripts/ci-preflight.sh > "$V2_LOG" 2>&1; then
 	echo "[ci-validate] V2: preflight passed"
 else
 	V2_STATUS="fail"
-	V2_NOTE="preflight failed — see v2-preflight.txt"
+	V2_NOTE="preflight failed - see v2-preflight.txt"
 	echo "[ci-validate] V2 FAIL: preflight failed (see ${V2_LOG})"
 fi
 
 echo "[ci-validate] V2 done: ${V2_STATUS}"
 
 # -----------------------------------------------------------------------
-# V3 — QEMU workflow sanity
+# V3 - QEMU workflow sanity
 # -----------------------------------------------------------------------
 echo "[ci-validate] V3: QEMU workflow sanity"
 
@@ -108,11 +108,11 @@ if check_cmd qemu-system-aarch64; then
 		echo "[ci-validate] V3: QEMU smoke passed"
 	else
 		V3_STATUS="fail"
-		V3_NOTE="qemu smoke failed — see v3-qemu.txt"
+		V3_NOTE="qemu smoke failed - see v3-qemu.txt"
 		echo "[ci-validate] V3 FAIL: qemu smoke failed (see ${V3_LOG})"
 	fi
 else
-	echo "[ci-validate] V3: QEMU not available — skipped"
+	echo "[ci-validate] V3: QEMU not available - skipped"
 fi
 
 echo "[ci-validate] V3 done: ${V3_STATUS}"
@@ -148,7 +148,7 @@ if [ "$V3_STATUS" = "fail" ]; then
 fi
 
 if [ "$OVERALL_FAIL" -ne 0 ]; then
-	echo "[ci-validate] FAILED — one or more mandatory levels failed"
+	echo "[ci-validate] FAILED - one or more mandatory levels failed"
 	exit 1
 fi
 

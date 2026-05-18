@@ -1,5 +1,5 @@
 /**
- * Spatial isolation boundary tests — Chapter 4 evidence.
+ * Spatial isolation boundary tests - Chapter 4 evidence.
  *
  * Exercises all three spatial isolation enforcement layers together:
  *   - Stage-2 memory mapping (partition PA boundaries)
@@ -77,7 +77,7 @@ static void test_stage2_cross_partition_boundary(void) {
   /* Attempt to map partition 1's PA range as a new partition (3). */
   struct hv_mem_region region_escape = {
       .ipa_base = 0x30000000, /* different IPA */
-      .pa_base = 0x10000000,  /* but P1's PA — conflict */
+      .pa_base = 0x10000000,  /* but P1's PA - conflict */
       .size = 0x1000,
       .attrs = 0,
   };
@@ -138,7 +138,7 @@ static void test_smmu_dma_partition_escape(void) {
   hv_u16 sid1 = 0;
   assert(hv_smmu_allocate_streamid(1, &sid1) == HV_OK);
 
-  /* Configure a DMA window within P1's memory — should succeed. */
+  /* Configure a DMA window within P1's memory - should succeed. */
   hv_status_t s = hv_smmu_configure_dma_window(sid1, 0x10000000, 0x1000,
                                                0x10000000, HV_DMA_RW);
   assert(s == HV_OK);
@@ -174,12 +174,12 @@ static void test_smmu_access_type_boundary(void) {
   assert(hv_smmu_configure_dma_window(sid_ro, 0x10000000, 0x1000, 0x10000000,
                                       HV_DMA_RO) == HV_OK);
 
-  /* Read from RO window — allowed. */
+  /* Read from RO window - allowed. */
   assert(hv_smmu_check_dma_access(sid_ro, 0x10000000, 0x1000, HV_DMA_RO) ==
          HV_OK);
   TEST_PASS("smmu: read access on RO window permitted");
 
-  /* Write to RO window — denied. */
+  /* Write to RO window - denied. */
   assert(hv_smmu_check_dma_access(sid_ro, 0x10000000, 0x1000, HV_DMA_WO) ==
          HV_EPERM);
   TEST_PASS("smmu: write access on RO window denied");
@@ -189,12 +189,12 @@ static void test_smmu_access_type_boundary(void) {
   assert(hv_smmu_configure_dma_window(sid_wo, 0x10001000, 0x1000, 0x10001000,
                                       HV_DMA_WO) == HV_OK);
 
-  /* Write to WO window — allowed. */
+  /* Write to WO window - allowed. */
   assert(hv_smmu_check_dma_access(sid_wo, 0x10001000, 0x1000, HV_DMA_WO) ==
          HV_OK);
   TEST_PASS("smmu: write access on WO window permitted");
 
-  /* Read from WO window — denied. */
+  /* Read from WO window - denied. */
   assert(hv_smmu_check_dma_access(sid_wo, 0x10001000, 0x1000, HV_DMA_RO) ==
          HV_EPERM);
   TEST_PASS("smmu: read access on WO window denied");

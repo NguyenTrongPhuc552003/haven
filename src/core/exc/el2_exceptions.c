@@ -10,7 +10,7 @@
 #include <haven/platform.h>
 #endif
 
-/* External: ARM64 arch layer — weak so host unit-test builds link cleanly. */
+/* External: ARM64 arch layer - weak so host unit-test builds link cleanly. */
 extern void hv_install_vectors(void) __attribute__((weak));
 
 /**
@@ -201,7 +201,7 @@ hv_u64 hv_el2_get_exception_count(hv_exc_type_t exc_type) {
 }
 
 /* -----------------------------------------------------------------------
- * Assembly entry points — called directly from arch/arm64/entry.S.
+ * Assembly entry points - called directly from arch/arm64/entry.S.
  *
  * The assembly stubs save minimal registers and call these C functions.
  * esr: Exception Syndrome Register (ESR_EL2)
@@ -209,65 +209,64 @@ hv_u64 hv_el2_get_exception_count(hv_exc_type_t exc_type) {
  * sp:  EL2 stack pointer at time of exception
  * ----------------------------------------------------------------------- */
 
-void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
-{
-        current_exc_context.esr = esr;
-        current_exc_context.far = far;
-        current_exc_context.sp  = sp;
-        exception_counts[HV_EXC_SYNC]++;
+void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp) {
+  current_exc_context.esr = esr;
+  current_exc_context.far = far;
+  current_exc_context.sp = sp;
+  exception_counts[HV_EXC_SYNC]++;
 
-        if (global_handlers[HV_EXC_SYNC])
-                global_handlers[HV_EXC_SYNC](&current_exc_context);
+  if (global_handlers[HV_EXC_SYNC])
+    global_handlers[HV_EXC_SYNC](&current_exc_context);
 }
 
-void hv_handle_irq(hv_u64 esr, hv_u64 far, hv_u64 sp)
-{
-        current_exc_context.esr = esr;
-        current_exc_context.sp  = sp;
-        (void)far;
-        exception_counts[HV_EXC_IRQ]++;
+void hv_handle_irq(hv_u64 esr, hv_u64 far, hv_u64 sp) {
+  current_exc_context.esr = esr;
+  current_exc_context.sp = sp;
+  (void)far;
+  exception_counts[HV_EXC_IRQ]++;
 
-        if (global_handlers[HV_EXC_IRQ])
-                global_handlers[HV_EXC_IRQ](&current_exc_context);
+  if (global_handlers[HV_EXC_IRQ])
+    global_handlers[HV_EXC_IRQ](&current_exc_context);
 }
 
-void hv_handle_fiq(hv_u64 esr, hv_u64 far, hv_u64 sp)
-{
-        current_exc_context.esr = esr;
-        current_exc_context.sp  = sp;
-        (void)far;
-        exception_counts[HV_EXC_FIQ]++;
+void hv_handle_fiq(hv_u64 esr, hv_u64 far, hv_u64 sp) {
+  current_exc_context.esr = esr;
+  current_exc_context.sp = sp;
+  (void)far;
+  exception_counts[HV_EXC_FIQ]++;
 
-        if (global_handlers[HV_EXC_FIQ])
-                global_handlers[HV_EXC_FIQ](&current_exc_context);
+  if (global_handlers[HV_EXC_FIQ])
+    global_handlers[HV_EXC_FIQ](&current_exc_context);
 }
 
-void hv_handle_serror(hv_u64 esr, hv_u64 far, hv_u64 sp)
-{
-        current_exc_context.esr = esr;
-        current_exc_context.far = far;
-        current_exc_context.sp  = sp;
-        exception_counts[HV_EXC_SERROR]++;
+void hv_handle_serror(hv_u64 esr, hv_u64 far, hv_u64 sp) {
+  current_exc_context.esr = esr;
+  current_exc_context.far = far;
+  current_exc_context.sp = sp;
+  exception_counts[HV_EXC_SERROR]++;
 
-        if (global_handlers[HV_EXC_SERROR])
-                global_handlers[HV_EXC_SERROR](&current_exc_context);
+  if (global_handlers[HV_EXC_SERROR])
+    global_handlers[HV_EXC_SERROR](&current_exc_context);
 }
 
 /* Called for unrecoverable EL2 faults (e.g., synchronous abort at EL2).
  * Prints diagnostics and halts; never returns. */
 void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
-                                                   hv_u64 elr, hv_u64 sp)
-{
-        (void)esr; (void)far; (void)elr; (void)sp;
+                                                  hv_u64 elr, hv_u64 sp) {
+  (void)esr;
+  (void)far;
+  (void)elr;
+  (void)sp;
 #ifdef HAVEN_ARCH_ARM64
-        platform_uart_putchar('!');
-        platform_uart_putchar('E');
-        platform_uart_putchar('L');
-        platform_uart_putchar('2');
-        platform_uart_putchar('\n');
-        for (;;)
-                __asm__ volatile("wfi");
+  platform_uart_putchar('!');
+  platform_uart_putchar('E');
+  platform_uart_putchar('L');
+  platform_uart_putchar('2');
+  platform_uart_putchar('\n');
+  for (;;)
+    __asm__ volatile("wfi");
 #else
-        for (;;) {}
+  for (;;) {
+  }
 #endif
 }

@@ -1,4 +1,4 @@
-# Haven Hypervisor — Reproducible Build Container
+# Haven Hypervisor - Reproducible Build Container
 #
 # Provides a fully pinned environment for ARM64 cross-compilation, host
 # unit-test execution, and thesis evidence generation.

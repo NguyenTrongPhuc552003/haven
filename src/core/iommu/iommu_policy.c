@@ -36,12 +36,12 @@ hv_status_t hv_iommu_assign_group(hv_u32 group_id, hv_u32 partition_id) {
 
   iommu_group_entry_t *g = &group_table[group_id];
 
-  /* Already assigned to this partition — idempotent. */
+  /* Already assigned to this partition - idempotent. */
   if (g->assigned && g->partition_id == partition_id) {
     return HV_OK;
   }
 
-  /* Already assigned to a different partition — deny. */
+  /* Already assigned to a different partition - deny. */
   if (g->assigned) {
     return HV_EPERM;
   }

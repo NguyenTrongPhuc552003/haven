@@ -24,7 +24,7 @@ A frozen Docker image containing the above toolchain is provided:
 
 ```
 docker pull ghcr.io/haven-hypervisor/build-env:2026-05-14
-# SHA256: <PLACEHOLDER — to be filled at thesis submission>
+# SHA256: <PLACEHOLDER - to be filled at thesis submission>
 ```
 
 To reproduce results inside the container:
@@ -39,7 +39,7 @@ docker run --rm -v "$(pwd)":/haven -w /haven \
 
 ## Reproducing all results from scratch
 
-### Step 1 — clone and enter the repository
+### Step 1 - clone and enter the repository
 
 ```bash
 git clone https://github.com/NguyenTrongPhuc552003/haven.git
@@ -47,7 +47,7 @@ cd haven
 git checkout <thesis-tag>   # e.g. v0.4.0-thesis
 ```
 
-### Step 2 — run the full host test suite and benchmarks
+### Step 2 - run the full host test suite and benchmarks
 
 ```bash
 make test
@@ -62,7 +62,7 @@ Expected stdout ends with:
 All test binaries are placed in `build/tests/`. All benchmark JSON files
 are placed in `build/benchmarks/`.
 
-### Step 3 — cross-compile the ARM64 image
+### Step 3 - cross-compile the ARM64 image
 
 ```bash
 make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all
@@ -70,7 +70,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all
 
 Output: `build/haven.elf`.
 
-### Step 4 — QEMU smoke test
+### Step 4 - QEMU smoke test
 
 ```bash
 bash scripts/qemu-smoke.sh
@@ -79,7 +79,7 @@ bash scripts/qemu-smoke.sh
 Expected exit code: 0. The script streams UART output and checks for the
 `Haven: EL2 init complete` banner within 10 seconds.
 
-### Step 5 — collect benchmark evidence package
+### Step 5 - collect benchmark evidence package
 
 ```bash
 bash scripts/package-evidence.sh

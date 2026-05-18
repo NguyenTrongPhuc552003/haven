@@ -76,7 +76,7 @@ static void selftest_irq_ownership(void) {
 static void selftest_budget_sched(void) {
   assert(hv_budget_sched_init() == HV_OK);
 
-  /* No budget configured — consume must fail with EPERM (not EINVAL). */
+  /* No budget configured - consume must fail with EPERM (not EINVAL). */
   assert(hv_budget_consume(1, 1000) == HV_EPERM);
   assert(hv_budget_consume(128, 1) == HV_EPERM);
 
@@ -147,7 +147,7 @@ static void selftest_smmu(void) {
 
   hv_device_dma_t info;
 
-  /* No stream IDs allocated — check must return EPERM. */
+  /* No stream IDs allocated - check must return EPERM. */
   assert(hv_smmu_get_device_dma(0, &info) == HV_EPERM);
   assert(hv_smmu_get_device_dma(1, &info) == HV_EPERM);
 
@@ -174,7 +174,7 @@ static void selftest_el2_exceptions(void) {
   assert(hv_el2_get_exception_count(HV_EXC_FIQ) == 0);
   assert(hv_el2_get_exception_count(HV_EXC_SERROR) == 0);
 
-  /* No routes configured — unroute denied. */
+  /* No routes configured - unroute denied. */
   assert(hv_el2_unroute_irq(0) == HV_EPERM);
   assert(hv_el2_unroute_irq(100) == HV_EPERM);
 

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * arch/arm64/boot.S — Haven hypervisor primary boot entry.
+ * arch/arm64/boot.S - Haven hypervisor primary boot entry.
  *
  * Firmware (U-Boot / ATF) loads haven.bin at HV_LOAD_ADDR and jumps here
  * at EL2 with:
@@ -34,7 +34,7 @@
 #endif
 
 /* -----------------------------------------------------------------------
- * Primary CPU entry point — symbol must match linker script entry
+ * Primary CPU entry point - symbol must match linker script entry
  * ----------------------------------------------------------------------- */
 
         .global _start
@@ -78,7 +78,7 @@ _mailbox_init:
         b       _mailbox_init
 _mailbox_done:
 
-        /* x0 still holds DTB physical address from firmware — pass to C */
+        /* x0 still holds DTB physical address from firmware - pass to C */
         bl      haven_init
 
         /* haven_init should never return; if it does, halt */
@@ -86,7 +86,7 @@ _mailbox_done:
 
 
 /* -----------------------------------------------------------------------
- * Secondary CPU entry — jumped to after PSCI CPU_ON
+ * Secondary CPU entry - jumped to after PSCI CPU_ON
  *
  * Secondary CPUs spin here polling their mailbox word until the primary
  * CPU has initialized the hypervisor and provides an entry address.
@@ -125,7 +125,7 @@ _secondary_spin:
 
 
 /* -----------------------------------------------------------------------
- * hv_arch_secondary_start — wake a secondary CPU.
+ * hv_arch_secondary_start - wake a secondary CPU.
  *
  * Called by primary after hypervisor init to release secondary CPUs.
  * cpu_id:   logical CPU index
@@ -151,7 +151,7 @@ hv_arch_secondary_start:
 
         .align  3
 _el_wrong:
-        /* Haven loaded at wrong exception level — spin forever */
+        /* Haven loaded at wrong exception level - spin forever */
 1:      wfi
         b       1b
 

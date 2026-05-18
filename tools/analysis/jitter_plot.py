@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tools/analysis/jitter_plot.py — Bar chart comparing isolation latencies across benchmarks.
+tools/analysis/jitter_plot.py - Bar chart comparing isolation latencies across benchmarks.
 
 Uses matplotlib when available; falls back to an ASCII chart for minimal CI environments.
 
@@ -65,7 +65,7 @@ def plot_matplotlib(results, platform, output_path):
 
     ax.set_xlabel("Benchmark")
     ax.set_ylabel("Latency (ns)")
-    ax.set_title(f"Haven Isolation Latency — {platform}")
+    ax.set_title(f"Haven Isolation Latency - {platform}")
     ax.set_xticks(x)
     ax.set_xticklabels(names, rotation=20, ha="right", fontsize=9)
     ax.legend()
@@ -89,7 +89,7 @@ def plot_ascii(results, platform):
     BAR_WIDTH   = 40
     MAX_VAL     = max(r["max_ns"] for r in results) or 1
 
-    print(f"\nHaven Isolation Latency — {platform}  (ASCII chart)")
+    print(f"\nHaven Isolation Latency - {platform}  (ASCII chart)")
     print("=" * 72)
 
     for r in results:
@@ -134,7 +134,7 @@ def main():
         import matplotlib  # noqa: F401
         plot_matplotlib(results, args.platform, args.output)
     except ImportError:
-        print("WARNING: matplotlib not available — falling back to ASCII chart.", file=sys.stderr)
+        print("WARNING: matplotlib not available - falling back to ASCII chart.", file=sys.stderr)
         plot_ascii(results, args.platform)
 
 

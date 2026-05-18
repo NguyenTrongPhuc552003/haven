@@ -12,7 +12,7 @@ mkdir -p "$OUTDIR"
 echo "[qemu] checking qemu-system-aarch64 availability"
 
 if ! command -v qemu-system-aarch64 >/dev/null 2>&1; then
-  echo "[qemu] qemu-system-aarch64 not found — recording unavailable status"
+  echo "[qemu] qemu-system-aarch64 not found - recording unavailable status"
   cat > "$ARTIFACT" << EOF
 {
   "timestamp_utc": "${TIMESTAMP}",
@@ -67,7 +67,7 @@ EOF
 echo "[qemu] artifact written to ${ARTIFACT}"
 
 if [ "$SUITE_STATUS" != "pass" ]; then
-  echo "[qemu] validation FAILED — see ${SMOKE_LOG}"
+  echo "[qemu] validation FAILED - see ${SMOKE_LOG}"
   exit 1
 fi
 

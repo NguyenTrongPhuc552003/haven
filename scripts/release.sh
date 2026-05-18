@@ -57,36 +57,36 @@ if [ "$ALLOW_DIRTY" -eq 0 ]; then
 		fi
 		echo "[release] working tree clean."
 	else
-		echo "[release] git not available or not a repo — skipping cleanliness check."
+		echo "[release] git not available or not a repo - skipping cleanliness check."
 	fi
 fi
 
-echo "[release] step 1/4 — running CI preflight gate …"
+echo "[release] step 1/4 - running CI preflight gate …"
 if ! ./scripts/ci-preflight.sh; then
-	echo "[release] ERROR: CI preflight failed — release aborted." >&2
+	echo "[release] ERROR: CI preflight failed - release aborted." >&2
 	exit 1
 fi
 echo "[release] CI preflight passed."
 
-echo "[release] step 2/4 — refreshing benchmark baseline …"
+echo "[release] step 2/4 - refreshing benchmark baseline …"
 if command -v python3 > /dev/null 2>&1; then
 	if ! python3 ./scripts/benchmark-baseline.py; then
-		echo "[release] WARNING: benchmark baseline refresh failed — continuing." >&2
+		echo "[release] WARNING: benchmark baseline refresh failed - continuing." >&2
 	else
 		echo "[release] benchmark baseline refreshed."
 	fi
 else
-	echo "[release] python3 not found — skipping benchmark baseline refresh."
+	echo "[release] python3 not found - skipping benchmark baseline refresh."
 fi
 
-echo "[release] step 3/4 — packaging evidence bundle …"
+echo "[release] step 3/4 - packaging evidence bundle …"
 if ! ./scripts/package-evidence.sh; then
-	echo "[release] ERROR: evidence packaging failed — release aborted." >&2
+	echo "[release] ERROR: evidence packaging failed - release aborted." >&2
 	exit 1
 fi
 echo "[release] evidence bundle packaged."
 
-echo "[release] step 4/4 — archiving evidence bundle …"
+echo "[release] step 4/4 - archiving evidence bundle …"
 RELEASE_DIR="build/releases/${RELEASE_VERSION}"
 mkdir -p "$RELEASE_DIR"
 
@@ -119,17 +119,17 @@ if [ "$NO_TAG" -eq 0 ]; then
 	if command -v git > /dev/null 2>&1 && git rev-parse --git-dir > /dev/null 2>&1; then
 		TAG_NAME="v${RELEASE_VERSION}"
 		if git tag -l "$TAG_NAME" | grep -q "^${TAG_NAME}$"; then
-			echo "[release] WARNING: tag $TAG_NAME already exists — skipping."
+			echo "[release] WARNING: tag $TAG_NAME already exists - skipping."
 		else
-			git tag -a "$TAG_NAME" -m "Haven ${RELEASE_VERSION} — automated release"
+			git tag -a "$TAG_NAME" -m "Haven ${RELEASE_VERSION} - automated release"
 			echo "[release] tag created: $TAG_NAME"
 			echo "[release] to push: git push origin $TAG_NAME"
 		fi
 	else
-		echo "[release] git not available — skipping tag."
+		echo "[release] git not available - skipping tag."
 	fi
 else
-	echo "[release] --no-tag set — skipping git tag."
+	echo "[release] --no-tag set - skipping git tag."
 fi
 
 printf '\n'

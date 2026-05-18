@@ -4,11 +4,11 @@
 
 Haven's assurance argument rests on three layers:
 
-1. **Policy proofs** — machine-checked theorems in Coq and Isabelle/HOL that
+1. **Policy proofs** - machine-checked theorems in Coq and Isabelle/HOL that
    cover Haven's isolation invariants at the portable C model level.
-2. **Hardware binding tests** — unit, integration, and negative-path test suites
+2. **Hardware binding tests** - unit, integration, and negative-path test suites
    that validate the ARM64 arch layer and drivers against the policy contracts.
-3. **Benchmark evidence** — latency measurements establishing that the isolation
+3. **Benchmark evidence** - latency measurements establishing that the isolation
    mechanisms meet the thesis acceptance thresholds (stage-2 check < 100 µs,
    RTOS deadline miss < 0.1%).
 
@@ -24,11 +24,11 @@ separate (tested but unverified) hardware abstraction layer.
 
 Three Coq 8.18 proof files:
 
-| File                | Theorem                                               |
-|---------------------|-------------------------------------------------------|
-| `IsolationModel.v`  | `spatial_isolation` — no two distinct partitions share a PA |
-| `Stage2Policy.v`    | `add_partition_preserves_isolation` — map operation is safe  |
-| `BudgetScheduler.v` | `consume_preserves_valid` — budget ≤ period invariant        |
+| File                | Theorem                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| `IsolationModel.v`  | `spatial_isolation` - no two distinct partitions share a PA |
+| `Stage2Policy.v`    | `add_partition_preserves_isolation` - map operation is safe |
+| `BudgetScheduler.v` | `consume_preserves_valid` - budget ≤ period invariant       |
 
 See `coq/README.md` for build instructions and correspondence with C source.
 
@@ -58,11 +58,11 @@ TCB and is validated by the test suite.
 
 ## Toolchain Requirements
 
-| Tool          | Version    | Install                          |
-|---------------|------------|----------------------------------|
-| Coq           | 8.18+      | `opam install coq.8.18.0`        |
-| Isabelle/HOL  | 2023       | <https://isabelle.in.tum.de/>    |
-| Python 3      | 3.10+      | For `tools/analysis/` scripts    |
+| Tool         | Version | Install                       |
+| ------------ | ------- | ----------------------------- |
+| Coq          | 8.18+   | `opam install coq.8.18.0`     |
+| Isabelle/HOL | 2023    | <https://isabelle.in.tum.de/> |
+| Python 3     | 3.10+   | For `tools/analysis/` scripts |
 
 ---
 

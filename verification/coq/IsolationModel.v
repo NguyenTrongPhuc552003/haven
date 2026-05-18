@@ -1,5 +1,5 @@
 (** * IsolationModel.v
-    Haven Hypervisor — Core Spatial Isolation Model
+    Haven Hypervisor - Core Spatial Isolation Model
 
     This file formalises the policy-level spatial isolation invariant for
     Haven's static-partition EL2 hypervisor.  It does NOT model hardware; it
@@ -147,7 +147,7 @@ Qed.
 (** ** §7  Initial-state lemma                                          *)
 (* ------------------------------------------------------------------ *)
 
-(** The empty hypervisor state — no partitions at all — trivially
+(** The empty hypervisor state - no partitions at all - trivially
     satisfies the spatial isolation invariant because the universal
     quantifier over [In p1 []] is vacuously false. *)
 Definition empty_hv_state : HvState :=

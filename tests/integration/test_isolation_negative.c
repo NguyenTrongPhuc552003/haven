@@ -177,7 +177,7 @@ static void run_negative_isolation_flow(void) {
   /* Before expiry: ack denied, cancel succeeds. */
   assert(hv_timer_acknowledge(5) == HV_EPERM);
   assert(hv_timer_cancel(5) == HV_OK);
-  /* Expire then try to set new deadline without ack — must be blocked. */
+  /* Expire then try to set new deadline without ack - must be blocked. */
   assert(hv_timer_set_deadline(5, 3000ULL) == HV_OK);
   {
     int exp = 0;

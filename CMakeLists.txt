@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(haven C ASM)
 
 # -------------------------------------------------------------------------
-# Haven CMakeLists.txt — IDE support only (CLion, VS Code CMake Tools)
+# Haven CMakeLists.txt - IDE support only (CLion, VS Code CMake Tools)
 # Primary build system: Makefile
 # Usage: cmake -S . -B build-cmake -DCMAKE_TOOLCHAIN_FILE=cmake/arm64.cmake
 # -------------------------------------------------------------------------

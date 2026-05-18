@@ -1,5 +1,5 @@
 /**
- * Temporal isolation boundary tests — Chapter 5 evidence.
+ * Temporal isolation boundary tests - Chapter 5 evidence.
  *
  * Exercises the three temporal isolation enforcement layers together:
  *   - Budget scheduling (CPU time overrun containment)
@@ -55,7 +55,7 @@ static void test_budget_overrun_containment(void) {
   assert(hv_budget_consume(1, 1) == HV_EPERM);
   TEST_PASS("budget: partition 1 denied after exhaustion");
 
-  /* P2 is unaffected — it still has budget remaining. */
+  /* P2 is unaffected - it still has budget remaining. */
   assert(hv_budget_consume(2, 100000ULL) == HV_OK);
   TEST_PASS("budget: partition 2 unaffected by partition 1 exhaustion");
 
@@ -195,7 +195,7 @@ static void test_cross_module_temporal_independence(void) {
   assert(hv_timer_check_deadline(3, 6000ULL, &expired) == HV_OK);
   assert(expired == 1);
 
-  /* Budget state is still exhausted — timer expiry doesn't reset it. */
+  /* Budget state is still exhausted - timer expiry doesn't reset it. */
   assert(hv_budget_consume(3, 1) == HV_EPERM);
   TEST_PASS("cross-module: budget still exhausted after timer expiry");
 

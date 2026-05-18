@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Haven QEMU virt runner — ARM64 two-partition isolation demo
+# Haven QEMU virt runner - ARM64 two-partition isolation demo
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

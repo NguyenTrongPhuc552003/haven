@@ -5,14 +5,11 @@
 
 /* Compute MPIDR from logical CPU index.
  * For single-cluster SoCs: MPIDR Aff0 = cpu_id, Aff1..3 = 0. */
-static inline uint64_t cpu_to_mpidr(uint32_t cpu)
-{
-        return (uint64_t)cpu;
-}
+static inline uint64_t cpu_to_mpidr(uint32_t cpu) { return (uint64_t)cpu; }
 #endif
 
-#define HV_MAX_IRQ_ID       1024U
-#define HV_MAX_TARGET_CPU   256U
+#define HV_MAX_IRQ_ID 1024U
+#define HV_MAX_TARGET_CPU 256U
 
 static hv_u32 irq_owner_map[HV_MAX_IRQ_ID];
 static hv_u32 irq_target_cpu_map[HV_MAX_IRQ_ID];
@@ -84,7 +81,7 @@ hv_status_t hv_irq_revoke(hv_u32 irq_id, hv_u32 owner_partition_id) {
   }
 
 #ifdef HAVEN_ARCH_ARM64
-  /* Disable IRQ in hardware before clearing ownership table —
+  /* Disable IRQ in hardware before clearing ownership table -
    * fail-closed: the IRQ cannot fire even momentarily after revocation. */
   gic_v3_disable_irq(irq_id);
 #endif

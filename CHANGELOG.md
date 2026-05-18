@@ -8,9 +8,94 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-- i.MX95 hardware bring-up and EL2 boot validation.
-- SMMUv3 stream table population from static config.
-- Budget scheduler integration with GICv3 virtual timer.
+- i.MX95 physical board bring-up and EL2 boot validation (requires hardware).
+- SMMUv3 stream table population wired to real SMMUv3 MMIO.
+- Budget scheduler timer interrupt integration with GICv3 virtual timer.
+- QEMU two-partition demo with UART evidence capture.
+
+---
+
+## [0.4.0] - 2026-05-18
+
+### Added
+
+**ARM64 Architecture Layer (`arch/arm64/`)**
+- `arch/arm64/entry.S` — EL2 exception vector table (2KB-aligned, VBAR_EL2).
+- `arch/arm64/context.S` — GP register save/restore (x0–x30, SP_EL0/EL1, NEON Q0–Q31).
+- `arch/arm64/boot.S` — primary CPU EL2 entry and secondary CPU PSCI bring-up.
+- `arch/arm64/cpu.c` — EL2 CPU init: HCR_EL2, VPIDR_EL2, VMPIDR_EL2, MDCR_EL2, CPTR_EL2.
+- `arch/arm64/mm.c` — stage-2 page-table hardware: VTTBR_EL2, VTCR_EL2, TLB invalidation.
+- `arch/arm64/timer.c` — EL2 physical timer: CNTHP_CTL_EL2, CNTHP_CVAL_EL2.
+- `arch/arm64/irq.c` — EL2 IRQ handling, GICv3 List Register injection (ICH_LR0_EL2).
+- `arch/arm64/partition.S` — partition launch: SPSR_EL2 + VTTBR_EL2 setup, ERET to guest.
+- `arch/arm64/include/asm/sysregs.h` — `read_sysreg`/`write_sysreg` macros, all EL2 registers.
+- `arch/arm64/include/asm/page.h` — stage-2 descriptor formats, S2AP permissions, granule support.
+- `arch/arm64/include/asm/gic.h` — GICv3 distributor/redistributor MMIO offsets.
+- `arch/arm64/include/asm/smmu.h` — SMMUv3 register offsets, STE/CD field definitions.
+
+**Hardware Drivers**
+- `drivers/irqchip/gic_v3.c` — GICv3 init, IRQ routing (GICD_IROUTER), enable/disable, EOI.
+- `drivers/iommu/smmu_v3.c` — SMMUv3 init, linear stream table, STE programming (partition/abort).
+- `drivers/uart/pl011.c` — PL011 UART driver for QEMU virt board.
+- `drivers/uart/imx_uart.c` — i.MX UART driver for i.MX95/i.MX8QM boards.
+- `drivers/linux/haven_driver.c` — Linux guest kernel module (`/dev/haven`, IOCTL interface).
+- `drivers/guest-tools/haven_tool.c` — Userspace CLI for hypervisor state inspection.
+
+**Core Layer Wiring**
+- `src/core/init.c` — hypervisor entry point; calls all `_init()` and `platform_init()`.
+- `src/core/partition.c` — partition launcher: maps stage-2, assigns IRQs, sets budget, fires ERET.
+- `src/core/mm/stage2.c` — wired to `hv_arch_stage2_map()` for hardware page-table writes.
+- `src/core/irq/ownership.c` — wired to `gic_v3_route_irq()` / `gic_v3_disable_irq()`.
+- `src/core/dma/smmu.c` — wired to `smmu_v3_set_ste_partition()` / `smmu_v3_set_ste_abort()`.
+- `src/core/time/timer.c` — wired to `hv_arch_timer_now()` and `hv_arch_timer_set_deadline()`.
+- `src/core/exc/el2_exceptions.c` — IRQ injection completed via `hv_arch_inject_virtual_irq()`.
+
+**Common Utilities (`src/common/`)**
+- `printk.c`, `string.c`, `panic.c`, `spinlock.c` — hypervisor utilities (no libc, LDAXR/STLXR).
+
+**Platform Abstractions (`src/platform/`)**
+- `qemu-virt/platform.c` — PL011/GICv3/SMMUv3/timer bases for QEMU virt.
+- `imx95-devkit/platform.c` and `memory.h` — i.MX95 Dev Kit UART/GIC/memory map.
+- `imx8qm-mek/platform.c` — secondary validation board (i.MX8QM-MEK, GICv2).
+
+**Formal Verification (`verification/`)**
+- `verification/coq/IsolationModel.v` — core spatial isolation invariant (Coq 8.18).
+- `verification/coq/Stage2Policy.v` — stage-2 map-preserves-isolation lemma.
+- `verification/coq/BudgetScheduler.v` — budget ≤ period invariant.
+- `verification/isabelle/HavenIsolation.thy` — cross-validating Isabelle/HOL theory.
+
+**Tests**
+- `tests/integration/test_smmu_hardware.c` — SMMU StreamID fault and window pass tests.
+- `tests/integration/test_fault_injection.c` — 8 fault scenarios (F1–F8) with DENY assertions.
+- `tests/selftests/test_hypervisor_invariants.c` — invariant checks across all isolation modules.
+- `tests/demos/demo_two_partition.c` — two-partition boot demo (Linux-class + RTOS-class).
+- `tests/benchmarks/bench_isolation_latency.c` — 6 hot-path enforcement latency measurements.
+- `tests/benchmarks/bench_stage2_fault.c` — stage-2 containment check, 4 boundary cases.
+- `tests/benchmarks/bench_smmu_policy.c` — SMMU DMA policy, 5 cases including StreamID alloc.
+- `tests/benchmarks/bench_temporal_isolation.c` — RTOS response time under 5 Linux load levels.
+
+**Infrastructure**
+- `Dockerfile` — Ubuntu 24.04, aarch64 cross-compiler, QEMU, Coq 8.18, Python/matplotlib.
+- `scripts/build-arm64.sh` — auto-detects cross-compiler prefix; runs `make ARCH=arm64`.
+- `linker.ld` — ELF linker script, `.text` at `0x80000000`, 4-CPU stacks.
+- `CMakeLists.txt` — optional CMake support for IDE integration.
+- `configs/riscv/qemu-riscv64.yaml` and `configs/x86/qemu-x86_64.yaml` — future platform stubs.
+
+**CI/CD**
+- `.github/workflows/ci.yml` — added `arm64-cross-compile` job: installs toolchain, builds ELF, verifies ARM64 ELF headers and key symbols.
+- `.github/workflows/nightly.yml` — added `arm64-cross-compile` (TCB audit), `coq-proof-check`, and `evidence-generation` jobs (90-day artifact retention).
+
+**Documentation**
+- `docs/contributing/DEVELOPMENT_GUIDE.md`, `TESTING_GUIDE.md`, `REVIEW_CHECKLIST.md`.
+- `docs/porting/IMX95_EVIDENCE_CAPTURE.md` — evidence capture methodology and JSON schema.
+- `docs/thesis/REPRODUCIBILITY_APPENDIX.md` — exact reproduction commands and Docker hash.
+- Expanded `docs/architecture/OVERVIEW.md` and `ISOLATION_MODEL.md` with hardware binding details.
+
+### Fixed
+- Added `#define _POSIX_C_SOURCE 200809L` to all benchmark files to expose `clock_gettime` under strict `-std=c11 -Werror` (was causing CI failures with both GCC and Clang).
+
+### Removed
+- `src/core/arch/.gitkeep`, `src/core/iommu/.gitkeep`, `src/core/time/.gitkeep` — replaced by real implementation files.
 
 ---
 

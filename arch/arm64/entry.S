@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * arch/arm64/entry.S — EL2 exception vector table for the Haven hypervisor.
+ * arch/arm64/entry.S - EL2 exception vector table for the Haven hypervisor.
  *
  * ARM Architecture Reference Manual requires VBAR_EL2 to be aligned
  * to a 2KiB boundary (bits [10:0] = 0).  The table contains 16 entries,
@@ -29,7 +29,7 @@
 #define HV_CONTEXT_SIZE 272  /* sizeof(struct hv_cpu_context): see context.h */
 
 /*
- * vector_entry — emit a 128-byte exception vector entry.
+ * vector_entry - emit a 128-byte exception vector entry.
  * The entry saves x0/x1, branches to the handler, and is padded to
  * exactly 128 bytes so the vector table alignment is maintained.
  */
@@ -39,7 +39,7 @@
 .endm
 
 /* -----------------------------------------------------------------------
- * EL2 exception vector table — must be .align 11 (2 KiB boundary)
+ * EL2 exception vector table - must be .align 11 (2 KiB boundary)
  * ----------------------------------------------------------------------- */
 
         .section ".entry.text", "ax"
@@ -60,7 +60,7 @@ el2_exception_table:
         vector_entry el2_spx_fiq
         vector_entry el2_spx_serror
 
-        /* ---- Lower EL AArch64 (guest traps — main work) ---- */
+        /* ---- Lower EL AArch64 (guest traps - main work) ---- */
         vector_entry lower_el64_sync
         vector_entry lower_el64_irq
         vector_entry lower_el64_fiq
@@ -82,7 +82,7 @@ el2_exception_table:
  * ----------------------------------------------------------------------- */
 
 /*
- * save_minimal — push the minimum needed to call a C handler.
+ * save_minimal - push the minimum needed to call a C handler.
  * Layout on stack (SP decreases, low address at top after push):
  *   [sp+0]   x0
  *   [sp+8]   x1
@@ -147,7 +147,7 @@ el2_exception_table:
 
 
 /* -----------------------------------------------------------------------
- * Lower EL AArch64 handlers — guest trap paths
+ * Lower EL AArch64 handlers - guest trap paths
  * ----------------------------------------------------------------------- */
 
         .align 4
@@ -192,7 +192,7 @@ lower_el64_serror:
 
 
 /* -----------------------------------------------------------------------
- * EL2 SPx handlers — Haven itself faulted (fatal)
+ * EL2 SPx handlers - Haven itself faulted (fatal)
  * These should never fire in a correct implementation.
  * ----------------------------------------------------------------------- */
 
@@ -239,7 +239,7 @@ el2_sp0_serror:
 
 
 /* -----------------------------------------------------------------------
- * Lower EL AArch32 handlers (not supported — abort)
+ * Lower EL AArch32 handlers (not supported - abort)
  * ----------------------------------------------------------------------- */
 
         .align 4
@@ -254,7 +254,7 @@ lower_el32_serror:
 
 
 /* -----------------------------------------------------------------------
- * hv_install_vectors — write VBAR_EL2 and synchronize
+ * hv_install_vectors - write VBAR_EL2 and synchronize
  * Called once during CPU initialization.
  * ----------------------------------------------------------------------- */
 

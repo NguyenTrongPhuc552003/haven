@@ -147,7 +147,7 @@ echo "[evidence] summary.json written"
 if [ -f "$PREV_SUMMARY" ]; then
   echo "[evidence] comparing against previous summary"
   python3 scripts/compare-evidence.py "$PREV_SUMMARY" build/evidence/summary.json || {
-    echo "[evidence] WARNING: regressions detected — review compare-evidence output above"
+    echo "[evidence] WARNING: regressions detected - review compare-evidence output above"
   }
 fi
 

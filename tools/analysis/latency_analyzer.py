@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tools/analysis/latency_analyzer.py — Parse Haven benchmark JSON and print stats.
+tools/analysis/latency_analyzer.py - Parse Haven benchmark JSON and print stats.
 
 Usage:
     python3 tools/analysis/latency_analyzer.py [--input FILE] [--platform PLATFORM] [--json OUTPUT]
@@ -51,7 +51,7 @@ def print_table(results, platform):
     col_w = 36
     header = f"{'Benchmark':<{col_w}} {'Min(ns)':>10} {'Mean(ns)':>10} {'Max(ns)':>10} {'p99est(ns)':>12} {'Iters':>8}"
     sep    = "-" * len(header)
-    print(f"\nHaven Isolation Latency — Platform: {platform}")
+    print(f"\nHaven Isolation Latency - Platform: {platform}")
     print(sep)
     print(header)
     print(sep)

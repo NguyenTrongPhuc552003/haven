@@ -1,5 +1,5 @@
 (** * BudgetScheduler.v
-    Haven Hypervisor — Temporal Budget Scheduler Invariants
+    Haven Hypervisor - Temporal Budget Scheduler Invariants
 
     This file formalises the budget-scheduler invariants maintained by
     [hv_budget_set] and [hv_budget_consume] in src/core/sched/budget.c.

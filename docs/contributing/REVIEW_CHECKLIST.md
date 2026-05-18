@@ -8,7 +8,7 @@ be satisfied before merge. All other items are strong recommendations.
 ## General PR hygiene
 
 - [ ] PR title follows `<type>(<scope>): <summary>` convention.
-- [ ] Each commit is atomic — one logical change per commit.
+- [ ] Each commit is atomic - one logical change per commit.
 - [ ] No debug prints (`printf`, `printk` with `HAVEN_TRACE_*`) left in
       production paths unless guarded by a compile-time flag.
 - [ ] No new compiler warnings with `-Wall -Wextra -Werror`.
@@ -20,13 +20,13 @@ be satisfied before merge. All other items are strong recommendations.
 Any PR that touches the following files **must** have at least two reviewers,
 one of whom is the isolation guardian for the affected subsystem:
 
-- `src/core/mm/stage2.c` — spatial isolation
-- `src/core/sched/budget.c` — temporal isolation
-- `src/core/dma/smmu.c` — DMA isolation
-- `src/core/irq/ownership.c` — interrupt isolation
-- `src/core/iommu/iommu_policy.c` — IOMMU group isolation
+- `src/core/mm/stage2.c` - spatial isolation
+- `src/core/sched/budget.c` - temporal isolation
+- `src/core/dma/smmu.c` - DMA isolation
+- `src/core/irq/ownership.c` - interrupt isolation
+- `src/core/iommu/iommu_policy.c` - IOMMU group isolation
 - `include/haven/stage2.h`, `include/haven/smmu.h`,
-  `include/haven/budget_sched.h` — public API contracts
+  `include/haven/budget_sched.h` - public API contracts
 
 For each changed isolation-policy file, verify:
 
@@ -37,7 +37,7 @@ For each changed isolation-policy file, verify:
       rejection path.
 - [ ] **[REQUIRED]** `docs/safety/ASSUMPTIONS.md` updated if a new
       assumption is introduced or an existing one is invalidated.
-- [ ] **[REQUIRED]** `docs/safety/THREAT_MODEL.md` reviewed — does the
+- [ ] **[REQUIRED]** `docs/safety/THREAT_MODEL.md` reviewed - does the
       change affect any threat boundary?
 
 ---
@@ -85,9 +85,9 @@ wc -l src/core/**/*.c
 
 Before merging any change to `src/core/` or `include/haven/`:
 
-- [ ] Review `docs/safety/ASSUMPTIONS.md` — does the change rely on a
+- [ ] Review `docs/safety/ASSUMPTIONS.md` - does the change rely on a
       hardware feature not listed there?
-- [ ] Review `docs/safety/THREAT_MODEL.md` — does the change open or close
+- [ ] Review `docs/safety/THREAT_MODEL.md` - does the change open or close
       a threat boundary?
 - [ ] If Coq proofs exist for the affected subsystem, proofs have been
       updated and still compile (`coqc`).
