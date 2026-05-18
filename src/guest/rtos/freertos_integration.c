@@ -5,7 +5,7 @@
  */
 
 #include <haven/freertos_integration.h>
-#include <string.h>
+#include <haven/string.h>
 
 /**
  * FreeRTOS partition state.

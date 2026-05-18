@@ -5,7 +5,7 @@
  */
 
 #include <haven/guest_uart.h>
-#include <string.h>
+#include <haven/string.h>
 
 /**
  * Per-UART port state.
