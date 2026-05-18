@@ -11,11 +11,11 @@ repository root.
 **Goal:** Define the mixed-criticality isolation problem on heterogeneous SoCs
 and justify the need for a thin, verifiable EL2 hypervisor layer.
 
-| Artifact type       | Path                                              |
-|---------------------|---------------------------------------------------|
-| Architecture doc    | `docs/architecture/OVERVIEW.md`                  |
-| Threat model        | `docs/safety/THREAT_MODEL.md`                    |
-| Safety assumptions  | `docs/safety/ASSUMPTIONS.md`                     |
+| Artifact type      | Path                            |
+| ------------------ | ------------------------------- |
+| Architecture doc   | `docs/architecture/OVERVIEW.md` |
+| Threat model       | `docs/safety/THREAT_MODEL.md`   |
+| Safety assumptions | `docs/safety/ASSUMPTIONS.md`    |
 
 **Acceptance criteria:** Scope review acceptance; baseline architecture doc
 reviewed and signed off by thesis supervisor.
@@ -27,10 +27,10 @@ reviewed and signed off by thesis supervisor.
 **Goal:** Position Haven against Jailhouse, Bao, seL4, Hafnium, and
 type-1 automotive hypervisors; identify isolation gaps in the prior art.
 
-| Artifact type       | Path                                              |
-|---------------------|---------------------------------------------------|
-| Isolation model     | `docs/architecture/ISOLATION_MODEL.md`           |
-| Comparative notes   | `docs/roadmap/DESCRIPTION.md`                    |
+| Artifact type     | Path                                   |
+| ----------------- | -------------------------------------- |
+| Isolation model   | `docs/architecture/ISOLATION_MODEL.md` |
+| Comparative notes | `docs/roadmap/DESCRIPTION.md`          |
 
 **Acceptance criteria:** Comparative requirements checklist complete;
 differentiating claims referenced to prior-art sources.
@@ -42,17 +42,17 @@ differentiating claims referenced to prior-art sources.
 **Goal:** Specify the static partition model, EL2 enforcement boundaries, and
 interface contracts between subsystems.
 
-| Artifact type          | Path                                                            |
-|------------------------|-----------------------------------------------------------------|
-| Public API headers     | `include/haven/types.h`                                        |
-|                        | `include/haven/stage2.h`                                       |
-|                        | `include/haven/smmu.h`                                         |
-|                        | `include/haven/iommu.h`                                        |
-|                        | `include/haven/timer.h`                                        |
-|                        | `include/haven/platform.h`                                     |
-|                        | `include/haven/string.h`                                       |
-| Architecture layer API | `arch/arm64/include/asm/sysregs.h`                             |
-| Repository structure   | `docs/architecture/REPOSITORY_STRUCTURE.md`                    |
+| Artifact type          | Path                                        |
+| ---------------------- | ------------------------------------------- |
+| Public API headers     | `include/haven/types.h`                     |
+|                        | `include/haven/stage2.h`                    |
+|                        | `include/haven/smmu.h`                      |
+|                        | `include/haven/iommu.h`                     |
+|                        | `include/haven/timer.h`                     |
+|                        | `include/haven/platform.h`                  |
+|                        | `include/haven/string.h`                    |
+| Architecture layer API | `arch/arm64/include/asm/sysregs.h`          |
+| Repository structure   | `docs/architecture/REPOSITORY_STRUCTURE.md` |
 
 **Acceptance criteria:** Interface review complete; all public API headers
 compile cleanly under `make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all`.
@@ -66,46 +66,46 @@ demonstrate that unauthorized access paths are closed.
 
 ### 4.1 Implementation artifacts
 
-| Subsystem           | Source file(s)                                    |
-|---------------------|---------------------------------------------------|
-| Stage-2 MMU         | `src/core/mm/stage2.c`                           |
-| SMMU/DMA policy     | `src/core/dma/smmu.c`                            |
-| IOMMU group policy  | `src/core/iommu/iommu_policy.c`                  |
-| GICv3 IRQ routing   | `src/core/irq/ownership.c`                       |
-| GICv3 driver        | `drivers/irqchip/gic_v3.c`                       |
-|                     | `drivers/irqchip/gic_v3.h`                       |
-| SMMUv3 driver       | `drivers/iommu/smmu_v3.c`                        |
-| ARM64 MMU arch      | `arch/arm64/mm.c`                                |
-| ARM64 IRQ arch      | `arch/arm64/irq.c`                               |
-| ARM64 CPU init      | `arch/arm64/cpu.c`                               |
-| System registers    | `arch/arm64/include/asm/sysregs.h`               |
+| Subsystem          | Source file(s)                     |
+| ------------------ | ---------------------------------- |
+| Stage-2 MMU        | `src/core/mm/stage2.c`             |
+| SMMU/DMA policy    | `src/core/dma/smmu.c`              |
+| IOMMU group policy | `src/core/iommu/iommu_policy.c`    |
+| GICv3 IRQ routing  | `src/core/irq/ownership.c`         |
+| GICv3 driver       | `drivers/irqchip/gic_v3.c`         |
+|                    | `drivers/irqchip/gic_v3.h`         |
+| SMMUv3 driver      | `drivers/iommu/smmu_v3.c`          |
+| ARM64 MMU arch     | `arch/arm64/mm.c`                  |
+| ARM64 IRQ arch     | `arch/arm64/irq.c`                 |
+| ARM64 CPU init     | `arch/arm64/cpu.c`                 |
+| System registers   | `arch/arm64/include/asm/sysregs.h` |
 
 ### 4.2 Test files
 
-| Scenario                              | File                                                       |
-|---------------------------------------|------------------------------------------------------------|
-| Spatial boundary positive/negative   | `tests/isolation/test_spatial_isolation.c`                |
-| Full happy-path integration           | `tests/integration/test_isolation_flow.c`                 |
-| Negative isolation paths              | `tests/integration/test_isolation_negative.c`             |
-| SMMU hardware integration             | `tests/integration/test_smmu_hardware.c`                  |
-| Fault injection matrix F1–F8          | `tests/integration/test_fault_injection.c`                |
-| Hypervisor invariant self-tests       | `tests/selftests/test_hypervisor_invariants.c`            |
-| SMMU unit test                        | `tests/unit/test_smmu_dma.c`                              |
-| IOMMU policy unit test                | `tests/unit/test_iommu_policy.c`                          |
-| Two-partition demo                    | `tests/demos/demo_two_partition.c`                        |
+| Scenario                           | File                                           |
+| ---------------------------------- | ---------------------------------------------- |
+| Spatial boundary positive/negative | `tests/isolation/test_spatial_isolation.c`     |
+| Full happy-path integration        | `tests/integration/test_isolation_flow.c`      |
+| Negative isolation paths           | `tests/integration/test_isolation_negative.c`  |
+| SMMU hardware integration          | `tests/integration/test_smmu_hardware.c`       |
+| Fault injection matrix F1–F8       | `tests/integration/test_fault_injection.c`     |
+| Hypervisor invariant self-tests    | `tests/selftests/test_hypervisor_invariants.c` |
+| SMMU unit test                     | `tests/unit/test_smmu_dma.c`                   |
+| IOMMU policy unit test             | `tests/unit/test_iommu_policy.c`               |
+| Two-partition demo                 | `tests/demos/demo_two_partition.c`             |
 
 ### 4.3 Fault injection coverage
 
-| ID  | Description                              | Expected result           |
-|-----|------------------------------------------|---------------------------|
-| F1  | Stage-2 cross-partition memory escape    | HV_EPERM, state intact    |
-| F2  | IRQ ownership pre-emption                | HV_EPERM, route unchanged |
-| F3  | Budget overrun after period boundary     | HV_EPERM, budget capped   |
-| F4  | SMMU cross-partition DMA escape          | HV_EPERM, window blocked  |
-| F5  | Timer deadline hijack                    | HV_EPERM, victim unharmed |
-| F6  | IOMMU group ownership theft              | HV_EPERM, group retained  |
-| F7  | EL2 IRQ route hijack                     | HV_EPERM, route exclusive |
-| F8  | Compound multi-module fault sequence     | All denials, state intact |
+| ID  | Description                           | Expected result           |
+| --- | ------------------------------------- | ------------------------- |
+| F1  | Stage-2 cross-partition memory escape | HV_EPERM, state intact    |
+| F2  | IRQ ownership pre-emption             | HV_EPERM, route unchanged |
+| F3  | Budget overrun after period boundary  | HV_EPERM, budget capped   |
+| F4  | SMMU cross-partition DMA escape       | HV_EPERM, window blocked  |
+| F5  | Timer deadline hijack                 | HV_EPERM, victim unharmed |
+| F6  | IOMMU group ownership theft           | HV_EPERM, group retained  |
+| F7  | EL2 IRQ route hijack                  | HV_EPERM, route exclusive |
+| F8  | Compound multi-module fault sequence  | All denials, state intact |
 
 ### 4.4 Evidence artifacts
 
@@ -133,26 +133,26 @@ that RTOS partition response time remains bounded under Linux-side stress.
 
 ### 5.1 Implementation artifacts
 
-| Subsystem            | Source file(s)                                   |
-|----------------------|--------------------------------------------------|
-| Budget scheduler     | `src/core/sched/budget.c`                        |
-| Timer management     | `src/core/time/timer.c`                          |
-| IRQ ownership        | `src/core/irq/ownership.c`                       |
-| ARM64 timer arch     | `arch/arm64/timer.c`                             |
-| ARM64 IRQ arch       | `arch/arm64/irq.c`                               |
-| EL2 exception handler| `src/core/exc/el2_exceptions.c`                  |
+| Subsystem             | Source file(s)                  |
+| --------------------- | ------------------------------- |
+| Budget scheduler      | `src/core/sched/budget.c`       |
+| Timer management      | `src/core/time/timer.c`         |
+| IRQ ownership         | `src/core/irq/ownership.c`      |
+| ARM64 timer arch      | `arch/arm64/timer.c`            |
+| ARM64 IRQ arch        | `arch/arm64/irq.c`              |
+| EL2 exception handler | `src/core/exc/el2_exceptions.c` |
 
 ### 5.2 Test files
 
-| Scenario                              | File                                                        |
-|---------------------------------------|-------------------------------------------------------------|
-| Temporal boundary positive/negative  | `tests/isolation/test_temporal_isolation.c`                |
-| Budget unit tests                     | `tests/unit/test_core_stubs.c`                             |
-| Timer unit tests                      | `tests/unit/test_timer.c`                                  |
-| Temporal isolation benchmark          | `tests/benchmarks/bench_temporal_isolation.c`              |
-| Isolation latency benchmark           | `tests/benchmarks/bench_isolation_latency.c`               |
-| Stage-2 fault containment benchmark   | `tests/benchmarks/bench_stage2_fault.c`                    |
-| SMMU DMA policy benchmark             | `tests/benchmarks/bench_smmu_policy.c`                     |
+| Scenario                            | File                                          |
+| ----------------------------------- | --------------------------------------------- |
+| Temporal boundary positive/negative | `tests/isolation/test_temporal_isolation.c`   |
+| Budget unit tests                   | `tests/unit/test_core_stubs.c`                |
+| Timer unit tests                    | `tests/unit/test_timer.c`                     |
+| Temporal isolation benchmark        | `tests/benchmarks/bench_temporal_isolation.c` |
+| Isolation latency benchmark         | `tests/benchmarks/bench_isolation_latency.c`  |
+| Stage-2 fault containment benchmark | `tests/benchmarks/bench_stage2_fault.c`       |
+| SMMU DMA policy benchmark           | `tests/benchmarks/bench_smmu_policy.c`        |
 
 ### 5.3 Acceptance criteria
 
@@ -183,10 +183,10 @@ the stage-2 mapping and budget scheduler modules.
 
 ### 6.1 Artifact locations
 
-| Tool        | Directory                          | Status   |
-|-------------|------------------------------------|----------|
-| Coq         | `verification/coq/*.v`            | Complete |
-| Isabelle    | `verification/isabelle/*.thy`      | Complete |
+| Tool     | Directory                     | Status   |
+| -------- | ----------------------------- | -------- |
+| Coq      | `verification/coq/*.v`        | Complete |
+| Isabelle | `verification/isabelle/*.thy` | Complete |
 
 ### 6.2 Invariants proved
 
@@ -227,26 +227,26 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 
 ### 7.1 Implementation artifacts (analysis tooling)
 
-| Tool / script                   | Path                                       |
-|---------------------------------|--------------------------------------------|
-| Benchmark baseline collector    | `scripts/benchmark-baseline.py` (planned) |
-| Evidence packager               | `scripts/package-evidence.sh`             |
-| CI preflight                    | `scripts/ci-preflight.sh`                  |
-| QEMU smoke runner               | `scripts/qemu-smoke.sh`                    |
-| Traceability checker            | `scripts/check-traceability.sh`            |
-| CI validation                   | `scripts/ci-validate.sh`                   |
-| Evidence comparison             | `scripts/compare-evidence.py`              |
+| Tool / script                | Path                                      |
+| ---------------------------- | ----------------------------------------- |
+| Benchmark baseline collector | `scripts/benchmark-baseline.py` (planned) |
+| Evidence packager            | `scripts/package-evidence.sh`             |
+| CI preflight                 | `scripts/ci-preflight.sh`                 |
+| QEMU smoke runner            | `scripts/qemu-smoke.sh`                   |
+| Traceability checker         | `scripts/check-traceability.sh`           |
+| CI validation                | `scripts/ci-validate.sh`                  |
+| Evidence comparison          | `scripts/compare-evidence.py`             |
 
 ### 7.2 Test files providing evaluation evidence
 
-| File                                                  | Evidence class         |
-|-------------------------------------------------------|------------------------|
-| `tests/benchmarks/bench_isolation_latency.c`         | Latency / jitter       |
-| `tests/benchmarks/bench_temporal_isolation.c`        | Deadline miss count    |
-| `tests/benchmarks/bench_stage2_fault.c`              | Stage-2 fault latency  |
-| `tests/benchmarks/bench_smmu_policy.c`               | DMA policy throughput  |
-| `tests/integration/test_fault_injection.c`           | Fault containment      |
-| `tests/integration/test_smmu_hardware.c`             | Hardware DMA coherence |
+| File                                          | Evidence class         |
+| --------------------------------------------- | ---------------------- |
+| `tests/benchmarks/bench_isolation_latency.c`  | Latency / jitter       |
+| `tests/benchmarks/bench_temporal_isolation.c` | Deadline miss count    |
+| `tests/benchmarks/bench_stage2_fault.c`       | Stage-2 fault latency  |
+| `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput  |
+| `tests/integration/test_fault_injection.c`    | Fault containment      |
+| `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence |
 
 ### 7.3 Benchmark output locations
 
@@ -269,13 +269,13 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 toward safety certification (ISO 26262, IEC 61508), and specify future
 verification depth.
 
-| Artifact type       | Path                                              |
-|---------------------|---------------------------------------------------|
-| Safety assumptions  | `docs/safety/ASSUMPTIONS.md`                     |
-| Threat model        | `docs/safety/THREAT_MODEL.md`                    |
-| Roadmap             | `docs/roadmap/DESCRIPTION.md`                    |
-| Evaluation plan     | `docs/methodology/EVALUATION_PLAN.md`            |
-| AI workflow notes   | `docs/methodology/AI_WORKFLOW_PLAYBOOK.md`       |
+| Artifact type      | Path                                       |
+| ------------------ | ------------------------------------------ |
+| Safety assumptions | `docs/safety/ASSUMPTIONS.md`               |
+| Threat model       | `docs/safety/THREAT_MODEL.md`              |
+| Roadmap            | `docs/roadmap/DESCRIPTION.md`              |
+| Evaluation plan    | `docs/methodology/EVALUATION_PLAN.md`      |
+| AI workflow notes  | `docs/methodology/AI_WORKFLOW_PLAYBOOK.md` |
 
 **Acceptance criteria:** Gap analysis complete; roadmap milestones linked to
 chapter claims; future-work section references open issues.
