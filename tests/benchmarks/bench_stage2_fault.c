@@ -1,3 +1,6 @@
+/* Required for clock_gettime / CLOCK_MONOTONIC under strict C11 */
+#define _POSIX_C_SOURCE 200809L
+
 /**
  * Stage-2 containment check latency benchmark.
  *
