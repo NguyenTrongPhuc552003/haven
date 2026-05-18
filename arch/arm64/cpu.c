@@ -63,9 +63,9 @@ void hv_arch_cpu_init(void)
                      icc_sre_el2);
         isb();
 
-        /* ICH_HCR_EL2: enable virtual CPU interface so guests can
-         * receive virtualized interrupts through list registers. */
-        write_sysreg(ICH_HCR_EN | ICH_VMCR_DEFAULT, ich_hcr_el2);
+        /* Enable virtual CPU interface and set default virtual machine control. */
+        write_sysreg(ICH_HCR_EN, ich_hcr_el2);
+        write_sysreg(ICH_VMCR_DEFAULT, ich_vmcr_el2);
 
         /* Install exception vector table */
         extern void hv_install_vectors(void);

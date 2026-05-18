@@ -32,6 +32,7 @@ SECTIONS
          * ---------------------------------------------------------------- */
         .entry.text : ALIGN(4096)
         {
+                KEEP(*boot.o(.entry.text))
                 *(.entry.text)
         }
 

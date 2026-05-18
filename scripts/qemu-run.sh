@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HAVEN_BIN="${ROOT}/build/haven.bin"
+HV_LOAD_ADDR="${HV_LOAD_ADDR:-0x80000000}"
 
 # Check build exists
 if [ ! -f "$HAVEN_BIN" ]; then
@@ -31,5 +32,7 @@ qemu-system-aarch64 \
     -smp 4 \
     -m 2G \
     -nographic \
-    -bios "$HAVEN_BIN" \
+    -bios none \
+    -device loader,file="$HAVEN_BIN",addr="$HV_LOAD_ADDR",cpu-num=0 \
+    -device loader,addr=0x0,data="$HV_LOAD_ADDR",data-len=8,cpu-num=0 \
     "${@}"

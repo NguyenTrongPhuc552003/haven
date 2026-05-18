@@ -201,6 +201,15 @@ hv_restore_guest_context:
         ldr     x1, [x0, #CTX_SPSR_EL1]
         msr     spsr_el2, x1         /* SPSR_EL2 used by ERET */
 
+        /* Restore VMID in VTTBR_EL2 while preserving current BADDR bits. */
+        ldr     w1, [x0, #CTX_VMID]
+        mrs     x2, vttbr_el2
+        mov     x3, #0xffff
+        lsl     x3, x3, #48
+        bic     x2, x2, x3
+        bfi     x2, x1, #48, #16
+        msr     vttbr_el2, x2
+
         /* ISB to ensure all sysreg writes complete before GP registers load */
         isb
 

@@ -157,7 +157,7 @@ echo "[test] running two-partition isolation demo"
 
 echo "[test] running isolation latency benchmark"
 mkdir -p build/benchmarks
-"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+"$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_isolation_latency.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
@@ -169,7 +169,7 @@ mkdir -p build/benchmarks
 ./build/tests/bench_isolation_latency
 
 echo "[test] running temporal isolation benchmark"
-"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+"$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_temporal_isolation.c \
 	src/core/sched/budget.c \
 	src/core/time/timer.c \
@@ -177,7 +177,7 @@ echo "[test] running temporal isolation benchmark"
 ./build/tests/bench_temporal_isolation
 
 echo "[test] running stage-2 fault containment benchmark"
-"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+"$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_stage2_fault.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
@@ -186,7 +186,7 @@ echo "[test] running stage-2 fault containment benchmark"
 ./build/tests/bench_stage2_fault
 
 echo "[test] running SMMU DMA policy benchmark"
-"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+"$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_smmu_policy.c \
 	src/core/dma/smmu.c \
 	src/core/mm/stage2.c \

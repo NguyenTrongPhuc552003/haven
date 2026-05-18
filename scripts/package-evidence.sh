@@ -37,7 +37,18 @@ cp build/ci/metadata.txt build/evidence/metadata.txt
 # QEMU virtual platform validation
 # -----------------------------------------------------------------------
 echo "[evidence] running QEMU smoke check"
-./scripts/qemu-smoke.sh || true   # exit 0 on unavailable; non-zero only on found+failed
+set +e
+./scripts/qemu-smoke.sh
+QEMU_SMOKE_EXIT=$?
+set -e
+if [ "$QEMU_SMOKE_EXIT" -ne 0 ]; then
+  if [ "$QEMU_SMOKE_EXIT" -eq 2 ] && [ "$TARGET_PLATFORM" = "imx95" ]; then
+    echo "[evidence] qemu smoke skipped for imx95 packaging (qemu unavailable)"
+  else
+    echo "[evidence] qemu smoke failed (exit=${QEMU_SMOKE_EXIT})"
+    exit "$QEMU_SMOKE_EXIT"
+  fi
+fi
 if [ -f build/evidence/qemu-validation.json ]; then
   echo "[evidence] qemu-validation.json included"
 fi
@@ -55,8 +66,10 @@ fi
 # Capture live test results
 # -----------------------------------------------------------------------
 echo "[evidence] running test suite to capture results"
+set +e
 ./scripts/test.sh > build/evidence/test-results.txt 2>&1
 TEST_EXIT=$?
+set -e
 
 PASS_COUNT=$(grep -c '^\[PASS\]' build/evidence/test-results.txt || true)
 FAIL_COUNT=$(grep -c '^\[FAIL\]' build/evidence/test-results.txt || true)
@@ -174,6 +187,7 @@ if [ "$TARGET_PLATFORM" = "imx95" ]; then
     # Remove last closing brace and re-add with the new field appended.
     sed '$d' build/evidence/summary.json > build/evidence/summary.json.tmp
     cat >> build/evidence/summary.json.tmp << IMXEOF
+  ,
   "imx95_evidence_count": ${IMX95_EVIDENCE_COUNT}
 }
 IMXEOF
@@ -183,7 +197,7 @@ IMXEOF
 
   # Produce a SHA256 manifest for the i.MX95 evidence directory.
   if command -v sha256sum > /dev/null 2>&1; then
-    find "${IMX95_EVIDENCE_DIR}" -type f | sort | xargs sha256sum \
+    find "${IMX95_EVIDENCE_DIR}" -type f ! -name manifest.sha256 | sort | xargs sha256sum \
       > "${IMX95_EVIDENCE_DIR}/manifest.sha256"
     echo "[evidence] imx95 manifest.sha256 written"
   fi

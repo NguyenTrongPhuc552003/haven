@@ -15,12 +15,11 @@
 #include <stdint.h>
 #include <haven/platform.h>
 #include "drivers/uart/uart.h"
+#include "src/platform/qemu-virt/memory.h"
 
 /* -----------------------------------------------------------------------
  * PL011 UART (QEMU virt, UART0) — register-level access via drivers/uart/pl011.c
  * ----------------------------------------------------------------------- */
-
-#define QEMU_UART_BASE          0x09000000UL
 
 static void qemu_uart_putchar(char c)
 {
@@ -38,7 +37,7 @@ static uint64_t qemu_gic_redist_base(void) { return 0x080A0000UL; }
  * SMMUv3 address (QEMU virt arm-smmu-v3)
  * ----------------------------------------------------------------------- */
 
-static uint64_t qemu_smmu_base(void) { return 0x08080000UL; }
+static uint64_t qemu_smmu_base(void) { return QEMU_SMMU_BASE; }
 
 /* -----------------------------------------------------------------------
  * Timer frequency (read from CNTFRQ_EL0 programmed by QEMU)

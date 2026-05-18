@@ -26,12 +26,10 @@ set(HAVEN_CORE_SRCS
     src/core/iommu/iommu_policy.c
     src/core/time/timer.c
     src/core/exc/el2_exceptions.c
-    src/core/init.c
     src/core/partition.c
     src/common/printk.c
     src/common/string.c
     src/common/panic.c
-    src/common/spinlock.c
 )
 
 if(HAVEN_ARCH_ARM64)
@@ -40,6 +38,8 @@ if(HAVEN_ARCH_ARM64)
         arch/arm64/mm.c
         arch/arm64/timer.c
         arch/arm64/irq.c
+        src/core/init.c
+        src/common/spinlock.c
         src/platform/qemu-virt/platform.c
         drivers/irqchip/gic_v3.c
         drivers/iommu/smmu_v3.c

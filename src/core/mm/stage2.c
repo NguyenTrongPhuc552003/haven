@@ -157,6 +157,13 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg) {
                                    region->size,
                                    (hv_u32)region->attrs);
       if (arch_rc != HV_OK) {
+        hv_u32 rollback_i;
+        for (rollback_i = 0U; rollback_i < i; ++rollback_i) {
+          const struct hv_mem_region *mapped = &cfg->regions[rollback_i];
+          hv_arch_stage2_unmap(cfg->partition_id, mapped->ipa_base,
+                               mapped->size);
+        }
+        hv_arch_stage2_flush_tlb();
         stage2_partition_region_count[cfg->partition_id] = 0U;
         stage2_partition_mapped[cfg->partition_id] = 0U;
         return arch_rc;

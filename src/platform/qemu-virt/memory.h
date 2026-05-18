@@ -13,8 +13,8 @@
 #define QEMU_DRAM_BASE          0x40000000UL
 #define QEMU_DRAM_SIZE          0x80000000UL  /* 2 GiB */
 
-/* Haven hypervisor occupies first 4 MB */
-#define HAVEN_LOAD_PA           0x40000000UL
+/* Haven hypervisor default load address (matches linker HV_LOAD_ADDR). */
+#define HAVEN_LOAD_PA           0x80000000UL
 #define HAVEN_SIZE              0x00400000UL  /* 4 MB */
 
 /* Partition A (Linux-class): 512 MB */

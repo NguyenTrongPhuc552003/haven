@@ -51,20 +51,21 @@ hv_status_t hv_irq_assign(const struct hv_irq_route *route) {
     return HV_EPERM;
   }
 
-  /* Update ownership table */
-  irq_owner_map[route->irq_id] = route->owner_partition_id;
-  irq_target_cpu_map[route->irq_id] = route->target_cpu;
-
 #ifdef HAVEN_ARCH_ARM64
   /* Wire hardware: route IRQ to target CPU via GICv3 affinity routing */
   {
     uint64_t mpidr = cpu_to_mpidr(route->target_cpu);
     hv_status_t st = gic_v3_route_irq(route->irq_id, mpidr);
-    if (st != HV_OK)
+    if (st != HV_OK) {
       return st;
+    }
     gic_v3_enable_irq(route->irq_id);
   }
 #endif
+
+  /* Update ownership table only after hardware route succeeds. */
+  irq_owner_map[route->irq_id] = route->owner_partition_id;
+  irq_target_cpu_map[route->irq_id] = route->target_cpu;
 
   return HV_OK;
 }

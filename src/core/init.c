@@ -20,6 +20,12 @@
 #include <haven/iommu.h>
 #include <haven/timer.h>
 #include <haven/el2_exceptions.h>
+#include <haven/platform.h>
+
+#ifdef HAVEN_ARCH_ARM64
+#include "drivers/irqchip/gic_v3.h"
+#include "drivers/iommu/smmu_v3.h"
+#endif
 
 /* Forward declarations for platform and arch layers */
 extern void platform_init(void);
@@ -58,6 +64,20 @@ void haven_init(uintptr_t dtb_pa)
         /* Step 4: EL2 physical timer
          * Enables CNTHP_CTL_EL2 with IMASK set (no interrupt until deadline). */
         hv_arch_timer_init();
+
+#ifdef HAVEN_ARCH_ARM64
+        if (gic_v3_init((uintptr_t)platform->gic_dist_base(),
+                        (uintptr_t)platform->gic_redist_base(),
+                        platform->nr_cpus()) != HV_OK) {
+                extern void hv_panic(const char *msg);
+                hv_panic("GICv3 initialization failed");
+        }
+
+        if (smmu_v3_init((uintptr_t)platform->smmu_base(), 256U) != HV_OK) {
+                extern void hv_panic(const char *msg);
+                hv_panic("SMMUv3 initialization failed");
+        }
+#endif
 
         /* Step 5: Isolation policy modules
          * These are the core haven subsystems.  All operate on static state

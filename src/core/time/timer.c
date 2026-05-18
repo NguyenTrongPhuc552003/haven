@@ -27,6 +27,29 @@ typedef struct {
  */
 static partition_timer_t timer_state[HV_MAX_TIMER_PARTITIONS];
 
+#ifdef HAVEN_ARCH_ARM64
+static void hv_timer_program_earliest_deadline(void) {
+  hv_u64 earliest = 0;
+  hv_u32 i;
+
+  for (i = 1; i < HV_MAX_TIMER_PARTITIONS; ++i) {
+    if (!timer_state[i].active) {
+      continue;
+    }
+
+    if (earliest == 0 || timer_state[i].deadline_ns < earliest) {
+      earliest = timer_state[i].deadline_ns;
+    }
+  }
+
+  if (earliest != 0) {
+    hv_arch_timer_set_deadline(earliest);
+  } else {
+    hv_arch_timer_cancel();
+  }
+}
+#endif
+
 hv_status_t hv_timer_init(void) {
   memset(timer_state, 0, sizeof(timer_state));
   return HV_OK;
@@ -63,7 +86,7 @@ hv_status_t hv_timer_set_deadline(hv_u32 partition_id, hv_u64 deadline_ns) {
   t->expired = 0;
 
 #ifdef HAVEN_ARCH_ARM64
-  hv_arch_timer_set_deadline(deadline_ns);
+  hv_timer_program_earliest_deadline();
 #endif
 
   return HV_OK;
@@ -122,6 +145,10 @@ hv_status_t hv_timer_acknowledge(hv_u32 partition_id) {
   t->active = 0;
   t->expired = 0;
 
+#ifdef HAVEN_ARCH_ARM64
+  hv_timer_program_earliest_deadline();
+#endif
+
   return HV_OK;
 }
 
@@ -150,7 +177,7 @@ hv_status_t hv_timer_cancel(hv_u32 partition_id) {
   t->expired = 0;
 
 #ifdef HAVEN_ARCH_ARM64
-  hv_arch_timer_cancel();
+  hv_timer_program_earliest_deadline();
 #endif
 
   return HV_OK;

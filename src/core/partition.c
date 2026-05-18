@@ -129,7 +129,10 @@ static const struct hv_budget part_b_budget = {
 #ifdef HAVEN_ARCH_ARM64
 extern void hv_arch_start_partition(uintptr_t entry, uintptr_t sp,
                                     uintptr_t arg);
+extern void hv_arch_stage2_enable(uint32_t partition_id, uint32_t vmid);
 #endif
+
+extern void hv_panic(const char *msg);
 
 /* -----------------------------------------------------------------------
  * partitions_launch — public API, called from haven_init()
@@ -149,26 +152,47 @@ extern void hv_arch_start_partition(uintptr_t entry, uintptr_t sp,
 void partitions_launch(void)
 {
     hv_u32 i;
+    hv_status_t st;
 
     /* ----- Stage-2 memory mapping ------------------------------------- */
 
-    hv_stage2_map_partition(&part_a_mem_cfg);
-    hv_stage2_map_partition(&part_b_mem_cfg);
+    st = hv_stage2_map_partition(&part_a_mem_cfg);
+    if (st != HV_OK) {
+        hv_panic("partition A stage-2 mapping failed");
+    }
+
+    st = hv_stage2_map_partition(&part_b_mem_cfg);
+    if (st != HV_OK) {
+        hv_stage2_unmap_partition(PARTITION_A_ID);
+        hv_panic("partition B stage-2 mapping failed");
+    }
 
     /* ----- IRQ ownership ---------------------------------------------- */
 
     for (i = 0U; i < sizeof(part_a_irqs) / sizeof(part_a_irqs[0]); ++i) {
-        hv_irq_assign(&part_a_irqs[i]);
+        st = hv_irq_assign(&part_a_irqs[i]);
+        if (st != HV_OK) {
+            hv_panic("partition A IRQ assignment failed");
+        }
     }
 
     for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
-        hv_irq_assign(&part_b_irqs[i]);
+        st = hv_irq_assign(&part_b_irqs[i]);
+        if (st != HV_OK) {
+            hv_panic("partition B IRQ assignment failed");
+        }
     }
 
     /* ----- Scheduler budgets ------------------------------------------ */
 
-    hv_budget_set(&part_a_budget);
-    hv_budget_set(&part_b_budget);
+    st = hv_budget_set(&part_a_budget);
+    if (st != HV_OK) {
+        hv_panic("partition A budget setup failed");
+    }
+    st = hv_budget_set(&part_b_budget);
+    if (st != HV_OK) {
+        hv_panic("partition B budget setup failed");
+    }
 
 #ifdef HAVEN_ARCH_ARM64
     /*
@@ -182,9 +206,11 @@ void partitions_launch(void)
      *
      * hv_arch_start_partition performs ERET to EL1h and never returns.
      */
+    hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
+
     hv_arch_start_partition(
-        (uintptr_t)PART_A_PA_BASE,
-        (uintptr_t)(PART_A_PA_BASE + PART_A_SIZE - 0x1000UL),
+        (uintptr_t)PART_A_IPA_BASE,
+        (uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL),
         0UL);
 
     /* Unreachable — ERET transfers control permanently */

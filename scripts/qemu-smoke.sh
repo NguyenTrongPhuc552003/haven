@@ -25,32 +25,31 @@ if ! command -v qemu-system-aarch64 >/dev/null 2>&1; then
 }
 EOF
   echo "[qemu] artifact written to ${ARTIFACT}"
-  exit 0
+  exit 2
 fi
 
 QEMU_VERSION=$(qemu-system-aarch64 --version 2>&1 | head -n 1)
 echo "[qemu] found: ${QEMU_VERSION}"
 
-# -----------------------------------------------------------------------
-# Run the host-compiled haven test suite as the portable validation step.
-# On a target-hardware CI this would be replaced by a kernel image boot
-# sequence, but the logical validation contract is identical: all
-# isolation invariants must hold before the suite is declared passing.
-# -----------------------------------------------------------------------
-echo "[qemu] running haven test suite for validation"
-SUITE_LOG="${OUTDIR}/qemu-suite.txt"
-PASS_COUNT=0
-FAIL_COUNT=0
+echo "[qemu] launching ARM64 image under QEMU"
+SMOKE_LOG="${OUTDIR}/qemu-smoke.log"
 SUITE_STATUS="fail"
+BOOT_MARKER="Haven hypervisor starting"
 
-if ./scripts/test.sh > "$SUITE_LOG" 2>&1; then
+set +e
+timeout 20s ./scripts/qemu-run.sh > "$SMOKE_LOG" 2>&1
+QEMU_RC=$?
+set -e
+
+if [ "$QEMU_RC" -eq 124 ]; then
+  if grep -q "$BOOT_MARKER" "$SMOKE_LOG"; then
+    SUITE_STATUS="pass"
+  fi
+elif [ "$QEMU_RC" -eq 0 ]; then
   SUITE_STATUS="pass"
 fi
 
-PASS_COUNT=$(grep -c '^\[PASS\]' "$SUITE_LOG" || true)
-FAIL_COUNT=$(grep -c '^\[FAIL\]' "$SUITE_LOG" || true)
-
-echo "[qemu] suite: ${PASS_COUNT} passed, ${FAIL_COUNT} failed (${SUITE_STATUS})"
+echo "[qemu] smoke: status=${SUITE_STATUS} (rc=${QEMU_RC})"
 
 cat > "$ARTIFACT" << EOF
 {
@@ -60,15 +59,14 @@ cat > "$ARTIFACT" << EOF
   "qemu_available": true,
   "qemu_version": "${QEMU_VERSION}",
   "validation_status": "${SUITE_STATUS}",
-  "tests_passed": ${PASS_COUNT},
-  "tests_failed": ${FAIL_COUNT}
+  "qemu_exit_code": ${QEMU_RC}
 }
 EOF
 
 echo "[qemu] artifact written to ${ARTIFACT}"
 
 if [ "$SUITE_STATUS" != "pass" ]; then
-  echo "[qemu] validation FAILED — see ${SUITE_LOG}"
+  echo "[qemu] validation FAILED — see ${SMOKE_LOG}"
   exit 1
 fi
 

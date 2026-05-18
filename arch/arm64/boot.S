@@ -114,7 +114,7 @@ secondary_entry:
         add     x1, x1, x0, lsl #3   /* &secondary_entry_addrs[cpu_id] */
 _secondary_spin:
         ldr     x2, [x1]
-        cmp     x2, #0xffffffffffffffff
+        cmn     x2, #1
         b.eq    _secondary_spin
         dsb     sy
         isb

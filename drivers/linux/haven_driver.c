@@ -17,16 +17,12 @@
 #include <linux/miscdevice.h>
 #include <linux/ioctl.h>
 #include <linux/types.h>
-
-#define HAVEN_MAGIC 'H'
-#define HAVEN_IOCTL_GET_VERSION   _IOR(HAVEN_MAGIC, 1, uint32_t)
-#define HAVEN_IOCTL_GET_PARTITION _IOR(HAVEN_MAGIC, 2, uint32_t)
-#define HAVEN_IOCTL_TRIGGER_TEST  _IOW(HAVEN_MAGIC, 3, uint32_t)
+#include "../guest-tools/haven_ioctl.h"
 
 /* Hypercall function IDs */
-#define HVC_HAVEN_VERSION  0x48560001UL
-#define HVC_HAVEN_PART_ID  0x48560002UL
-#define HVC_HAVEN_TEST     0x48560003UL
+#define HVC_HAVEN_VERSION  0UL
+#define HVC_HAVEN_PART_ID  5UL
+#define HVC_HAVEN_TEST     6UL
 
 /* -------------------------------------------------------------------------
  * Hypercall helper
@@ -34,19 +30,21 @@
  * Issues HVC #0 with x0 = func_id and x1 = arg.
  * Returns the value placed in x0 by the hypervisor.
  */
-static uint64_t haven_hvc(uint64_t func_id, uint64_t arg)
+static long haven_hvc(uint64_t func_id, uint64_t arg, uint64_t *result)
 {
-	register uint64_t ret  asm("x0") = func_id;
+	register uint64_t status asm("x0") = func_id;
 	register uint64_t _arg asm("x1") = arg;
 
 	asm volatile(
 		"hvc #0"
-		: "=r"(ret)
-		: "r"(ret), "r"(_arg)
+		: "+r"(status), "+r"(_arg)
+		:
 		: "memory", "x2", "x3"
 	);
 
-	return ret;
+	if (result)
+		*result = _arg;
+	return (long)status;
 }
 
 /* -------------------------------------------------------------------------
@@ -68,18 +66,25 @@ static int haven_release(struct inode *inode, struct file *filp)
 static long haven_ioctl(struct file *filp, unsigned int cmd, unsigned long uarg)
 {
 	uint32_t val;
+	uint64_t out;
 	int ret;
 
 	switch (cmd) {
 	case HAVEN_IOCTL_GET_VERSION:
-		val = (uint32_t)haven_hvc(HVC_HAVEN_VERSION, 0);
+		ret = (int)haven_hvc(HVC_HAVEN_VERSION, 0, &out);
+		if (ret < 0)
+			return ret;
+		val = (uint32_t)out;
 		if (copy_to_user((void __user *)uarg, &val, sizeof(val)))
 			return -EFAULT;
 		pr_info("haven: GET_VERSION => 0x%08x\n", val);
 		return 0;
 
 	case HAVEN_IOCTL_GET_PARTITION:
-		val = (uint32_t)haven_hvc(HVC_HAVEN_PART_ID, 0);
+		ret = (int)haven_hvc(HVC_HAVEN_PART_ID, 0, &out);
+		if (ret < 0)
+			return ret;
+		val = (uint32_t)out;
 		if (copy_to_user((void __user *)uarg, &val, sizeof(val)))
 			return -EFAULT;
 		pr_info("haven: GET_PARTITION => %u\n", val);
@@ -88,9 +93,14 @@ static long haven_ioctl(struct file *filp, unsigned int cmd, unsigned long uarg)
 	case HAVEN_IOCTL_TRIGGER_TEST:
 		if (copy_from_user(&val, (const void __user *)uarg, sizeof(val)))
 			return -EFAULT;
-		ret = (int)haven_hvc(HVC_HAVEN_TEST, (uint64_t)val);
-		pr_info("haven: TRIGGER_TEST(0x%x) => %d\n", val, ret);
-		return ret < 0 ? ret : 0;
+		ret = (int)haven_hvc(HVC_HAVEN_TEST, (uint64_t)val, &out);
+		val = (uint32_t)out;
+		pr_info("haven: TRIGGER_TEST result=0x%x status=%d\n", val, ret);
+		if (ret < 0)
+			return ret;
+		if (copy_to_user((void __user *)uarg, &val, sizeof(val)))
+			return -EFAULT;
+		return 0;
 
 	default:
 		return -ENOTTY;
@@ -112,7 +122,7 @@ static struct miscdevice haven_miscdev = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name  = "haven",
 	.fops  = &haven_fops,
-	.mode  = 0666,
+	.mode  = 0600,
 };
 
 /* -------------------------------------------------------------------------
