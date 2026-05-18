@@ -29,8 +29,7 @@
 #include <haven/types.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -43,16 +42,16 @@ extern "C"
  */
 #define HV_MAX_IOMMU_PARTITIONS 256U
 
-    /**
+/**
      * Initialize the IOMMU policy subsystem.
      *
      * Clears all group-to-partition assignments.
      *
      * @return HV_OK on success.
      */
-    hv_status_t hv_iommu_init(void);
+hv_status_t hv_iommu_init(void);
 
-    /**
+/**
      * Assign an IOMMU group to a partition.
      *
      * The group must not already be assigned to a different partition. If
@@ -66,9 +65,9 @@ extern "C"
      * @return HV_EINVAL  group_id == 0 or partition_id == 0.
      * @return HV_EPERM   Group already assigned to a different partition.
      */
-    hv_status_t hv_iommu_assign_group(hv_u32 group_id, hv_u32 partition_id);
+hv_status_t hv_iommu_assign_group(hv_u32 group_id, hv_u32 partition_id);
 
-    /**
+/**
      * Release an IOMMU group from its owning partition.
      *
      * Only the current owner may release the group.
@@ -80,9 +79,9 @@ extern "C"
      * @return HV_EINVAL  group_id == 0 or partition_id == 0.
      * @return HV_EPERM   Group not assigned, or caller is not the owner.
      */
-    hv_status_t hv_iommu_release_group(hv_u32 group_id, hv_u32 partition_id);
+hv_status_t hv_iommu_release_group(hv_u32 group_id, hv_u32 partition_id);
 
-    /**
+/**
      * Check whether a partition owns an IOMMU group.
      *
      * @param group_id      IOMMU group identifier (1–255).
@@ -92,7 +91,7 @@ extern "C"
      * @return HV_EINVAL  group_id == 0 or partition_id == 0.
      * @return HV_EPERM   Group unassigned or owned by a different partition.
      */
-    hv_status_t hv_iommu_check_group(hv_u32 group_id, hv_u32 partition_id);
+hv_status_t hv_iommu_check_group(hv_u32 group_id, hv_u32 partition_id);
 
 #ifdef __cplusplus
 }

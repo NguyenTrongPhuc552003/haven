@@ -3,11 +3,10 @@
 
 #include "types.h"
 
-struct hv_irq_route
-{
-    hv_u32 irq_id;
-    hv_u32 owner_partition_id;
-    hv_u32 target_cpu;
+struct hv_irq_route {
+	hv_u32 irq_id;
+	hv_u32 owner_partition_id;
+	hv_u32 target_cpu;
 };
 
 hv_status_t hv_irq_owner_init(void);

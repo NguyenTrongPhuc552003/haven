@@ -22,55 +22,72 @@
  * drivers/uart/pl011.c
  * ----------------------------------------------------------------------- */
 
-static void qemu_uart_putchar(char c) { uart_putchar(QEMU_UART_BASE, c); }
+static void qemu_uart_putchar(char c)
+{
+	uart_putchar(QEMU_UART_BASE, c);
+}
 
 /* -----------------------------------------------------------------------
  * GICv3 addresses (QEMU virt)
  * ----------------------------------------------------------------------- */
 
-static uint64_t qemu_gic_dist_base(void) { return 0x08000000UL; }
-static uint64_t qemu_gic_redist_base(void) { return 0x080A0000UL; }
+static uint64_t qemu_gic_dist_base(void)
+{
+	return 0x08000000UL;
+}
+static uint64_t qemu_gic_redist_base(void)
+{
+	return 0x080A0000UL;
+}
 
 /* -----------------------------------------------------------------------
  * SMMUv3 address (QEMU virt arm-smmu-v3)
  * ----------------------------------------------------------------------- */
 
-static uint64_t qemu_smmu_base(void) { return QEMU_SMMU_BASE; }
+static uint64_t qemu_smmu_base(void)
+{
+	return QEMU_SMMU_BASE;
+}
 
 /* -----------------------------------------------------------------------
  * Timer frequency (read from CNTFRQ_EL0 programmed by QEMU)
  * ----------------------------------------------------------------------- */
 
-static uint64_t qemu_timer_freq(void) {
-  uint64_t freq;
-  __asm__ volatile("mrs %0, cntfrq_el0" : "=r"(freq));
-  return freq;
+static uint64_t qemu_timer_freq(void)
+{
+	uint64_t freq;
+	__asm__ volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+	return freq;
 }
 
-static uint32_t qemu_nr_cpus(void) { return 4; }
+static uint32_t qemu_nr_cpus(void)
+{
+	return 4;
+}
 
 /* -----------------------------------------------------------------------
  * Platform ops table
  * ----------------------------------------------------------------------- */
 
 static const struct hv_platform_ops qemu_virt_ops = {
-    .uart_putchar = qemu_uart_putchar,
-    .gic_dist_base = qemu_gic_dist_base,
-    .gic_redist_base = qemu_gic_redist_base,
-    .smmu_base = qemu_smmu_base,
-    .timer_freq = qemu_timer_freq,
-    .nr_cpus = qemu_nr_cpus,
-    .name = "qemu-virt-arm64",
+	.uart_putchar = qemu_uart_putchar,
+	.gic_dist_base = qemu_gic_dist_base,
+	.gic_redist_base = qemu_gic_redist_base,
+	.smmu_base = qemu_smmu_base,
+	.timer_freq = qemu_timer_freq,
+	.nr_cpus = qemu_nr_cpus,
+	.name = "qemu-virt-arm64",
 };
 
 const struct hv_platform_ops *platform = &qemu_virt_ops;
 
-void platform_init(void) {
-  /*
+void platform_init(void)
+{
+	/*
    * Initialise PL011 at 115200 8N1.  QEMU firmware already enables the
    * UART, but calling uart_init programmes the divisors explicitly so
    * the same path works on real Juno/FVP hardware.
    * ref_clk = 24 MHz (QEMU default for PL011).
    */
-  uart_init(QEMU_UART_BASE, 115200u, 24000000u);
+	uart_init(QEMU_UART_BASE, 115200u, 24000000u);
 }

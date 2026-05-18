@@ -18,12 +18,17 @@
 #include <string.h>
 
 #define TEST_PASS(msg) printf("[PASS] %s\n", msg)
-#define TEST_FAIL(msg) do { printf("[FAIL] %s\n", msg); assert(0); } while(0)
+#define TEST_FAIL(msg)                      \
+	do {                                \
+		printf("[FAIL] %s\n", msg); \
+		assert(0);                  \
+	} while (0)
 
 /**
  * Test: Initialize UART subsystem.
  */
-static void test_uart_init(void) {
+static void test_uart_init(void)
+{
 	hv_status_t status = hv_guest_uart_init();
 	assert(status == HV_OK);
 	TEST_PASS("uart_init: basic initialization");
@@ -32,7 +37,8 @@ static void test_uart_init(void) {
 /**
  * Test: Allocate UART port.
  */
-static void test_uart_allocate_port(void) {
+static void test_uart_allocate_port(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port1, port2;
@@ -64,7 +70,8 @@ static void test_uart_allocate_port(void) {
 /**
  * Test: Configure UART port.
  */
-static void test_uart_configure(void) {
+static void test_uart_configure(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port;
@@ -105,7 +112,7 @@ static void test_uart_configure(void) {
 
 	/* Negative: Invalid data bits. */
 	config.baud = HV_UART_BAUD_115200;
-	config.data_bits = 4;  /* Too small */
+	config.data_bits = 4; /* Too small */
 	status = hv_guest_uart_configure(port, &config);
 	assert(status == HV_EINVAL);
 	TEST_PASS("uart_configure: rejects invalid data bits");
@@ -114,7 +121,8 @@ static void test_uart_configure(void) {
 /**
  * Test: Write to UART port.
  */
-static void test_uart_write(void) {
+static void test_uart_write(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port, bytes_sent;
@@ -149,7 +157,8 @@ static void test_uart_write(void) {
 	TEST_PASS("uart_write: rejects NULL bytes_sent pointer");
 
 	/* Negative: Invalid port. */
-	status = hv_guest_uart_write(HV_MAX_UART_PORTS + 1, data, 5, &bytes_sent);
+	status = hv_guest_uart_write(HV_MAX_UART_PORTS + 1, data, 5,
+				     &bytes_sent);
 	assert(status == HV_EINVAL);
 	TEST_PASS("uart_write: rejects invalid port");
 }
@@ -157,7 +166,8 @@ static void test_uart_write(void) {
 /**
  * Test: Read from UART port.
  */
-static void test_uart_read(void) {
+static void test_uart_read(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port, bytes_read;
@@ -167,7 +177,7 @@ static void test_uart_read(void) {
 		.data_bits = HV_UART_DATA_BITS_8,
 		.stop_bits = HV_UART_STOP_BITS_1,
 		.parity = HV_UART_PARITY_NONE,
-		.mode = HV_UART_MODE_INTERRUPT,  /* Use interrupt mode for buffering */
+		.mode = HV_UART_MODE_INTERRUPT, /* Use interrupt mode for buffering */
 		.rts_cts_enabled = 0,
 	};
 
@@ -192,7 +202,8 @@ static void test_uart_read(void) {
 	TEST_PASS("uart_read: rejects NULL bytes_read pointer");
 
 	/* Negative: Invalid port. */
-	status = hv_guest_uart_read(HV_MAX_UART_PORTS + 1, buffer, sizeof(buffer), &bytes_read);
+	status = hv_guest_uart_read(HV_MAX_UART_PORTS + 1, buffer,
+				    sizeof(buffer), &bytes_read);
 	assert(status == HV_EINVAL);
 	TEST_PASS("uart_read: rejects invalid port");
 }
@@ -200,7 +211,8 @@ static void test_uart_read(void) {
 /**
  * Test: Check UART buffer availability.
  */
-static void test_uart_available(void) {
+static void test_uart_available(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port, available;
@@ -230,7 +242,8 @@ static void test_uart_available(void) {
 /**
  * Test: Flush UART transmit buffer.
  */
-static void test_uart_flush(void) {
+static void test_uart_flush(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port;
@@ -251,7 +264,8 @@ static void test_uart_flush(void) {
 /**
  * Test: Release UART port.
  */
-static void test_uart_release(void) {
+static void test_uart_release(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port;
@@ -277,7 +291,8 @@ static void test_uart_release(void) {
 /**
  * Test: UART statistics tracking.
  */
-static void test_uart_stats(void) {
+static void test_uart_stats(void)
+{
 	hv_guest_uart_init();
 
 	hv_u32 port, bytes_sent;
@@ -336,7 +351,8 @@ static void test_uart_stats(void) {
 /**
  * Main test runner.
  */
-int main(void) {
+int main(void)
+{
 	printf("\n=== Guest UART Driver Unit Tests ===\n\n");
 
 	test_uart_init();

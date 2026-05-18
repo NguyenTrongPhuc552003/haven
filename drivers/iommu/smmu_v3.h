@@ -28,7 +28,8 @@ hv_status_t smmu_v3_init(uintptr_t base, uint32_t nr_streams);
  * @vttbr: VTTBR_EL2 value (stage-2 table base + VMID)
  * @vmid:  Partition VMID
  */
-hv_status_t smmu_v3_set_ste_partition(uint32_t sid, uint64_t vttbr, uint32_t vmid);
+hv_status_t smmu_v3_set_ste_partition(uint32_t sid, uint64_t vttbr,
+				      uint32_t vmid);
 
 /*
  * smmu_v3_set_ste_abort - revert StreamID to ABORT (deny all DMA).

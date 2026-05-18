@@ -1,0 +1,151 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# clang-format configuration for the Haven EL2 hypervisor.
+# Derived from Linux kernel style; trimmed to C-only options.
+# Requires clang-format >= 11.
+#
+# Reference: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+---
+
+# ---------------------------------------------------------------------------
+# Indentation — Linux/kernel style: tabs, 8-column
+# ---------------------------------------------------------------------------
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+ContinuationIndentWidth: 8
+ConstructorInitializerIndentWidth: 8
+
+# ---------------------------------------------------------------------------
+# Column limit
+# ---------------------------------------------------------------------------
+ColumnLimit: 80
+
+# ---------------------------------------------------------------------------
+# Brace style — K&R with function bodies on new line (Linux style)
+# ---------------------------------------------------------------------------
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction:        true   # int foo()\n{
+  AfterControlStatement: false  # if (...) {
+  AfterEnum:            false
+  AfterStruct:          false
+  AfterUnion:           false
+  AfterExternBlock:     false
+  BeforeCatch:          false
+  BeforeElse:           false
+  IndentBraces:         false
+  SplitEmptyFunction:   true
+  SplitEmptyRecord:     true
+  SplitEmptyNamespace:  true
+
+# ---------------------------------------------------------------------------
+# Alignment
+# ---------------------------------------------------------------------------
+AlignAfterOpenBracket:        Align
+AlignConsecutiveAssignments:  false  # no column-aligned '='
+AlignConsecutiveDeclarations: false  # no column-aligned variable names
+AlignEscapedNewlines:         Left
+AlignOperands:                true
+AlignTrailingComments:        false
+
+# ---------------------------------------------------------------------------
+# Line breaking
+# ---------------------------------------------------------------------------
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine:    false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine:    false
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: false
+BreakStringLiterals: false
+
+# ---------------------------------------------------------------------------
+# Function call / parameter packing
+# ---------------------------------------------------------------------------
+BinPackArguments: true
+BinPackParameters: true
+
+# ---------------------------------------------------------------------------
+# Pointer alignment — `int *p` not `int* p`
+# ---------------------------------------------------------------------------
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+# ---------------------------------------------------------------------------
+# Spaces
+# ---------------------------------------------------------------------------
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatementsExceptForEachMacros
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesInContainerLiterals: false
+
+# ---------------------------------------------------------------------------
+# Comments
+# ---------------------------------------------------------------------------
+ReflowComments: false
+CommentPragmas: '^ IWYU pragma:'
+
+# ---------------------------------------------------------------------------
+# Includes — preserve order; do not auto-sort (include order is semantic in
+# bare-metal code: arch headers may depend on earlier definitions)
+# ---------------------------------------------------------------------------
+SortIncludes: false
+IncludeBlocks: Preserve
+IncludeCategories:
+  - Regex: '.*'
+    Priority: 1
+IncludeIsMainRegex: '(Test)?$'
+
+# ---------------------------------------------------------------------------
+# Preprocessor
+# ---------------------------------------------------------------------------
+IndentPPDirectives: None
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentWrappedFunctionNames: false
+
+# ---------------------------------------------------------------------------
+# Miscellaneous
+# ---------------------------------------------------------------------------
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
+DisableFormat: false
+ExperimentalAutoDetectBinPacking: false
+
+# ---------------------------------------------------------------------------
+# Penalty tuning (from Linux/git rules)
+# ---------------------------------------------------------------------------
+PenaltyBreakAssignment: 10
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 10
+PenaltyExcessCharacter: 100
+PenaltyReturnTypeOnItsOwnLine: 60
+
+# ---------------------------------------------------------------------------
+# Standard — pure C project; Cpp03 avoids C++-specific parsing heuristics
+# ---------------------------------------------------------------------------
+Standard: Cpp03
+
+# ---------------------------------------------------------------------------
+# Haven-specific ForEach macros
+# Add any project-specific iteration macros here so clang-format treats them
+# as loop keywords (no space inserted before the opening parenthesis).
+# ---------------------------------------------------------------------------
+ForEachMacros:
+  - 'hv_for_each_region'
+  - 'hv_for_each_partition'
+  - 'hv_for_each_irq'

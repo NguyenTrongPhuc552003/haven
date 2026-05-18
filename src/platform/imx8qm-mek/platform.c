@@ -29,60 +29,75 @@
 #define LPUART_DATA 0x1C
 #define LPUART_STAT_TDRE (1U << 23)
 
-static void imx8qm_uart_putchar(char c) {
-  volatile uint32_t *stat =
-      (volatile uint32_t *)(IMX8QM_UART_BASE + LPUART_STAT);
-  volatile uint32_t *data =
-      (volatile uint32_t *)(IMX8QM_UART_BASE + LPUART_DATA);
+static void imx8qm_uart_putchar(char c)
+{
+	volatile uint32_t *stat =
+		(volatile uint32_t *)(IMX8QM_UART_BASE + LPUART_STAT);
+	volatile uint32_t *data =
+		(volatile uint32_t *)(IMX8QM_UART_BASE + LPUART_DATA);
 
-  while (!(*stat & LPUART_STAT_TDRE))
-    __asm__ volatile("yield");
+	while (!(*stat & LPUART_STAT_TDRE))
+		__asm__ volatile("yield");
 
-  *data = (uint32_t)(unsigned char)c;
+	*data = (uint32_t)(unsigned char)c;
 }
 
 /* -----------------------------------------------------------------------
  * GICv3 base addresses (i.MX8QM - GIC-500)
  * ----------------------------------------------------------------------- */
 
-static uint64_t imx8qm_gic_dist_base(void) { return 0x51A00000UL; }
-static uint64_t imx8qm_gic_redist_base(void) { return 0x51B00000UL; }
+static uint64_t imx8qm_gic_dist_base(void)
+{
+	return 0x51A00000UL;
+}
+static uint64_t imx8qm_gic_redist_base(void)
+{
+	return 0x51B00000UL;
+}
 
 /* -----------------------------------------------------------------------
  * SMMU base (ARM SMMU-500 - stream-match, NOT SMMUv3 stream-table)
  * ----------------------------------------------------------------------- */
 
-static uint64_t imx8qm_smmu_base(void) { return 0x51400000UL; }
+static uint64_t imx8qm_smmu_base(void)
+{
+	return 0x51400000UL;
+}
 
 /* -----------------------------------------------------------------------
  * Timer frequency (read from CNTFRQ_EL0)
  * ----------------------------------------------------------------------- */
 
-static uint64_t imx8qm_timer_freq(void) {
-  uint64_t freq;
-  __asm__ volatile("mrs %0, cntfrq_el0" : "=r"(freq));
-  return freq;
+static uint64_t imx8qm_timer_freq(void)
+{
+	uint64_t freq;
+	__asm__ volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+	return freq;
 }
 
 /* i.MX8QM Cortex-A53 cluster: 4 cores */
-static uint32_t imx8qm_nr_cpus(void) { return 4; }
+static uint32_t imx8qm_nr_cpus(void)
+{
+	return 4;
+}
 
 /* -----------------------------------------------------------------------
  * Platform ops table
  * ----------------------------------------------------------------------- */
 
 static const struct hv_platform_ops imx8qm_ops = {
-    .uart_putchar = imx8qm_uart_putchar,
-    .gic_dist_base = imx8qm_gic_dist_base,
-    .gic_redist_base = imx8qm_gic_redist_base,
-    .smmu_base = imx8qm_smmu_base,
-    .timer_freq = imx8qm_timer_freq,
-    .nr_cpus = imx8qm_nr_cpus,
-    .name = "nxp-imx8qm-mek",
+	.uart_putchar = imx8qm_uart_putchar,
+	.gic_dist_base = imx8qm_gic_dist_base,
+	.gic_redist_base = imx8qm_gic_redist_base,
+	.smmu_base = imx8qm_smmu_base,
+	.timer_freq = imx8qm_timer_freq,
+	.nr_cpus = imx8qm_nr_cpus,
+	.name = "nxp-imx8qm-mek",
 };
 
 const struct hv_platform_ops *platform = &imx8qm_ops;
 
-void platform_init(void) {
-  /* LPUART initialized by U-Boot. No additional setup needed. */
+void platform_init(void)
+{
+	/* LPUART initialized by U-Boot. No additional setup needed. */
 }

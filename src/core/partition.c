@@ -49,33 +49,33 @@
  * ----------------------------------------------------------------------- */
 
 static const struct hv_mem_region part_a_regions[] = {
-    {
-        .ipa_base = PART_A_IPA_BASE,
-        .pa_base = PART_A_PA_BASE,
-        .size = PART_A_SIZE,
-        .attrs = 0, /* normal cacheable, full access */
-    },
+	{
+		.ipa_base = PART_A_IPA_BASE,
+		.pa_base = PART_A_PA_BASE,
+		.size = PART_A_SIZE,
+		.attrs = 0, /* normal cacheable, full access */
+	},
 };
 
 static const struct hv_mem_region part_b_regions[] = {
-    {
-        .ipa_base = PART_B_IPA_BASE,
-        .pa_base = PART_B_PA_BASE,
-        .size = PART_B_SIZE,
-        .attrs = 0,
-    },
+	{
+		.ipa_base = PART_B_IPA_BASE,
+		.pa_base = PART_B_PA_BASE,
+		.size = PART_B_SIZE,
+		.attrs = 0,
+	},
 };
 
 static const struct hv_partition_mem part_a_mem_cfg = {
-    .partition_id = PARTITION_A_ID,
-    .regions = part_a_regions,
-    .region_count = 1U,
+	.partition_id = PARTITION_A_ID,
+	.regions = part_a_regions,
+	.region_count = 1U,
 };
 
 static const struct hv_partition_mem part_b_mem_cfg = {
-    .partition_id = PARTITION_B_ID,
-    .regions = part_b_regions,
-    .region_count = 1U,
+	.partition_id = PARTITION_B_ID,
+	.regions = part_b_regions,
+	.region_count = 1U,
 };
 
 /* -----------------------------------------------------------------------
@@ -91,12 +91,12 @@ static const struct hv_partition_mem part_b_mem_cfg = {
  * ----------------------------------------------------------------------- */
 
 static const struct hv_irq_route part_a_irqs[] = {
-    {.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
-    {.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
+	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
+	{.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
 };
 
 static const struct hv_irq_route part_b_irqs[] = {
-    {.irq_id = 26U, .owner_partition_id = PARTITION_B_ID, .target_cpu = 2U},
+	{.irq_id = 26U, .owner_partition_id = PARTITION_B_ID, .target_cpu = 2U},
 };
 
 /* -----------------------------------------------------------------------
@@ -109,15 +109,15 @@ static const struct hv_irq_route part_b_irqs[] = {
  * ----------------------------------------------------------------------- */
 
 static const struct hv_budget part_a_budget = {
-    .partition_id = PARTITION_A_ID,
-    .period_ns = 10000000ULL, /* 10 ms */
-    .budget_ns = 8000000ULL,  /*  8 ms */
+	.partition_id = PARTITION_A_ID,
+	.period_ns = 10000000ULL, /* 10 ms */
+	.budget_ns = 8000000ULL, /*  8 ms */
 };
 
 static const struct hv_budget part_b_budget = {
-    .partition_id = PARTITION_B_ID,
-    .period_ns = 10000000ULL, /* 10 ms */
-    .budget_ns = 2000000ULL,  /*  2 ms */
+	.partition_id = PARTITION_B_ID,
+	.period_ns = 10000000ULL, /* 10 ms */
+	.budget_ns = 2000000ULL, /*  2 ms */
 };
 
 /* -----------------------------------------------------------------------
@@ -128,7 +128,7 @@ static const struct hv_budget part_b_budget = {
 
 #ifdef HAVEN_ARCH_ARM64
 extern void hv_arch_start_partition(uintptr_t entry, uintptr_t sp,
-                                    uintptr_t arg);
+				    uintptr_t arg);
 extern void hv_arch_stage2_enable(uint32_t partition_id, uint32_t vmid);
 #endif
 
@@ -149,52 +149,53 @@ extern void hv_panic(const char *msg);
  * hardware interaction.
  * ----------------------------------------------------------------------- */
 
-void partitions_launch(void) {
-  hv_u32 i;
-  hv_status_t st;
+void partitions_launch(void)
+{
+	hv_u32 i;
+	hv_status_t st;
 
-  /* ----- Stage-2 memory mapping ------------------------------------- */
+	/* ----- Stage-2 memory mapping ------------------------------------- */
 
-  st = hv_stage2_map_partition(&part_a_mem_cfg);
-  if (st != HV_OK) {
-    hv_panic("partition A stage-2 mapping failed");
-  }
+	st = hv_stage2_map_partition(&part_a_mem_cfg);
+	if (st != HV_OK) {
+		hv_panic("partition A stage-2 mapping failed");
+	}
 
-  st = hv_stage2_map_partition(&part_b_mem_cfg);
-  if (st != HV_OK) {
-    hv_stage2_unmap_partition(PARTITION_A_ID);
-    hv_panic("partition B stage-2 mapping failed");
-  }
+	st = hv_stage2_map_partition(&part_b_mem_cfg);
+	if (st != HV_OK) {
+		hv_stage2_unmap_partition(PARTITION_A_ID);
+		hv_panic("partition B stage-2 mapping failed");
+	}
 
-  /* ----- IRQ ownership ---------------------------------------------- */
+	/* ----- IRQ ownership ---------------------------------------------- */
 
-  for (i = 0U; i < sizeof(part_a_irqs) / sizeof(part_a_irqs[0]); ++i) {
-    st = hv_irq_assign(&part_a_irqs[i]);
-    if (st != HV_OK) {
-      hv_panic("partition A IRQ assignment failed");
-    }
-  }
+	for (i = 0U; i < sizeof(part_a_irqs) / sizeof(part_a_irqs[0]); ++i) {
+		st = hv_irq_assign(&part_a_irqs[i]);
+		if (st != HV_OK) {
+			hv_panic("partition A IRQ assignment failed");
+		}
+	}
 
-  for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
-    st = hv_irq_assign(&part_b_irqs[i]);
-    if (st != HV_OK) {
-      hv_panic("partition B IRQ assignment failed");
-    }
-  }
+	for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
+		st = hv_irq_assign(&part_b_irqs[i]);
+		if (st != HV_OK) {
+			hv_panic("partition B IRQ assignment failed");
+		}
+	}
 
-  /* ----- Scheduler budgets ------------------------------------------ */
+	/* ----- Scheduler budgets ------------------------------------------ */
 
-  st = hv_budget_set(&part_a_budget);
-  if (st != HV_OK) {
-    hv_panic("partition A budget setup failed");
-  }
-  st = hv_budget_set(&part_b_budget);
-  if (st != HV_OK) {
-    hv_panic("partition B budget setup failed");
-  }
+	st = hv_budget_set(&part_a_budget);
+	if (st != HV_OK) {
+		hv_panic("partition A budget setup failed");
+	}
+	st = hv_budget_set(&part_b_budget);
+	if (st != HV_OK) {
+		hv_panic("partition B budget setup failed");
+	}
 
 #ifdef HAVEN_ARCH_ARM64
-  /*
+	/*
    * Launch partition A on the current (primary) CPU.
    *
    * entry : first instruction in partition A's PA range
@@ -205,12 +206,12 @@ void partitions_launch(void) {
    *
    * hv_arch_start_partition performs ERET to EL1h and never returns.
    */
-  hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
+	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
 
-  hv_arch_start_partition((uintptr_t)PART_A_IPA_BASE,
-                          (uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL),
-                          0UL);
+	hv_arch_start_partition(
+		(uintptr_t)PART_A_IPA_BASE,
+		(uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL), 0UL);
 
-  /* Unreachable - ERET transfers control permanently */
+	/* Unreachable - ERET transfers control permanently */
 #endif
 }

@@ -75,9 +75,9 @@ typedef enum {
  * UART I/O mode.
  */
 typedef enum {
-	HV_UART_MODE_POLLED = 0,     /**< Polled I/O (blocking) */
-	HV_UART_MODE_INTERRUPT = 1,  /**< Interrupt-driven I/O */
-	HV_UART_MODE_DMA = 2,        /**< DMA-based transfers */
+	HV_UART_MODE_POLLED = 0, /**< Polled I/O (blocking) */
+	HV_UART_MODE_INTERRUPT = 1, /**< Interrupt-driven I/O */
+	HV_UART_MODE_DMA = 2, /**< DMA-based transfers */
 } hv_uart_mode_t;
 
 /**
@@ -89,7 +89,7 @@ typedef struct {
 	hv_uart_stop_bits_t stop_bits;
 	hv_uart_parity_t parity;
 	hv_uart_mode_t mode;
-	int rts_cts_enabled;  /**< Hardware flow control */
+	int rts_cts_enabled; /**< Hardware flow control */
 } hv_uart_config_t;
 
 /**
@@ -140,7 +140,8 @@ hv_status_t hv_guest_uart_allocate_port(hv_u32 partition, hv_u32 *port_id);
  * @return HV_EPERM if port not allocated
  * @return HV_ENOTSUP if baud rate not supported by hardware
  */
-hv_status_t hv_guest_uart_configure(hv_u32 port_id, const hv_uart_config_t *config);
+hv_status_t hv_guest_uart_configure(hv_u32 port_id,
+				    const hv_uart_config_t *config);
 
 /**
  * Write data to UART port.
@@ -160,7 +161,8 @@ hv_status_t hv_guest_uart_configure(hv_u32 port_id, const hv_uart_config_t *conf
  * @return HV_EPERM if port not allocated
  * @return HV_ENOSPC if buffer full (interrupt/DMA mode)
  */
-hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data, hv_u32 length, hv_u32 *bytes_sent);
+hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data,
+				hv_u32 length, hv_u32 *bytes_sent);
 
 /**
  * Read data from UART port.
@@ -179,7 +181,8 @@ hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data, hv_u32 length
  * @return HV_EINVAL if port_id or buffer invalid
  * @return HV_EPERM if port not allocated
  */
-hv_status_t hv_guest_uart_read(hv_u32 port_id, hv_u8 *buffer, hv_u32 max_length, hv_u32 *bytes_read);
+hv_status_t hv_guest_uart_read(hv_u32 port_id, hv_u8 *buffer, hv_u32 max_length,
+			       hv_u32 *bytes_read);
 
 /**
  * Check if UART port has data ready.
