@@ -31,13 +31,13 @@ spatial_isolation_invariant(s) ∧ p1 ≠ p2 →
 partition_contains_pa(s, p1, pa) → ¬partition_contains_pa(s, p2, pa)
 ```
 
-**C implementation:** `src/core/mm/stage2.c` — `hv_stage2_map_partition`,
+**C implementation:** `src/core/mm/stage2.c` - `hv_stage2_map_partition`,
 `hv_stage2_contains`, `hv_range_overlaps`.
 
-**Coq proof:** `verification/coq/IsolationModel.v` — `spatial_isolation`
+**Coq proof:** `verification/coq/IsolationModel.v` - `spatial_isolation`
 theorem (proved, not admitted).
 
-**Isabelle proof:** `verification/isabelle/HavenIsolation.thy` —
+**Isabelle proof:** `verification/isabelle/HavenIsolation.thy` -
 `spatial_no_overlap` theorem.
 
 ---
@@ -81,7 +81,7 @@ belongs to at most one partition.
 ```
 Violation at boot causes a panic; no runtime reconfiguration is permitted.
 
-**C implementation:** `src/core/iommu/iommu_policy.c` — `hv_iommu_assign_device`,
+**C implementation:** `src/core/iommu/iommu_policy.c` - `hv_iommu_assign_device`,
 `hv_iommu_check_group_exclusive`.
 
 **Test coverage:** `tests/unit/test_iommu_policy.c`.
@@ -108,10 +108,10 @@ a EL2 exception and is logged as a security event.
 ```
 (Every IRQ has exactly one owner; cross-partition injection is denied.)
 
-**C implementation:** `src/core/irq/ownership.c` — `hv_irq_claim`,
+**C implementation:** `src/core/irq/ownership.c` - `hv_irq_claim`,
 `hv_irq_check_owner`.
 
-**EL2 handler:** `src/core/exc/el2_exceptions.c` — intercepts SGI injection.
+**EL2 handler:** `src/core/exc/el2_exceptions.c` - intercepts SGI injection.
 
 ---
 
@@ -136,10 +136,10 @@ preserves the invariant:
 valid_budget(bs) → valid_budget(consume(bs, ticks))
 ```
 
-**C implementation:** `src/core/sched/budget.c` — `hv_budget_tick`,
+**C implementation:** `src/core/sched/budget.c` - `hv_budget_tick`,
 `hv_sched_init`.
 
-**Coq proof:** `verification/coq/BudgetScheduler.v` — `budget_leq_period` and
+**Coq proof:** `verification/coq/BudgetScheduler.v` - `budget_leq_period` and
 `consume_preserves_valid` theorems.
 
 ---
@@ -154,21 +154,21 @@ replenishes them if the period has elapsed.
 **Invariant.**  Period replenishment is atomic with respect to partition
 execution: a partition cannot observe a budget replenishment mid-slice.
 
-**C implementation:** `src/core/time/timer.c` — `hv_timer_set_period`,
+**C implementation:** `src/core/time/timer.c` - `hv_timer_set_period`,
 `hv_timer_handler`.
 
 ---
 
 ## Formal Properties Summary
 
-| Invariant                        | C function(s)                          | Coq theorem                          | Isabelle theorem                    |
-|----------------------------------|----------------------------------------|--------------------------------------|-------------------------------------|
-| No PA overlap between partitions | `hv_stage2_map_partition`              | `spatial_isolation`                  | `spatial_no_overlap`                |
-| Map operation preserves overlap-free | `hv_stage2_map_partition`          | `add_partition_preserves_isolation`  | —                                   |
-| No shared PA (corollary)         | `hv_stage2_contains`                   | (corollary of `spatial_isolation`)   | `isolation_no_shared_pa`            |
-| Budget ≤ period                  | `hv_sched_init`, `hv_budget_tick`      | `budget_leq_period`                  | —                                   |
-| Consume preserves budget bound   | `hv_budget_tick`                       | `consume_preserves_valid`            | `consume_budget_preserves_valid`    |
-| Zero-size region disjoint        | `hv_range_overlaps`                    | `zero_size_disjoint`                 | —                                   |
+| Invariant                            | C function(s)                     | Coq theorem                         | Isabelle theorem                 |
+| ------------------------------------ | --------------------------------- | ----------------------------------- | -------------------------------- |
+| No PA overlap between partitions     | `hv_stage2_map_partition`         | `spatial_isolation`                 | `spatial_no_overlap`             |
+| Map operation preserves overlap-free | `hv_stage2_map_partition`         | `add_partition_preserves_isolation` | -                                |
+| No shared PA (corollary)             | `hv_stage2_contains`              | (corollary of `spatial_isolation`)  | `isolation_no_shared_pa`         |
+| Budget ≤ period                      | `hv_sched_init`, `hv_budget_tick` | `budget_leq_period`                 | -                                |
+| Consume preserves budget bound       | `hv_budget_tick`                  | `consume_preserves_valid`           | `consume_budget_preserves_valid` |
+| Zero-size region disjoint            | `hv_range_overlaps`               | `zero_size_disjoint`                | -                                |
 
 ---
 
@@ -177,15 +177,15 @@ execution: a partition cannot observe a budget replenishment mid-slice.
 The isolation model directly addresses the threats documented in
 `docs/safety/THREAT_MODEL.md`:
 
-| Threat                                    | Mitigating mechanism(s)                     |
-|-------------------------------------------|---------------------------------------------|
-| Guest reads another guest's physical RAM  | Stage-2 MMU (Layer 1)                       |
-| Guest DMA to another guest's RAM          | SMMUv3 (Layer 2)                            |
-| Guest hijacks shared peripheral           | IOMMU group ownership (Layer 3)             |
-| Guest injects interrupt into another guest| IRQ ownership + EL2 trap (Layer 4)          |
-| Greedy guest starves RTOS                 | Budget scheduler + timer (Layer 5)          |
-| Guest modifies stage-2 tables             | EL2 privilege; stage-2 tables mapped RO in guest |
-| Hypervisor bug allows partition escape    | Minimal TCB + formal proofs reduce attack surface |
+| Threat                                     | Mitigating mechanism(s)                           |
+| ------------------------------------------ | ------------------------------------------------- |
+| Guest reads another guest's physical RAM   | Stage-2 MMU (Layer 1)                             |
+| Guest DMA to another guest's RAM           | SMMUv3 (Layer 2)                                  |
+| Guest hijacks shared peripheral            | IOMMU group ownership (Layer 3)                   |
+| Guest injects interrupt into another guest | IRQ ownership + EL2 trap (Layer 4)                |
+| Greedy guest starves RTOS                  | Budget scheduler + timer (Layer 5)                |
+| Guest modifies stage-2 tables              | EL2 privilege; stage-2 tables mapped RO in guest  |
+| Hypervisor bug allows partition escape     | Minimal TCB + formal proofs reduce attack surface |
 
 ---
 
@@ -193,12 +193,12 @@ The isolation model directly addresses the threats documented in
 
 Haven's invariants are enforced at three points:
 
-1. **Boot-time** — all invariants are checked during `hv_init()` before any
+1. **Boot-time** - all invariants are checked during `hv_init()` before any
    partition is started.  A failed check causes an immediate panic; no
    partition is ever started in an invalid state.
-2. **Static configuration only** — partition layout is never mutated after
+2. **Static configuration only** - partition layout is never mutated after
    `hv_init()` completes.  There is no dynamic partition reconfiguration API.
-3. **Exception handling** — EL2 synchronous exceptions from guests are
+3. **Exception handling** - EL2 synchronous exceptions from guests are
    inspected by `src/core/exc/el2_exceptions.c`; any operation that would
    violate an invariant (e.g., cross-partition SGI) is aborted and logged.
 
@@ -206,8 +206,8 @@ Haven's invariants are enforced at three points:
 
 ## Further Reading
 
-- `docs/architecture/OVERVIEW.md` — system architecture and design principles
-- `docs/safety/THREAT_MODEL.md` — full threat model
-- `docs/safety/ASSUMPTIONS.md` — trusted assumptions (hardware correctness, firmware)
-- `verification/coq/README.md` — Coq proof guide
-- `verification/isabelle/README.md` — Isabelle/HOL cross-validation
+- `docs/architecture/OVERVIEW.md` - system architecture and design principles
+- `docs/safety/THREAT_MODEL.md` - full threat model
+- `docs/safety/ASSUMPTIONS.md` - trusted assumptions (hardware correctness, firmware)
+- `verification/coq/README.md` - Coq proof guide
+- `verification/isabelle/README.md` - Isabelle/HOL cross-validation

@@ -55,7 +55,7 @@ All isolation claims in the thesis are scoped to this model.
 ### Fail-closed invariants
 
 7. Every enforcement function returns a defined error code (`HV_EINVAL`,
-   `HV_EPERM`, `HV_ENOSPC`) on invalid input — no silent success.
+   `HV_EPERM`, `HV_ENOSPC`) on invalid input - no silent success.
 8. A partition with an expired, unacknowledged timer deadline cannot arm a
    new deadline (fail-closed guard prevents deadline bypass).
 9. Partition ID 0 is reserved and rejected by all enforcement modules.
@@ -80,4 +80,4 @@ All isolation claims in the thesis are scoped to this model.
 3. Fault-tolerant recovery from hardware errors inside a partition.
 4. Resistance to physically present attackers with JTAG or bus access.
 5. Denial-of-service from a partition consuming its full allocated budget
-   (budget exhaustion is permitted — it is the partition's own resource).
+   (budget exhaustion is permitted - it is the partition's own resource).

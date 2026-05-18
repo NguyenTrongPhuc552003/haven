@@ -14,7 +14,7 @@ check_toolchain() {
     if command -v "${prefix}gcc" &>/dev/null; then
         local ver
         ver=$("${prefix}gcc" --version | head -1)
-        echo "[cross-compile] Found: ${prefix}gcc — $ver"
+        echo "[cross-compile] Found: ${prefix}gcc - $ver"
         return 0
     fi
     return 1

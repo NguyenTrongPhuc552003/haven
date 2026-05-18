@@ -22,28 +22,28 @@ python3 tools/analysis/latency_analyzer.py \
 
 ### Arguments
 
-| Flag           | Default                                     | Description                              |
-|----------------|---------------------------------------------|------------------------------------------|
-| `--input`      | `build/benchmarks/isolation-latency.json`   | Path to benchmark JSON                   |
-| `--platform`   | `unknown`                                   | Platform label printed in the report     |
-| `--json`       | *(none)*                                    | Optional: write structured output to file|
+| Flag         | Default                                   | Description                               |
+| ------------ | ----------------------------------------- | ----------------------------------------- |
+| `--input`    | `build/benchmarks/isolation-latency.json` | Path to benchmark JSON                    |
+| `--platform` | `unknown`                                 | Platform label printed in the report      |
+| `--json`     | *(none)*                                  | Optional: write structured output to file |
 
 ### Input Format
 
 The tool accepts two JSON shapes:
 
 ```jsonc
-// Shape 1 — top-level array
+// Shape 1 - top-level array
 [{"benchmark": "stage2_contains_hot", "min_ns": 38, "mean_ns": 43, "max_ns": 61, "iters": 10000}]
 
-// Shape 2 — wrapped object
+// Shape 2 - wrapped object
 {"results": [{"name": "stage2_contains_hot", ...}]}
 ```
 
 ### Output
 
 ```
-Haven Isolation Latency — Platform: qemu-virt
+Haven Isolation Latency - Platform: qemu-virt
 -------------------------------------------------------------------
 Benchmark                            Min(ns)   Mean(ns)    Max(ns)   p99est(ns)    Iters
 -------------------------------------------------------------------
@@ -53,7 +53,7 @@ smmu_check_hot                            35         42         58          126 
 Summary: PASS  (threshold 100000 ns / 100 µs)
 ```
 
-The exit code is `0` if all benchmarks pass, `1` otherwise — making it
+The exit code is `0` if all benchmarks pass, `1` otherwise - making it
 suitable for CI gating.
 
 ---
@@ -75,11 +75,11 @@ python3 tools/analysis/jitter_plot.py \
 
 ### Arguments
 
-| Flag           | Default                                   | Description                             |
-|----------------|-------------------------------------------|-----------------------------------------|
-| `--input`      | `build/benchmarks/isolation-latency.json` | Benchmark JSON input                    |
-| `--output`     | `build/benchmarks/latency_plot.png`       | Output PNG path (ignored in ASCII mode) |
-| `--platform`   | `QEMU`                                    | Platform label for chart title          |
+| Flag         | Default                                   | Description                             |
+| ------------ | ----------------------------------------- | --------------------------------------- |
+| `--input`    | `build/benchmarks/isolation-latency.json` | Benchmark JSON input                    |
+| `--output`   | `build/benchmarks/latency_plot.png`       | Output PNG path (ignored in ASCII mode) |
+| `--platform` | `QEMU`                                    | Platform label for chart title          |
 
 ### Matplotlib Dependency
 
@@ -110,11 +110,11 @@ python3 tools/analysis/evidence_report.py \
 
 ### Arguments
 
-| Flag              | Default                                   | Description                            |
-|-------------------|-------------------------------------------|----------------------------------------|
-| `--evidence-dir`  | `build/evidence`                          | Directory containing test JSON files   |
-| `--benchmarks`    | `build/benchmarks/isolation-latency.json` | Benchmark JSON file                    |
-| `--output`        | `build/evidence/report.html`              | Output HTML path (directory created if needed) |
+| Flag             | Default                                   | Description                                    |
+| ---------------- | ----------------------------------------- | ---------------------------------------------- |
+| `--evidence-dir` | `build/evidence`                          | Directory containing test JSON files           |
+| `--benchmarks`   | `build/benchmarks/isolation-latency.json` | Benchmark JSON file                            |
+| `--output`       | `build/evidence/report.html`              | Output HTML path (directory created if needed) |
 
 ### Output
 

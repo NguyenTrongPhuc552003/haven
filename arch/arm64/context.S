@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * arch/arm64/context.S — ARM64 guest CPU context save and restore.
+ * arch/arm64/context.S - ARM64 guest CPU context save and restore.
  *
  * A full guest context includes:
  *   - General-purpose registers x0–x30
@@ -12,7 +12,7 @@
  *                            FAR_EL1, AFSR0_EL1, AFSR1_EL1,
  *                            TPIDR_EL0, TPIDR_EL1, TPIDRRO_EL0
  *   - Counter-timer: CNTVOFF_EL2 (written at restore, not read from context)
- *   - NEON/FP: Q0–Q31, FPCR, FPSR (optional — saved only if CPTR_EL2 clears TFP)
+ *   - NEON/FP: Q0–Q31, FPCR, FPSR (optional - saved only if CPTR_EL2 clears TFP)
  *
  * struct hv_cpu_context layout (see include/haven/cpu_context.h):
  * Offset  Field
@@ -157,7 +157,7 @@ hv_save_guest_context:
  * stage-2 translation table before ERET to the guest.
  *
  * On entry: x0 = ctx pointer
- * Does NOT return — ends with ERET into the guest.
+ * Does NOT return - ends with ERET into the guest.
  * ----------------------------------------------------------------------- */
 
         .global hv_restore_guest_context
@@ -229,7 +229,7 @@ hv_restore_guest_context:
         ldp     x6,  x7,  [x0, #CTX_X0 + 48]
         ldp     x4,  x5,  [x0, #CTX_X0 + 32]
         ldp     x2,  x3,  [x0, #CTX_X0 + 16]
-        ldp     x0,  x1,  [x0, #CTX_X0 + 0]   /* x0 last — overwrites ctx ptr */
+        ldp     x0,  x1,  [x0, #CTX_X0 + 0]   /* x0 last - overwrites ctx ptr */
 
         eret                 /* Return to guest at ELR_EL2 with SPSR_EL2 */
 
@@ -301,4 +301,4 @@ hv_context_switch:
 
         /* Fall through: restore new partition's context from *x1 */
         mov     x0, x1
-        b       hv_restore_guest_context   /* tail call — ends with ERET */
+        b       hv_restore_guest_context   /* tail call - ends with ERET */

@@ -81,28 +81,28 @@ The script creates a self-contained evidence bundle under
 For each evidence category, the following commands are run on the board or
 logged from the serial console:
 
-**E1 — Boot log**
+**E1 - Boot log**
 Captured automatically from UART output at power-on.  Save to
 `build/evidence/imx95/logs/boot.log`.
 
-**E2 — Spatial isolation**
+**E2 - Spatial isolation**
 Deploy the `test_spatial_isolation` binary into Partition B.  Trigger a
 write to a Partition A physical address.  The hypervisor must log a stage-2
 data abort within 5 µs of the faulting instruction.  Save fault log to
 `build/evidence/imx95/logs/spatial_fault.log`.
 
-**E3 — Temporal isolation**
+**E3 - Temporal isolation**
 Run `tests/isolation/test_temporal_isolation` in Partition B while a
 stress-ng CPU-burn workload runs at 100 % utilization in Partition A.
 Record 10,000 deadline samples.  Export to
 `build/evidence/imx95/metrics/temporal_deadlines.csv`.
 
-**E4 — DMA isolation**
+**E4 - DMA isolation**
 Program a DMA descriptor pointing outside the SMMU window for Partition B.
 The SMMUv3 must raise a transaction fault.  Save the SMMU fault status
 register dump to `build/evidence/imx95/captures/smmu_fault.txt`.
 
-**E5 — Fault injection**
+**E5 - Fault injection**
 Execute `tests/integration/test_fault_injection` with JTAG breakpoints
 set at each fault-injection site (F1–F8).  Each scenario must produce a
 DENY entry in the hypervisor audit ring buffer.  Export audit log to

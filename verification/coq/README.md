@@ -3,7 +3,7 @@
 ## Overview
 
 This directory contains three Coq 8.18 proof files that formalise Haven's
-isolation policy invariants at the *policy layer* — the portable C contracts
+isolation policy invariants at the *policy layer* - the portable C contracts
 that hold regardless of the underlying hardware implementation.
 
 The proof strategy mirrors the seL4 approach: verify the abstract policy model
@@ -15,17 +15,17 @@ end-to-end assurance argument for the thesis.
 
 ## Files
 
-| File                  | Content                                                               |
-|-----------------------|-----------------------------------------------------------------------|
-| `IsolationModel.v`    | Core spatial isolation model.  Defines `PartitionState`, `HvState`,  |
-|                       | `spatial_isolation_invariant`, and proves the primary                 |
-|                       | `spatial_isolation` theorem: if `pa` belongs to partition p1 then it |
-|                       | cannot belong to any distinct partition p2.                           |
-| `Stage2Policy.v`      | Stage-2 map operation.  Proves that `hv_stage2_map_partition` —       |
-|                       | modelled as `add_partition` — preserves `spatial_isolation_invariant`.|
-| `BudgetScheduler.v`   | Temporal budget model.  Defines `BudgetState`, proves the             |
-|                       | `budget_leq_period` invariant, and shows that the `consume` operation |
-|                       | preserves it.                                                         |
+| File                | Content                                                                |
+| ------------------- | ---------------------------------------------------------------------- |
+| `IsolationModel.v`  | Core spatial isolation model.  Defines `PartitionState`, `HvState`,    |
+|                     | `spatial_isolation_invariant`, and proves the primary                  |
+|                     | `spatial_isolation` theorem: if `pa` belongs to partition p1 then it   |
+|                     | cannot belong to any distinct partition p2.                            |
+| `Stage2Policy.v`    | Stage-2 map operation.  Proves that `hv_stage2_map_partition` -        |
+|                     | modelled as `add_partition` - preserves `spatial_isolation_invariant`. |
+| `BudgetScheduler.v` | Temporal budget model.  Defines `BudgetState`, proves the              |
+|                     | `budget_leq_period` invariant, and shows that the `consume` operation  |
+|                     | preserves it.                                                          |
 
 ---
 
@@ -40,7 +40,7 @@ Theorem spatial_isolation :
     partition_contains_pa s p1 pa ->
     ~partition_contains_pa s p2 pa.
 
-(* Stage2Policy.v — invariant preservation *)
+(* Stage2Policy.v - invariant preservation *)
 Theorem add_partition_preserves_isolation :
   forall s p,
     spatial_isolation_invariant s ->
@@ -63,7 +63,7 @@ Theorem consume_preserves_valid :
 
 ## Admitted Sub-lemmas
 
-A small number of sub-lemmas are currently `Admitted` — these are noted with
+A small number of sub-lemmas are currently `Admitted` - these are noted with
 `(* DEFERRED *)` comments in the source.  They cover arithmetic edge cases in
 the stage-2 overlap check that are mechanically verified in the C
 implementation via unit tests (`tests/unit/test_core_stubs.c`).  Closing these
@@ -95,13 +95,13 @@ Alternatively, open the files interactively in CoqIDE or the VS Code
 
 ## Correspondence with C Source
 
-| Coq definition / theorem            | C source                                    |
-|--------------------------------------|---------------------------------------------|
-| `spatial_isolation_invariant`        | `hv_stage2_map_partition` (stage2.c:121–133)|
-| `regions_disjoint`                   | `hv_range_overlaps` (stage2.c)              |
-| `partition_contains_pa`              | `hv_stage2_contains` (stage2.c)             |
-| `BudgetState`, `consume`             | `hv_budget_tick` (budget.c)                 |
-| `budget_leq_period`                  | assertion in `hv_sched_init` (budget.c)     |
+| Coq definition / theorem      | C source                                     |
+| ----------------------------- | -------------------------------------------- |
+| `spatial_isolation_invariant` | `hv_stage2_map_partition` (stage2.c:121–133) |
+| `regions_disjoint`            | `hv_range_overlaps` (stage2.c)               |
+| `partition_contains_pa`       | `hv_stage2_contains` (stage2.c)              |
+| `BudgetState`, `consume`      | `hv_budget_tick` (budget.c)                  |
+| `budget_leq_period`           | assertion in `hv_sched_init` (budget.c)      |
 
 ---
 
@@ -110,10 +110,10 @@ Alternatively, open the files interactively in CoqIDE or the VS Code
 These proofs cover the *policy* layer only.  The trusted computing base (TCB)
 for the Haven thesis comprises:
 
-1. **Policy proofs** (this directory) — machine-checked by Coq 8.18.
-2. **Hardware binding** (`arch/arm64/`, `drivers/`) — validated by unit,
+1. **Policy proofs** (this directory) - machine-checked by Coq 8.18.
+2. **Hardware binding** (`arch/arm64/`, `drivers/`) - validated by unit,
    integration, and negative-path tests.
-3. **Coq kernel itself** — a small, widely-audited proof checker.
+3. **Coq kernel itself** - a small, widely-audited proof checker.
 
 This matches the seL4 assurance model: a verified abstract specification plus
 a tested (but unverified) hardware abstraction layer.

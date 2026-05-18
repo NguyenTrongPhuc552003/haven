@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * linker.ld — ELF linker script for the Haven hypervisor (ARM64).
+ * linker.ld - ELF linker script for the Haven hypervisor (ARM64).
  *
  * Haven is loaded at 0x80000000 by firmware (U-Boot / ATF) on the
  * primary platform targets:
@@ -25,7 +25,7 @@ SECTIONS
         . = HV_LOAD_ADDR;
 
         /* ----------------------------------------------------------------
-         * .entry.text — exception vectors and boot stub.
+         * .entry.text - exception vectors and boot stub.
          * Must be placed before .text so VBAR_EL2 = HV_LOAD_ADDR
          * is correctly aligned (2KiB for VBAR_EL2, but we align 4KiB
          * for simplicity).
@@ -37,7 +37,7 @@ SECTIONS
         }
 
         /* ----------------------------------------------------------------
-         * .text — all other code
+         * .text - all other code
          * ---------------------------------------------------------------- */
         .text : ALIGN(64)
         {
@@ -45,7 +45,7 @@ SECTIONS
         }
 
         /* ----------------------------------------------------------------
-         * .rodata — read-only data (string literals, const arrays)
+         * .rodata - read-only data (string literals, const arrays)
          * ---------------------------------------------------------------- */
         .rodata : ALIGN(64)
         {
@@ -53,7 +53,7 @@ SECTIONS
         }
 
         /* ----------------------------------------------------------------
-         * .data — initialized read-write data
+         * .data - initialized read-write data
          * ---------------------------------------------------------------- */
         .data : ALIGN(64)
         {
@@ -61,7 +61,7 @@ SECTIONS
         }
 
         /* ----------------------------------------------------------------
-         * .bss — zero-initialized data (stacks, page-table pool, etc.)
+         * .bss - zero-initialized data (stacks, page-table pool, etc.)
          * The boot stub zeroes this region before calling haven_init().
          * ---------------------------------------------------------------- */
         . = ALIGN(4096);

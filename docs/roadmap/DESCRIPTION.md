@@ -4,7 +4,7 @@
 
 Haven is an EL2 static-partition hypervisor for heterogeneous AMP SoCs (Cortex-A + Cortex-M/R). The research question: *Can a minimal EL2 hypervisor enforce hard spatial and temporal isolation between Linux and RTOS on a real SoC, while remaining small enough for safety-certification analysis?*
 
-The project has solid contract-level C (7 isolation modules, ~1,200 lines, all tested), strong CI/CD infrastructure (~3,500 lines of tests, multi-compiler, cross-platform), and excellent documentation scaffolding — but is critically missing its **hardware binding layer** (no ARM64 assembly, no EL2 page-table programming, no GIC/SMMU register access). Over 15 directories are `.gitkeep` placeholders. The 12-month plan below converts this framework into a publishable, thesis-grade implementation.
+The project has solid contract-level C (7 isolation modules, ~1,200 lines, all tested), strong CI/CD infrastructure (~3,500 lines of tests, multi-compiler, cross-platform), and excellent documentation scaffolding - but is critically missing its **hardware binding layer** (no ARM64 assembly, no EL2 page-table programming, no GIC/SMMU register access). Over 15 directories are `.gitkeep` placeholders. The 12-month plan below converts this framework into a publishable, thesis-grade implementation.
 
 ---
 
@@ -16,37 +16,37 @@ The Linux kernel's organizational philosophy produces the world's most peer-revi
 
 | Linux Kernel Pattern                                | Problem It Solves                                     | Haven Application                                                                |
 | --------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `arch/<target>/` — all HW-specific code isolated    | Prevents hardware details leaking into portable logic | `src/core/arch/arm64/` for entry.S, context.S, hw registers                      |
-| `drivers/<subsystem>/` — drivers separate from core | Subsystem policy ≠ hardware driver                    | `drivers/irqchip/` for GICv3, `drivers/iommu/` for SMMUv3                        |
+| `arch/<target>/` - all HW-specific code isolated    | Prevents hardware details leaking into portable logic | `src/core/arch/arm64/` for entry.S, context.S, hw registers                      |
+| `drivers/<subsystem>/` - drivers separate from core | Subsystem policy ≠ hardware driver                    | `drivers/irqchip/` for GICv3, `drivers/iommu/` for SMMUv3                        |
 | `include/linux/` vs `include/uapi/`                 | Public API vs internal API                            | `include/haven/` (public) vs `include/arch/` (hardware)                          |
-| `lib/` — shared utilities (string, bitmap, etc.)    | Avoids code duplication                               | `src/common/` with string.c, printk.c, panic.c                                   |
+| `lib/` - shared utilities (string, bitmap, etc.)    | Avoids code duplication                               | `src/common/` with string.c, printk.c, panic.c                                   |
 | `Documentation/` with subdirectories                | Living docs tied to subsystems                        | Expand `docs/` with subsystem-specific guides                                    |
-| Kbuild — incremental, parallel, cross-compile       | Fast, reproducible builds                             | Evolve Makefile to support `ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu-` |
+| Kbuild - incremental, parallel, cross-compile       | Fast, reproducible builds                             | Evolve Makefile to support `ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu-` |
 
 ### Comparable Projects: Key Structural Lessons
 
-**Jailhouse (Siemens)** — most architecturally similar:
-- `hypervisor/arch/arm64/` — exception entry, CPU setup, MMU, GIC, SMMU
-- `hypervisor/pci.c`, `hypervisor/mmio.c` — device isolation at hypervisor level
-- `configs/<board>/` — static cell configs (YAML/JSON)
-- `inmates/` — demo guests showing the isolation model in action
-- `driver/` — Linux kernel module (.ko) bridging host OS to hypervisor
+**Jailhouse (Siemens)** - most architecturally similar:
+- `hypervisor/arch/arm64/` - exception entry, CPU setup, MMU, GIC, SMMU
+- `hypervisor/pci.c`, `hypervisor/mmio.c` - device isolation at hypervisor level
+- `configs/<board>/` - static cell configs (YAML/JSON)
+- `inmates/` - demo guests showing the isolation model in action
+- `driver/` - Linux kernel module (.ko) bridging host OS to hypervisor
 - Lesson: Clean arch/ separation; a working Linux kernel module proves guest integration
 
-**Bao Hypervisor (University of Minho)** — ARM64-first static hypervisor:
-- `src/arch/aarch64/` — entry, armv8_a.c, smmu.c, gic.c, timer.c
-- `src/core/` — platform-neutral policy (vm.c, sched.c, mem.c, iompc.c)
-- `src/platform/<board>/` — board init per SoC
+**Bao Hypervisor (University of Minho)** - ARM64-first static hypervisor:
+- `src/arch/aarch64/` - entry, armv8_a.c, smmu.c, gic.c, timer.c
+- `src/core/` - platform-neutral policy (vm.c, sched.c, mem.c, iompc.c)
+- `src/platform/<board>/` - board init per SoC
 - Lesson: Driver code lives in arch/, platform init in platform/; core stays portable
 
-**seL4** — formal verification reference:
-- `src/arch/arm/` — ARM-specific
-- `src/kernel/` — verified kernel core
-- `proof/` — Isabelle/HOL proofs organized by theorem
-- `tools/` — verification toolchain
+**seL4** - formal verification reference:
+- `src/arch/arm/` - ARM-specific
+- `src/kernel/` - verified kernel core
+- `proof/` - Isabelle/HOL proofs organized by theorem
+- `tools/` - verification toolchain
 - Lesson: Separation between verified core (minimal, auditable) and unverified drivers is the thesis TCB story
 
-**Omnivisor (ECRTS 2024)** — mixed-criticality reference for evaluation methodology:
+**Omnivisor (ECRTS 2024)** - mixed-criticality reference for evaluation methodology:
 - Evaluates worst-case latency under interference on COTS ARM SoCs
 - Compares static vs dynamic partitioning overhead
 - Lesson: Temporal isolation claims need measured WCET + jitter under adversarial Linux load; not just code-level contracts
@@ -65,9 +65,9 @@ The Linux kernel's organizational philosophy produces the world's most peer-revi
 | SMMU DMA             | `src/core/dma/smmu.c`                   | Contract-complete        | No SMMUv3 stream table writes                |
 | IOMMU Policy         | `src/core/iommu/iommu_policy.c`         | Contract-complete        | No hardware binding                          |
 | Timer                | `src/core/time/timer.c`                 | Contract-complete        | No CNTHP_CTL_EL2 / CNTVOFF programming       |
-| EL2 Exceptions       | `src/core/exc/el2_exceptions.c`         | Partial — injection stub | No VBAR_EL2, no exception vector table       |
-| UART Driver          | `src/guest/drivers/uart.c`              | Partial — flush stub     | No MMIO register access                      |
-| FreeRTOS Integration | `src/guest/rtos/freertos_integration.c` | Partial — context stub   | No ARM64 GP register save/restore            |
+| EL2 Exceptions       | `src/core/exc/el2_exceptions.c`         | Partial - injection stub | No VBAR_EL2, no exception vector table       |
+| UART Driver          | `src/guest/drivers/uart.c`              | Partial - flush stub     | No MMIO register access                      |
+| FreeRTOS Integration | `src/guest/rtos/freertos_integration.c` | Partial - context stub   | No ARM64 GP register save/restore            |
 
 ### Empty Directories (15 `.gitkeep` placeholders)
 
@@ -85,8 +85,8 @@ tools/analysis/       ← No data analysis scripts
 tools/scripts/        ← No cross-compile helpers
 verification/coq/     ← No Coq proofs
 verification/isabelle/ ← No Isabelle proofs
-tests/demos/          ← (now has demo_two_partition.c — no longer empty)
-tests/selftests/      ← (now has test_hypervisor_invariants.c — no longer empty)
+tests/demos/          ← (now has demo_two_partition.c - no longer empty)
+tests/selftests/      ← (now has test_hypervisor_invariants.c - no longer empty)
 ```
 
 ---
@@ -201,7 +201,7 @@ haven/
 │   │   ├── evidence_report.py   ← [NEW] HTML/PDF evidence report
 │   │   └── README.md
 │   ├── config-gen/
-│   │   └── README.md            ← (expand — config validation tool)
+│   │   └── README.md            ← (expand - config validation tool)
 │   └── scripts/
 │       ├── cross-compile.sh     ← [NEW] Cross-compile environment setup
 │       ├── qemu-run.sh          ← [NEW] QEMU launch for integration tests
@@ -247,7 +247,7 @@ haven/
 
 *Create: `arch/arm64/include/asm/page.h`*
 - Stage-2 descriptor format (ARMv8.x VMSAv8-64)
-- `PGD_TYPE_TABLE`, `PMD_TYPE_SECT`, `PTE_TYPE_PAGE` — stage-2 specific
+- `PGD_TYPE_TABLE`, `PMD_TYPE_SECT`, `PTE_TYPE_PAGE` - stage-2 specific
 - Memory attributes: `S2_MEMATTR_NORMAL_WB`, `S2_MEMATTR_DEVICE_nGnRE`
 - Access permissions: `S2AP_RO`, `S2AP_WO`, `S2AP_RW`
 - 4K, 2M, 1G granule support
@@ -266,7 +266,7 @@ haven/
 
 **Week 3–4: EL2 Exception Vectors**
 
-*Create: `arch/arm64/entry.S`* — the most critical missing file
+*Create: `arch/arm64/entry.S`* - the most critical missing file
 ```
 /* EL2 exception table aligned to 2KB (VBAR_EL2 requirement) */
 .align 11
@@ -299,22 +299,22 @@ el2_exception_table:
 /* NEON/FP registers: Q0-Q31, FPCR, FPSR */
 ```
 
-*Update: `include/haven/el2_exceptions.h`* — add `struct hv_context` for context save
+*Update: `include/haven/el2_exceptions.h`* - add `struct hv_context` for context save
 
 #### Month 2: CPU Init + Stage-2 Hardware Binding
 
 **Week 5–6: EL2 CPU Initialization**
 
 *Create: `arch/arm64/cpu.c`*
-- `hv_arch_cpu_init()` — programs EL2 control registers:
+- `hv_arch_cpu_init()` - programs EL2 control registers:
   - `HCR_EL2`: enable TGE=0, VM=1, IMO=1, FMO=1, AMO=1, RW=1 (AArch64 guests)
   - `VPIDR_EL2`, `VMPIDR_EL2`: virtual MPIDR for guests
   - `MDCR_EL2`: debug/performance monitor trap configuration
   - `HSTR_EL2`: system register trap policy
   - `CPTR_EL2`: SVE/NEON trap policy
-- `hv_arch_el2_enter()` — transition from EL3/firmware to EL2
+- `hv_arch_el2_enter()` - transition from EL3/firmware to EL2
 
-*Create: `src/core/init.c`* — hypervisor entry point (fills critical gap)
+*Create: `src/core/init.c`* - hypervisor entry point (fills critical gap)
 ```c
 void haven_init(uintptr_t dtb_pa, uintptr_t hyp_load_pa) {
     hv_arch_cpu_init();           // ARM64: HCR_EL2, VTTBR_EL2
@@ -333,7 +333,7 @@ void haven_init(uintptr_t dtb_pa, uintptr_t hyp_load_pa) {
 
 **Week 7–8: Stage-2 Page Table Hardware**
 
-*Create: `arch/arm64/mm.c`* — fills the biggest hardware gap
+*Create: `arch/arm64/mm.c`* - fills the biggest hardware gap
 ```c
 /* Programs VTTBR_EL2, VTCR_EL2, MAIR_EL2 */
 int hv_arch_stage2_map(struct hv_stage2_state *state,
@@ -348,14 +348,14 @@ void hv_arch_stage2_enable(uint64_t ttbr0, uint32_t vmid);
 - Descriptor allocation from static pool (no malloc)
 - TLB invalidation: `TLBI VMALLS12E1IS` broadcast
 
-*Update: `src/core/mm/stage2.c`* — call `hv_arch_stage2_map()` after policy validation
+*Update: `src/core/mm/stage2.c`* - call `hv_arch_stage2_map()` after policy validation
 
 #### Month 3: Platform Abstraction + Common Utilities
 
 **Week 9–10: Common Utilities (fill `src/common/`)**
 
 *Create: `src/common/printk.c`*
-- `hv_printk(const char *fmt, ...)` — vsnprintf-based, calls platform UART
+- `hv_printk(const char *fmt, ...)` - vsnprintf-based, calls platform UART
 - No dynamic allocation; output goes to early UART
 
 *Create: `src/common/string.c`*
@@ -363,7 +363,7 @@ void hv_arch_stage2_enable(uint64_t ttbr0, uint32_t vmid);
 - All bounds-safe, no reliance on libc
 
 *Create: `src/common/panic.c`*
-- `hv_panic(const char *msg)` — prints message, halts all CPUs via `WFI` loop
+- `hv_panic(const char *msg)` - prints message, halts all CPUs via `WFI` loop
 
 *Create: `src/common/spinlock.c`*
 - `hv_spin_lock()` / `hv_spin_unlock()` using ARMv8 `LDAXR`/`STLXR`
@@ -371,7 +371,7 @@ void hv_arch_stage2_enable(uint64_t ttbr0, uint32_t vmid);
 
 **Week 11–12: Platform Board Abstraction (fill `src/platform/`)**
 
-*Create: `src/platform/platform.h`* — common platform interface
+*Create: `src/platform/platform.h`* - common platform interface
 ```c
 struct hv_platform_ops {
     void (*uart_putchar)(char c);
@@ -402,9 +402,9 @@ extern const struct hv_platform_ops *platform;
 - [ ] `arch/arm64/entry.S` assembles with GNU assembler
 - [ ] `src/core/init.c` compiles and calls all `_init()` functions
 - [ ] All existing unit tests still pass (regression gate)
-- [ ] `include/arch/` no longer has `.gitkeep` — real headers present
-- [ ] `src/common/` no longer has `.gitkeep` — 4 utility files present
-- [ ] `src/platform/` no longer has `.gitkeep` — 3 board directories present
+- [ ] `include/arch/` no longer has `.gitkeep` - real headers present
+- [ ] `src/common/` no longer has `.gitkeep` - 4 utility files present
+- [ ] `src/platform/` no longer has `.gitkeep` - 3 board directories present
 
 ---
 
@@ -420,8 +420,8 @@ extern const struct hv_platform_ops *platform;
 - `gic_v3_init(uintptr_t gicd_base, uintptr_t gicr_base, int nr_cpus)`
 - `gic_v3_configure_irq(uint32_t irq, uint8_t priority, uint64_t affinity)`
 - `gic_v3_enable_irq(uint32_t irq)`
-- `gic_v3_disable_irq(uint32_t irq)` — used for partition isolation
-- `gic_v3_route_irq(uint32_t irq, uint64_t mpidr)` — programs GICD_IROUTER
+- `gic_v3_disable_irq(uint32_t irq)` - used for partition isolation
+- `gic_v3_route_irq(uint32_t irq, uint64_t mpidr)` - programs GICD_IROUTER
 - `gic_v3_ack_irq(void)` → `iar = read_sysreg(ICC_IAR1_EL1)`
 - `gic_v3_eoi_irq(uint32_t iar)` → `write_sysreg(iar, ICC_EOIR1_EL1)`
 
@@ -433,10 +433,10 @@ extern const struct hv_platform_ops *platform;
 **Week 15–16: EL2 Interrupt Handling + Virtualization**
 
 *Create: `arch/arm64/irq.c`*
-- `hv_arch_irq_enable()` / `hv_arch_irq_disable()` — DAIF flags
-- `hv_arch_gic_el2_setup()` — ICH_HCR_EL2, ICH_VMCR_EL2
-- `hv_arch_inject_virtual_irq(uint32_t virq)` — programs ICH_LR0_EL2 (List Register)
-- `hv_arch_handle_guest_irq_exit()` — determine which list register fired
+- `hv_arch_irq_enable()` / `hv_arch_irq_disable()` - DAIF flags
+- `hv_arch_gic_el2_setup()` - ICH_HCR_EL2, ICH_VMCR_EL2
+- `hv_arch_inject_virtual_irq(uint32_t virq)` - programs ICH_LR0_EL2 (List Register)
+- `hv_arch_handle_guest_irq_exit()` - determine which list register fired
 
 *Complete: `src/core/exc/el2_exceptions.c:hv_el2_inject_exception()`*
 - Now uses `hv_arch_inject_virtual_irq()` to write List Registers
@@ -470,8 +470,8 @@ void smmu_v3_tlbi_ste(struct smmu_v3 *smmu, uint32_t sid);
 
 Key STE fields to implement:
 - `STE.VALID=1`, `STE.TYPE=0b01` (CD, stage-2-only)
-- `STE.S2TTB` — VTTBR for this stream's stage-2 table
-- `STE.S2VMID` — partition VMID
+- `STE.S2TTB` - VTTBR for this stream's stage-2 table
+- `STE.S2VMID` - partition VMID
 - `STE.S2AA64=1`, `STE.S2TF0` (4KB granule, 40-bit PA)
 - Abort STE: `STE.VALID=1, STE.TYPE=0b000` → faults all DMA
 
@@ -498,7 +498,7 @@ Key STE fields to implement:
 - TLB flush on partition teardown
 
 *Create: `arch/arm64/timer.c`*
-- `hv_arch_timer_init()` — CNTHP_CTL_EL2 = 1 (enable EL2 physical timer)
+- `hv_arch_timer_init()` - CNTHP_CTL_EL2 = 1 (enable EL2 physical timer)
 - `hv_arch_timer_set_deadline(uint64_t cval)` → `write_sysreg(cval, CNTHP_CVAL_EL2)`
 - `hv_arch_timer_now()` → `read_sysreg(CNTPCT_EL0)` (EL2 physical counter)
 - `hv_arch_timer_freq()` → `read_sysreg(CNTFRQ_EL0)`
@@ -509,7 +509,7 @@ Key STE fields to implement:
 
 **Week 23–24: Improved Build System**
 
-*Update: `Makefile`* — cross-compile support
+*Update: `Makefile`* - cross-compile support
 ```makefile
 ARCH       ?= arm64
 CROSS_COMPILE ?= aarch64-unknown-linux-gnu-
@@ -535,7 +535,7 @@ build/haven.bin: build/haven.elf
     $(OBJCOPY) -O binary $< $@
 ```
 
-*Create: `linker.ld`* — ELF linker script
+*Create: `linker.ld`* - ELF linker script
 - Places `.text` at `0x80000000` (EL2 load address for QEMU virt)
 - `.rodata`, `.data`, `.bss` sections
 - Stack setup for 4 CPUs (4KB each)
@@ -549,8 +549,8 @@ build/haven.bin: build/haven.elf
 - [ ] `make ARCH=arm64` produces `build/haven.elf` (real ARM64 binary)
 - [ ] `drivers/irqchip/gic_v3.c` compiles cleanly with ARM64 toolchain
 - [ ] `drivers/iommu/smmu_v3.c` compiles cleanly
-- [ ] `src/core/irq/ownership.c` + `gic_v3.c` linked together — IRQ assignment writes hardware
-- [ ] `src/core/dma/smmu.c` + `smmu_v3.c` linked — DMA policy writes hardware
+- [ ] `src/core/irq/ownership.c` + `gic_v3.c` linked together - IRQ assignment writes hardware
+- [ ] `src/core/dma/smmu.c` + `smmu_v3.c` linked - DMA policy writes hardware
 - [ ] `drivers/` directory: no `.gitkeep` files, 3 real driver subsystems
 
 ---
@@ -595,7 +595,7 @@ qemu-system-aarch64 \
 
 **Week 27–28: First Two-Partition Boot**
 
-*Create: `src/core/partition.c`* — partition launcher
+*Create: `src/core/partition.c`* - partition launcher
 ```c
 void partitions_launch(void) {
     // Load partition configs from qemu-virt.yaml (baked into binary or DTB)
@@ -669,7 +669,7 @@ Goal: Reproduce the QEMU two-partition demo on real hardware:
 - Reads partition state via MMIO hypercall (`HVC #0`)
 - Used by host Linux to inspect hypervisor state from inside a partition
 
-*Create: `drivers/linux/Kbuild`* — standard Linux kernel build file
+*Create: `drivers/linux/Kbuild`* - standard Linux kernel build file
 
 **Week 35–36: Tools and Analysis (fills `tools/analysis/`)**
 
@@ -743,13 +743,13 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 - Cross-validates the Coq proof style
 - Higher prestige for academic reviewers
 
-*Update: `verification/README.md`* — describe proof structure, tools needed (Coq 8.18+, Isabelle 2023)
+*Update: `verification/README.md`* - describe proof structure, tools needed (Coq 8.18+, Isabelle 2023)
 
 #### Month 11: Benchmark Campaigns + Thesis Evidence
 
 **Week 41–42: Temporal Isolation Benchmarks**
 
-*Create: `tests/benchmarks/bench_temporal_isolation.c`* — the key thesis benchmark
+*Create: `tests/benchmarks/bench_temporal_isolation.c`* - the key thesis benchmark
 ```c
 /* Measures RTOS task response time while Linux is under load */
 /* Test matrix:
@@ -768,7 +768,7 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 - Measures SMMU stream table lookup overhead on valid DMA
 - Baseline: < 1µs overhead per DMA transaction
 
-*Update: `docs/methodology/BENCHMARK_BASELINE.md`* — fill with actual data
+*Update: `docs/methodology/BENCHMARK_BASELINE.md`* - fill with actual data
 - QEMU latency baselines (absolute numbers from bench runs)
 - i.MX95 latency baselines (board-measured)
 - Acceptance thresholds: RTOS deadline miss rate < 0.1%
@@ -790,17 +790,17 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 **Week 45–46: Documentation Completion**
 
 *Fill: `docs/contributing/`*
-- `DEVELOPMENT_GUIDE.md` — full build environment setup, cross-compile, QEMU
-- `TESTING_GUIDE.md` — how to add unit/integration/isolation tests
-- `REVIEW_CHECKLIST.md` — isolation guardian checklist, TCB size review
+- `DEVELOPMENT_GUIDE.md` - full build environment setup, cross-compile, QEMU
+- `TESTING_GUIDE.md` - how to add unit/integration/isolation tests
+- `REVIEW_CHECKLIST.md` - isolation guardian checklist, TCB size review
 
-*Update: `docs/architecture/OVERVIEW.md`* — expand from 11 lines to 500+ words covering:
+*Update: `docs/architecture/OVERVIEW.md`* - expand from 11 lines to 500+ words covering:
 - System architecture diagram (ASCII art)
 - 5-layer isolation model
 - Hardware binding layer explanation
 - Comparison with Jailhouse/Bao
 
-*Update: `docs/architecture/ISOLATION_MODEL.md`* — expand from 16 lines:
+*Update: `docs/architecture/ISOLATION_MODEL.md`* - expand from 16 lines:
 - Spatial isolation: stage-2 + SMMU + IOMMU
 - Temporal isolation: budget + timer + IRQ
 - Formal properties (link to Coq proofs)
@@ -830,7 +830,7 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 - [ ] Stage-2 fault latency < 5µs on i.MX95
 - [ ] All 8 fault injection scenarios (F1-F8) confirmed DENY on real hardware
 - [ ] Complete `docs/methodology/CHAPTER_TRACEABILITY.md` with evidence links
-- [ ] `verification/coq/` no longer `.gitkeep` — 3 `.v` files with proofs checked
+- [ ] `verification/coq/` no longer `.gitkeep` - 3 `.v` files with proofs checked
 - [ ] Publication-quality plots in `tools/analysis/` output
 
 ---
@@ -937,10 +937,10 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 ### Publication Readiness Checklist (ECRTS / DATE / RTSS / EMSOFT target)
 
 For submission-quality paper, Haven must demonstrate:
-1. **Novelty claim**: Static EL2 hypervisor with formally-verified policy + measured hardware enforcement — distinct from Jailhouse (no formal proofs), seL4 (dynamic, microkernel), Bao (no formal verification), Omnivisor (dynamic partitioning)
+1. **Novelty claim**: Static EL2 hypervisor with formally-verified policy + measured hardware enforcement - distinct from Jailhouse (no formal proofs), seL4 (dynamic, microkernel), Bao (no formal verification), Omnivisor (dynamic partitioning)
 2. **Evaluation rigor**: RTOS latency measurements under 5 Linux stress levels, on 2 platforms (QEMU + i.MX95), with standard statistical reporting (mean/p99/max, error bars, ≥100 runs)
 3. **Reproducibility**: Independent rerun from `scripts/qemu-run.sh` + Docker image produces matching results
-4. **TCB audit**: TCB lines of count (target < 5,000 lines of core), no dynamic allocation, no FP, bounded loops — provable by `wc -l src/core/` + code review
+4. **TCB audit**: TCB lines of count (target < 5,000 lines of core), no dynamic allocation, no FP, bounded loops - provable by `wc -l src/core/` + code review
 
 ---
 
@@ -948,7 +948,7 @@ For submission-quality paper, Haven must demonstrate:
 
 | Chapter                     | Implementation Artifacts                                                                                  | Evidence Artifacts                                            |
 | --------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Ch1: Introduction           | `README.md`, `docs/architecture/OVERVIEW.md`                                                              | —                                                             |
+| Ch1: Introduction           | `README.md`, `docs/architecture/OVERVIEW.md`                                                              | -                                                             |
 | Ch2: Background             | `docs/architecture/THESIS_DEEP_DIVE.md`                                                                   | Omnivisor/Jailhouse comparison                                |
 | Ch3: Design                 | `include/haven/*.h`, `src/core/init.c`, `src/platform/`                                                   | Architecture diagrams                                         |
 | Ch4: Spatial Isolation      | `src/core/mm/`, `src/core/irq/`, `src/core/dma/`, `arch/arm64/mm.c`, `drivers/irqchip/`, `drivers/iommu/` | `tests/isolation/test_spatial_isolation.c`, i.MX95 fault logs |
@@ -957,7 +957,7 @@ For submission-quality paper, Haven must demonstrate:
 | Ch7: Evaluation             | `tests/`, `tools/analysis/`                                                                               | Evidence JSON, HTML report, latency tables                    |
 | Ch8: Conclusion             | `docs/safety/THREAT_MODEL.md`, `docs/safety/ASSUMPTIONS.md`                                               | Traceability matrix                                           |
 | Appendix A: Reproducibility | `docs/thesis/REPRODUCIBILITY_APPENDIX.md`                                                                 | Docker image SHA                                              |
-| Appendix B: API Reference   | `include/haven/*.h`, website API docs                                                                     | —                                                             |
+| Appendix B: API Reference   | `include/haven/*.h`, website API docs                                                                     | -                                                             |
 
 ---
 
@@ -995,7 +995,7 @@ python3 tools/analysis/evidence_report.py build/evidence/
 **Phase 4 (M12):**
 ```bash
 cd verification/coq && coqc IsolationModel.v Stage2Policy.v BudgetScheduler.v
-# Expect: No errors — proofs check
+# Expect: No errors - proofs check
 python3 tools/analysis/latency_analyzer.py build/benchmarks/temporal-imx95.json
 # Expect: p99 < 50µs, max < 100µs for 10ms period RTOS task
 ```

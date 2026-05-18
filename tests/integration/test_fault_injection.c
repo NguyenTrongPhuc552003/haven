@@ -8,9 +8,9 @@
  * this test injects faults with two partitions concurrently active and
  * verifies three properties for each scenario:
  *
- *   1. DENY   — the fault attempt is rejected with the correct error code.
- *   2. INTACT — the victim partition's state is unmodified after the fault.
- *   3. RECOVER — the attacking partition can continue with valid operations
+ *   1. DENY   - the fault attempt is rejected with the correct error code.
+ *   2. INTACT - the victim partition's state is unmodified after the fault.
+ *   3. RECOVER - the attacking partition can continue with valid operations
  *                after the fault (no corruption of its own state).
  *
  * Fault categories tested:
@@ -21,7 +21,7 @@
  *   F5  Timer deadline hijack (set while victim holds active deadline)
  *   F6  IOMMU group ownership theft
  *   F7  EL2 IRQ route hijack
- *   F8  Compound fault — multiple modules faulted in sequence; state check
+ *   F8  Compound fault - multiple modules faulted in sequence; state check
  *
  * @file tests/integration/test_fault_injection.c
  */
@@ -141,14 +141,14 @@ static void fault_f1_stage2_escape(void) {
       .region_count = 1,
   };
   CHECK(hv_stage2_map_partition(&escape_cfg) == HV_EPERM,
-        "F1: deny  — P2 cannot map P1's PA");
+        "F1: deny  - P2 cannot map P1's PA");
   CHECK(hv_stage2_partition_contains_pa(1, 0x40000000, 0x1000) == HV_OK,
-        "F1: intact — P1 still owns 0x40000000");
+        "F1: intact - P1 still owns 0x40000000");
   CHECK(hv_stage2_partition_contains_pa(2, 0x40000000, 0x1000) != HV_OK,
-        "F1: recover — P2 does not hold P1's PA after denial");
+        "F1: recover - P2 does not hold P1's PA after denial");
   /* P2 can still operate on its own memory. */
   CHECK(hv_stage2_partition_contains_pa(2, 0x50000000, 0x1000) == HV_OK,
-        "F1: recover — P2 owns its legitimate PA");
+        "F1: recover - P2 owns its legitimate PA");
 }
 
 /* -----------------------------------------------------------------------
@@ -158,11 +158,11 @@ static void fault_f2_irq_preemption(void) {
   struct hv_irq_route steal = {
       .irq_id = 64, .owner_partition_id = 2, .target_cpu = 1};
   CHECK(hv_irq_assign(&steal) == HV_EPERM,
-        "F2: deny  — P2 cannot steal IRQ 64");
+        "F2: deny  - P2 cannot steal IRQ 64");
   CHECK(hv_irq_is_owned_by(64, 1) == HV_OK,
-        "F2: intact — P1 still owns IRQ 64");
+        "F2: intact - P1 still owns IRQ 64");
   CHECK(hv_irq_is_owned_by(65, 2) == HV_OK,
-        "F2: recover — P2 still owns its own IRQ 65");
+        "F2: recover - P2 still owns its own IRQ 65");
 }
 
 /* -----------------------------------------------------------------------
@@ -173,13 +173,13 @@ static void fault_f3_budget_overrun(void) {
   assert(hv_budget_consume(2, 200000ULL) == HV_OK);
 
   CHECK(hv_budget_consume(2, 1) == HV_EPERM,
-        "F3: deny  — P2 cannot overrun past budget");
+        "F3: deny  - P2 cannot overrun past budget");
   /* P1's budget must be unaffected. */
   CHECK(hv_budget_consume(1, 100000ULL) == HV_OK,
-        "F3: intact — P1 budget unaffected by P2 exhaustion");
+        "F3: intact - P1 budget unaffected by P2 exhaustion");
   /* P2 can perform non-budget operations. */
   CHECK(hv_irq_is_owned_by(65, 2) == HV_OK,
-        "F3: recover — P2 IRQ ownership intact after budget exhaustion");
+        "F3: recover - P2 IRQ ownership intact after budget exhaustion");
 }
 
 /* -----------------------------------------------------------------------
@@ -191,15 +191,15 @@ static void fault_f4_smmu_escape(void) {
   assert(hv_smmu_allocate_streamid(2, &sid2) == HV_OK);
   CHECK(hv_smmu_configure_dma_window(sid2, 0x50000000, 0x00800000, 0x40000000,
                                      HV_DMA_RO) == HV_EPERM,
-        "F4: deny  — P2 stream cannot target P1's PA");
+        "F4: deny  - P2 stream cannot target P1's PA");
   /* P1's DMA window is intact. */
   CHECK(hv_smmu_check_dma_access(sid1, 0x41000000, 0x1000, HV_DMA_RW) == HV_OK,
-        "F4: intact — P1 DMA access still works");
+        "F4: intact - P1 DMA access still works");
   /* Restore P2's stream to a valid config for subsequent tests. */
   assert(hv_smmu_configure_dma_window(sid2, 0x50000000, 0x00800000, 0x50000000,
                                       HV_DMA_RO) == HV_OK);
   CHECK(hv_smmu_check_dma_access(sid2, 0x50100000, 0x1000, HV_DMA_RO) == HV_OK,
-        "F4: recover — P2 DMA works in legitimate window after denial");
+        "F4: recover - P2 DMA works in legitimate window after denial");
 }
 
 /* -----------------------------------------------------------------------
@@ -219,15 +219,15 @@ static void fault_f5_timer_hijack(void) {
   /* P1's deadline (900000 ns) has NOT fired at 200000 ns. */
   CHECK(hv_timer_check_deadline(1, 200000ULL, &expired) == HV_OK &&
             expired == 0,
-        "F5: deny  — P2 ack does not expire P1's deadline");
-  /* P2 tries to set a new deadline for P1's ID — not allowed (wrong partition
+        "F5: deny  - P2 ack does not expire P1's deadline");
+  /* P2 tries to set a new deadline for P1's ID - not allowed (wrong partition
    * ID boundary: partition IDs are separate; each partition accesses its own).
    */
   CHECK(hv_timer_set_deadline(2, 500000ULL) == HV_OK,
-        "F5: recover — P2 can re-arm its own deadline after ack");
+        "F5: recover - P2 can re-arm its own deadline after ack");
   /* P1's deadline is still pending at 200000 ns. */
   assert(hv_timer_check_deadline(1, 200000ULL, &expired) == HV_OK);
-  CHECK(expired == 0, "F5: intact — P1 deadline unmodified by P2 operations");
+  CHECK(expired == 0, "F5: intact - P1 deadline unmodified by P2 operations");
 }
 
 /* -----------------------------------------------------------------------
@@ -235,11 +235,11 @@ static void fault_f5_timer_hijack(void) {
  * ----------------------------------------------------------------------- */
 static void fault_f6_iommu_theft(void) {
   CHECK(hv_iommu_assign_group(1, 2) == HV_EPERM,
-        "F6: deny  — P2 cannot steal group 1 from P1");
+        "F6: deny  - P2 cannot steal group 1 from P1");
   CHECK(hv_iommu_check_group(1, 1) == HV_OK,
-        "F6: intact — P1 still owns group 1");
+        "F6: intact - P1 still owns group 1");
   CHECK(hv_iommu_check_group(2, 2) == HV_OK,
-        "F6: recover — P2 still owns group 2 after failed theft");
+        "F6: recover - P2 still owns group 2 after failed theft");
 }
 
 /* -----------------------------------------------------------------------
@@ -247,17 +247,17 @@ static void fault_f6_iommu_theft(void) {
  * ----------------------------------------------------------------------- */
 static void fault_f7_el2_hijack(void) {
   CHECK(hv_el2_route_irq(64, 2) == HV_EPERM,
-        "F7: deny  — P2 cannot reroute P1's EL2 IRQ 64");
+        "F7: deny  - P2 cannot reroute P1's EL2 IRQ 64");
   /* Verify P1's route is unchanged by injecting a sync exception
    * (still valid since P1's EL2 route wasn't altered). */
   CHECK(hv_el2_inject_exception(1, HV_EXC_SYNC, 0) == HV_OK,
-        "F7: intact — P1 EL2 injection still works after hijack attempt");
+        "F7: intact - P1 EL2 injection still works after hijack attempt");
   CHECK(hv_el2_route_irq(65, 2) == HV_OK,
-        "F7: recover — P2 can re-route its own IRQ (idempotent)");
+        "F7: recover - P2 can re-route its own IRQ (idempotent)");
 }
 
 /* -----------------------------------------------------------------------
- * F8: Compound fault sequence — multiple modules attacked in sequence
+ * F8: Compound fault sequence - multiple modules attacked in sequence
  * with a final global state integrity check
  * ----------------------------------------------------------------------- */
 static void fault_f8_compound(void) {
@@ -281,19 +281,19 @@ static void fault_f8_compound(void) {
 
   /* Post-compound: verify the full P1 isolation envelope is intact. */
   CHECK(hv_stage2_partition_contains_pa(1, 0x40000000, 0x1000) == HV_OK,
-        "F8: intact — P1 stage-2 map after compound fault");
+        "F8: intact - P1 stage-2 map after compound fault");
   CHECK(hv_irq_is_owned_by(64, 1) == HV_OK,
-        "F8: intact — P1 IRQ after compound fault");
+        "F8: intact - P1 IRQ after compound fault");
   CHECK(hv_iommu_check_group(1, 1) == HV_OK,
-        "F8: intact — P1 IOMMU group after compound fault");
+        "F8: intact - P1 IOMMU group after compound fault");
   CHECK(hv_smmu_check_dma_access(sid1, 0x41000000, 0x1000, HV_DMA_RW) == HV_OK,
-        "F8: intact — P1 DMA access after compound fault");
+        "F8: intact - P1 DMA access after compound fault");
 
   /* And P2 can still do its own legitimate work. */
   CHECK(hv_iommu_check_group(2, 2) == HV_OK,
-        "F8: recover — P2 IOMMU intact after all fault attempts");
+        "F8: recover - P2 IOMMU intact after all fault attempts");
   CHECK(hv_irq_is_owned_by(65, 2) == HV_OK,
-        "F8: recover — P2 IRQ intact after all fault attempts");
+        "F8: recover - P2 IRQ intact after all fault attempts");
 }
 
 /* ===================================================================== */

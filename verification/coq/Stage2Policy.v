@@ -1,5 +1,5 @@
 (** * Stage2Policy.v
-    Haven Hypervisor — Stage-2 Mapping Policy Preservation
+    Haven Hypervisor - Stage-2 Mapping Policy Preservation
 
     This file formalises the [hv_stage2_map_partition] operation and
     proves that a well-checked mapping addition preserves the spatial
@@ -192,7 +192,7 @@ Proof.
   (** Determine whether p1 is the updated partition or an unchanged one. *)
   destruct (Nat.eqb_spec p1.(ps_id) id) as [Hid1 | Hid1'].
 
-  - (** p1 has id [id] — it is the updated partition.
+  - (** p1 has id [id] - it is the updated partition.
         Its region list is [r :: old_regions]. *)
     (** First we recover the original p1 record from the updated list. *)
     assert (Hd1 : p2.(ps_id) <> id) by

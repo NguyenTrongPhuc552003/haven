@@ -1,5 +1,5 @@
 /**
- * Full happy-path integration flow — all 7 isolation modules.
+ * Full happy-path integration flow - all 7 isolation modules.
  *
  * Exercises Stage-2, IRQ ownership, budget scheduling, SMMU/DMA,
  * per-partition timer, IOMMU group policy, and EL2 exception handling

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * arch/arm64/partition.S — Haven EL2-to-EL1 partition launch stub.
+ * arch/arm64/partition.S - Haven EL2-to-EL1 partition launch stub.
  *
  * hv_arch_start_partition performs ERET from EL2 to EL1h, transferring
  * control to a guest partition's entry point.  It does NOT return.
@@ -59,7 +59,7 @@ hv_arch_start_partition:
         /* Serialise all preceding register writes before ERET */
         isb
 
-        /* Transfer control to EL1 — does not return */
+        /* Transfer control to EL1 - does not return */
         eret
 
         .size hv_arch_start_partition, . - hv_arch_start_partition

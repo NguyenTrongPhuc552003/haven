@@ -6,8 +6,8 @@
 
 #include <haven/smmu.h>
 #include <haven/stage2.h>
-#include <haven/types.h>
 #include <haven/string.h>
+#include <haven/types.h>
 #ifdef HAVEN_ARCH_ARM64
 #include "drivers/iommu/smmu_v3.h"
 /* Query function from arch/arm64/mm.c */
@@ -201,7 +201,7 @@ hv_status_t hv_smmu_revoke_dma_access(hv_u16 streamid) {
   }
 
 #ifdef HAVEN_ARCH_ARM64
-  /* Revert STE to ABORT — DMA from this StreamID is now denied. */
+  /* Revert STE to ABORT - DMA from this StreamID is now denied. */
   smmu_v3_set_ste_abort(streamid);
 #endif
 

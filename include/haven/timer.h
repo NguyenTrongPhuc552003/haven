@@ -96,7 +96,7 @@ extern "C"
      * Cancel an active deadline.
      *
      * Removes a pending (non-expired) deadline. If the deadline has already
-     * expired, cancel returns HV_EPERM — the caller must acknowledge first.
+     * expired, cancel returns HV_EPERM - the caller must acknowledge first.
      * This prevents logic that silently swallows an expiry event.
      *
      * @param partition_id  Partition whose deadline to cancel (1–255).

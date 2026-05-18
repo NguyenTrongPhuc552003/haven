@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# check-traceability.sh — Chapter traceability artifact verification
+# check-traceability.sh - Chapter traceability artifact verification
 #
 # Verifies that every repository deliverable referenced in the
 # docs/methodology/CHAPTER_TRACEABILITY.md matrix exists on disk.
@@ -143,7 +143,7 @@ cat > "$REPORT" << EOF
 }
 EOF
 
-echo "[traceability] ${PASS} present, ${FAIL} missing — overall: ${OVERALL}"
+echo "[traceability] ${PASS} present, ${FAIL} missing - overall: ${OVERALL}"
 echo "[traceability] report written to ${REPORT}"
 
 if [ "$FAIL" -gt 0 ]; then

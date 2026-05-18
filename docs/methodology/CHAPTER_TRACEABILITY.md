@@ -6,7 +6,7 @@ repository root.
 
 ---
 
-## Chapter 1 — Problem and Motivation
+## Chapter 1 - Problem and Motivation
 
 **Goal:** Define the mixed-criticality isolation problem on heterogeneous SoCs
 and justify the need for a thin, verifiable EL2 hypervisor layer.
@@ -22,7 +22,7 @@ reviewed and signed off by thesis supervisor.
 
 ---
 
-## Chapter 2 — Related Work
+## Chapter 2 - Related Work
 
 **Goal:** Position Haven against Jailhouse, Bao, seL4, Hafnium, and
 type-1 automotive hypervisors; identify isolation gaps in the prior art.
@@ -37,7 +37,7 @@ differentiating claims referenced to prior-art sources.
 
 ---
 
-## Chapter 3 — System Design
+## Chapter 3 - System Design
 
 **Goal:** Specify the static partition model, EL2 enforcement boundaries, and
 interface contracts between subsystems.
@@ -59,7 +59,7 @@ compile cleanly under `make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- 
 
 ---
 
-## Chapter 4 — Spatial Isolation
+## Chapter 4 - Spatial Isolation
 
 **Goal:** Enforce memory and DMA separation between partitions at runtime;
 demonstrate that unauthorized access paths are closed.
@@ -126,7 +126,7 @@ demonstrate that unauthorized access paths are closed.
 
 ---
 
-## Chapter 5 — Temporal Isolation
+## Chapter 5 - Temporal Isolation
 
 **Goal:** Enforce CPU budget and interrupt-ownership discipline; demonstrate
 that RTOS partition response time remains bounded under Linux-side stress.
@@ -176,7 +176,7 @@ that RTOS partition response time remains bounded under Linux-side stress.
 
 ---
 
-## Chapter 6 — Formal Verification
+## Chapter 6 - Formal Verification
 
 **Goal:** Provide machine-checked proofs of the key isolation invariants for
 the stage-2 mapping and budget scheduler modules.
@@ -220,7 +220,7 @@ cross-validates the same invariants.  Nightly CI gate active since 2026-05-18.
 
 ---
 
-## Chapter 7 — Evaluation
+## Chapter 7 - Evaluation
 
 **Goal:** Quantify isolation behavior under deliberate interference; provide
 WCET, jitter, and deadline-miss metrics for thesis claims.
@@ -263,7 +263,7 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 
 ---
 
-## Chapter 8 — Conclusions and Future Work
+## Chapter 8 - Conclusions and Future Work
 
 **Goal:** Document the limits of the current implementation, identify paths
 toward safety certification (ISO 26262, IEC 61508), and specify future

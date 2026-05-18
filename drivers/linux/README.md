@@ -17,13 +17,13 @@ This module is intended to run inside a Linux EL1 guest partition.  It does
 Haven uses `HVC #0` as its hypercall instruction.  The calling convention
 follows the ARM64 AAPCS with the following register assignments:
 
-| Register | Role                        | Notes                                  |
-|----------|-----------------------------|----------------------------------------|
-| `x0`     | Function ID (input)         | See function ID table below            |
-| `x1`     | Argument 1 / Return value 0 | Return value overwrites on return      |
-| `x2`     | Argument 2                  |                                        |
-| `x3`     | Argument 3                  |                                        |
-| `x4–x7`  | Arguments 4–7               | Preserved if not used as return        |
+| Register | Role                        | Notes                             |
+| -------- | --------------------------- | --------------------------------- |
+| `x0`     | Function ID (input)         | See function ID table below       |
+| `x1`     | Argument 1 / Return value 0 | Return value overwrites on return |
+| `x2`     | Argument 2                  |                                   |
+| `x3`     | Argument 3                  |                                   |
+| `x4–x7`  | Arguments 4–7               | Preserved if not used as return   |
 
 ### Return Convention
 
@@ -34,15 +34,15 @@ On return from `HVC #0`:
 
 ### Function IDs
 
-| ID   | Name                       | Args                          | Description                             |
-|------|----------------------------|-------------------------------|-----------------------------------------|
-| `0`  | `HV_FUNC_VERSION`          | —                             | Returns hypervisor ABI version in `x1`  |
-| `1`  | `HV_FUNC_YIELD`            | —                             | Voluntarily yield CPU to scheduler      |
-| `2`  | `HV_FUNC_IRQ_CLAIM`        | `x1` = irq number             | Claim ownership of a virtual IRQ        |
-| `3`  | `HV_FUNC_IRQ_RELEASE`      | `x1` = irq number             | Release previously claimed IRQ          |
-| `4`  | `HV_FUNC_BUDGET_QUERY`     | —                             | Return remaining budget ticks in `x1`   |
-| `5`  | `HV_FUNC_PARTITION_INFO`   | `x1` = partition id           | Return partition descriptor address     |
-| `6`  | `HV_FUNC_CONSOLE_WRITE`    | `x1` = buf PA, `x2` = length  | Debug console write (development only)  |
+| ID  | Name                     | Args                         | Description                            |
+| --- | ------------------------ | ---------------------------- | -------------------------------------- |
+| `0` | `HV_FUNC_VERSION`        | -                            | Returns hypervisor ABI version in `x1` |
+| `1` | `HV_FUNC_YIELD`          | -                            | Voluntarily yield CPU to scheduler     |
+| `2` | `HV_FUNC_IRQ_CLAIM`      | `x1` = irq number            | Claim ownership of a virtual IRQ       |
+| `3` | `HV_FUNC_IRQ_RELEASE`    | `x1` = irq number            | Release previously claimed IRQ         |
+| `4` | `HV_FUNC_BUDGET_QUERY`   | -                            | Return remaining budget ticks in `x1`  |
+| `5` | `HV_FUNC_PARTITION_INFO` | `x1` = partition id          | Return partition descriptor address    |
+| `6` | `HV_FUNC_CONSOLE_WRITE`  | `x1` = buf PA, `x2` = length | Debug console write (development only) |
 
 ---
 
@@ -51,14 +51,14 @@ On return from `HVC #0`:
 The `/dev/haven` character device exposes the following `ioctl` commands,
 defined in `haven_ioctl.h`:
 
-| IOCTL constant            | Direction | Payload struct             | Action                                    |
-|---------------------------|-----------|----------------------------|-------------------------------------------|
-| `HAVEN_IOC_VERSION`       | `_IOR`    | `struct haven_version`     | Read hypervisor ABI version               |
-| `HAVEN_IOC_YIELD`         | `_IO`     | —                          | Issue `HV_FUNC_YIELD` hypercall           |
-| `HAVEN_IOC_IRQ_CLAIM`     | `_IOW`    | `struct haven_irq_claim`   | Claim a virtual IRQ number                |
-| `HAVEN_IOC_IRQ_RELEASE`   | `_IOW`    | `struct haven_irq_release` | Release a previously claimed IRQ          |
-| `HAVEN_IOC_BUDGET_QUERY`  | `_IOR`    | `struct haven_budget`      | Query remaining CPU budget (ticks)        |
-| `HAVEN_IOC_PARTITION_INFO`| `_IOWR`   | `struct haven_part_info`   | Query partition descriptor                |
+| IOCTL constant             | Direction | Payload struct             | Action                             |
+| -------------------------- | --------- | -------------------------- | ---------------------------------- |
+| `HAVEN_IOC_VERSION`        | `_IOR`    | `struct haven_version`     | Read hypervisor ABI version        |
+| `HAVEN_IOC_YIELD`          | `_IO`     | -                          | Issue `HV_FUNC_YIELD` hypercall    |
+| `HAVEN_IOC_IRQ_CLAIM`      | `_IOW`    | `struct haven_irq_claim`   | Claim a virtual IRQ number         |
+| `HAVEN_IOC_IRQ_RELEASE`    | `_IOW`    | `struct haven_irq_release` | Release a previously claimed IRQ   |
+| `HAVEN_IOC_BUDGET_QUERY`   | `_IOR`    | `struct haven_budget`      | Query remaining CPU budget (ticks) |
+| `HAVEN_IOC_PARTITION_INFO` | `_IOWR`   | `struct haven_part_info`   | Query partition descriptor         |
 
 ---
 

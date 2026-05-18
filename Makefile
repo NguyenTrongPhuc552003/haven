@@ -69,7 +69,7 @@ ARCH_ASMS_ARM64 = \
         arch/arm64/boot.S     \
         arch/arm64/partition.S
 
-# Hardware driver sources (ARM64 only — GICv3, SMMUv3, and UART)
+# Hardware driver sources (ARM64 only - GICv3, SMMUv3, and UART)
 # UART driver is selected based on PLATFORM to avoid duplicate symbol
 # conflicts: both pl011.c and imx_uart.c export uart_putchar/uart_puts/uart_init.
 DRIVER_SRCS_ARM64 = \
@@ -86,7 +86,7 @@ endif
 PLATFORM_SRCS = \
         src/platform/$(PLATFORM)/platform.c
 
-# Core isolation policy sources (portable — same for host and ARM64)
+# Core isolation policy sources (portable - same for host and ARM64)
 CORE_SRCS = \
         src/core/mm/stage2.c             \
         src/core/irq/ownership.c         \
@@ -213,18 +213,18 @@ help:
 	@echo "Haven Makefile"
 	@echo ""
 	@echo "Host build (portable C, for unit tests):"
-	@echo "  make                         — build host archive + run tests"
-	@echo "  make test                    — run all unit/integration tests"
-	@echo "  make style-check             — run style and config checks"
+	@echo "  make                         - build host archive + run tests"
+	@echo "  make test                    - run all unit/integration tests"
+	@echo "  make style-check             - run style and config checks"
 	@echo ""
 	@echo "ARM64 cross-compile:"
 	@echo "  make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu-"
 	@echo "  make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- PLATFORM=imx95-devkit"
-	@echo "  make ARCH=arm64 disasm       — disassemble built binary"
-	@echo "  make ARCH=arm64 qemu-run     — launch Haven on QEMU virt (arm64)"
+	@echo "  make ARCH=arm64 disasm       - disassemble built binary"
+	@echo "  make ARCH=arm64 qemu-run     - launch Haven on QEMU virt (arm64)"
 	@echo ""
 	@echo "Evidence packaging:"
-	@echo "  make evidence                — package test + benchmark evidence"
+	@echo "  make evidence                - package test + benchmark evidence"
 	@echo ""
 	@echo "Clean:"
-	@echo "  make clean                   — remove build artifacts"
+	@echo "  make clean                   - remove build artifacts"

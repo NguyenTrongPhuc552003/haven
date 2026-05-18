@@ -4,7 +4,7 @@ begin
 
 (*
   HavenIsolation.thy
-  Haven Hypervisor — Spatial Isolation in Isabelle/HOL
+  Haven Hypervisor - Spatial Isolation in Isabelle/HOL
 
   This theory mirrors the core spatial isolation invariant from
   verification/coq/IsolationModel.v in Isabelle/HOL 2023 syntax.
@@ -146,7 +146,7 @@ lemma empty_isolation: "spatial_isolation []"
 (* ------------------------------------------------------------------ *)
 
 (* Boolean overlap check for a single new region against an existing
-   region — decidable version of \<not>regions_disjoint. *)
+   region - decidable version of \<not>regions_disjoint. *)
 definition region_overlaps :: "mem_region \<Rightarrow> mem_region \<Rightarrow> bool" where
   "region_overlaps r1 r2 \<longleftrightarrow> \<not> regions_disjoint r1 r2"
 
@@ -190,7 +190,7 @@ next
   obtain hp hregs where hd_eq: "hd = (hp, hregs)" by (cases hd)
   show ?case
   proof (simp only: add_region.simps hd_eq, split if_split, intro conjI impI)
-    (* Case: hp = pid — the head partition is being updated *)
+    (* Case: hp = pid - the head partition is being updated *)
     assume heq: "hp = pid"
     show "\<forall> p1 r1 p2 r2.
            (p1, r1) \<in> set ((hp, new_r # hregs) # tl) \<longrightarrow>
@@ -215,7 +215,7 @@ next
         done
     qed
   next
-    (* Case: hp \<noteq> pid — head is unchanged, recurse on tail *)
+    (* Case: hp \<noteq> pid - head is unchanged, recurse on tail *)
     assume hne: "hp \<noteq> pid"
     from Cons have ih: "spatial_isolation (add_region tl pid new_r)"
       by (auto simp add: spatial_isolation_def partition_map_ok_def hd_eq)

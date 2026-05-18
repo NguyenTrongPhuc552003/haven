@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tools/analysis/evidence_report.py — Generate an HTML evidence report.
+tools/analysis/evidence_report.py - Generate an HTML evidence report.
 
 Reads benchmark JSON and any test-results JSON files from the evidence directory,
 then writes a self-contained HTML page.
@@ -188,11 +188,11 @@ def main():
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Haven Hypervisor — Evidence Report</title>
+  <title>Haven Hypervisor - Evidence Report</title>
   <style>{_CSS}</style>
 </head>
 <body>
-  <h1>Haven Hypervisor — Evidence Report</h1>
+  <h1>Haven Hypervisor - Evidence Report</h1>
   <p><strong>Generated:</strong> {html_escape(timestamp)}</p>
 
   {bench_html}

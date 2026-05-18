@@ -82,7 +82,7 @@ This invokes `scripts/test.sh`, which:
 make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all
 ```
 
-Output: `build/haven.elf` — a flat ELF suitable for loading by QEMU or a
+Output: `build/haven.elf` - a flat ELF suitable for loading by QEMU or a
 bare-metal bootloader.
 
 ### QEMU smoke test
@@ -117,7 +117,7 @@ Examples:
 ```
 <type>(<scope>): <imperative summary under 72 chars>
 
-Optional body — explain *why*, not *what*.
+Optional body - explain *why*, not *what*.
 ```
 
 Scope is optional but recommended for core subsystems:
@@ -132,7 +132,7 @@ For every new enforcement path:
 2. Implement the invariant in `src/core/<subsystem>/`.
 3. Add a negative test to `tests/integration/test_isolation_negative.c`
    proving a cross-partition violation is rejected.
-4. Run `make test` — all tests must pass before opening a PR.
+4. Run `make test` - all tests must pass before opening a PR.
 
 ---
 

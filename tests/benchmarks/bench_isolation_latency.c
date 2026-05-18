@@ -10,12 +10,12 @@
  * the worst-case overhead of the hypervisor isolation layer.
  *
  * Hot paths benchmarked:
- *   1. hv_stage2_partition_contains_pa  — spatial containment check
- *   2. hv_irq_is_owned_by               — IRQ ownership query
- *   3. hv_budget_consume                — CPU budget accounting
- *   4. hv_smmu_check_dma_access         — DMA access check
- *   5. hv_timer_check_deadline          — timer deadline poll
- *   6. hv_iommu_check_group             — IOMMU group ownership query
+ *   1. hv_stage2_partition_contains_pa  - spatial containment check
+ *   2. hv_irq_is_owned_by               - IRQ ownership query
+ *   3. hv_budget_consume                - CPU budget accounting
+ *   4. hv_smmu_check_dma_access         - DMA access check
+ *   5. hv_timer_check_deadline          - timer deadline poll
+ *   6. hv_iommu_check_group             - IOMMU group ownership query
  *
  * Output:
  *   - Human-readable table on stdout.
@@ -70,10 +70,10 @@ typedef struct {
 /* -----------------------------------------------------------------------
  * Generic timing loop
  *
- * fn_setup()   — called once before warmup (module/state setup)
- * fn_reset()   — called before each iteration batch to reset mutable state
- * fn_call()    — the single hot-path expression to time (returns hv_status_t)
- * fn_recover() — called when fn_call() returns non-OK to restore state
+ * fn_setup()   - called once before warmup (module/state setup)
+ * fn_reset()   - called before each iteration batch to reset mutable state
+ * fn_call()    - the single hot-path expression to time (returns hv_status_t)
+ * fn_recover() - called when fn_call() returns non-OK to restore state
  * ----------------------------------------------------------------------- */
 typedef void (*bench_setup_fn)(void);
 typedef void (*bench_reset_fn)(void);
@@ -93,7 +93,7 @@ static bench_result_t run_bench(const char *name, bench_setup_fn setup,
   if (setup)
     setup();
 
-  /* Warm-up — not timed. */
+  /* Warm-up - not timed. */
   for (int i = 0; i < WARMUP_ITERS; i++) {
     if (reset)
       reset();

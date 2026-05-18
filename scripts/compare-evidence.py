@@ -87,7 +87,7 @@ def compare(baseline: dict, current: dict) -> int:
     if b_platform != c_platform:
         print(f"[INFO] platform changed: {b_platform!r} -> {c_platform!r}")
 
-    print(f"[compare-evidence] done — {regressions} regression(s) found")
+    print(f"[compare-evidence] done - {regressions} regression(s) found")
     return regressions
 
 

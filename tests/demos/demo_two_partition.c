@@ -8,12 +8,12 @@
  * read-only DMA, higher-priority IRQ).
  *
  * Demonstrates:
- *   1. Parallel resource ownership — each partition holds its own Stage-2
+ *   1. Parallel resource ownership - each partition holds its own Stage-2
  *      region, IOMMU group, SMMU stream, IRQ, budget, timer, and EL2 route
  *      simultaneously without interference.
- *   2. Cross-partition denial — any attempt by one partition to access the
+ *   2. Cross-partition denial - any attempt by one partition to access the
  *      other's memory, IRQ, IOMMU group, or DMA window is denied.
- *   3. Independent lifecycle — tearing down partition 2 does not disturb
+ *   3. Independent lifecycle - tearing down partition 2 does not disturb
  *      partition 1, and vice versa.
  *
  * @file tests/demos/demo_two_partition.c
@@ -32,7 +32,7 @@
 #define DEMO_PASS(msg) printf("[DEMO] %s\n", msg)
 
 /* -----------------------------------------------------------------------
- * Partition 1 — Linux-class domain
+ * Partition 1 - Linux-class domain
  *   PA  0x40000000 .. 0x48000000  (128 MiB)
  *   IRQ 32, IOMMU group 1, budget 700 µs / 1 ms
  * ----------------------------------------------------------------------- */
@@ -59,7 +59,7 @@ static struct hv_budget p1_budget = {
 };
 
 /* -----------------------------------------------------------------------
- * Partition 2 — RTOS-class domain
+ * Partition 2 - RTOS-class domain
  *   PA  0x50000000 .. 0x50400000  (4 MiB)
  *   IRQ 33, IOMMU group 2, budget 200 µs / 1 ms
  * ----------------------------------------------------------------------- */
@@ -200,7 +200,7 @@ int main(void) {
   DEMO_PASS("Phase 4: P2 cannot reroute P1 EL2 IRQ");
 
   /* ---------------------------------------------------------------- */
-  /* Phase 5: Ordered tear-down — P2 first, then P1                   */
+  /* Phase 5: Ordered tear-down - P2 first, then P1                   */
   /* ---------------------------------------------------------------- */
 
   /* P2 tear-down. */
