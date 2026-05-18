@@ -16,6 +16,7 @@ enum
     HV_OK = 0,
     HV_EINVAL = -22,
     HV_EPERM = -1,
+    HV_ENOMEM = -12,
     HV_ENOSPC = -28,
     HV_ENOTSUP = -95
 };
