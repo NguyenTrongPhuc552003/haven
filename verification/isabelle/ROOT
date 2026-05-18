@@ -1,0 +1,3 @@
+session HavenIsolation = HOL +
+  theories
+    HavenIsolation

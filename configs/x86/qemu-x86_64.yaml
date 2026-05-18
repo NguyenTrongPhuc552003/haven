@@ -1,0 +1,29 @@
+target: qemu-x86_64
+description: Future x86_64 VT-x target (QEMU q35). Planned Phase 3+.
+
+cpus:
+  linux: [0, 1, 2, 3]
+  rtos: [4]
+  hypervisor: [5]
+
+memory:
+  linux:
+    base: 0x100000000
+    size: 0x40000000
+  rtos:
+    base: 0x140000000
+    size: 0x10000000
+  shared:
+    base: 0x150000000
+    size: 0x01000000
+
+interrupts:
+  linux: [32, 33, 34, 35]
+  rtos: [48, 49]
+
+timing:
+  period_us: 10000
+  budgets_us:
+    linux: 7000
+    rtos: 2500
+    hypervisor: 500

@@ -10,6 +10,8 @@ struct hv_budget_state {
 };
 
 static struct hv_budget_state budget_state[HV_MAX_BUDGET_PARTITIONS];
+static hv_u64 budget_last_reset_ns[HV_MAX_BUDGET_PARTITIONS];
+static hv_u64 budget_last_observed_ns;
 
 hv_status_t hv_budget_sched_init(void) {
   hv_u32 i;
@@ -20,6 +22,11 @@ hv_status_t hv_budget_sched_init(void) {
     budget_state[i].consumed_ns = 0U;
     budget_state[i].configured = 0U;
   }
+
+  for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
+    budget_last_reset_ns[i] = 0U;
+  }
+  budget_last_observed_ns = 0U;
 
   return HV_OK;
 }
@@ -76,16 +83,37 @@ hv_status_t hv_budget_consume(hv_u32 partition_id, hv_u64 delta_ns) {
 
 hv_status_t hv_budget_reset_period(hv_u64 now_ns) {
   hv_u32 i;
+  hv_u64 elapsed;
 
   if (now_ns == 0U) {
     return HV_EINVAL;
   }
 
+  if (budget_last_observed_ns != 0U && now_ns < budget_last_observed_ns) {
+    return HV_EINVAL;
+  }
+
   for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
-    if (budget_state[i].configured != 0U) {
+    if (budget_state[i].configured == 0U) {
+      continue;
+    }
+
+    if (budget_last_reset_ns[i] != 0U && now_ns < budget_last_reset_ns[i]) {
+      return HV_EINVAL;
+    }
+
+    if (budget_last_reset_ns[i] == 0U) {
+      elapsed = now_ns;
+    } else {
+      elapsed = now_ns - budget_last_reset_ns[i];
+    }
+
+    if (elapsed >= budget_state[i].period_ns) {
       budget_state[i].consumed_ns = 0U;
+      budget_last_reset_ns[i] = now_ns;
     }
   }
+  budget_last_observed_ns = now_ns;
 
   return HV_OK;
 }

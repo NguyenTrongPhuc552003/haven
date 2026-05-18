@@ -74,7 +74,7 @@ Expected overhead: < 5% for workloads not involving frequent EL2 exits.
 | Board             | NXP i.MX95 Dev Kit                                 |
 | Linux image       | Yocto Kirkstone, kernel 6.6 LTS                    |
 | RTOS image        | FreeRTOS 10.6.2                                    |
-| Haven build       | `CC=aarch64-linux-gnu-gcc make build`              |
+| Haven build       | `CC=aarch64-unknown-linux-gnu-gcc make build`              |
 | Load generator    | `stress-ng 0.17.x`                                 |
 | Timer measurement | ARM Generic Timer (CNTPCT_EL0), 1 ns resolution    |
 | UART capture      | `minicom -D /dev/ttyUSB0 -b 115200 -C capture.log` |

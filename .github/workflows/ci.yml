@@ -44,6 +44,34 @@ jobs:
             build/libhaven_core.a
             build/ci/metadata.txt
 
+  arm64-cross-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ARM64 cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make
+
+      - name: Cross-compile haven.elf (ARM64)
+        run: make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- all
+
+      - name: Verify ELF target architecture
+        run: |
+          file build/haven.elf | grep -q "ARM aarch64" && echo "OK: ARM64 ELF"
+          aarch64-linux-gnu-objdump -d build/haven.elf | grep -q "el2_exception_table\|haven_init" \
+            && echo "OK: key symbols present"
+
+      - name: Upload ARM64 binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: haven-arm64-${{ github.sha }}
+          path: |
+            build/haven.elf
+            build/haven.bin
+
   website-build:
     runs-on: ubuntu-latest
     steps:
