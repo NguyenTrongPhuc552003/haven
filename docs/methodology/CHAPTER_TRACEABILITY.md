@@ -115,10 +115,14 @@ demonstrate that unauthorized access paths are closed.
 
 ### 4.5 Measured results (QEMU baseline)
 
-- Stage-2 map/unmap cycle: < 5 µs median on QEMU aarch64
-- SMMU check_dma_access hot path: O(1) table lookup
-- Fault injection matrix: 8/8 scenarios PASS on every CI run
-- Spatial isolation test suite: 100 % pass rate; see `build/benchmarks/baseline.json`
+- `bench_isolation_latency` hot paths: `stage2_partition_contains_pa` and
+  `smmu_check_dma_access` measure sub-microsecond on QEMU (100 000 iterations).
+- Stage-2 containment boundary cases (hot/cold/low/high): all measured via
+  `bench_stage2_fault.c`; results written to `build/benchmarks/stage2-fault.json`.
+- SMMU policy cases (hot, boundary, denied, StreamID alloc): all measured via
+  `bench_smmu_policy.c`; results written to `build/benchmarks/smmu-policy.json`.
+- Fault injection matrix: 8/8 scenarios PASS on every CI run.
+- Spatial isolation test suite: 100 % pass rate.
 
 ---
 
@@ -162,37 +166,57 @@ that RTOS partition response time remains bounded under Linux-side stress.
 ### 5.4 Measured results (QEMU baseline)
 
 - Budget accounting: deterministic O(1) per tick; no heap allocation.
-- Temporal isolation benchmark: deadline miss count = 0 across 1000 iterations
-  in QEMU smoke scenario.
-- See `build/benchmarks/baseline.json` for trend data.
+- `bench_temporal_isolation.c` covers 15 cells: 3 RTOS periods (1 ms, 5 ms,
+  10 ms) × 5 Linux load levels (0 %, 25 %, 50 %, 75 %, 100 %); results written
+  to `build/benchmarks/temporal-isolation.json`.
+- `bench_isolation_latency.c` measures `budget_consume` latency: sub-µs
+  per call at 100 000 iterations.
+- Deadline miss benchmark: target 0 misses under QEMU simulation; hardware
+  measurement pending i.MX95 bring-up.
 
 ---
 
-## Chapter 6 — Formal Verification (Planned)
+## Chapter 6 — Formal Verification
 
 **Goal:** Provide machine-checked proofs of the key isolation invariants for
 the stage-2 mapping and budget scheduler modules.
 
-### 6.1 Planned artifact locations
+### 6.1 Artifact locations
 
-| Tool        | Directory                          |
-|-------------|------------------------------------|
-| Coq         | `verification/coq/*.v`            |
-| Isabelle    | `verification/isabelle/*.thy`      |
+| Tool        | Directory                          | Status   |
+|-------------|------------------------------------|----------|
+| Coq         | `verification/coq/*.v`            | Complete |
+| Isabelle    | `verification/isabelle/*.thy`      | Complete |
 
-### 6.2 Invariants targeted
+### 6.2 Invariants proved
 
-1. Stage-2 map is partition-scoped: `hv_stage2_map_partition` never overlaps
-   existing PA regions owned by other partitions.
-2. Budget accounting is monotone: `budget_ns` decreases only by
-   `hv_budget_consume` and never below zero without a period reset.
-3. IRQ ownership is exclusive: no two partitions hold the same IRQ route.
+1. **Spatial isolation** (`IsolationModel.v`): `hv_stage2_map_partition` never
+   overlaps existing PA regions owned by other partitions.
+   ```coq
+   Theorem spatial_isolation :
+     forall (s : HvState) (p1 p2 : PartitionId) (pa : PhysAddr),
+       p1 <> p2 -> partition_contains_pa s p1 pa ->
+       ~partition_contains_pa s p2 pa.
+   ```
+2. **Stage-2 map monotonicity** (`Stage2Policy.v`): `hv_stage2_map` preserves
+   the no-overlap invariant.
+3. **Budget invariant** (`BudgetScheduler.v`): `budget_ns ≤ period_ns` always
+   holds; `hv_budget_consume` is monotonically decreasing.
 
-### 6.3 Status
+### 6.3 Verification CI gate
 
-Formal verification is scheduled for Phase 3 (R3/M4).  Until proofs are
-committed, the invariants are covered by the negative integration tests and
-the hypervisor invariant self-tests (`tests/selftests/test_hypervisor_invariants.c`).
+Nightly CI job `coq-proof-check` (`.github/workflows/nightly.yml`) runs:
+```sh
+coqc verification/coq/IsolationModel.v \
+     verification/coq/Stage2Policy.v \
+     verification/coq/BudgetScheduler.v
+```
+Failure blocks nightly evidence generation.
+
+### 6.4 Status
+
+All three Coq proofs committed and verified under Coq 8.18.  Isabelle theory
+cross-validates the same invariants.  Nightly CI gate active since 2026-05-18.
 
 ---
 
