@@ -44,3 +44,93 @@ jobs:
             build/obj/ownership.o
             build/obj/budget.o
             build/ci/metadata.txt
+
+  arm64-cross-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ARM64 cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make
+
+      - name: Cross-compile haven.elf (ARM64)
+        run: make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- all
+
+      - name: TCB size audit (target < 5000 lines of src/core/)
+        run: |
+          TCB_LINES=$(find src/core -name '*.c' -exec cat {} + | wc -l)
+          echo "TCB lines: ${TCB_LINES}"
+          [ "${TCB_LINES}" -lt 5000 ] && echo "PASS: TCB within 5000-line bound" || \
+            { echo "WARN: TCB exceeds 5000 lines (${TCB_LINES})"; exit 1; }
+
+      - name: Binary size report
+        run: |
+          aarch64-linux-gnu-size build/haven.elf
+          TEXT=$(aarch64-linux-gnu-size build/haven.elf | awk 'NR==2{print $1}')
+          echo "TEXT size: ${TEXT} bytes"
+
+      - name: Upload ARM64 nightly binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: haven-arm64-nightly-${{ github.run_id }}
+          retention-days: 30
+          path: |
+            build/haven.elf
+            build/haven.bin
+
+  coq-proof-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Coq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y coq
+
+      - name: Verify Coq isolation proofs
+        working-directory: verification/coq
+        run: |
+          echo "[coq] checking IsolationModel.v"
+          coqc IsolationModel.v
+          echo "[coq] checking Stage2Policy.v"
+          coqc Stage2Policy.v
+          echo "[coq] checking BudgetScheduler.v"
+          coqc BudgetScheduler.v
+          echo "[coq] all proofs verified"
+
+  evidence-generation:
+    runs-on: ubuntu-latest
+    needs: [nightly-preflight, arm64-cross-compile]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make python3 python3-pip qemu-system-aarch64
+          pip3 install --no-cache-dir matplotlib numpy
+
+      - name: Run full test suite and benchmarks
+        run: ./scripts/ci-preflight.sh
+
+      - name: Generate evidence report
+        run: |
+          mkdir -p build/evidence
+          python3 tools/analysis/evidence_report.py build/ || true
+          python3 tools/analysis/latency_analyzer.py build/benchmarks/isolation-latency.json || true
+
+      - name: Upload evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: haven-evidence-${{ github.run_id }}
+          retention-days: 90
+          path: |
+            build/evidence/
+            build/benchmarks/
+
