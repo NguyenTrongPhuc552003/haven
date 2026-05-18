@@ -45,30 +45,30 @@ extern "C" {
  * Device DMA access attributes.
  */
 typedef enum {
-	HV_DMA_RO = 1,  /**< Read-only DMA access */
-	HV_DMA_WO = 2,  /**< Write-only DMA access */
-	HV_DMA_RW = 3,  /**< Read-write DMA access */
+	HV_DMA_RO = 1, /**< Read-only DMA access */
+	HV_DMA_WO = 2, /**< Write-only DMA access */
+	HV_DMA_RW = 3, /**< Read-write DMA access */
 } hv_dma_access_t;
 
 /**
  * SMMU partition DMA window configuration.
  */
 typedef struct {
-	hv_u64 dma_base;   /**< DMA address (IOVA) base */
-	hv_u64 dma_size;   /**< DMA address (IOVA) window size in bytes */
-	hv_u64 phys_base;  /**< Physical address (PA) base for translation */
-	hv_u32 partition;  /**< Partition ID owning this DMA window */
+	hv_u64 dma_base; /**< DMA address (IOVA) base */
+	hv_u64 dma_size; /**< DMA address (IOVA) window size in bytes */
+	hv_u64 phys_base; /**< Physical address (PA) base for translation */
+	hv_u32 partition; /**< Partition ID owning this DMA window */
 } hv_smmu_window_t;
 
 /**
  * Device DMA configuration.
  */
 typedef struct {
-	hv_u16 streamid;         /**< Device StreamID */
-	hv_u32 partition;        /**< Partition owning this device */
-	hv_dma_access_t access;  /**< DMA access rights (RO/WO/RW) */
-	hv_u64 dma_base;         /**< Assigned DMA window base (IOVA) */
-	hv_u64 dma_size;         /**< Assigned DMA window size */
+	hv_u16 streamid; /**< Device StreamID */
+	hv_u32 partition; /**< Partition owning this device */
+	hv_dma_access_t access; /**< DMA access rights (RO/WO/RW) */
+	hv_u64 dma_base; /**< Assigned DMA window base (IOVA) */
+	hv_u64 dma_size; /**< Assigned DMA window size */
 } hv_device_dma_t;
 
 /**
@@ -115,13 +115,9 @@ hv_status_t hv_smmu_allocate_streamid(hv_u32 partition, hv_u16 *streamid);
  *
  * Note: DMA window must be within partition's stage-2 memory allocation.
  */
-hv_status_t hv_smmu_configure_dma_window(
-	hv_u16 streamid,
-	hv_u64 dma_base,
-	hv_u64 dma_size,
-	hv_u64 phys_base,
-	hv_dma_access_t access
-);
+hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
+					 hv_u64 dma_size, hv_u64 phys_base,
+					 hv_dma_access_t access);
 
 /**
  * Revoke DMA access for a device.
@@ -166,12 +162,8 @@ hv_status_t hv_smmu_get_device_dma(hv_u16 streamid, hv_device_dma_t *dma_info);
  * @return HV_EINVAL if address range invalid
  * @return HV_EPERM if device lacks required access or address outside DMA window
  */
-hv_status_t hv_smmu_check_dma_access(
-	hv_u16 streamid,
-	hv_u64 dma_addr,
-	hv_u64 size,
-	hv_dma_access_t access
-);
+hv_status_t hv_smmu_check_dma_access(hv_u16 streamid, hv_u64 dma_addr,
+				     hv_u64 size, hv_dma_access_t access);
 
 /**
  * Reset all DMA configuration for a partition.

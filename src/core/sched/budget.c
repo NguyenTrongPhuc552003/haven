@@ -3,117 +3,122 @@
 #define HV_MAX_BUDGET_PARTITIONS 256U
 
 struct hv_budget_state {
-  hv_u64 period_ns;
-  hv_u64 budget_ns;
-  hv_u64 consumed_ns;
-  hv_u8 configured;
+	hv_u64 period_ns;
+	hv_u64 budget_ns;
+	hv_u64 consumed_ns;
+	hv_u8 configured;
 };
 
 static struct hv_budget_state budget_state[HV_MAX_BUDGET_PARTITIONS];
 static hv_u64 budget_last_reset_ns[HV_MAX_BUDGET_PARTITIONS];
 static hv_u64 budget_last_observed_ns;
 
-hv_status_t hv_budget_sched_init(void) {
-  hv_u32 i;
+hv_status_t hv_budget_sched_init(void)
+{
+	hv_u32 i;
 
-  for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
-    budget_state[i].period_ns = 0U;
-    budget_state[i].budget_ns = 0U;
-    budget_state[i].consumed_ns = 0U;
-    budget_state[i].configured = 0U;
-  }
+	for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
+		budget_state[i].period_ns = 0U;
+		budget_state[i].budget_ns = 0U;
+		budget_state[i].consumed_ns = 0U;
+		budget_state[i].configured = 0U;
+	}
 
-  for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
-    budget_last_reset_ns[i] = 0U;
-  }
-  budget_last_observed_ns = 0U;
+	for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
+		budget_last_reset_ns[i] = 0U;
+	}
+	budget_last_observed_ns = 0U;
 
-  return HV_OK;
+	return HV_OK;
 }
 
-hv_status_t hv_budget_set(const struct hv_budget *budget) {
-  if (budget == NULL || budget->partition_id == 0U) {
-    return HV_EINVAL;
-  }
+hv_status_t hv_budget_set(const struct hv_budget *budget)
+{
+	if (budget == NULL || budget->partition_id == 0U) {
+		return HV_EINVAL;
+	}
 
-  if (budget->partition_id >= HV_MAX_BUDGET_PARTITIONS) {
-    return HV_ENOSPC;
-  }
+	if (budget->partition_id >= HV_MAX_BUDGET_PARTITIONS) {
+		return HV_ENOSPC;
+	}
 
-  if (budget->budget_ns == 0U || budget->period_ns < budget->budget_ns) {
-    return HV_EINVAL;
-  }
+	if (budget->budget_ns == 0U || budget->period_ns < budget->budget_ns) {
+		return HV_EINVAL;
+	}
 
-  budget_state[budget->partition_id].period_ns = budget->period_ns;
-  budget_state[budget->partition_id].budget_ns = budget->budget_ns;
-  budget_state[budget->partition_id].consumed_ns = 0U;
-  budget_state[budget->partition_id].configured = 1U;
+	budget_state[budget->partition_id].period_ns = budget->period_ns;
+	budget_state[budget->partition_id].budget_ns = budget->budget_ns;
+	budget_state[budget->partition_id].consumed_ns = 0U;
+	budget_state[budget->partition_id].configured = 1U;
 
-  return HV_OK;
+	return HV_OK;
 }
 
-hv_status_t hv_budget_consume(hv_u32 partition_id, hv_u64 delta_ns) {
-  hv_u64 next;
+hv_status_t hv_budget_consume(hv_u32 partition_id, hv_u64 delta_ns)
+{
+	hv_u64 next;
 
-  if (partition_id == 0U || delta_ns == 0U) {
-    return HV_EINVAL;
-  }
+	if (partition_id == 0U || delta_ns == 0U) {
+		return HV_EINVAL;
+	}
 
-  if (partition_id >= HV_MAX_BUDGET_PARTITIONS) {
-    return HV_ENOSPC;
-  }
+	if (partition_id >= HV_MAX_BUDGET_PARTITIONS) {
+		return HV_ENOSPC;
+	}
 
-  if (budget_state[partition_id].configured == 0U) {
-    return HV_EPERM;
-  }
+	if (budget_state[partition_id].configured == 0U) {
+		return HV_EPERM;
+	}
 
-  next = budget_state[partition_id].consumed_ns + delta_ns;
-  if (next < budget_state[partition_id].consumed_ns) {
-    return HV_EINVAL;
-  }
+	next = budget_state[partition_id].consumed_ns + delta_ns;
+	if (next < budget_state[partition_id].consumed_ns) {
+		return HV_EINVAL;
+	}
 
-  if (next > budget_state[partition_id].budget_ns) {
-    return HV_EPERM;
-  }
+	if (next > budget_state[partition_id].budget_ns) {
+		return HV_EPERM;
+	}
 
-  budget_state[partition_id].consumed_ns = next;
+	budget_state[partition_id].consumed_ns = next;
 
-  return HV_OK;
+	return HV_OK;
 }
 
-hv_status_t hv_budget_reset_period(hv_u64 now_ns) {
-  hv_u32 i;
-  hv_u64 elapsed;
+hv_status_t hv_budget_reset_period(hv_u64 now_ns)
+{
+	hv_u32 i;
+	hv_u64 elapsed;
 
-  if (now_ns == 0U) {
-    return HV_EINVAL;
-  }
+	if (now_ns == 0U) {
+		return HV_EINVAL;
+	}
 
-  if (budget_last_observed_ns != 0U && now_ns < budget_last_observed_ns) {
-    return HV_EINVAL;
-  }
+	if (budget_last_observed_ns != 0U && now_ns < budget_last_observed_ns) {
+		return HV_EINVAL;
+	}
 
-  for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
-    if (budget_state[i].configured == 0U) {
-      continue;
-    }
+	for (i = 0U; i < HV_MAX_BUDGET_PARTITIONS; ++i) {
+		if (budget_state[i].configured == 0U) {
+			continue;
+		}
 
-    if (budget_last_reset_ns[i] != 0U && now_ns < budget_last_reset_ns[i]) {
-      return HV_EINVAL;
-    }
+		if (budget_last_reset_ns[i] != 0U &&
+		    now_ns < budget_last_reset_ns[i]) {
+			return HV_EINVAL;
+		}
 
-    if (budget_last_reset_ns[i] == 0U) {
-      elapsed = now_ns;
-    } else {
-      elapsed = now_ns - budget_last_reset_ns[i];
-    }
+		if (budget_last_reset_ns[i] == 0U) {
+			elapsed = now_ns;
+		} else {
+			elapsed = now_ns - budget_last_reset_ns[i];
+		}
 
-    if (elapsed >= budget_state[i].period_ns) {
-      budget_state[i].consumed_ns = 0U;
-      budget_last_reset_ns[i] = now_ns;
-    }
-  }
-  budget_last_observed_ns = now_ns;
+		if (elapsed >= budget_state[i].period_ns) {
+			budget_state[i].consumed_ns = 0U;
+			budget_last_reset_ns[i] = now_ns;
+		}
+	}
+	budget_last_observed_ns = now_ns;
 
-  return HV_OK;
+	return HV_OK;
 }

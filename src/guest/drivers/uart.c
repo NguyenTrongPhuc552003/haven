@@ -33,13 +33,15 @@ static hv_uart_port_t uart_ports[HV_MAX_UART_PORTS] = {0};
  */
 static hv_u16 uart_port_count = 0;
 
-hv_status_t hv_guest_uart_init(void) {
+hv_status_t hv_guest_uart_init(void)
+{
 	memset(uart_ports, 0, sizeof(uart_ports));
 	uart_port_count = 0;
 	return HV_OK;
 }
 
-hv_status_t hv_guest_uart_allocate_port(hv_u32 partition, hv_u32 *port_id) {
+hv_status_t hv_guest_uart_allocate_port(hv_u32 partition, hv_u32 *port_id)
+{
 	if (port_id == NULL || partition >= 256) {
 		return HV_EINVAL;
 	}
@@ -58,7 +60,9 @@ hv_status_t hv_guest_uart_allocate_port(hv_u32 partition, hv_u32 *port_id) {
 	return HV_ENOSPC;
 }
 
-hv_status_t hv_guest_uart_configure(hv_u32 port_id, const hv_uart_config_t *config) {
+hv_status_t hv_guest_uart_configure(hv_u32 port_id,
+				    const hv_uart_config_t *config)
+{
 	if (port_id >= HV_MAX_UART_PORTS || config == NULL) {
 		return HV_EINVAL;
 	}
@@ -69,10 +73,10 @@ hv_status_t hv_guest_uart_configure(hv_u32 port_id, const hv_uart_config_t *conf
 
 	/* Validate baud rate support. */
 	if (config->baud != HV_UART_BAUD_9600 &&
-		config->baud != HV_UART_BAUD_19200 &&
-		config->baud != HV_UART_BAUD_38400 &&
-		config->baud != HV_UART_BAUD_57600 &&
-		config->baud != HV_UART_BAUD_115200) {
+	    config->baud != HV_UART_BAUD_19200 &&
+	    config->baud != HV_UART_BAUD_38400 &&
+	    config->baud != HV_UART_BAUD_57600 &&
+	    config->baud != HV_UART_BAUD_115200) {
 		return HV_ENOTSUP;
 	}
 
@@ -87,8 +91,11 @@ hv_status_t hv_guest_uart_configure(hv_u32 port_id, const hv_uart_config_t *conf
 	return HV_OK;
 }
 
-hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data, hv_u32 length, hv_u32 *bytes_sent) {
-	if (port_id >= HV_MAX_UART_PORTS || data == NULL || bytes_sent == NULL) {
+hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data,
+				hv_u32 length, hv_u32 *bytes_sent)
+{
+	if (port_id >= HV_MAX_UART_PORTS || data == NULL ||
+	    bytes_sent == NULL) {
 		return HV_EINVAL;
 	}
 
@@ -103,26 +110,32 @@ hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data, hv_u32 length
 		/* Polled mode: immediately update stats and claim success. */
 		*bytes_sent = length;
 		port->stats.bytes_sent += length;
-	} else if (port->config.mode == HV_UART_MODE_INTERRUPT || port->config.mode == HV_UART_MODE_DMA) {
+	} else if (port->config.mode == HV_UART_MODE_INTERRUPT ||
+		   port->config.mode == HV_UART_MODE_DMA) {
 		/* Interrupt/DMA mode: queue data into buffer. */
 		hv_u32 available = (port->tx_head >= port->tx_tail) ?
-			(sizeof(port->tx_buffer) - port->tx_head + port->tx_tail) :
-			(port->tx_tail - port->tx_head);
+					   (sizeof(port->tx_buffer) -
+					    port->tx_head + port->tx_tail) :
+					   (port->tx_tail - port->tx_head);
 
 		if (available < length) {
-			return HV_ENOSPC;  /* Buffer full */
+			return HV_ENOSPC; /* Buffer full */
 		}
 
 		/* Copy data to buffer. */
 		if (port->tx_head + length > sizeof(port->tx_buffer)) {
-			hv_u32 first_part = sizeof(port->tx_buffer) - port->tx_head;
-			memcpy(&port->tx_buffer[port->tx_head], data, first_part);
-			memcpy(port->tx_buffer, &data[first_part], length - first_part);
+			hv_u32 first_part =
+				sizeof(port->tx_buffer) - port->tx_head;
+			memcpy(&port->tx_buffer[port->tx_head], data,
+			       first_part);
+			memcpy(port->tx_buffer, &data[first_part],
+			       length - first_part);
 		} else {
 			memcpy(&port->tx_buffer[port->tx_head], data, length);
 		}
 
-		port->tx_head = (port->tx_head + length) % sizeof(port->tx_buffer);
+		port->tx_head =
+			(port->tx_head + length) % sizeof(port->tx_buffer);
 		*bytes_sent = length;
 		port->stats.bytes_sent += length;
 	}
@@ -130,8 +143,11 @@ hv_status_t hv_guest_uart_write(hv_u32 port_id, const hv_u8 *data, hv_u32 length
 	return HV_OK;
 }
 
-hv_status_t hv_guest_uart_read(hv_u32 port_id, hv_u8 *buffer, hv_u32 max_length, hv_u32 *bytes_read) {
-	if (port_id >= HV_MAX_UART_PORTS || buffer == NULL || bytes_read == NULL) {
+hv_status_t hv_guest_uart_read(hv_u32 port_id, hv_u8 *buffer, hv_u32 max_length,
+			       hv_u32 *bytes_read)
+{
+	if (port_id >= HV_MAX_UART_PORTS || buffer == NULL ||
+	    bytes_read == NULL) {
 		return HV_EINVAL;
 	}
 
@@ -147,21 +163,27 @@ hv_status_t hv_guest_uart_read(hv_u32 port_id, hv_u8 *buffer, hv_u32 max_length,
 	if (port->rx_head >= port->rx_tail) {
 		available = port->rx_head - port->rx_tail;
 	} else {
-		available = sizeof(port->rx_buffer) - port->rx_tail + port->rx_head;
+		available =
+			sizeof(port->rx_buffer) - port->rx_tail + port->rx_head;
 	}
 
 	hv_u32 to_read = (available < max_length) ? available : max_length;
 
 	if (to_read > 0) {
 		if (port->rx_tail + to_read > sizeof(port->rx_buffer)) {
-			hv_u32 first_part = sizeof(port->rx_buffer) - port->rx_tail;
-			memcpy(buffer, &port->rx_buffer[port->rx_tail], first_part);
-			memcpy(&buffer[first_part], port->rx_buffer, to_read - first_part);
+			hv_u32 first_part =
+				sizeof(port->rx_buffer) - port->rx_tail;
+			memcpy(buffer, &port->rx_buffer[port->rx_tail],
+			       first_part);
+			memcpy(&buffer[first_part], port->rx_buffer,
+			       to_read - first_part);
 		} else {
-			memcpy(buffer, &port->rx_buffer[port->rx_tail], to_read);
+			memcpy(buffer, &port->rx_buffer[port->rx_tail],
+			       to_read);
 		}
 
-		port->rx_tail = (port->rx_tail + to_read) % sizeof(port->rx_buffer);
+		port->rx_tail =
+			(port->rx_tail + to_read) % sizeof(port->rx_buffer);
 		*bytes_read = to_read;
 		port->stats.bytes_received += to_read;
 	}
@@ -169,7 +191,8 @@ hv_status_t hv_guest_uart_read(hv_u32 port_id, hv_u8 *buffer, hv_u32 max_length,
 	return HV_OK;
 }
 
-hv_u32 hv_guest_uart_available(hv_u32 port_id) {
+hv_u32 hv_guest_uart_available(hv_u32 port_id)
+{
 	if (port_id >= HV_MAX_UART_PORTS || !uart_ports[port_id].allocated) {
 		return (hv_u32)-1;
 	}
@@ -183,7 +206,8 @@ hv_u32 hv_guest_uart_available(hv_u32 port_id) {
 	}
 }
 
-hv_status_t hv_guest_uart_flush(hv_u32 port_id) {
+hv_status_t hv_guest_uart_flush(hv_u32 port_id)
+{
 	if (port_id >= HV_MAX_UART_PORTS) {
 		return HV_EINVAL;
 	}
@@ -204,7 +228,8 @@ hv_status_t hv_guest_uart_flush(hv_u32 port_id) {
 	return HV_OK;
 }
 
-hv_status_t hv_guest_uart_release(hv_u32 port_id) {
+hv_status_t hv_guest_uart_release(hv_u32 port_id)
+{
 	if (port_id >= HV_MAX_UART_PORTS) {
 		return HV_EINVAL;
 	}
@@ -222,7 +247,8 @@ hv_status_t hv_guest_uart_release(hv_u32 port_id) {
 	return HV_OK;
 }
 
-hv_status_t hv_guest_uart_get_stats(hv_u32 port_id, hv_uart_stats_t *stats) {
+hv_status_t hv_guest_uart_get_stats(hv_u32 port_id, hv_uart_stats_t *stats)
+{
 	if (port_id >= HV_MAX_UART_PORTS || stats == NULL) {
 		return HV_EINVAL;
 	}
@@ -236,7 +262,8 @@ hv_status_t hv_guest_uart_get_stats(hv_u32 port_id, hv_uart_stats_t *stats) {
 	return HV_OK;
 }
 
-hv_status_t hv_guest_uart_reset_stats(hv_u32 port_id) {
+hv_status_t hv_guest_uart_reset_stats(hv_u32 port_id)
+{
 	if (port_id >= HV_MAX_UART_PORTS) {
 		return HV_EINVAL;
 	}
@@ -245,7 +272,8 @@ hv_status_t hv_guest_uart_reset_stats(hv_u32 port_id) {
 		return HV_EPERM;
 	}
 
-	memset(&uart_ports[port_id].stats, 0, sizeof(uart_ports[port_id].stats));
+	memset(&uart_ports[port_id].stats, 0,
+	       sizeof(uart_ports[port_id].stats));
 
 	return HV_OK;
 }

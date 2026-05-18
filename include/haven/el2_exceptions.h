@@ -25,26 +25,27 @@ extern "C" {
  * Exception types (ARM64 architecture).
  */
 typedef enum {
-	HV_EXC_SYNC = 0,     /**< Synchronous exception (SVC, data/inst abort, etc.) */
-	HV_EXC_IRQ = 1,      /**< Interrupt Request (maskable) */
-	HV_EXC_FIQ = 2,      /**< Fast Interrupt Request */
-	HV_EXC_SERROR = 3,   /**< System Error exception */
+	HV_EXC_SYNC =
+		0, /**< Synchronous exception (SVC, data/inst abort, etc.) */
+	HV_EXC_IRQ = 1, /**< Interrupt Request (maskable) */
+	HV_EXC_FIQ = 2, /**< Fast Interrupt Request */
+	HV_EXC_SERROR = 3, /**< System Error exception */
 } hv_exc_type_t;
 
 /**
  * Exception context saved on EL2 entry.
  */
 typedef struct {
-	hv_u64 pc;           /**< Program counter (ELR_EL2) */
-	hv_u64 sp;           /**< Stack pointer */
+	hv_u64 pc; /**< Program counter (ELR_EL2) */
+	hv_u64 sp; /**< Stack pointer */
 	hv_u64 x0, x1, x2, x3, x4, x5, x6, x7;
 	hv_u64 x8, x9, x10, x11, x12, x13, x14, x15;
 	hv_u64 x16, x17, x18, x19, x20, x21, x22, x23;
 	hv_u64 x24, x25, x26, x27, x28, x29, x30;
-	hv_u64 spsr;         /**< Saved Program Status Register */
-	hv_u64 esr;          /**< Exception Syndrome Register */
-	hv_u64 far;          /**< Fault Address Register (for faults) */
-	hv_u32 source_partition;  /**< Partition that triggered exception */
+	hv_u64 spsr; /**< Saved Program Status Register */
+	hv_u64 esr; /**< Exception Syndrome Register */
+	hv_u64 far; /**< Fault Address Register (for faults) */
+	hv_u32 source_partition; /**< Partition that triggered exception */
 } hv_exc_context_t;
 
 /**
@@ -79,7 +80,8 @@ hv_status_t hv_el2_exceptions_init(void);
  * @return HV_OK on success
  * @return HV_EINVAL if exc_type invalid
  */
-hv_status_t hv_el2_register_handler(hv_exc_type_t exc_type, hv_exc_handler_t handler);
+hv_status_t hv_el2_register_handler(hv_exc_type_t exc_type,
+				    hv_exc_handler_t handler);
 
 /**
  * Register partition-specific exception handler.
@@ -95,11 +97,9 @@ hv_status_t hv_el2_register_handler(hv_exc_type_t exc_type, hv_exc_handler_t han
  * @return HV_EINVAL if partition or exc_type invalid
  * @return HV_ENOSPC if max partition-specific handlers reached
  */
-hv_status_t hv_el2_register_partition_handler(
-	hv_u32 partition,
-	hv_exc_type_t exc_type,
-	hv_exc_handler_t handler
-);
+hv_status_t hv_el2_register_partition_handler(hv_u32 partition,
+					      hv_exc_type_t exc_type,
+					      hv_exc_handler_t handler);
 
 /**
  * Route interrupt to specific partition.
@@ -153,11 +153,8 @@ hv_exc_context_t *hv_el2_get_context(void);
  * @return HV_EINVAL if partition, exc_type, or vector invalid
  * @return HV_EPERM if partition not ready or exception injection prohibited
  */
-hv_status_t hv_el2_inject_exception(
-	hv_u32 partition,
-	hv_exc_type_t exc_type,
-	hv_u32 vector
-);
+hv_status_t hv_el2_inject_exception(hv_u32 partition, hv_exc_type_t exc_type,
+				    hv_u32 vector);
 
 /**
  * Enable/disable exception type.

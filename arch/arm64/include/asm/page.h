@@ -29,9 +29,9 @@
  * ----------------------------------------------------------------------- */
 
 #define S2_DESC_INVALID 0x0UL /* Descriptor is invalid */
-#define S2_DESC_BLOCK 0x1UL   /* Level 1/2 block descriptor */
-#define S2_DESC_TABLE 0x3UL   /* Level 0/1/2 table descriptor */
-#define S2_DESC_PAGE 0x3UL    /* Level 3 page descriptor */
+#define S2_DESC_BLOCK 0x1UL /* Level 1/2 block descriptor */
+#define S2_DESC_TABLE 0x3UL /* Level 0/1/2 table descriptor */
+#define S2_DESC_PAGE 0x3UL /* Level 3 page descriptor */
 
 #define s2_desc_is_valid(d) (((d) & 0x1) != 0)
 #define s2_desc_is_table(d) (((d) & 0x3) == S2_DESC_TABLE)
@@ -49,19 +49,19 @@
 
 /* Stage-2 memory type encodings (ARM DDI 0487, D8.5.5) */
 #define S2_MEMATTR_DEVICE_nGnRnE (0x0UL << S2_MEMATTR_SHIFT) /* Device nGnRnE */
-#define S2_MEMATTR_DEVICE_nGnRE (0x1UL << S2_MEMATTR_SHIFT)  /* Device nGnRE */
-#define S2_MEMATTR_DEVICE_nGRE (0x2UL << S2_MEMATTR_SHIFT)   /* Device nGRE */
-#define S2_MEMATTR_DEVICE_GRE (0x3UL << S2_MEMATTR_SHIFT)    /* Device GRE */
-#define S2_MEMATTR_NORMAL_WT (0x9UL << S2_MEMATTR_SHIFT)     /* Normal WT */
-#define S2_MEMATTR_NORMAL_WB (0xfUL << S2_MEMATTR_SHIFT)     /* Normal WB WA RA */
-#define S2_MEMATTR_NORMAL_NC (0x5UL << S2_MEMATTR_SHIFT)     /* Normal NC */
+#define S2_MEMATTR_DEVICE_nGnRE (0x1UL << S2_MEMATTR_SHIFT) /* Device nGnRE */
+#define S2_MEMATTR_DEVICE_nGRE (0x2UL << S2_MEMATTR_SHIFT) /* Device nGRE */
+#define S2_MEMATTR_DEVICE_GRE (0x3UL << S2_MEMATTR_SHIFT) /* Device GRE */
+#define S2_MEMATTR_NORMAL_WT (0x9UL << S2_MEMATTR_SHIFT) /* Normal WT */
+#define S2_MEMATTR_NORMAL_WB (0xfUL << S2_MEMATTR_SHIFT) /* Normal WB WA RA */
+#define S2_MEMATTR_NORMAL_NC (0x5UL << S2_MEMATTR_SHIFT) /* Normal NC */
 
 /* S2AP[1:0] - stage-2 access permissions (bits [7:6]) */
 #define S2AP_SHIFT 6
 #define S2AP_NONE (0x0UL << S2AP_SHIFT) /* No access */
-#define S2AP_RO (0x1UL << S2AP_SHIFT)   /* Read-only */
-#define S2AP_WO (0x2UL << S2AP_SHIFT)   /* Write-only */
-#define S2AP_RW (0x3UL << S2AP_SHIFT)   /* Read-write */
+#define S2AP_RO (0x1UL << S2AP_SHIFT) /* Read-only */
+#define S2AP_WO (0x2UL << S2AP_SHIFT) /* Write-only */
+#define S2AP_RW (0x3UL << S2AP_SHIFT) /* Read-write */
 
 /* SH[1:0] - shareability (bits [9:8]) */
 #define S2_SH_SHIFT 8
@@ -79,7 +79,7 @@
 /* XN[1:0] - Execute Never (bits [54:53]) */
 #define S2_XN_EL1_SHIFT 53
 #define S2_XN_EL0_SHIFT 54
-#define S2_XN_NONE (0UL)                /* Execute allowed */
+#define S2_XN_NONE (0UL) /* Execute allowed */
 #define S2_XNX (1UL << S2_XN_EL1_SHIFT) /* EL1 execute never */
 #define S2_UXN (1UL << S2_XN_EL0_SHIFT) /* EL0 execute never */
 #define S2_PXN S2_XNX
@@ -93,24 +93,24 @@
  * ----------------------------------------------------------------------- */
 
 /* Normal memory page: RW, Inner Shareable, WB, executable */
-#define S2_PAGE_NORMAL_RW(pa)                         \
-        ((pa) | S2_DESC_PAGE | S2_MEMATTR_NORMAL_WB | \
-         S2_SH_IS | S2_AF | S2AP_RW)
+#define S2_PAGE_NORMAL_RW(pa)                                            \
+	((pa) | S2_DESC_PAGE | S2_MEMATTR_NORMAL_WB | S2_SH_IS | S2_AF | \
+	 S2AP_RW)
 
 /* Normal memory page: RO, Inner Shareable, WB, non-executable */
-#define S2_PAGE_NORMAL_RO(pa)                         \
-        ((pa) | S2_DESC_PAGE | S2_MEMATTR_NORMAL_WB | \
-         S2_SH_IS | S2_AF | S2AP_RO | S2_XN_ALL)
+#define S2_PAGE_NORMAL_RO(pa)                                            \
+	((pa) | S2_DESC_PAGE | S2_MEMATTR_NORMAL_WB | S2_SH_IS | S2_AF | \
+	 S2AP_RO | S2_XN_ALL)
 
 /* Device memory page: RW, non-shareable, device, non-executable */
-#define S2_PAGE_DEVICE_RW(pa)                            \
-        ((pa) | S2_DESC_PAGE | S2_MEMATTR_DEVICE_nGnRE | \
-         S2_SH_NS | S2_AF | S2AP_RW | S2_XN_ALL)
+#define S2_PAGE_DEVICE_RW(pa)                                               \
+	((pa) | S2_DESC_PAGE | S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS | S2_AF | \
+	 S2AP_RW | S2_XN_ALL)
 
 /* 2MiB block: Normal RW */
-#define S2_BLOCK2M_NORMAL_RW(pa)                       \
-        ((pa) | S2_DESC_BLOCK | S2_MEMATTR_NORMAL_WB | \
-         S2_SH_IS | S2_AF | S2AP_RW)
+#define S2_BLOCK2M_NORMAL_RW(pa)                                          \
+	((pa) | S2_DESC_BLOCK | S2_MEMATTR_NORMAL_WB | S2_SH_IS | S2_AF | \
+	 S2AP_RW)
 
 /* Table descriptor: just PA of next-level table */
 #define S2_TABLE(pa) ((pa) | S2_DESC_TABLE)
@@ -127,7 +127,7 @@
 #define S2_PGD_SHIFT 30
 #define S2_PMD_SHIFT 21
 #define S2_PTE_SHIFT 12
-#define S2_PTRS_PER_LEVEL 512                                /* 9-bit index → 512 entries per table */
+#define S2_PTRS_PER_LEVEL 512 /* 9-bit index → 512 entries per table */
 #define S2_TABLE_SIZE (S2_PTRS_PER_LEVEL * sizeof(uint64_t)) /* 4 KiB */
 
 #define s2_l1_index(ipa) (((ipa) >> S2_PGD_SHIFT) & 0x1ff)

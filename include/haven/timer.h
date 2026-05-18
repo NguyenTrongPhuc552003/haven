@@ -23,8 +23,7 @@
 #include <haven/types.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -33,7 +32,7 @@ extern "C"
  */
 #define HV_MAX_TIMER_PARTITIONS 256U
 
-    /**
+/**
      * Initialize the timer subsystem.
      *
      * Clears all partition deadline state. Must be called before any other
@@ -41,9 +40,9 @@ extern "C"
      *
      * @return HV_OK on success.
      */
-    hv_status_t hv_timer_init(void);
+hv_status_t hv_timer_init(void);
 
-    /**
+/**
      * Set a deadline for a partition.
      *
      * The deadline is an absolute timestamp in nanoseconds. A partition may
@@ -58,9 +57,9 @@ extern "C"
      * @return HV_EPERM   Partition has an unacknowledged expired deadline.
      * @return HV_ENOSPC  Partition already has an active (non-expired) deadline.
      */
-    hv_status_t hv_timer_set_deadline(hv_u32 partition_id, hv_u64 deadline_ns);
+hv_status_t hv_timer_set_deadline(hv_u32 partition_id, hv_u64 deadline_ns);
 
-    /**
+/**
      * Check whether a partition's deadline has expired.
      *
      * Compares the stored deadline against @p now_ns. If the deadline has
@@ -75,10 +74,10 @@ extern "C"
      * @return HV_EINVAL  partition_id == 0, now_ns == 0, or expired == NULL.
      * @return HV_EPERM   Partition has no active deadline.
      */
-    hv_status_t hv_timer_check_deadline(hv_u32 partition_id, hv_u64 now_ns,
-                                        int *expired);
+hv_status_t hv_timer_check_deadline(hv_u32 partition_id, hv_u64 now_ns,
+				    int *expired);
 
-    /**
+/**
      * Acknowledge an expired deadline.
      *
      * Clears the expired state so the partition can register a new deadline.
@@ -90,9 +89,9 @@ extern "C"
      * @return HV_EINVAL  partition_id == 0.
      * @return HV_EPERM   No active deadline, or deadline has not expired yet.
      */
-    hv_status_t hv_timer_acknowledge(hv_u32 partition_id);
+hv_status_t hv_timer_acknowledge(hv_u32 partition_id);
 
-    /**
+/**
      * Cancel an active deadline.
      *
      * Removes a pending (non-expired) deadline. If the deadline has already
@@ -106,7 +105,7 @@ extern "C"
      * @return HV_EPERM   No active deadline, or deadline already expired
      *                    (must acknowledge before cancelling).
      */
-    hv_status_t hv_timer_cancel(hv_u32 partition_id);
+hv_status_t hv_timer_cancel(hv_u32 partition_id);
 
 #ifdef __cplusplus
 }

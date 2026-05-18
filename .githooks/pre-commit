@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
+echo "[hook:pre-commit] running clang-format check"
+./scripts/format.sh --staged --check
+
 echo "[hook:pre-commit] running style checks"
 ./scripts/style-check.sh
 

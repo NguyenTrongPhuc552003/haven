@@ -31,9 +31,10 @@
 #define HV_LR_PRIORITY(p) (((uint64_t)(p) & 0xFFU) << 48)
 #define HV_LR_VINTID(v) ((uint64_t)(v) & 0x3FFU)
 
-static inline uint64_t make_lr(uint32_t virq, uint32_t priority) {
-  return HV_LR_STATE_PENDING | HV_LR_GROUP1 | HV_LR_PRIORITY(priority) |
-         HV_LR_VINTID(virq);
+static inline uint64_t make_lr(uint32_t virq, uint32_t priority)
+{
+	return HV_LR_STATE_PENDING | HV_LR_GROUP1 | HV_LR_PRIORITY(priority) |
+	       HV_LR_VINTID(virq);
 }
 
 /* -----------------------------------------------------------------------
@@ -44,118 +45,120 @@ static inline uint64_t make_lr(uint32_t virq, uint32_t priority) {
  * to select among ICH_LR0_EL2 .. ICH_LR15_EL2 at runtime.
  * ----------------------------------------------------------------------- */
 
-static uint64_t read_ich_lr(unsigned int n) {
-  uint64_t val = 0;
+static uint64_t read_ich_lr(unsigned int n)
+{
+	uint64_t val = 0;
 
-  switch (n) {
-  case 0:
-    __asm__ volatile("mrs %0, ich_lr0_el2" : "=r"(val));
-    break;
-  case 1:
-    __asm__ volatile("mrs %0, ich_lr1_el2" : "=r"(val));
-    break;
-  case 2:
-    __asm__ volatile("mrs %0, ich_lr2_el2" : "=r"(val));
-    break;
-  case 3:
-    __asm__ volatile("mrs %0, ich_lr3_el2" : "=r"(val));
-    break;
-  case 4:
-    __asm__ volatile("mrs %0, ich_lr4_el2" : "=r"(val));
-    break;
-  case 5:
-    __asm__ volatile("mrs %0, ich_lr5_el2" : "=r"(val));
-    break;
-  case 6:
-    __asm__ volatile("mrs %0, ich_lr6_el2" : "=r"(val));
-    break;
-  case 7:
-    __asm__ volatile("mrs %0, ich_lr7_el2" : "=r"(val));
-    break;
-  case 8:
-    __asm__ volatile("mrs %0, ich_lr8_el2" : "=r"(val));
-    break;
-  case 9:
-    __asm__ volatile("mrs %0, ich_lr9_el2" : "=r"(val));
-    break;
-  case 10:
-    __asm__ volatile("mrs %0, ich_lr10_el2" : "=r"(val));
-    break;
-  case 11:
-    __asm__ volatile("mrs %0, ich_lr11_el2" : "=r"(val));
-    break;
-  case 12:
-    __asm__ volatile("mrs %0, ich_lr12_el2" : "=r"(val));
-    break;
-  case 13:
-    __asm__ volatile("mrs %0, ich_lr13_el2" : "=r"(val));
-    break;
-  case 14:
-    __asm__ volatile("mrs %0, ich_lr14_el2" : "=r"(val));
-    break;
-  case 15:
-    __asm__ volatile("mrs %0, ich_lr15_el2" : "=r"(val));
-    break;
-  default:
-    break;
-  }
+	switch (n) {
+	case 0:
+		__asm__ volatile("mrs %0, ich_lr0_el2" : "=r"(val));
+		break;
+	case 1:
+		__asm__ volatile("mrs %0, ich_lr1_el2" : "=r"(val));
+		break;
+	case 2:
+		__asm__ volatile("mrs %0, ich_lr2_el2" : "=r"(val));
+		break;
+	case 3:
+		__asm__ volatile("mrs %0, ich_lr3_el2" : "=r"(val));
+		break;
+	case 4:
+		__asm__ volatile("mrs %0, ich_lr4_el2" : "=r"(val));
+		break;
+	case 5:
+		__asm__ volatile("mrs %0, ich_lr5_el2" : "=r"(val));
+		break;
+	case 6:
+		__asm__ volatile("mrs %0, ich_lr6_el2" : "=r"(val));
+		break;
+	case 7:
+		__asm__ volatile("mrs %0, ich_lr7_el2" : "=r"(val));
+		break;
+	case 8:
+		__asm__ volatile("mrs %0, ich_lr8_el2" : "=r"(val));
+		break;
+	case 9:
+		__asm__ volatile("mrs %0, ich_lr9_el2" : "=r"(val));
+		break;
+	case 10:
+		__asm__ volatile("mrs %0, ich_lr10_el2" : "=r"(val));
+		break;
+	case 11:
+		__asm__ volatile("mrs %0, ich_lr11_el2" : "=r"(val));
+		break;
+	case 12:
+		__asm__ volatile("mrs %0, ich_lr12_el2" : "=r"(val));
+		break;
+	case 13:
+		__asm__ volatile("mrs %0, ich_lr13_el2" : "=r"(val));
+		break;
+	case 14:
+		__asm__ volatile("mrs %0, ich_lr14_el2" : "=r"(val));
+		break;
+	case 15:
+		__asm__ volatile("mrs %0, ich_lr15_el2" : "=r"(val));
+		break;
+	default:
+		break;
+	}
 
-  return val;
+	return val;
 }
 
-static void write_ich_lr(unsigned int n, uint64_t val) {
-  switch (n) {
-  case 0:
-    __asm__ volatile("msr ich_lr0_el2,  %0" : : "r"(val));
-    break;
-  case 1:
-    __asm__ volatile("msr ich_lr1_el2,  %0" : : "r"(val));
-    break;
-  case 2:
-    __asm__ volatile("msr ich_lr2_el2,  %0" : : "r"(val));
-    break;
-  case 3:
-    __asm__ volatile("msr ich_lr3_el2,  %0" : : "r"(val));
-    break;
-  case 4:
-    __asm__ volatile("msr ich_lr4_el2,  %0" : : "r"(val));
-    break;
-  case 5:
-    __asm__ volatile("msr ich_lr5_el2,  %0" : : "r"(val));
-    break;
-  case 6:
-    __asm__ volatile("msr ich_lr6_el2,  %0" : : "r"(val));
-    break;
-  case 7:
-    __asm__ volatile("msr ich_lr7_el2,  %0" : : "r"(val));
-    break;
-  case 8:
-    __asm__ volatile("msr ich_lr8_el2,  %0" : : "r"(val));
-    break;
-  case 9:
-    __asm__ volatile("msr ich_lr9_el2,  %0" : : "r"(val));
-    break;
-  case 10:
-    __asm__ volatile("msr ich_lr10_el2, %0" : : "r"(val));
-    break;
-  case 11:
-    __asm__ volatile("msr ich_lr11_el2, %0" : : "r"(val));
-    break;
-  case 12:
-    __asm__ volatile("msr ich_lr12_el2, %0" : : "r"(val));
-    break;
-  case 13:
-    __asm__ volatile("msr ich_lr13_el2, %0" : : "r"(val));
-    break;
-  case 14:
-    __asm__ volatile("msr ich_lr14_el2, %0" : : "r"(val));
-    break;
-  case 15:
-    __asm__ volatile("msr ich_lr15_el2, %0" : : "r"(val));
-    break;
-  default:
-    break;
-  }
+static void write_ich_lr(unsigned int n, uint64_t val)
+{
+	switch (n) {
+	case 0:
+		__asm__ volatile("msr ich_lr0_el2,  %0" : : "r"(val));
+		break;
+	case 1:
+		__asm__ volatile("msr ich_lr1_el2,  %0" : : "r"(val));
+		break;
+	case 2:
+		__asm__ volatile("msr ich_lr2_el2,  %0" : : "r"(val));
+		break;
+	case 3:
+		__asm__ volatile("msr ich_lr3_el2,  %0" : : "r"(val));
+		break;
+	case 4:
+		__asm__ volatile("msr ich_lr4_el2,  %0" : : "r"(val));
+		break;
+	case 5:
+		__asm__ volatile("msr ich_lr5_el2,  %0" : : "r"(val));
+		break;
+	case 6:
+		__asm__ volatile("msr ich_lr6_el2,  %0" : : "r"(val));
+		break;
+	case 7:
+		__asm__ volatile("msr ich_lr7_el2,  %0" : : "r"(val));
+		break;
+	case 8:
+		__asm__ volatile("msr ich_lr8_el2,  %0" : : "r"(val));
+		break;
+	case 9:
+		__asm__ volatile("msr ich_lr9_el2,  %0" : : "r"(val));
+		break;
+	case 10:
+		__asm__ volatile("msr ich_lr10_el2, %0" : : "r"(val));
+		break;
+	case 11:
+		__asm__ volatile("msr ich_lr11_el2, %0" : : "r"(val));
+		break;
+	case 12:
+		__asm__ volatile("msr ich_lr12_el2, %0" : : "r"(val));
+		break;
+	case 13:
+		__asm__ volatile("msr ich_lr13_el2, %0" : : "r"(val));
+		break;
+	case 14:
+		__asm__ volatile("msr ich_lr14_el2, %0" : : "r"(val));
+		break;
+	case 15:
+		__asm__ volatile("msr ich_lr15_el2, %0" : : "r"(val));
+		break;
+	default:
+		break;
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -165,12 +168,14 @@ static void write_ich_lr(unsigned int n, uint64_t val) {
  * DAIFClr/DAIFSet immediate field: bit 1 = I (IRQ mask).
  * ----------------------------------------------------------------------- */
 
-void hv_arch_irq_enable(void) {
-  __asm__ volatile("msr daifclr, #2" : : : "memory");
+void hv_arch_irq_enable(void)
+{
+	__asm__ volatile("msr daifclr, #2" : : : "memory");
 }
 
-void hv_arch_irq_disable(void) {
-  __asm__ volatile("msr daifset, #2" : : : "memory");
+void hv_arch_irq_disable(void)
+{
+	__asm__ volatile("msr daifset, #2" : : : "memory");
 }
 
 /* -----------------------------------------------------------------------
@@ -184,12 +189,13 @@ void hv_arch_irq_disable(void) {
  * Called once per CPU during hypervisor bringup (after hv_arch_cpu_init).
  * ----------------------------------------------------------------------- */
 
-void hv_arch_gic_el2_setup(void) {
-  /* Enable the virtual CPU interface. */
-  write_sysreg(ICH_HCR_EN, ich_hcr_el2);
-  isb();
+void hv_arch_gic_el2_setup(void)
+{
+	/* Enable the virtual CPU interface. */
+	write_sysreg(ICH_HCR_EN, ich_hcr_el2);
+	isb();
 
-  /*
+	/*
    * ICH_VMCR_EL2 default for guests:
    *   VENG1 = 1  (Group 1 virtual interrupts enabled)
    *   VENG0 = 0  (Group 0 / secure FIQ disabled for normal guests)
@@ -199,9 +205,9 @@ void hv_arch_gic_el2_setup(void) {
    *   VIRQBYP = 0 (IRQ bypass disabled - routed through LRs)
    *   VPMR [31:24] = 0xFF (lowest priority mask: all interrupts pass)
    */
-  uint64_t vmcr = ICH_VMCR_VENG1 | (0xFFUL << ICH_VMCR_VPMR_SHIFT);
-  write_sysreg(vmcr, ich_vmcr_el2);
-  isb();
+	uint64_t vmcr = ICH_VMCR_VENG1 | (0xFFUL << ICH_VMCR_VPMR_SHIFT);
+	write_sysreg(vmcr, ich_vmcr_el2);
+	isb();
 }
 
 /* -----------------------------------------------------------------------
@@ -216,20 +222,21 @@ void hv_arch_gic_el2_setup(void) {
  * Returns HV_OK if the IRQ was enqueued, HV_ENOSPC if all 16 LRs are busy.
  * ----------------------------------------------------------------------- */
 
-hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority) {
-  unsigned int i;
+hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
+{
+	unsigned int i;
 
-  for (i = 0; i < 16U; i++) {
-    uint64_t lr = read_ich_lr(i);
+	for (i = 0; i < 16U; i++) {
+		uint64_t lr = read_ich_lr(i);
 
-    if ((lr & HV_LR_STATE_MASK) == HV_LR_STATE_INVALID) {
-      write_ich_lr(i, make_lr(virq, priority));
-      isb();
-      return HV_OK;
-    }
-  }
+		if ((lr & HV_LR_STATE_MASK) == HV_LR_STATE_INVALID) {
+			write_ich_lr(i, make_lr(virq, priority));
+			isb();
+			return HV_OK;
+		}
+	}
 
-  return HV_ENOSPC;
+	return HV_ENOSPC;
 }
 
 /* -----------------------------------------------------------------------
@@ -239,21 +246,22 @@ hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority) {
  * outstanding virtual interrupts before returning control.
  * ----------------------------------------------------------------------- */
 
-uint32_t hv_arch_pending_virtual_irqs(void) {
-  uint32_t count = 0;
-  unsigned int i;
+uint32_t hv_arch_pending_virtual_irqs(void)
+{
+	uint32_t count = 0;
+	unsigned int i;
 
-  for (i = 0; i < 16U; i++) {
-    uint64_t lr = read_ich_lr(i);
-    uint64_t state = (lr >> 62) & 0x3ULL;
+	for (i = 0; i < 16U; i++) {
+		uint64_t lr = read_ich_lr(i);
+		uint64_t state = (lr >> 62) & 0x3ULL;
 
-    /*
+		/*
      * state == 1 (Pending) or state == 3 (Active+Pending).
      * Both have bit 0 of the 2-bit state field set.
      */
-    if (state & 1ULL)
-      count++;
-  }
+		if (state & 1ULL)
+			count++;
+	}
 
-  return count;
+	return count;
 }

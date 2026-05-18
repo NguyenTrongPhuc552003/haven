@@ -29,13 +29,13 @@
  * Helpers
  * ----------------------------------------------------------------------- */
 
-#define FAIL_IF(cond, msg)                                                     \
-  do {                                                                         \
-    if (cond) {                                                                \
-      fprintf(stderr, "[FAIL] %s\n", (msg));                                   \
-      exit(1);                                                                 \
-    }                                                                          \
-  } while (0)
+#define FAIL_IF(cond, msg)                                     \
+	do {                                                   \
+		if (cond) {                                    \
+			fprintf(stderr, "[FAIL] %s\n", (msg)); \
+			exit(1);                               \
+		}                                              \
+	} while (0)
 
 #define PASS(msg) fprintf(stderr, "[PASS] %s\n", (msg))
 
@@ -66,63 +66,70 @@
  * hv_smmu_check_dma_access with HV_EPERM.
  * ----------------------------------------------------------------------- */
 
-static void scenario_s1_unassigned_streamid_denied(void) {
-  /*
+static void scenario_s1_unassigned_streamid_denied(void)
+{
+	/*
    * StreamID 63 is within the valid range (< HV_MAX_SMMU_DEVICES = 64)
    * but was never allocated.  hv_smmu_check_dma_access must return
    * HV_EPERM for any unallocated StreamID, enforcing deny-by-default.
    */
-  hv_u16 phantom_sid = 63;
-  hv_status_t rc;
+	hv_u16 phantom_sid = 63;
+	hv_status_t rc;
 
-  rc = hv_smmu_check_dma_access(phantom_sid, 0x80000000ULL, 0x1000U, HV_DMA_RW);
-  FAIL_IF(rc != HV_EPERM, "S1: unassigned StreamID should return HV_EPERM");
+	rc = hv_smmu_check_dma_access(phantom_sid, 0x80000000ULL, 0x1000U,
+				      HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM,
+		"S1: unassigned StreamID should return HV_EPERM");
 
-  PASS("S1: unassigned StreamID is denied");
+	PASS("S1: unassigned StreamID is denied");
 }
 
 /* -----------------------------------------------------------------------
  * S2 - DMA outside the assigned 4 MiB window is denied
  * ----------------------------------------------------------------------- */
 
-static void scenario_s2_dma_outside_window_denied(void) {
-  hv_u16 sid = 0;
-  hv_status_t rc;
+static void scenario_s2_dma_outside_window_denied(void)
+{
+	hv_u16 sid = 0;
+	hv_status_t rc;
 
-  /* Allocate and configure a 4 MiB DMA window for partition A. */
-  rc = hv_smmu_allocate_streamid(PART_A, &sid);
-  FAIL_IF(rc != HV_OK, "S2: allocate StreamID for partition A");
+	/* Allocate and configure a 4 MiB DMA window for partition A. */
+	rc = hv_smmu_allocate_streamid(PART_A, &sid);
+	FAIL_IF(rc != HV_OK, "S2: allocate StreamID for partition A");
 
-  rc = hv_smmu_configure_dma_window(sid, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
-                                    DMA_WINDOW_BASE, HV_DMA_RW);
-  FAIL_IF(rc != HV_OK, "S2: configure 4 MiB DMA window");
+	rc = hv_smmu_configure_dma_window(sid, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
+					  DMA_WINDOW_BASE, HV_DMA_RW);
+	FAIL_IF(rc != HV_OK, "S2: configure 4 MiB DMA window");
 
-  /* Access inside the window must be permitted. */
-  rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
-                                HV_DMA_RW);
-  FAIL_IF(rc != HV_OK, "S2: access inside window should be HV_OK");
+	/* Access inside the window must be permitted. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_RW);
+	FAIL_IF(rc != HV_OK, "S2: access inside window should be HV_OK");
 
-  /* Access exactly at the window end boundary must be denied. */
-  rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + DMA_WINDOW_SIZE, 0x1000U,
-                                HV_DMA_RW);
-  FAIL_IF(rc != HV_EPERM, "S2: access at window end should return HV_EPERM");
+	/* Access exactly at the window end boundary must be denied. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + DMA_WINDOW_SIZE,
+				      0x1000U, HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM,
+		"S2: access at window end should return HV_EPERM");
 
-  /* Access well outside the window must be denied. */
-  rc = hv_smmu_check_dma_access(
-      sid, DMA_WINDOW_BASE + DMA_WINDOW_SIZE + 0x10000U, 0x1000U, HV_DMA_RW);
-  FAIL_IF(rc != HV_EPERM, "S2: access beyond window should return HV_EPERM");
+	/* Access well outside the window must be denied. */
+	rc = hv_smmu_check_dma_access(
+		sid, DMA_WINDOW_BASE + DMA_WINDOW_SIZE + 0x10000U, 0x1000U,
+		HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM,
+		"S2: access beyond window should return HV_EPERM");
 
-  /* Access before the window base must be denied. */
-  rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE - 0x1000U, 0x1000U,
-                                HV_DMA_RW);
-  FAIL_IF(rc != HV_EPERM,
-          "S2: access before window base should return HV_EPERM");
+	/* Access before the window base must be denied. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE - 0x1000U, 0x1000U,
+				      HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM,
+		"S2: access before window base should return HV_EPERM");
 
-  /* Clean up. */
-  rc = hv_smmu_revoke_dma_access(sid);
-  FAIL_IF(rc != HV_OK, "S2: revoke DMA access");
+	/* Clean up. */
+	rc = hv_smmu_revoke_dma_access(sid);
+	FAIL_IF(rc != HV_OK, "S2: revoke DMA access");
 
-  PASS("S2: DMA outside assigned window is denied");
+	PASS("S2: DMA outside assigned window is denied");
 }
 
 /* -----------------------------------------------------------------------
@@ -133,40 +140,43 @@ static void scenario_s2_dma_outside_window_denied(void) {
  * return HV_EPERM (the stage-2 backing check prevents the overlap).
  * ----------------------------------------------------------------------- */
 
-static void scenario_s3_cross_partition_overlap_denied(void) {
-  hv_u16 sid_a = 0;
-  hv_u16 sid_b = 0;
-  hv_status_t rc;
+static void scenario_s3_cross_partition_overlap_denied(void)
+{
+	hv_u16 sid_a = 0;
+	hv_u16 sid_b = 0;
+	hv_status_t rc;
 
-  /* Establish a DMA window for partition A. */
-  rc = hv_smmu_allocate_streamid(PART_A, &sid_a);
-  FAIL_IF(rc != HV_OK, "S3: allocate StreamID for partition A");
+	/* Establish a DMA window for partition A. */
+	rc = hv_smmu_allocate_streamid(PART_A, &sid_a);
+	FAIL_IF(rc != HV_OK, "S3: allocate StreamID for partition A");
 
-  rc = hv_smmu_configure_dma_window(sid_a, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
-                                    DMA_WINDOW_BASE, HV_DMA_RW);
-  FAIL_IF(rc != HV_OK, "S3: configure DMA window for partition A");
+	rc = hv_smmu_configure_dma_window(sid_a, DMA_WINDOW_BASE,
+					  DMA_WINDOW_SIZE, DMA_WINDOW_BASE,
+					  HV_DMA_RW);
+	FAIL_IF(rc != HV_OK, "S3: configure DMA window for partition A");
 
-  /* Allocate a StreamID for partition B. */
-  rc = hv_smmu_allocate_streamid(PART_B, &sid_b);
-  FAIL_IF(rc != HV_OK, "S3: allocate StreamID for partition B");
+	/* Allocate a StreamID for partition B. */
+	rc = hv_smmu_allocate_streamid(PART_B, &sid_b);
+	FAIL_IF(rc != HV_OK, "S3: allocate StreamID for partition B");
 
-  /*
+	/*
    * Attempt to map partition B's StreamID to PA_A_BASE - partition A's
    * physical range.  The DMA window phys_base overlaps a region owned
    * by partition A; this must be rejected.
    */
-  rc = hv_smmu_configure_dma_window(sid_b, PA_B_BASE, /* IOVA in B's space */
-                                    DMA_WINDOW_SIZE,
-                                    DMA_WINDOW_BASE, /* PA in A's range */
-                                    HV_DMA_RW);
-  FAIL_IF(rc != HV_EPERM,
-          "S3: cross-partition PA overlap should return HV_EPERM");
+	rc = hv_smmu_configure_dma_window(sid_b,
+					  PA_B_BASE, /* IOVA in B's space */
+					  DMA_WINDOW_SIZE,
+					  DMA_WINDOW_BASE, /* PA in A's range */
+					  HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM,
+		"S3: cross-partition PA overlap should return HV_EPERM");
 
-  /* Clean up. */
-  rc = hv_smmu_revoke_dma_access(sid_a);
-  FAIL_IF(rc != HV_OK, "S3: revoke partition A DMA access");
+	/* Clean up. */
+	rc = hv_smmu_revoke_dma_access(sid_a);
+	FAIL_IF(rc != HV_OK, "S3: revoke partition A DMA access");
 
-  PASS("S3: cross-partition DMA window overlap is rejected");
+	PASS("S3: cross-partition DMA window overlap is rejected");
 }
 
 /* -----------------------------------------------------------------------
@@ -176,49 +186,55 @@ static void scenario_s3_cross_partition_overlap_denied(void) {
  * both StreamIDs are subsequently inaccessible.
  * ----------------------------------------------------------------------- */
 
-static void scenario_s4_reset_partition_revokes_all(void) {
-  hv_u16 sid1 = 0;
-  hv_u16 sid2 = 0;
-  hv_status_t rc;
+static void scenario_s4_reset_partition_revokes_all(void)
+{
+	hv_u16 sid1 = 0;
+	hv_u16 sid2 = 0;
+	hv_status_t rc;
 
-  /* Allocate first StreamID. */
-  rc = hv_smmu_allocate_streamid(PART_A, &sid1);
-  FAIL_IF(rc != HV_OK, "S4: allocate first StreamID for partition A");
+	/* Allocate first StreamID. */
+	rc = hv_smmu_allocate_streamid(PART_A, &sid1);
+	FAIL_IF(rc != HV_OK, "S4: allocate first StreamID for partition A");
 
-  rc = hv_smmu_configure_dma_window(sid1, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
-                                    DMA_WINDOW_BASE, HV_DMA_RO);
-  FAIL_IF(rc != HV_OK, "S4: configure first DMA window");
+	rc = hv_smmu_configure_dma_window(sid1, DMA_WINDOW_BASE,
+					  DMA_WINDOW_SIZE, DMA_WINDOW_BASE,
+					  HV_DMA_RO);
+	FAIL_IF(rc != HV_OK, "S4: configure first DMA window");
 
-  /* Allocate second StreamID in the remaining PA space. */
-  rc = hv_smmu_allocate_streamid(PART_A, &sid2);
-  FAIL_IF(rc != HV_OK, "S4: allocate second StreamID for partition A");
+	/* Allocate second StreamID in the remaining PA space. */
+	rc = hv_smmu_allocate_streamid(PART_A, &sid2);
+	FAIL_IF(rc != HV_OK, "S4: allocate second StreamID for partition A");
 
-  rc = hv_smmu_configure_dma_window(
-      sid2, DMA_WINDOW_BASE + DMA_WINDOW_SIZE, DMA_WINDOW_SIZE,
-      DMA_WINDOW_BASE + DMA_WINDOW_SIZE, HV_DMA_RO);
-  FAIL_IF(rc != HV_OK, "S4: configure second DMA window");
+	rc = hv_smmu_configure_dma_window(
+		sid2, DMA_WINDOW_BASE + DMA_WINDOW_SIZE, DMA_WINDOW_SIZE,
+		DMA_WINDOW_BASE + DMA_WINDOW_SIZE, HV_DMA_RO);
+	FAIL_IF(rc != HV_OK, "S4: configure second DMA window");
 
-  /* Verify both are accessible before reset. */
-  rc = hv_smmu_check_dma_access(sid1, DMA_WINDOW_BASE, 0x1000U, HV_DMA_RO);
-  FAIL_IF(rc != HV_OK, "S4: sid1 should be accessible before reset");
+	/* Verify both are accessible before reset. */
+	rc = hv_smmu_check_dma_access(sid1, DMA_WINDOW_BASE, 0x1000U,
+				      HV_DMA_RO);
+	FAIL_IF(rc != HV_OK, "S4: sid1 should be accessible before reset");
 
-  rc = hv_smmu_check_dma_access(sid2, DMA_WINDOW_BASE + DMA_WINDOW_SIZE,
-                                0x1000U, HV_DMA_RO);
-  FAIL_IF(rc != HV_OK, "S4: sid2 should be accessible before reset");
+	rc = hv_smmu_check_dma_access(sid2, DMA_WINDOW_BASE + DMA_WINDOW_SIZE,
+				      0x1000U, HV_DMA_RO);
+	FAIL_IF(rc != HV_OK, "S4: sid2 should be accessible before reset");
 
-  /* Reset partition A - must revoke all its StreamIDs. */
-  rc = hv_smmu_reset_partition(PART_A);
-  FAIL_IF(rc != HV_OK, "S4: hv_smmu_reset_partition should succeed");
+	/* Reset partition A - must revoke all its StreamIDs. */
+	rc = hv_smmu_reset_partition(PART_A);
+	FAIL_IF(rc != HV_OK, "S4: hv_smmu_reset_partition should succeed");
 
-  /* Both StreamIDs must now be inaccessible. */
-  rc = hv_smmu_check_dma_access(sid1, DMA_WINDOW_BASE, 0x1000U, HV_DMA_RO);
-  FAIL_IF(rc != HV_EPERM, "S4: sid1 should be denied after partition reset");
+	/* Both StreamIDs must now be inaccessible. */
+	rc = hv_smmu_check_dma_access(sid1, DMA_WINDOW_BASE, 0x1000U,
+				      HV_DMA_RO);
+	FAIL_IF(rc != HV_EPERM,
+		"S4: sid1 should be denied after partition reset");
 
-  rc = hv_smmu_check_dma_access(sid2, DMA_WINDOW_BASE + DMA_WINDOW_SIZE,
-                                0x1000U, HV_DMA_RO);
-  FAIL_IF(rc != HV_EPERM, "S4: sid2 should be denied after partition reset");
+	rc = hv_smmu_check_dma_access(sid2, DMA_WINDOW_BASE + DMA_WINDOW_SIZE,
+				      0x1000U, HV_DMA_RO);
+	FAIL_IF(rc != HV_EPERM,
+		"S4: sid2 should be denied after partition reset");
 
-  PASS("S4: hv_smmu_reset_partition revokes all StreamIDs");
+	PASS("S4: hv_smmu_reset_partition revokes all StreamIDs");
 }
 
 /* -----------------------------------------------------------------------
@@ -226,99 +242,103 @@ static void scenario_s4_reset_partition_revokes_all(void) {
  * partition after revocation.
  * ----------------------------------------------------------------------- */
 
-static void scenario_s5_revocation_and_reuse(void) {
-  hv_u16 sid = 0;
-  hv_status_t rc;
+static void scenario_s5_revocation_and_reuse(void)
+{
+	hv_u16 sid = 0;
+	hv_status_t rc;
 
-  /* Allocate and configure a window for partition A. */
-  rc = hv_smmu_allocate_streamid(PART_A, &sid);
-  FAIL_IF(rc != HV_OK, "S5: allocate StreamID for partition A");
+	/* Allocate and configure a window for partition A. */
+	rc = hv_smmu_allocate_streamid(PART_A, &sid);
+	FAIL_IF(rc != HV_OK, "S5: allocate StreamID for partition A");
 
-  rc = hv_smmu_configure_dma_window(sid, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
-                                    DMA_WINDOW_BASE, HV_DMA_WO);
-  FAIL_IF(rc != HV_OK, "S5: configure DMA window for partition A");
+	rc = hv_smmu_configure_dma_window(sid, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
+					  DMA_WINDOW_BASE, HV_DMA_WO);
+	FAIL_IF(rc != HV_OK, "S5: configure DMA window for partition A");
 
-  /* Revoke. */
-  rc = hv_smmu_revoke_dma_access(sid);
-  FAIL_IF(rc != HV_OK, "S5: revoke DMA access");
+	/* Revoke. */
+	rc = hv_smmu_revoke_dma_access(sid);
+	FAIL_IF(rc != HV_OK, "S5: revoke DMA access");
 
-  /* After revocation the StreamID must be inaccessible. */
-  rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE, 0x1000U, HV_DMA_WO);
-  FAIL_IF(rc != HV_EPERM, "S5: StreamID should be denied after revocation");
+	/* After revocation the StreamID must be inaccessible. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE, 0x1000U, HV_DMA_WO);
+	FAIL_IF(rc != HV_EPERM,
+		"S5: StreamID should be denied after revocation");
 
-  /* Re-allocate the freed slot to partition B. */
-  hv_u16 new_sid = 0;
-  rc = hv_smmu_allocate_streamid(PART_B, &new_sid);
-  FAIL_IF(rc != HV_OK, "S5: reallocation to partition B should succeed");
+	/* Re-allocate the freed slot to partition B. */
+	hv_u16 new_sid = 0;
+	rc = hv_smmu_allocate_streamid(PART_B, &new_sid);
+	FAIL_IF(rc != HV_OK, "S5: reallocation to partition B should succeed");
 
-  rc = hv_smmu_configure_dma_window(new_sid, PA_B_BASE, DMA_WINDOW_SIZE,
-                                    PA_B_BASE, HV_DMA_RW);
-  FAIL_IF(rc != HV_OK, "S5: configure reallocated StreamID for partition B");
+	rc = hv_smmu_configure_dma_window(new_sid, PA_B_BASE, DMA_WINDOW_SIZE,
+					  PA_B_BASE, HV_DMA_RW);
+	FAIL_IF(rc != HV_OK,
+		"S5: configure reallocated StreamID for partition B");
 
-  rc = hv_smmu_check_dma_access(new_sid, PA_B_BASE, 0x1000U, HV_DMA_RW);
-  FAIL_IF(rc != HV_OK,
-          "S5: reallocated StreamID should be accessible for partition B");
+	rc = hv_smmu_check_dma_access(new_sid, PA_B_BASE, 0x1000U, HV_DMA_RW);
+	FAIL_IF(rc != HV_OK,
+		"S5: reallocated StreamID should be accessible for partition B");
 
-  /* Clean up. */
-  rc = hv_smmu_revoke_dma_access(new_sid);
-  FAIL_IF(rc != HV_OK, "S5: final revocation");
+	/* Clean up. */
+	rc = hv_smmu_revoke_dma_access(new_sid);
+	FAIL_IF(rc != HV_OK, "S5: final revocation");
 
-  PASS("S5: revocation and reuse to different partition succeeds");
+	PASS("S5: revocation and reuse to different partition succeeds");
 }
 
 /* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 
-int main(void) {
-  hv_status_t rc;
+int main(void)
+{
+	hv_status_t rc;
 
-  /* Bootstrap required subsystems. */
-  rc = hv_stage2_init();
-  FAIL_IF(rc != HV_OK, "stage2 init");
+	/* Bootstrap required subsystems. */
+	rc = hv_stage2_init();
+	FAIL_IF(rc != HV_OK, "stage2 init");
 
-  rc = hv_smmu_init();
-  FAIL_IF(rc != HV_OK, "smmu init");
+	rc = hv_smmu_init();
+	FAIL_IF(rc != HV_OK, "smmu init");
 
-  /* Map partition memory regions so the SMMU policy layer can verify
+	/* Map partition memory regions so the SMMU policy layer can verify
    * phys_base ownership against stage-2 tables. */
-  struct hv_mem_region region_a = {
-      .ipa_base = PA_A_BASE,
-      .pa_base = PA_A_BASE,
-      .size = PA_A_SIZE,
-      .attrs = 0,
-  };
-  struct hv_partition_mem part_a_cfg = {
-      .partition_id = PART_A,
-      .regions = &region_a,
-      .region_count = 1,
-  };
+	struct hv_mem_region region_a = {
+		.ipa_base = PA_A_BASE,
+		.pa_base = PA_A_BASE,
+		.size = PA_A_SIZE,
+		.attrs = 0,
+	};
+	struct hv_partition_mem part_a_cfg = {
+		.partition_id = PART_A,
+		.regions = &region_a,
+		.region_count = 1,
+	};
 
-  struct hv_mem_region region_b = {
-      .ipa_base = PA_B_BASE,
-      .pa_base = PA_B_BASE,
-      .size = PA_B_SIZE,
-      .attrs = 0,
-  };
-  struct hv_partition_mem part_b_cfg = {
-      .partition_id = PART_B,
-      .regions = &region_b,
-      .region_count = 1,
-  };
+	struct hv_mem_region region_b = {
+		.ipa_base = PA_B_BASE,
+		.pa_base = PA_B_BASE,
+		.size = PA_B_SIZE,
+		.attrs = 0,
+	};
+	struct hv_partition_mem part_b_cfg = {
+		.partition_id = PART_B,
+		.regions = &region_b,
+		.region_count = 1,
+	};
 
-  rc = hv_stage2_map_partition(&part_a_cfg);
-  FAIL_IF(rc != HV_OK, "stage2 map partition A");
+	rc = hv_stage2_map_partition(&part_a_cfg);
+	FAIL_IF(rc != HV_OK, "stage2 map partition A");
 
-  rc = hv_stage2_map_partition(&part_b_cfg);
-  FAIL_IF(rc != HV_OK, "stage2 map partition B");
+	rc = hv_stage2_map_partition(&part_b_cfg);
+	FAIL_IF(rc != HV_OK, "stage2 map partition B");
 
-  /* Run scenarios. */
-  scenario_s1_unassigned_streamid_denied();
-  scenario_s2_dma_outside_window_denied();
-  scenario_s3_cross_partition_overlap_denied();
-  scenario_s4_reset_partition_revokes_all();
-  scenario_s5_revocation_and_reuse();
+	/* Run scenarios. */
+	scenario_s1_unassigned_streamid_denied();
+	scenario_s2_dma_outside_window_denied();
+	scenario_s3_cross_partition_overlap_denied();
+	scenario_s4_reset_partition_revokes_all();
+	scenario_s5_revocation_and_reuse();
 
-  fprintf(stderr, "[test_smmu_hardware] all scenarios passed\n");
-  return 0;
+	fprintf(stderr, "[test_smmu_hardware] all scenarios passed\n");
+	return 0;
 }
