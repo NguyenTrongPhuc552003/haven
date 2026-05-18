@@ -114,6 +114,7 @@ secondary_entry:
         add     x1, x1, x0, lsl #3   /* &secondary_entry_addrs[cpu_id] */
 _secondary_spin:
         ldr     x2, [x1]
+        /* cmn x2,#1 sets Z when x2 == -1 (all bits set sentinel). */
         cmn     x2, #1
         b.eq    _secondary_spin
         dsb     sy

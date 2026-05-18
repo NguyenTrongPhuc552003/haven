@@ -19,7 +19,7 @@
 #include <linux/types.h>
 #include "../guest-tools/haven_ioctl.h"
 
-/* Hypercall function IDs */
+/* Hypercall function IDs (match drivers/linux/README.md ABI table). */
 #define HVC_HAVEN_VERSION  0UL
 #define HVC_HAVEN_PART_ID  5UL
 #define HVC_HAVEN_TEST     6UL

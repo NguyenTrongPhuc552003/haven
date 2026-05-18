@@ -25,6 +25,7 @@ if ! command -v qemu-system-aarch64 >/dev/null 2>&1; then
 }
 EOF
   echo "[qemu] artifact written to ${ARTIFACT}"
+  echo "[qemu] exiting with code 2 (QEMU unavailable)"
   exit 2
 fi
 
