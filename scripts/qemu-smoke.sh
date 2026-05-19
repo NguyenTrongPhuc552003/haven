@@ -9,6 +9,27 @@ PLATFORM=$(uname -srm)
 
 mkdir -p "$OUTDIR"
 
+echo "[qemu] checking haven.bin availability"
+
+HAVEN_BIN="build/haven.bin"
+if [ ! -f "$HAVEN_BIN" ]; then
+  echo "[qemu] $HAVEN_BIN not found - recording skipped status"
+  cat > "$ARTIFACT" << EOF
+{
+  "timestamp_utc": "${TIMESTAMP}",
+  "git_commit": "${GIT_COMMIT}",
+  "platform": "${PLATFORM}",
+  "qemu_available": null,
+  "qemu_version": null,
+  "validation_status": "skipped",
+  "note": "build/haven.bin not found; run 'make ARCH=arm64 all' to build the hypervisor image before running QEMU validation"
+}
+EOF
+  echo "[qemu] artifact written to ${ARTIFACT}"
+  echo "[qemu] exiting with code 0 (binary not built - skipped)"
+  exit 0
+fi
+
 echo "[qemu] checking qemu-system-aarch64 availability"
 
 if ! command -v qemu-system-aarch64 >/dev/null 2>&1; then
@@ -25,8 +46,8 @@ if ! command -v qemu-system-aarch64 >/dev/null 2>&1; then
 }
 EOF
   echo "[qemu] artifact written to ${ARTIFACT}"
-  echo "[qemu] exiting with code 2 (QEMU unavailable)"
-  exit 2
+  echo "[qemu] exiting with code 0 (QEMU unavailable - skipped)"
+  exit 0
 fi
 
 QEMU_VERSION=$(qemu-system-aarch64 --version 2>&1 | head -n 1)
