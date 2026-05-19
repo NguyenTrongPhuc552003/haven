@@ -55,6 +55,15 @@ static const struct hv_mem_region part_a_regions[] = {
 		.size = PART_A_SIZE,
 		.attrs = 0, /* normal cacheable, full access */
 	},
+	/* PL011 UART0 MMIO - identity-mapped so the guest stub can print.
+	 * The device is owned by partition A; partition B has no UART mapping,
+	 * so a B→UART access would fault at stage-2. */
+	{
+		.ipa_base = QEMU_UART_BASE,
+		.pa_base = QEMU_UART_BASE,
+		.size = 0x1000UL, /* 4 KB MMIO page */
+		.attrs = 1, /* device memory (nGnRE) */
+	},
 };
 
 static const struct hv_mem_region part_b_regions[] = {
@@ -69,7 +78,7 @@ static const struct hv_mem_region part_b_regions[] = {
 static const struct hv_partition_mem part_a_mem_cfg = {
 	.partition_id = PARTITION_A_ID,
 	.regions = part_a_regions,
-	.region_count = 1U,
+	.region_count = 2U, /* DRAM + UART MMIO */
 };
 
 static const struct hv_partition_mem part_b_mem_cfg = {
@@ -165,9 +174,10 @@ void partitions_launch(void)
 	if (st != HV_OK) {
 		hv_panic("partition A stage-2 mapping failed");
 	}
-	hv_printk("HAVEN: partition A mapped PA=0x%lx IPA=0x%lx size=%uMB\n",
-		  (unsigned long)PART_A_PA_BASE, (unsigned long)PART_A_IPA_BASE,
-		  (unsigned)(PART_A_SIZE >> 20));
+	hv_printk(
+		"HAVEN: partition A mapped PA=0x%lx IPA=0x%lx size=%uMB + UART MMIO\n",
+		(unsigned long)PART_A_PA_BASE, (unsigned long)PART_A_IPA_BASE,
+		(unsigned)(PART_A_SIZE >> 20));
 
 	st = hv_stage2_map_partition(&part_b_mem_cfg);
 	if (st != HV_OK) {
