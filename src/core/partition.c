@@ -55,6 +55,15 @@ static const struct hv_mem_region part_a_regions[] = {
 		.size = PART_A_SIZE,
 		.attrs = 0, /* normal cacheable, full access */
 	},
+	/* PL011 UART0 MMIO - identity-mapped so the guest stub can print.
+	 * The device is owned by partition A; partition B has no UART mapping,
+	 * so a B→UART access would fault at stage-2. */
+	{
+		.ipa_base = QEMU_UART_BASE,
+		.pa_base = QEMU_UART_BASE,
+		.size = 0x1000UL, /* 4 KB MMIO page */
+		.attrs = 1, /* device memory (nGnRE) */
+	},
 };
 
 static const struct hv_mem_region part_b_regions[] = {
@@ -69,7 +78,7 @@ static const struct hv_mem_region part_b_regions[] = {
 static const struct hv_partition_mem part_a_mem_cfg = {
 	.partition_id = PARTITION_A_ID,
 	.regions = part_a_regions,
-	.region_count = 1U,
+	.region_count = 2U, /* DRAM + UART MMIO */
 };
 
 static const struct hv_partition_mem part_b_mem_cfg = {
@@ -82,9 +91,12 @@ static const struct hv_partition_mem part_b_mem_cfg = {
  * IRQ routing
  *
  * GIC SPI numbers (QEMU virt, aarch64):
- *   IRQ 27 - arch timer (CNTP / PPI, but routed as SPI for simplicity here)
- *   IRQ 33 - PL011 UART0
- *   IRQ 26 - virtual RTOS timer
+ *   IRQ 33 - PL011 UART0  (SPI, routable to Partition A)
+ *   IRQ 26 - virtual RTOS timer (SPI, routable to Partition B, CPU 2)
+ *
+ * IRQ 27 (arch timer PPI) is NOT listed: PPIs (16-31) are per-CPU and
+ * cannot be routed via GICD_IROUTER; they fire on whichever CPU the
+ * partition runs and need no explicit ownership entry.
  *
  * Interrupt ownership is exclusive: once assigned to a partition no
  * other partition can claim the same IRQ (hv_irq_assign contract).
@@ -92,12 +104,11 @@ static const struct hv_partition_mem part_b_mem_cfg = {
 
 static const struct hv_irq_route part_a_irqs[] = {
 	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
-	{.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
 };
 
-static const struct hv_irq_route part_b_irqs[] = {
-	{.irq_id = 26U, .owner_partition_id = PARTITION_B_ID, .target_cpu = 2U},
-};
+/* Partition B: no SPI IRQ assignments for the QEMU demo.
+ * The RTOS partition uses its per-CPU virtual timer PPI (IRQ 27)
+ * which fires automatically on CPU 2 without explicit GIC routing. */
 
 /* -----------------------------------------------------------------------
  * CPU time budgets  (10 ms period, static allocation)
@@ -153,6 +164,9 @@ void partitions_launch(void)
 {
 	hv_u32 i;
 	hv_status_t st;
+	extern void hv_printk(const char *fmt, ...);
+
+	hv_printk("HAVEN: launching 2-partition configuration\n");
 
 	/* ----- Stage-2 memory mapping ------------------------------------- */
 
@@ -160,12 +174,19 @@ void partitions_launch(void)
 	if (st != HV_OK) {
 		hv_panic("partition A stage-2 mapping failed");
 	}
+	hv_printk(
+		"HAVEN: partition A mapped PA=0x%lx IPA=0x%lx size=%uMB + UART MMIO\n",
+		(unsigned long)PART_A_PA_BASE, (unsigned long)PART_A_IPA_BASE,
+		(unsigned)(PART_A_SIZE >> 20));
 
 	st = hv_stage2_map_partition(&part_b_mem_cfg);
 	if (st != HV_OK) {
 		hv_stage2_unmap_partition(PARTITION_A_ID);
 		hv_panic("partition B stage-2 mapping failed");
 	}
+	hv_printk("HAVEN: partition B mapped PA=0x%lx IPA=0x%lx size=%uMB\n",
+		  (unsigned long)PART_B_PA_BASE, (unsigned long)PART_B_IPA_BASE,
+		  (unsigned)(PART_B_SIZE >> 20));
 
 	/* ----- IRQ ownership ---------------------------------------------- */
 
@@ -175,13 +196,9 @@ void partitions_launch(void)
 			hv_panic("partition A IRQ assignment failed");
 		}
 	}
+	hv_printk("HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)\n");
 
-	for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
-		st = hv_irq_assign(&part_b_irqs[i]);
-		if (st != HV_OK) {
-			hv_panic("partition B IRQ assignment failed");
-		}
-	}
+	/* Partition B has no SPI IRQs to assign in the QEMU demo. */
 
 	/* ----- Scheduler budgets ------------------------------------------ */
 
@@ -193,21 +210,19 @@ void partitions_launch(void)
 	if (st != HV_OK) {
 		hv_panic("partition B budget setup failed");
 	}
+	hv_printk("HAVEN: budgets set  A=%ums/%ums  B=%ums/%ums\n",
+		  (unsigned)(part_a_budget.budget_ns / 1000000U),
+		  (unsigned)(part_a_budget.period_ns / 1000000U),
+		  (unsigned)(part_b_budget.budget_ns / 1000000U),
+		  (unsigned)(part_b_budget.period_ns / 1000000U));
 
 #ifdef HAVEN_ARCH_ARM64
-	/*
-   * Launch partition A on the current (primary) CPU.
-   *
-   * entry : first instruction in partition A's PA range
-   *         (Phase 3: bare-metal stub; Phase 4: Linux Image)
-   * sp    : top of partition A's memory, 4 KiB below the ceiling,
-   *         gives the EL1 initial stack pointer
-   * arg   : 0 for now; Phase 4 will pass the DTB physical address
-   *
-   * hv_arch_start_partition performs ERET to EL1h and never returns.
-   */
+	hv_printk("HAVEN: enabling stage-2 for partition A (VMID=%u)\n",
+		  PARTITION_A_ID);
 	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
 
+	hv_printk("HAVEN: ERET -> partition A entry IPA=0x%lx\n",
+		  (unsigned long)PART_A_IPA_BASE);
 	hv_arch_start_partition(
 		(uintptr_t)PART_A_IPA_BASE,
 		(uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL), 0UL);

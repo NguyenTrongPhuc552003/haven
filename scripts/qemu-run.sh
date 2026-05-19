@@ -5,7 +5,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HAVEN_BIN="${ROOT}/build/haven.bin"
+GUEST_A_BIN="${ROOT}/build/guest_a.bin"
 HV_LOAD_ADDR="${HV_LOAD_ADDR:-0x80000000}"
+GUEST_A_LOAD_ADDR="${GUEST_A_LOAD_ADDR:-0x80800000}"
 
 # Check build exists
 if [ ! -f "$HAVEN_BIN" ]; then
@@ -22,18 +24,32 @@ if ! command -v qemu-system-aarch64 &>/dev/null; then
 fi
 
 echo "[qemu-run] Launching Haven on QEMU virt (arm64, GICv3, SMMUv3)"
-echo "[qemu-run] Binary: $HAVEN_BIN"
+echo "[qemu-run] Hypervisor: $HAVEN_BIN @ $HV_LOAD_ADDR"
+if [ -f "$GUEST_A_BIN" ]; then
+    echo "[qemu-run] Guest A:    $GUEST_A_BIN @ $GUEST_A_LOAD_ADDR"
+else
+    echo "[qemu-run] Guest A:    not found (run: make ARCH=arm64 all)"
+fi
 echo "[qemu-run] Press Ctrl-A X to quit QEMU"
 echo ""
 
+# Build the optional guest A loader argument.
+# Haven maps PA 0x80800000 → IPA 0x40000000 (PART_A_PA_BASE); the EL1 stub
+# executes from IPA 0x40000000 after ERET.
+GUEST_LOADER=""
+if [ -f "$GUEST_A_BIN" ]; then
+    GUEST_LOADER="-device loader,file=${GUEST_A_BIN},addr=${GUEST_A_LOAD_ADDR},force-raw=on"
+fi
+
+# Load Haven at HV_LOAD_ADDR. cpu-num=0 sets CPU0's initial PC so execution
+# begins at _start (EL2).  Secondary CPUs (1-3) are parked in the boot stub
+# until Haven starts them via PSCI or direct ERET.
 qemu-system-aarch64 \
     -machine virt,virtualization=on,gic-version=3,iommu=smmuv3 \
     -cpu cortex-a72 \
     -smp 4 \
     -m 2G \
     -nographic \
-    -bios none \
-    -device loader,file="$HAVEN_BIN",addr="$HV_LOAD_ADDR",cpu-num=0 \
-    # Seed reset vector so CPU0 starts at HV_LOAD_ADDR after reset.
-    -device loader,addr=0x0,data="$HV_LOAD_ADDR",data-len=8,cpu-num=0 \
+    -device loader,file="$HAVEN_BIN",addr="$HV_LOAD_ADDR",force-raw=on,cpu-num=0 \
+    ${GUEST_LOADER} \
     "${@}"

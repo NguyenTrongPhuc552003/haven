@@ -145,14 +145,23 @@ GUEST_OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(GUEST_SRCS))
 
 ALL_OBJS = $(ARCH_OBJS) $(DRIVER_OBJS) $(CORE_OBJS) $(COMMON_OBJS) $(PLATFORM_OBJS) $(GUEST_OBJS)
 
-all: $(BUILD_DIR)/haven.elf $(BUILD_DIR)/haven.bin
-	@echo "[arm64] Build complete: $(BUILD_DIR)/haven.bin"
+all: $(BUILD_DIR)/haven.elf $(BUILD_DIR)/haven.bin $(BUILD_DIR)/guest_a.bin
+	@echo "[arm64] Build complete: $(BUILD_DIR)/haven.bin + $(BUILD_DIR)/guest_a.bin"
 
 $(BUILD_DIR)/haven.elf: $(ALL_OBJS) linker.ld
 	$(LD) -T linker.ld -o $@ $(ALL_OBJS)
 	$(CROSS_COMPILE)size $@
 
 $(BUILD_DIR)/haven.bin: $(BUILD_DIR)/haven.elf
+	$(OBJCOPY) -O binary $< $@
+
+# Guest A stub: bare-metal EL1 binary loaded at PA 0x80800000 by qemu-run.sh
+$(BUILD_DIR)/guest_a.elf: tests/demos/guest_a_entry.S linker-guest.ld
+	@mkdir -p $(BUILD_DIR)
+	$(AS) $(ASFLAGS) -c tests/demos/guest_a_entry.S -o $(OBJ_DIR)/guest_a_entry.o
+	$(LD) -T linker-guest.ld -o $@ $(OBJ_DIR)/guest_a_entry.o
+
+$(BUILD_DIR)/guest_a.bin: $(BUILD_DIR)/guest_a.elf
 	$(OBJCOPY) -O binary $< $@
 
 # Compile C sources

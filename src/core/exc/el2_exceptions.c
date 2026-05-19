@@ -13,6 +13,31 @@
 /* External: ARM64 arch layer - weak so host unit-test builds link cleanly. */
 extern void hv_install_vectors(void) __attribute__((weak));
 
+/* External: printk for stage-2 fault reporting */
+extern void hv_printk(const char *fmt, ...) __attribute__((weak));
+
+/* -----------------------------------------------------------------------
+ * ESR_EL2 Exception Class (EC) field: bits [31:26]
+ * Only the lower-EL classes that indicate a stage-2 fault are handled.
+ * ----------------------------------------------------------------------- */
+#define ESR_EC_SHIFT 26U
+#define ESR_EC_MASK 0x3FU
+#define ESR_EC_IABT_LOW 0x20U /* Instruction Abort from lower EL */
+#define ESR_EC_DABT_LOW 0x24U /* Data Abort from lower EL          */
+#define ESR_FSC_MASK 0x3FU /* Fault Status Code: bits [5:0] */
+
+/* DFSC / IFSC field: bits [5:0] — fault status code.
+ * Stage-2 (and stage-1) faults share the same FSC encoding:
+ *   0x04–0x07 = Translation fault, level 0–3
+ *   0x08–0x0B = Access flag fault, level 0–3
+ *   0x0C–0x0F = Permission fault, level 0–3
+ * S1PTW (ESR_EL2 bit [7] for DABT) = 0 for direct guest access (stage-2),
+ *                                   = 1 for stage-1 page table walk fault.
+ * We catch the whole range and skip the instruction for any stage-2 path. */
+#define ESR_FSC_S2_FIRST 0x04U /* first fault code (translation level 0) */
+#define ESR_FSC_S2_LAST 0x0FU /* last  fault code (permission level 3)  */
+#define ESR_ISS_S1PTW (1U << 7) /* stage-1 page table walk flag */
+
 /**
  * Maximum interrupt routing entries.
  */
@@ -228,6 +253,44 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 	current_exc_context.far = far;
 	current_exc_context.sp = sp;
 	exception_counts[HV_EXC_SYNC]++;
+
+#ifdef HAVEN_ARCH_ARM64
+	{
+		hv_u32 ec = (hv_u32)((esr >> ESR_EC_SHIFT) & ESR_EC_MASK);
+		hv_u32 fsc = (hv_u32)(esr & ESR_FSC_MASK);
+
+		/* Stage-2 fault from a lower EL guest: log the violation and skip.
+		 * S1PTW=0 means this is a direct access (not a stage-1 PTW fault).
+		 * HPFAR_EL2 holds the faulting IPA (bits[47:4] → IPA[51:8]).
+		 * We advance the saved ELR in the stack frame by 4 so that
+		 * restore_minimal + ERET skips the faulting instruction. */
+		if ((ec == ESR_EC_IABT_LOW || ec == ESR_EC_DABT_LOW) &&
+		    !(esr & (hv_u64)ESR_ISS_S1PTW) && fsc >= ESR_FSC_S2_FIRST &&
+		    fsc <= ESR_FSC_S2_LAST) {
+			hv_u64 hpfar;
+			hv_u64 ipa;
+
+			__asm__ volatile("mrs %0, hpfar_el2" : "=r"(hpfar));
+			/* HPFAR_EL2 bits[47:4] hold IPA[51:8]; shift left 8 */
+			ipa = (hpfar & ~0xFULL) << 8;
+
+			if (hv_printk)
+				hv_printk("HAVEN: Denied stage-2 violation "
+					  "IPA=0x%lx FAR=0x%lx ESR=0x%lx\n",
+					  (unsigned long)ipa,
+					  (unsigned long)far,
+					  (unsigned long)esr);
+
+			/* Update saved ELR at frame+168 (see save_minimal layout) */
+			{
+				volatile hv_u64 *saved_elr =
+					(volatile hv_u64 *)(sp + 168U);
+				*saved_elr += 4ULL;
+			}
+			return;
+		}
+	}
+#endif
 
 	if (global_handlers[HV_EXC_SYNC])
 		global_handlers[HV_EXC_SYNC](&current_exc_context);

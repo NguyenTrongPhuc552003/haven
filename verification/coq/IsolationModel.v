@@ -175,15 +175,20 @@ Proof.
   destruct H; [right | left]; exact H.
 Qed.
 
-(** A region with size 0 is disjoint from every region. *)
-Lemma zero_size_disjoint :
-  forall r1 r2 : MemRegion,
+(** A zero-sized region shares no address with any other region.
+    Note: [regions_disjoint] (a range-ordering predicate) is NOT provable for
+    a zero-sized region without knowing the relative bases; the correct
+    auxiliary lemma is the point-containment version below. *)
+Lemma zero_size_no_overlap :
+  forall (r1 r2 : MemRegion) (pa : PhysAddr),
     r1.(pa_size) = 0 ->
-    regions_disjoint r1 r2.
+    ~(pa_in_region pa r1 /\ pa_in_region pa r2).
 Proof.
-  intros r1 r2 Hsz.
-  unfold regions_disjoint.
-  left. rewrite Hsz. simpl. lia.
+  intros r1 r2 pa Hsz [H1 _].
+  unfold pa_in_region in H1.
+  destruct H1 as [Hge Hlt].
+  rewrite Hsz in Hlt.
+  lia.
 Qed.
 
 (** No address can be inside a zero-sized region. *)
@@ -195,7 +200,7 @@ Proof.
   intros pa r Hsz.
   unfold pa_in_region.
   intro H.
-  destruct H as [_ Hlt].
+  destruct H as [Hge Hlt].
   rewrite Hsz in Hlt.
   lia.
 Qed.

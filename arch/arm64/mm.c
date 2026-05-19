@@ -135,9 +135,22 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
 		}
 		hv_pt_page_t *l3 = (hv_pt_page_t *)(s2_desc_pa((*l2)[l2_idx]));
 
+		/* Translate attrs to hardware S2AP+MemAttr descriptor bits.
+		 * attrs==1: device MMIO (nGnRE, non-executable, non-cacheable).
+		 * attrs==0: normal WB cacheable DRAM (RW, inner-shareable). */
+		uint64_t hw_attrs;
+		if (flags == 1U) {
+			hw_attrs = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE |
+					      S2_SH_NS | S2AP_RW) |
+				   S2_XN_ALL;
+		} else {
+			hw_attrs = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS |
+					      S2AP_RW);
+		}
+
 		/* L3: write the page descriptor */
 		(*l3)[l3_idx] = (cur_pa & HV_PAGE_MASK) | S2_DESC_PAGE |
-				(uint64_t)flags | S2_AF;
+				hw_attrs | S2_AF;
 
 		cur_ipa += HV_PAGE_SIZE;
 		cur_pa += HV_PAGE_SIZE;

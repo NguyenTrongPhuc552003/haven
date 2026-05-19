@@ -13,17 +13,22 @@
 #define QEMU_DRAM_BASE 0x40000000UL
 #define QEMU_DRAM_SIZE 0x80000000UL /* 2 GiB */
 
-/* Haven hypervisor default load address (matches linker HV_LOAD_ADDR). */
+/* Haven hypervisor default load address (matches linker HV_LOAD_ADDR).
+ * Haven BSS holds the stage-2 page table pool (~5 MB); reserve 8 MB total
+ * so partition A's PA base starts cleanly above the hypervisor image. */
 #define HAVEN_LOAD_PA 0x80000000UL
-#define HAVEN_SIZE 0x00400000UL /* 4 MB */
+#define HAVEN_SIZE 0x00800000UL /* 8 MB - covers text + BSS stage-2 pool */
 
-/* Partition A (Linux-class): 512 MB */
+/* Partition A (Linux-class): 512 MB
+ * PA: [0x80800000, 0xA0800000)  IPA: [0x40000000, 0x60000000) */
 #define PART_A_IPA_BASE 0x40000000UL
 #define PART_A_PA_BASE (HAVEN_LOAD_PA + HAVEN_SIZE)
 #define PART_A_SIZE 0x20000000UL
 
-/* Partition B (RTOS): 64 MB */
-#define PART_B_IPA_BASE 0x40000000UL
+/* Partition B (RTOS): 64 MB
+ * PA: [0xA0800000, 0xA4800000)  IPA: [0x60000000, 0x64000000)
+ * Distinct IPA base from A so cross-partition access faults are detectable. */
+#define PART_B_IPA_BASE 0x60000000UL
 #define PART_B_PA_BASE (PART_A_PA_BASE + PART_A_SIZE)
 #define PART_B_SIZE 0x04000000UL
 
