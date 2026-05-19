@@ -11,7 +11,43 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - i.MX95 physical board bring-up and EL2 boot validation (requires hardware).
 - SMMUv3 stream table population wired to real SMMUv3 MMIO.
 - Budget scheduler timer interrupt integration with GICv3 virtual timer.
-- QEMU two-partition demo with UART evidence capture.
+
+---
+
+## [0.5.0] - 2026-05-20
+
+### Added
+
+**QEMU Two-Partition Isolation Demo (R3 milestone)**
+- `tests/demos/guest_a_entry.S` — minimal bare-metal EL1 stub for Partition A; prints greeting via PL011 UART, deliberately reads Partition B's IPA base (`0x60000000`), and confirms Haven resumes it after the fault.
+- `linker-guest.ld` — guest stub linker script; links binary at VMA `0x40000000` (Partition A IPA base).
+- `Makefile` — added `guest_a.elf` / `guest_a.bin` targets under the ARM64 build; binary loaded at PA `0x80800000` by QEMU.
+
+**Stage-2 Fault Enforcement**
+- `src/core/exc/el2_exceptions.c` — EL2 sync handler now decodes ESR_EL2 (EC=0x24 DABT, FSC 0x04–0x0F) and HPFAR_EL2 to detect and log stage-2 violations; advances saved ELR_EL2 in the stack frame to skip the faulting instruction and resume the guest.
+- `arch/arm64/mm.c` — fixed stage-2 S2AP field: `attrs=0` → Normal WB inner-shareable RW; `attrs=1` → Device nGnRE non-executable RW. Previously all mappings had S2AP=0b00 (no access).
+
+**Memory Layout Fixes**
+- `src/platform/qemu-virt/memory.h` — corrected PA layout: `HAVEN_SIZE` increased to 8 MB to cover BSS stage-2 pool; `PART_B_IPA_BASE` set to `0x60000000` (distinct from Partition A) to make cross-partition violations detectable.
+- `src/core/partition.c` — added PL011 UART MMIO region (IPA/PA `0x09000000`, 4 KB, device attrs) to Partition A stage-2 mapping; guest stub can now print.
+
+**QEMU Smoke Test**
+- `scripts/qemu-smoke.sh` — rewrote serial capture to use `-chardev file` instead of `-nographic` (fixes macOS TTY routing); loads `guest_a.bin` via `-device loader`; passes when boot marker + guest greeting + stage-2 violation log + post-fault marker are all present in the UART output.
+- `scripts/qemu-run.sh` — updated to load `guest_a.bin` at PA `0x80800000` alongside `haven.bin`.
+
+### Fixed
+- Stage-2 S2AP=0b00 (no access) bug in `arch/arm64/mm.c` — all normal-memory mappings were inaccessible; fixed by translating `attrs` to correct `S2AP_RW | S2_MEMATTR_*` descriptor bits.
+- ELR_EL2 not advancing after stage-2 fault — C handler was writing to the ELR_EL2 register directly, but `restore_minimal` in `entry.S` overwrote it from the stack frame; fixed by writing to `sp+168` (saved ELR slot) instead.
+- macOS QEMU serial capture — `-nographic` routes PL011 to `/dev/tty` (terminal), not stdout when redirected; fixed by using `-chardev file,id=serial0,path=...` which writes directly to a file on all platforms.
+
+### Evidence
+QEMU UART capture (`build/smoke/uart.log`) shows:
+```
+PARTITION_A: Hello from partition A (EL1 guest)
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0x60000000 ESR=0x93c08006
+PARTITION_A: Post-fault check OK
+```
+Smoke test result: `validation_status=pass`, `elapsed_seconds=1`.
 
 ---
 
