@@ -107,13 +107,27 @@ demonstrate that unauthorized access paths are closed.
 | F7  | EL2 IRQ route hijack                  | HV_EPERM, route exclusive |
 | F8  | Compound multi-module fault sequence  | All denials, state intact |
 
-### 4.4 Evidence artifacts
+### 4.4 Hardware demo artifacts (R3 milestone)
+
+| Artifact                   | Path                                   | Purpose                                        |
+| -------------------------- | -------------------------------------- | ---------------------------------------------- |
+| Guest EL1 stub             | `tests/demos/guest_a_entry.S`          | Bare-metal Partition A; triggers cross-partition fault |
+| Guest linker script        | `linker-guest.ld`                      | Links guest at IPA 0x40000000                  |
+| QEMU smoke runner          | `scripts/qemu-smoke.sh`                | Validates boot + fault + resume end-to-end     |
+| QEMU run script            | `scripts/qemu-run.sh`                  | Interactive QEMU launch with guest_a.bin       |
+| Memory map                 | `src/platform/qemu-virt/memory.h`      | Corrected PA layout (8 MB Haven, distinct IPAs) |
+| Partition config           | `src/core/partition.c`                 | Stage-2 maps: 512 MB DRAM + UART MMIO for A    |
+| EL2 fault handler          | `src/core/exc/el2_exceptions.c`        | ESR/HPFAR decode, violation log, ELR skip      |
+| Stage-2 page table builder | `arch/arm64/mm.c`                      | S2AP fix: Normal WB RW / Device nGnRE RW       |
+
+### 4.5 Evidence artifacts
 
 - Unit and integration test run logs: `build/tests/`
 - Config lint output: produced by `scripts/check-configs.sh`
 - Evidence package: `scripts/package-evidence.sh`
+- **QEMU hardware demo**: `build/smoke/uart.log` — captured UART output from live QEMU run showing two-partition isolation in action.
 
-### 4.5 Measured results (QEMU baseline)
+### 4.6 Measured results (QEMU baseline)
 
 - `bench_isolation_latency` hot paths: `stage2_partition_contains_pa` and
   `smmu_check_dma_access` measure sub-microsecond on QEMU (100 000 iterations).
@@ -123,6 +137,7 @@ demonstrate that unauthorized access paths are closed.
   `bench_smmu_policy.c`; results written to `build/benchmarks/smmu-policy.json`.
 - Fault injection matrix: 8/8 scenarios PASS on every CI run.
 - Spatial isolation test suite: 100 % pass rate.
+- **End-to-end QEMU demo** (R3): guest EL1 stub boots under stage-2, triggers cross-partition violation at IPA 0x60000000, Haven logs `ESR=0x93c08006` (EC=0x24, FSC=0x06), advances ELR, guest prints "Post-fault check OK". Smoke test: `validation_status=pass`.
 
 ---
 
@@ -229,7 +244,9 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 
 | Tool / script                | Path                                      |
 | ---------------------------- | ----------------------------------------- |
-| Benchmark baseline collector | `scripts/benchmark-baseline.py` (planned) |
+| Latency analyzer             | `tools/analysis/latency_analyzer.py`      |
+| Jitter plotter               | `tools/analysis/jitter_plot.py`           |
+| Evidence report generator    | `tools/analysis/evidence_report.py`       |
 | Evidence packager            | `scripts/package-evidence.sh`             |
 | CI preflight                 | `scripts/ci-preflight.sh`                 |
 | QEMU smoke runner            | `scripts/qemu-smoke.sh`                   |
@@ -239,14 +256,15 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 
 ### 7.2 Test files providing evaluation evidence
 
-| File                                          | Evidence class         |
-| --------------------------------------------- | ---------------------- |
-| `tests/benchmarks/bench_isolation_latency.c`  | Latency / jitter       |
-| `tests/benchmarks/bench_temporal_isolation.c` | Deadline miss count    |
-| `tests/benchmarks/bench_stage2_fault.c`       | Stage-2 fault latency  |
-| `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput  |
-| `tests/integration/test_fault_injection.c`    | Fault containment      |
-| `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence |
+| File                                          | Evidence class                   |
+| --------------------------------------------- | -------------------------------- |
+| `tests/benchmarks/bench_isolation_latency.c`  | Latency / jitter                 |
+| `tests/benchmarks/bench_temporal_isolation.c` | Deadline miss count              |
+| `tests/benchmarks/bench_stage2_fault.c`       | Stage-2 fault latency            |
+| `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput            |
+| `tests/integration/test_fault_injection.c`    | Fault containment (F1–F8)        |
+| `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence           |
+| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU)  |
 
 ### 7.3 Benchmark output locations
 
@@ -258,6 +276,7 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 - Fault injection matrix: all 8 scenarios PASS.
 - Latency benchmark: median stage-2 fault containment < 10 µs on QEMU.
 - Deadline miss benchmark: 0 misses in 1 000-iteration run.
+- **QEMU two-partition demo** (R3): smoke test `validation_status=pass`; UART log shows greeting, violation denial, and post-fault resume — archived in `build/smoke/`.
 - Board-backed evidence: IMX95 validation runbook completed (R3/M5 gate).
   Template: `docs/methodology/IMX95_EVIDENCE_TEMPLATE.md`
 
