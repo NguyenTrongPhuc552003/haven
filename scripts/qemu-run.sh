@@ -26,14 +26,14 @@ echo "[qemu-run] Binary: $HAVEN_BIN"
 echo "[qemu-run] Press Ctrl-A X to quit QEMU"
 echo ""
 
+# Load Haven at HV_LOAD_ADDR. The loader device sets both the binary in
+# memory and CPU0's initial PC so execution begins at _start (EL2).
+# ARM64 has no reset vector at 0x0; cpu-num=0 in the loader is sufficient.
 qemu-system-aarch64 \
     -machine virt,virtualization=on,gic-version=3,iommu=smmuv3 \
     -cpu cortex-a72 \
     -smp 4 \
     -m 2G \
     -nographic \
-    -bios none \
-    -device loader,file="$HAVEN_BIN",addr="$HV_LOAD_ADDR",cpu-num=0 \
-    # Seed reset vector so CPU0 starts at HV_LOAD_ADDR after reset.
-    -device loader,addr=0x0,data="$HV_LOAD_ADDR",data-len=8,cpu-num=0 \
+    -device loader,file="$HAVEN_BIN",addr="$HV_LOAD_ADDR",force-raw=on,cpu-num=0 \
     "${@}"
