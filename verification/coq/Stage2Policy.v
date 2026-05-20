@@ -124,7 +124,7 @@ Proof.
       simpl in Hin.
       destruct Hin as [Hhd | Htl].
       * left; exact Hhd.
-      * right; apply IH with (r := r); assumption.
+      * right; apply IH with (id := id) (r := r); assumption.
 Qed.
 
 (** If [p] is in the updated list and has id equal to [id], either it is
@@ -161,22 +161,96 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
+(** ** §4b  Additional structural lemma about add_region_to_partition   *)
+(* ------------------------------------------------------------------ *)
+
+(** Key lemma: if a partition [p] in the updated list has [p.ps_id = id],
+    and region [r1] belongs to [p.ps_regions] but is NOT the newly added [r],
+    then there is an original partition [p_orig] in the source list that also
+    has [id] and contains [r1].
+
+    This is the central structural fact needed to connect old regions of the
+    updated partition back to the original state when applying [Hinv]. *)
+Lemma add_region_old_region_in_orig :
+  forall (ps_list : list PartitionState) (id : PartitionId)
+         (r r1 : MemRegion) (p : PartitionState),
+    In p (add_region_to_partition ps_list id r) ->
+    p.(ps_id) = id ->
+    In r1 p.(ps_regions) ->
+    r1 <> r ->
+    exists p_orig : PartitionState,
+      In p_orig ps_list /\
+      p_orig.(ps_id) = id /\
+      In r1 p_orig.(ps_regions).
+Proof.
+  induction ps_list as [| hd tl IH]; simpl;
+    intros id r r1 p Hin Hpid Hinr1 Hne.
+  - (* empty list: In p [] is absurd *)
+    contradiction.
+  - destruct (Nat.eqb_spec hd.(ps_id) id) as [Hheq | Hhne].
+    + (* hd was the updated partition: result is (updated_hd :: tl) *)
+      simpl in Hin.
+      destruct Hin as [Hhd | Htl].
+      * (* p is the updated head: p.ps_regions = r :: hd.ps_regions *)
+        subst p. simpl in Hinr1, Hpid.
+        destruct Hinr1 as [Heq | Hold].
+        -- (* r1 = r: contradicts r1 <> r *)
+           exfalso; apply Hne; exact Heq.
+        -- (* r1 is in hd.ps_regions: take p_orig = hd *)
+           exists hd. split.
+           ++ left; reflexivity.
+           ++ split; [exact Hheq | exact Hold].
+      * (* p is unchanged in tl: p itself is the witness *)
+        exists p. split.
+        -- right; exact Htl.
+        -- split; [exact Hpid | exact Hinr1].
+    + (* hd was not updated: result is hd :: (recurse on tl) *)
+      simpl in Hin.
+      destruct Hin as [Hhd | Htl].
+      * (* p = hd, but hd.ps_id <> id yet p.ps_id = id: contradiction *)
+        subst p. simpl in Hpid. exfalso; apply Hhne; exact Hpid.
+      * (* p is in the recursively updated tail *)
+        destruct (IH id r r1 p Htl Hpid Hinr1 Hne) as [p_orig [Ho1 [Ho2 Ho3]]].
+        exists p_orig. split.
+        -- right; exact Ho1.
+        -- split; assumption.
+Qed.
+
+(* ------------------------------------------------------------------ *)
 (** ** §5  Key preservation theorem                                     *)
 (* ------------------------------------------------------------------ *)
+
+(** Decidable equality on [MemRegion].  Required to case-split on whether
+    a candidate region [r1] equals the newly added region [r] or is older.
+    Both fields are [nat], so equality is decidable via [Nat.eq_dec]. *)
+Lemma mem_region_eq_dec : forall r1 r2 : MemRegion,
+  {r1 = r2} + {r1 <> r2}.
+Proof.
+  intros r1 r2.
+  destruct (Nat.eq_dec r1.(pa_base) r2.(pa_base)) as [Hb | Hb].
+  - destruct (Nat.eq_dec r1.(pa_size) r2.(pa_size)) as [Hs | Hs].
+    + left. destruct r1, r2; simpl in *; subst; reflexivity.
+    + right. intros Heq. apply Hs. rewrite Heq. reflexivity.
+  - right. intros Heq. apply Hb. rewrite Heq. reflexivity.
+Qed.
 
 (** Adding a region that passes [partition_map_ok] preserves the spatial
     isolation invariant.
 
-    Proof strategy:
-      Take any two distinct partitions p1, p2 in the new state.
-      Case-split on whether each was the updated partition.
-      - Neither was updated: both come from original state; invariant applies.
-      - One was updated (say p1): the new region must be checked against all
-        regions of p2 (which is in the original state and has a different id)
-        using [partition_map_ok].  Old regions of p1 are covered by the
-        original invariant.
-      - Both cannot be "updated" simultaneously because they have distinct ids
-        and only the partition with [id] is updated.
+    Proof strategy (four-case analysis on whether each of p1/p2 is the
+    updated partition, and whether the disputed region is new or old):
+
+    Case A  – p1.ps_id = id  (p1 was updated; p2 unchanged ⟹ p2 ∈ s).
+      A1: r1 = r  → [partition_map_ok] directly gives disjointness.
+      A2: r1 ≠ r  → [add_region_old_region_in_orig] yields p1_orig ∈ s
+                     with r1; apply Hinv on (p1_orig, p2).
+
+    Case B  – p1.ps_id ≠ id (p1 ∈ s unchanged).
+      B1: p2.ps_id = id (p2 was updated).
+        B1a: r2 = r  → [partition_map_ok] + [regions_disjoint_sym].
+        B1b: r2 ≠ r  → [add_region_old_region_in_orig] yields p2_orig ∈ s;
+                        apply Hinv on (p1, p2_orig).
+      B2: p2.ps_id ≠ id → both partitions in s; apply Hinv directly.
 *)
 Theorem stage2_map_preserves_isolation :
   forall (s : HvState) (id : PartitionId) (r : MemRegion),
@@ -189,42 +263,70 @@ Proof.
   simpl.
   intros p1 p2 Hin1 Hin2 Hne r1 r2 Hinr1 Hinr2.
 
-  (** Determine whether p1 is the updated partition or an unchanged one. *)
   destruct (Nat.eqb_spec p1.(ps_id) id) as [Hid1 | Hid1'].
 
-  - (** p1 has id [id] - it is the updated partition.
-        Its region list is [r :: old_regions]. *)
-    (** First we recover the original p1 record from the updated list. *)
-    assert (Hd1 : p2.(ps_id) <> id) by
+  (* ---------------------------------------------------------------- *)
+  (* Case A: p1 is the updated partition (p1.ps_id = id)             *)
+  (* ---------------------------------------------------------------- *)
+  - assert (Hd1 : p2.(ps_id) <> id) by
       (intros Heq; apply Hne; rewrite Hid1, Heq; reflexivity).
-    (** p2 is unchanged. *)
     assert (Hin2_orig : In p2 s.(hv_partitions)).
     { apply add_region_other_partition_unchanged
         with (id := id) (r := r); assumption. }
+    destruct (mem_region_eq_dec r1 r) as [Hr1_eq | Hr1_ne].
 
-    (** Case-split on r1: is it the newly added [r] or an old region? *)
-    simpl in Hinr1.
-    destruct Hinr1 as [Hr1_new | Hr1_old].
-    + (** r1 = r, the freshly added region.
-          Apply partition_map_ok: r is disjoint from all regions of p2. *)
+    + (* Case A1: r1 = r, the freshly added region *)
       subst r1.
       apply Hok with (p := p2); assumption.
-    + (** r1 is an old region of p1.
-          We need the original p1 partition state from s. *)
-      (** Locate the original p1 in s. *)
-      assert (Hin1_orig : exists p1_orig : PartitionState,
-        In p1_orig s.(hv_partitions) /\
-        p1_orig.(ps_id) = id /\
-        In r1 p1_orig.(ps_regions)).
-      { (** We know p1 came from add_region_to_partition and has id=id.
-            Work backward: r1 is in p1's old region tail. *)
-        (** For the purpose of this proof we admit this existence claim,
-            as formalising the exact correspondence between the updated
-            list and the original list requires a more detailed structural
-            induction that is deferred to the companion development. *)
-        Admitted.
-  (* The remaining cases follow the same pattern; they are admitted here
-     and will be discharged in the full Coq development. *)
+
+    + (* Case A2: r1 ≠ r, so r1 is an old region already in s *)
+      destruct (add_region_old_region_in_orig
+                  s.(hv_partitions) id r r1 p1 Hin1 Hid1 Hinr1 Hr1_ne)
+        as [p1_orig [Hinp1 [Hid1_orig Hinr1_orig]]].
+      apply Hinv with (p1 := p1_orig) (p2 := p2).
+      * exact Hinp1.
+      * exact Hin2_orig.
+      * rewrite Hid1_orig; exact Hd1.
+      * exact Hinr1_orig.
+      * exact Hinr2.
+
+  (* ---------------------------------------------------------------- *)
+  (* Case B: p1 is NOT the updated partition (p1 ∈ s unchanged)      *)
+  (* ---------------------------------------------------------------- *)
+  - assert (Hin1_orig : In p1 s.(hv_partitions)).
+    { apply add_region_other_partition_unchanged
+        with (id := id) (r := r); assumption. }
+    destruct (Nat.eqb_spec p2.(ps_id) id) as [Hid2 | Hid2'].
+
+    + (* Case B1: p2 is the updated partition *)
+      destruct (mem_region_eq_dec r2 r) as [Hr2_eq | Hr2_ne].
+
+      * (* Case B1a: r2 = r (new region) — symmetric to Case A1 *)
+        subst r2.
+        apply regions_disjoint_sym.
+        apply Hok with (p := p1).
+        -- exact Hin1_orig.
+        -- intros Heq; apply Hne; rewrite Heq, Hid2; reflexivity.
+        -- exact Hinr1.
+
+      * (* Case B1b: r2 ≠ r, so r2 is an old region already in s *)
+        destruct (add_region_old_region_in_orig
+                    s.(hv_partitions) id r r2 p2 Hin2 Hid2 Hinr2 Hr2_ne)
+          as [p2_orig [Hinp2 [Hid2_orig Hinr2_orig]]].
+        apply Hinv with (p1 := p1) (p2 := p2_orig).
+        -- exact Hin1_orig.
+        -- exact Hinp2.
+        -- rewrite Hid2_orig;
+           intros Heq; apply Hne; rewrite Heq, Hid2; reflexivity.
+        -- exact Hinr1.
+        -- exact Hinr2_orig.
+
+    + (* Case B2: neither p1 nor p2 is the updated partition *)
+      assert (Hin2_orig : In p2 s.(hv_partitions)).
+      { apply add_region_other_partition_unchanged
+          with (id := id) (r := r); assumption. }
+      apply Hinv with (p1 := p1) (p2 := p2); assumption.
+Qed.
 
 (* ------------------------------------------------------------------ *)
 (** ** §6  Decidable mapping-ok check                                   *)
