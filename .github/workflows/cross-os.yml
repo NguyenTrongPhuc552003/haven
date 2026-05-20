@@ -48,7 +48,7 @@ jobs:
             mingw-w64-ucrt-x86_64-qemu
 
       - name: Preflight
-        run: ./scripts/ci-preflight.sh
+        run: ./scripts/ci/ci-preflight.sh
 
       - name: QEMU smoke
-        run: ./scripts/qemu-smoke.sh
+        run: ./scripts/qemu/qemu-smoke.sh

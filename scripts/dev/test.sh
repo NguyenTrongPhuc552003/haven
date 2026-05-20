@@ -207,6 +207,6 @@ echo "[test] running SMMU DMA policy benchmark"
 ./build/tests/bench_smmu_policy
 
 echo "[test] validating configuration schema"
-./scripts/check-configs.sh
+./scripts/compile/check-configs.sh
 
 echo "[test] done"
