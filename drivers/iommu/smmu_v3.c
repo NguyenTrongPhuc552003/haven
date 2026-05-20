@@ -109,40 +109,115 @@ static void ste_write_s2(uint32_t sid, uint64_t vttbr, uint32_t vmid)
 }
 
 /* Invalidate STE in SMMU TLB after table write.
- * Issues CFGI_STE command via command queue. */
+ * Issues CFGI_STE + CMD_SYNC via command queue with wrap-around safety.
+ *
+ * The SMMU command queue is a circular ring of 16-byte entries.
+ * PROD and CONS are 32-bit registers where bit 31 is the wrap indicator
+ * and bits 30:0 are the index.  Queue is full when (PROD ^ CONS) has the
+ * wrap bit set and the index bits match.
+ *
+ * Haven uses a linear stream table configured at boot time.  Two commands
+ * are issued per STE update (CFGI_STE + CMD_SYNC); we poll for
+ * CMD_SYNC completion rather than assuming the queue has space.
+ */
+#define SMMU_CMDQ_WRAP_BIT (1u << 31)
+#define SMMU_CMDQ_IDX_MASK (0x7fffffffu)
+/* Maximum spin iterations before declaring a hardware fault (~10M cycles) */
+#define SMMU_CMDQ_POLL_LIMIT (10000000u)
+
+/* Returns 1 if the command queue has room for at least [needed] entries. */
+static int smmu_cmdq_has_space(uint32_t prod, uint32_t cons, uint32_t needed)
+{
+	uint32_t prod_idx = prod & SMMU_CMDQ_IDX_MASK;
+	uint32_t cons_idx = cons & SMMU_CMDQ_IDX_MASK;
+	uint32_t prod_wrap = prod & SMMU_CMDQ_WRAP_BIT;
+	uint32_t cons_wrap = cons & SMMU_CMDQ_WRAP_BIT;
+	uint32_t used;
+
+	if (prod_wrap == cons_wrap) {
+		/* Same generation: used = prod_idx - cons_idx */
+		used = prod_idx - cons_idx;
+	} else {
+		/* Different generation: used = SMMU_MAX_STREAMS - cons_idx + prod_idx */
+		used = SMMU_MAX_STREAMS - cons_idx + prod_idx;
+	}
+	return (SMMU_MAX_STREAMS - used) >= needed;
+}
+
+/* Advance producer index with wrap-around. */
+static uint32_t smmu_cmdq_advance(uint32_t prod)
+{
+	uint32_t idx = (prod & SMMU_CMDQ_IDX_MASK) + 1;
+	uint32_t wrap = prod & SMMU_CMDQ_WRAP_BIT;
+
+	if (idx >= SMMU_MAX_STREAMS) {
+		idx = 0;
+		wrap ^= SMMU_CMDQ_WRAP_BIT; /* flip wrap bit */
+	}
+	return wrap | idx;
+}
+
+/* Write one 16-byte command at [prod_idx] (ignoring wrap bit for addressing). */
+static void smmu_cmdq_write(uint32_t prod_idx, uint64_t dw0, uint64_t dw1)
+{
+	smmu_write64(smmu.base,
+		     SMMU_CMDQ_BASE + (prod_idx & SMMU_CMDQ_IDX_MASK) * 16,
+		     dw0);
+	smmu_write64(smmu.base,
+		     SMMU_CMDQ_BASE + (prod_idx & SMMU_CMDQ_IDX_MASK) * 16 + 8,
+		     dw1);
+}
+
 static void smmu_invalidate_ste(uint32_t sid)
 {
-	uint64_t cmd[2];
-	uint32_t prod, cons;
+	uint32_t prod, cons, spin;
 
-	/* CMD_CFGI_STE: opcode=0x03, SID, LEAF=1 */
-	cmd[0] = (0x03ULL) | ((uint64_t)sid << 32) | (1ULL << 12);
-	cmd[1] = 0;
-
-	/* Write command to queue (single-entry poll loop for simplicity) */
-	prod = smmu_read32(smmu.base, SMMU_CMDQ_PROD) & 0x7fffffff;
-	cons = smmu_read32(smmu.base, SMMU_CMDQ_CONS) & 0x7fffffff;
-	(void)cons;
-
-	/* Write the two dwords at prod slot (assumes queue is not full) */
-	smmu_write64(smmu.base, SMMU_CMDQ_BASE + prod * 16, cmd[0]);
-	smmu_write64(smmu.base, SMMU_CMDQ_BASE + prod * 16 + 8, cmd[1]);
-
-	/* Advance producer */
-	smmu_write32(smmu.base, SMMU_CMDQ_PROD, (prod + 1) & 0x7fffffff);
-
-	/* Issue CMD_SYNC to wait for completion */
-	cmd[0] = 0x46ULL; /* SYNC opcode */
-	cmd[1] = 0;
-	prod = smmu_read32(smmu.base, SMMU_CMDQ_PROD) & 0x7fffffff;
-	smmu_write64(smmu.base, SMMU_CMDQ_BASE + prod * 16, cmd[0]);
-	smmu_write64(smmu.base, SMMU_CMDQ_BASE + prod * 16 + 8, cmd[1]);
-	smmu_write32(smmu.base, SMMU_CMDQ_PROD, (prod + 1) & 0x7fffffff);
-
-	/* Wait for CONS to catch up */
+	/* Step 1: wait until queue has space for 2 commands (CFGI_STE + SYNC) */
+	spin = 0;
 	do {
-		cons = smmu_read32(smmu.base, SMMU_CMDQ_CONS) & 0x7fffffff;
-	} while (cons != (smmu_read32(smmu.base, SMMU_CMDQ_PROD) & 0x7fffffff));
+		prod = smmu_read32(smmu.base, SMMU_CMDQ_PROD);
+		cons = smmu_read32(smmu.base, SMMU_CMDQ_CONS);
+		if (smmu_cmdq_has_space(prod, cons, 2))
+			break;
+		/* Yield a DSB to prevent the compiler/CPU from collapsing the loop */
+		__asm__ volatile("dsb sy" ::: "memory");
+		if (++spin >= SMMU_CMDQ_POLL_LIMIT) {
+			/* Hardware fault — SMMU command queue permanently full.
+			 * This is a fatal isolation error: log and halt. */
+			__asm__ volatile(
+				"b ." ::
+					: "memory"); /* infinite loop / WFI */
+		}
+	} while (1);
+
+	/* Step 2: write CFGI_STE command at current PROD slot */
+	smmu_cmdq_write(
+		prod,
+		/* CMD_CFGI_STE: opcode=0x03, SID in [63:32], LEAF=1 at bit 12 */
+		(0x03ULL) | ((uint64_t)sid << 32) | (1ULL << 12), 0ULL);
+	prod = smmu_cmdq_advance(prod);
+	smmu_write32(smmu.base, SMMU_CMDQ_PROD, prod);
+	__asm__ volatile("dsb sy" ::: "memory");
+
+	/* Step 3: write CMD_SYNC at the next slot */
+	smmu_cmdq_write(prod, 0x46ULL /* SYNC opcode */, 0ULL);
+	prod = smmu_cmdq_advance(prod);
+	smmu_write32(smmu.base, SMMU_CMDQ_PROD, prod);
+	__asm__ volatile("dsb sy" ::: "memory");
+
+	/* Step 4: poll CONS until it reaches the post-SYNC PROD value.
+	 * A CMD_SYNC ensures all prior commands completed before CONS advances. */
+	spin = 0;
+	do {
+		cons = smmu_read32(smmu.base, SMMU_CMDQ_CONS);
+		if ((cons & (SMMU_CMDQ_IDX_MASK | SMMU_CMDQ_WRAP_BIT)) ==
+		    (prod & (SMMU_CMDQ_IDX_MASK | SMMU_CMDQ_WRAP_BIT)))
+			break;
+		__asm__ volatile("dsb sy" ::: "memory");
+		if (++spin >= SMMU_CMDQ_POLL_LIMIT) {
+			__asm__ volatile("b ." ::: "memory");
+		}
+	} while (1);
 }
 
 /* -----------------------------------------------------------------------
