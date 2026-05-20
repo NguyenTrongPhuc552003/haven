@@ -112,10 +112,22 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
 	uint64_t cur_pa = pa;
 	uint64_t end_ipa = ipa + size;
 
+	/* Translate flags to hardware S2AP+MemAttr once (same for all pages). */
+	uint64_t hw_attrs;
+	if (flags == 1U) {
+		/* Device MMIO: nGnRE, non-executable, non-cacheable */
+		hw_attrs = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS |
+				      S2AP_RW) |
+			   S2_XN_ALL;
+	} else {
+		/* Normal DRAM: WB cacheable, inner-shareable, RW */
+		hw_attrs =
+			(uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS | S2AP_RW);
+	}
+
 	while (cur_ipa < end_ipa) {
 		uint32_t l1_idx = s2_l1_index(cur_ipa);
 		uint32_t l2_idx = s2_l2_index(cur_ipa);
-		uint32_t l3_idx = s2_l3_index(cur_ipa);
 
 		/* L1: ensure table entry exists */
 		if (!s2_desc_is_table((*l1)[l1_idx])) {
@@ -126,7 +138,28 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
 		}
 		hv_pt_page_t *l2 = (hv_pt_page_t *)(s2_desc_pa((*l1)[l1_idx]));
 
-		/* L2: ensure table entry exists */
+		/* 2MB block optimisation: use an L2 block descriptor when the
+		 * IPA, PA and remaining size are all 2MB-aligned and the L2
+		 * slot is not already a TABLE (which would require an L3 walk).
+		 * This reduces page-table pool consumption by up to 512× for
+		 * large normal-memory regions (e.g. 512 MB DRAM = 1 block
+		 * descriptor vs 131 072 page descriptors). */
+		if (!(cur_ipa & (HV_BLOCK_SIZE_L2 - 1)) &&
+		    !(cur_pa & (HV_BLOCK_SIZE_L2 - 1)) &&
+		    (end_ipa - cur_ipa) >= HV_BLOCK_SIZE_L2 &&
+		    !s2_desc_is_table((*l2)[l2_idx])) {
+			/* Write 2MB L2 block descriptor */
+			(*l2)[l2_idx] = (cur_pa & HV_BLOCK_MASK_L2) |
+					S2_DESC_BLOCK | hw_attrs | S2_AF;
+			cur_ipa += HV_BLOCK_SIZE_L2;
+			cur_pa += HV_BLOCK_SIZE_L2;
+			continue;
+		}
+
+		/* Fall through to 4KB page mapping */
+		uint32_t l3_idx = s2_l3_index(cur_ipa);
+
+		/* L2: ensure table entry exists (may upgrade INVALID → TABLE) */
 		if (!s2_desc_is_table((*l2)[l2_idx])) {
 			hv_pt_page_t *l3 = pt_alloc();
 			if (l3 == NULL)
@@ -135,20 +168,7 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
 		}
 		hv_pt_page_t *l3 = (hv_pt_page_t *)(s2_desc_pa((*l2)[l2_idx]));
 
-		/* Translate attrs to hardware S2AP+MemAttr descriptor bits.
-		 * attrs==1: device MMIO (nGnRE, non-executable, non-cacheable).
-		 * attrs==0: normal WB cacheable DRAM (RW, inner-shareable). */
-		uint64_t hw_attrs;
-		if (flags == 1U) {
-			hw_attrs = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE |
-					      S2_SH_NS | S2AP_RW) |
-				   S2_XN_ALL;
-		} else {
-			hw_attrs = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS |
-					      S2AP_RW);
-		}
-
-		/* L3: write the page descriptor */
+		/* L3: write 4KB page descriptor */
 		(*l3)[l3_idx] = (cur_pa & HV_PAGE_MASK) | S2_DESC_PAGE |
 				hw_attrs | S2_AF;
 
@@ -182,18 +202,32 @@ hv_status_t hv_arch_stage2_unmap(uint32_t partition_id, uint64_t ipa,
 	while (cur_ipa < end_ipa) {
 		uint32_t l1_idx = s2_l1_index(cur_ipa);
 		uint32_t l2_idx = s2_l2_index(cur_ipa);
-		uint32_t l3_idx = s2_l3_index(cur_ipa);
 
 		if (!s2_desc_is_table((*l1)[l1_idx])) {
-			cur_ipa += HV_PAGE_SIZE;
+			/* Skip ahead by 1 GiB if no L2 table present */
+			cur_ipa =
+				(cur_ipa & HV_BLOCK_MASK_L1) + HV_BLOCK_SIZE_L1;
 			continue;
 		}
 		hv_pt_page_t *l2 = (hv_pt_page_t *)(s2_desc_pa((*l1)[l1_idx]));
 
-		if (!s2_desc_is_table((*l2)[l2_idx])) {
-			cur_ipa += HV_PAGE_SIZE;
+		/* If the L2 slot holds a 2MB block descriptor, invalidate it
+		 * and advance by 2MB. */
+		if (s2_desc_is_block((*l2)[l2_idx])) {
+			(*l2)[l2_idx] = S2_DESC_INVALID;
+			cur_ipa =
+				(cur_ipa & HV_BLOCK_MASK_L2) + HV_BLOCK_SIZE_L2;
 			continue;
 		}
+
+		if (!s2_desc_is_table((*l2)[l2_idx])) {
+			/* No L3 table; skip 2MB slot */
+			cur_ipa =
+				(cur_ipa & HV_BLOCK_MASK_L2) + HV_BLOCK_SIZE_L2;
+			continue;
+		}
+
+		uint32_t l3_idx = s2_l3_index(cur_ipa);
 		hv_pt_page_t *l3 = (hv_pt_page_t *)(s2_desc_pa((*l2)[l2_idx]));
 
 		(*l3)[l3_idx] = S2_DESC_INVALID;
