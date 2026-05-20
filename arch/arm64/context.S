@@ -63,6 +63,10 @@
 #define CTX_TPIDR_EL1   376
 #define CTX_TPIDRRO_EL0 384
 #define CTX_VMID        392
+/* NEON/FP state appended after the integer context */
+#define CTX_FPCR        400
+#define CTX_FPSR        408
+#define CTX_Q0          416   /* Q0-Q31: 32 × 16 = 512 bytes, ends at 928 */
 
 
         .section ".text", "ax"
@@ -144,6 +148,30 @@ hv_save_guest_context:
         mrs     x1, tpidrro_el0
         str     x1,  [x0, #CTX_TPIDRRO_EL0]
 
+        /* Save NEON/FP state: FPCR, FPSR, then Q0-Q31 as 16-byte stores.
+         * CPTR_EL2.TFP must be 0 (trap disabled) so FP accesses at EL2
+         * do not fault.  The caller (cpu_context.c) clears TFP on init. */
+        mrs     x1, fpcr
+        str     x1,  [x0, #CTX_FPCR]
+        mrs     x1, fpsr
+        str     x1,  [x0, #CTX_FPSR]
+        stp     q0,  q1,  [x0, #CTX_Q0 + 0]
+        stp     q2,  q3,  [x0, #CTX_Q0 + 32]
+        stp     q4,  q5,  [x0, #CTX_Q0 + 64]
+        stp     q6,  q7,  [x0, #CTX_Q0 + 96]
+        stp     q8,  q9,  [x0, #CTX_Q0 + 128]
+        stp     q10, q11, [x0, #CTX_Q0 + 160]
+        stp     q12, q13, [x0, #CTX_Q0 + 192]
+        stp     q14, q15, [x0, #CTX_Q0 + 224]
+        stp     q16, q17, [x0, #CTX_Q0 + 256]
+        stp     q18, q19, [x0, #CTX_Q0 + 288]
+        stp     q20, q21, [x0, #CTX_Q0 + 320]
+        stp     q22, q23, [x0, #CTX_Q0 + 352]
+        stp     q24, q25, [x0, #CTX_Q0 + 384]
+        stp     q26, q27, [x0, #CTX_Q0 + 416]
+        stp     q28, q29, [x0, #CTX_Q0 + 448]
+        stp     q30, q31, [x0, #CTX_Q0 + 480]
+
         /* Ensure all stores are visible before returning */
         dsb     sy
         ret
@@ -209,6 +237,28 @@ hv_restore_guest_context:
         bic     x2, x2, x3
         bfi     x2, x1, #48, #16
         msr     vttbr_el2, x2
+
+        /* Restore NEON/FP state before GP registers overwrite x0 */
+        ldp     q0,  q1,  [x0, #CTX_Q0 + 0]
+        ldp     q2,  q3,  [x0, #CTX_Q0 + 32]
+        ldp     q4,  q5,  [x0, #CTX_Q0 + 64]
+        ldp     q6,  q7,  [x0, #CTX_Q0 + 96]
+        ldp     q8,  q9,  [x0, #CTX_Q0 + 128]
+        ldp     q10, q11, [x0, #CTX_Q0 + 160]
+        ldp     q12, q13, [x0, #CTX_Q0 + 192]
+        ldp     q14, q15, [x0, #CTX_Q0 + 224]
+        ldp     q16, q17, [x0, #CTX_Q0 + 256]
+        ldp     q18, q19, [x0, #CTX_Q0 + 288]
+        ldp     q20, q21, [x0, #CTX_Q0 + 320]
+        ldp     q22, q23, [x0, #CTX_Q0 + 352]
+        ldp     q24, q25, [x0, #CTX_Q0 + 384]
+        ldp     q26, q27, [x0, #CTX_Q0 + 416]
+        ldp     q28, q29, [x0, #CTX_Q0 + 448]
+        ldp     q30, q31, [x0, #CTX_Q0 + 480]
+        ldr     x1, [x0, #CTX_FPCR]
+        msr     fpcr, x1
+        ldr     x1, [x0, #CTX_FPSR]
+        msr     fpsr, x1
 
         /* ISB to ensure all sysreg writes complete before GP registers load */
         isb
@@ -291,6 +341,28 @@ hv_context_switch:
         str     x3,  [x0, #CTX_TPIDR_EL1]
         mrs     x3, tpidrro_el0
         str     x3,  [x0, #CTX_TPIDRRO_EL0]
+
+        /* Save NEON/FP state for the outgoing partition */
+        mrs     x3, fpcr
+        str     x3,  [x0, #CTX_FPCR]
+        mrs     x3, fpsr
+        str     x3,  [x0, #CTX_FPSR]
+        stp     q0,  q1,  [x0, #CTX_Q0 + 0]
+        stp     q2,  q3,  [x0, #CTX_Q0 + 32]
+        stp     q4,  q5,  [x0, #CTX_Q0 + 64]
+        stp     q6,  q7,  [x0, #CTX_Q0 + 96]
+        stp     q8,  q9,  [x0, #CTX_Q0 + 128]
+        stp     q10, q11, [x0, #CTX_Q0 + 160]
+        stp     q12, q13, [x0, #CTX_Q0 + 192]
+        stp     q14, q15, [x0, #CTX_Q0 + 224]
+        stp     q16, q17, [x0, #CTX_Q0 + 256]
+        stp     q18, q19, [x0, #CTX_Q0 + 288]
+        stp     q20, q21, [x0, #CTX_Q0 + 320]
+        stp     q22, q23, [x0, #CTX_Q0 + 352]
+        stp     q24, q25, [x0, #CTX_Q0 + 384]
+        stp     q26, q27, [x0, #CTX_Q0 + 416]
+        stp     q28, q29, [x0, #CTX_Q0 + 448]
+        stp     q30, q31, [x0, #CTX_Q0 + 480]
 
         /* Switch stage-2 translation table (VMID change) */
         dsb     sy
