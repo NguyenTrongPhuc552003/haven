@@ -2,12 +2,12 @@
 set -eu
 
 echo "[hook:pre-commit] running clang-format check"
-./scripts/format.sh --staged --check
+./scripts/dev/format.sh --staged --check
 
 echo "[hook:pre-commit] running style checks"
-./scripts/style-check.sh
+./scripts/dev/style-check.sh
 
 echo "[hook:pre-commit] running config checks"
-./scripts/check-configs.sh
+./scripts/compile/check-configs.sh
 
 echo "[hook:pre-commit] ok"

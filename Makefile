@@ -182,7 +182,7 @@ else
 all: build
 
 build:
-	./scripts/build.sh
+	./scripts/compile/build.sh
 
 endif
 
@@ -191,14 +191,14 @@ endif
 # -----------------------------------------------------------------------
 
 test:
-	./scripts/test.sh
+	./scripts/dev/test.sh
 
 style-check:
-	./scripts/style-check.sh
-	./scripts/check-configs.sh
+	./scripts/dev/style-check.sh
+	./scripts/compile/check-configs.sh
 
 evidence:
-	./scripts/package-evidence.sh
+	./scripts/evidence/package-evidence.sh
 
 clean:
 	rm -rf build out coverage
@@ -211,8 +211,8 @@ disasm: $(BUILD_DIR)/haven.elf
 	$(CROSS_COMPILE)objdump -d -M no-aliases $< | less
 
 qemu-run: $(BUILD_DIR)/haven.bin
-	@chmod +x scripts/qemu-run.sh
-	./scripts/qemu-run.sh
+	@chmod +x scripts/qemu/qemu-run.sh
+	./scripts/qemu/qemu-run.sh
 
 # -----------------------------------------------------------------------
 # Help

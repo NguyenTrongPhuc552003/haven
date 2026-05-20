@@ -2,9 +2,9 @@
 set -eu
 
 echo "[hook:pre-push] building"
-./scripts/build.sh
+./scripts/compile/build.sh
 
 echo "[hook:pre-push] testing"
-./scripts/test.sh
+./scripts/dev/test.sh
 
 echo "[hook:pre-push] ok"

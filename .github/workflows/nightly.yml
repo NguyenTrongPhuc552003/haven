@@ -27,10 +27,10 @@ jobs:
           sudo apt-get install -y gcc clang make python3
 
       - name: Preflight
-        run: ./scripts/ci-preflight.sh
+        run: ./scripts/ci/ci-preflight.sh
 
       - name: Capture metadata
-        run: ./scripts/ci-metadata.sh
+        run: ./scripts/ci/ci-metadata.sh
 
       - name: Upload nightly artifacts
         uses: actions/upload-artifact@v4
@@ -117,7 +117,7 @@ jobs:
           pip3 install --no-cache-dir matplotlib numpy
 
       - name: Run full test suite and benchmarks
-        run: ./scripts/ci-preflight.sh
+        run: ./scripts/ci/ci-preflight.sh
 
       - name: Generate evidence report
         run: |

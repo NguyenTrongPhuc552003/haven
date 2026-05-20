@@ -19,13 +19,13 @@ jobs:
           sudo apt-get install -y gcc make python3
 
       - name: Run preflight
-        run: ./scripts/ci-preflight.sh
+        run: ./scripts/ci/ci-preflight.sh
 
       - name: Capture metadata
-        run: ./scripts/ci-metadata.sh
+        run: ./scripts/ci/ci-metadata.sh
 
       - name: Package evidence
-        run: ./scripts/package-evidence.sh
+        run: ./scripts/evidence/package-evidence.sh
 
       - name: Upload evidence artifact
         uses: actions/upload-artifact@v4

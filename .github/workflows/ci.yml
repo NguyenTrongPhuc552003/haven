@@ -31,10 +31,10 @@ jobs:
           sudo apt-get install -y gcc clang make python3
 
       - name: Preflight (${{ matrix.compiler }})
-        run: ./scripts/ci-preflight.sh
+        run: ./scripts/ci/ci-preflight.sh
 
       - name: Capture metadata (${{ matrix.compiler }})
-        run: ./scripts/ci-metadata.sh
+        run: ./scripts/ci/ci-metadata.sh
 
       - name: Upload build artifacts (${{ matrix.compiler }})
         uses: actions/upload-artifact@v4
