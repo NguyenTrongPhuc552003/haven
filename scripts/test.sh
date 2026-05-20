@@ -8,6 +8,7 @@ mkdir -p build/tests
 
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_core_stubs.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -61,6 +62,7 @@ mkdir -p build/tests
 echo "[test] running integration isolation flow"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_isolation_flow.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -75,6 +77,7 @@ echo "[test] running integration isolation flow"
 echo "[test] running integration negative isolation flow"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_isolation_negative.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -88,6 +91,7 @@ echo "[test] running integration negative isolation flow"
 echo "[test] running fault-injection matrix"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_fault_injection.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -121,6 +125,7 @@ echo "[test] running spatial isolation boundary tests"
 echo "[test] running temporal isolation boundary tests"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/isolation/test_temporal_isolation.c \
+	tests/common/printk_stub.c \
 	src/core/sched/budget.c \
 	src/core/irq/ownership.c \
 	src/core/time/timer.c \
@@ -131,6 +136,7 @@ echo "[test] running temporal isolation boundary tests"
 echo "[test] running hypervisor invariant self-tests"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/selftests/test_hypervisor_invariants.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -145,6 +151,7 @@ echo "[test] running hypervisor invariant self-tests"
 echo "[test] running two-partition isolation demo"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/demos/demo_two_partition.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -159,6 +166,7 @@ echo "[test] running isolation latency benchmark"
 mkdir -p build/benchmarks
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_isolation_latency.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -171,6 +179,7 @@ mkdir -p build/benchmarks
 echo "[test] running temporal isolation benchmark"
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_temporal_isolation.c \
+	tests/common/printk_stub.c \
 	src/core/sched/budget.c \
 	src/core/time/timer.c \
 	-o build/tests/bench_temporal_isolation
@@ -179,6 +188,7 @@ echo "[test] running temporal isolation benchmark"
 echo "[test] running stage-2 fault containment benchmark"
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_stage2_fault.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
@@ -188,6 +198,7 @@ echo "[test] running stage-2 fault containment benchmark"
 echo "[test] running SMMU DMA policy benchmark"
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
 	tests/benchmarks/bench_smmu_policy.c \
+	tests/common/printk_stub.c \
 	src/core/dma/smmu.c \
 	src/core/mm/stage2.c \
 	src/core/irq/ownership.c \
