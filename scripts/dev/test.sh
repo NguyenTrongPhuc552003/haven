@@ -54,6 +54,7 @@ mkdir -p build/tests
 
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_freertos_integration.c \
+	tests/common/printk_stub.c \
 	src/guest/rtos/freertos_integration.c \
 	-o build/tests/test_freertos_integration
 
