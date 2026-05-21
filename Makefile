@@ -145,8 +145,8 @@ GUEST_OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(GUEST_SRCS))
 
 ALL_OBJS = $(ARCH_OBJS) $(DRIVER_OBJS) $(CORE_OBJS) $(COMMON_OBJS) $(PLATFORM_OBJS) $(GUEST_OBJS)
 
-all: $(BUILD_DIR)/haven.elf $(BUILD_DIR)/haven.bin $(BUILD_DIR)/guest_a.bin
-	@echo "[arm64] Build complete: $(BUILD_DIR)/haven.bin + $(BUILD_DIR)/guest_a.bin"
+all: $(BUILD_DIR)/haven.elf $(BUILD_DIR)/haven.bin $(BUILD_DIR)/guest_a.bin $(BUILD_DIR)/guest_b.bin
+	@echo "[arm64] Build complete: $(BUILD_DIR)/haven.bin + $(BUILD_DIR)/guest_a.bin + $(BUILD_DIR)/guest_b.bin"
 
 $(BUILD_DIR)/haven.elf: $(ALL_OBJS) linker.ld
 	$(LD) -T linker.ld -o $@ $(ALL_OBJS)
@@ -162,6 +162,17 @@ $(BUILD_DIR)/guest_a.elf: tests/demos/guest_a_entry.S linker-guest.ld
 	$(LD) -T linker-guest.ld -o $@ $(OBJ_DIR)/guest_a_entry.o
 
 $(BUILD_DIR)/guest_a.bin: $(BUILD_DIR)/guest_a.elf
+	$(OBJCOPY) -O binary $< $@
+
+# Guest B stub: RTOS-class bare-metal EL1 binary at PA 0xA0800000
+# Haven maps PA 0xA0800000 → IPA 0x60000000 (PART_B_PA_BASE → PART_B_IPA_BASE).
+# Launched on CPU 2 after secondary-CPU bring-up is wired in partition.c.
+$(BUILD_DIR)/guest_b.elf: tests/demos/guest_b_entry.S linker-guest-b.ld
+	@mkdir -p $(BUILD_DIR)
+	$(AS) $(ASFLAGS) -c tests/demos/guest_b_entry.S -o $(OBJ_DIR)/guest_b_entry.o
+	$(LD) -T linker-guest-b.ld -o $@ $(OBJ_DIR)/guest_b_entry.o
+
+$(BUILD_DIR)/guest_b.bin: $(BUILD_DIR)/guest_b.elf
 	$(OBJCOPY) -O binary $< $@
 
 # Compile C sources
