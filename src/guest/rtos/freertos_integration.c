@@ -7,6 +7,24 @@
 #include <haven/freertos_integration.h>
 #include <haven/string.h>
 
+extern void hv_printk(const char *fmt, ...);
+
+/* -----------------------------------------------------------------------
+ * Architecture context hooks — weak defaults are no-ops on the host.
+ * On ARM64 hardware, arch/arm64/context.S overrides these via strong
+ * symbols to perform real register save/restore.
+ * ----------------------------------------------------------------------- */
+
+__attribute__((weak)) void hv_arch_context_save(hv_task_context_t *ctx)
+{
+	(void)ctx;
+}
+
+__attribute__((weak)) void hv_arch_context_restore(const hv_task_context_t *ctx)
+{
+	(void)ctx;
+}
+
 /**
  * FreeRTOS partition state.
  */
@@ -132,6 +150,9 @@ hv_status_t hv_freertos_register_task(hv_u32 partition, hv_u32 task_id,
 
 hv_status_t hv_freertos_save_context(hv_u32 partition, hv_task_context_t *ctx)
 {
+	hv_u32 i;
+	hv_task_t *slot = NULL;
+
 	if (partition >= HV_MAX_FREERTOS_PARTITIONS || ctx == NULL) {
 		return HV_EINVAL;
 	}
@@ -140,7 +161,32 @@ hv_status_t hv_freertos_save_context(hv_u32 partition, hv_task_context_t *ctx)
 		return HV_EPERM;
 	}
 
-	/* Context save is recorded; in real impl, would save to task TCB. */
+	/* Locate the task being saved — must be in RUNNING state. */
+	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
+				   HV_MAX_FREERTOS_PARTITIONS;
+	     i++) {
+		if (task_registry[i].allocated &&
+		    task_registry[i].partition == partition &&
+		    task_registry[i].task_id == ctx->task_id) {
+			slot = &task_registry[i];
+			break;
+		}
+	}
+
+	if (slot != NULL && slot->state != HV_TASK_RUNNING) {
+		/* Refuse to save context for a task that is not running. */
+		return HV_EPERM;
+	}
+
+	/* Call arch hook — on host this is a no-op; on ARM64 it saves regs. */
+	hv_arch_context_save(ctx);
+
+	/* Sync stack pointer into the registry for scheduler visibility. */
+	if (slot != NULL) {
+		slot->stack_ptr = ctx->sp;
+		slot->state = HV_TASK_READY;
+	}
+
 	freertos_partitions[partition].context_switches++;
 
 	return HV_OK;
@@ -149,6 +195,9 @@ hv_status_t hv_freertos_save_context(hv_u32 partition, hv_task_context_t *ctx)
 hv_status_t hv_freertos_restore_context(hv_u32 partition,
 					const hv_task_context_t *ctx)
 {
+	hv_u32 i;
+	hv_task_t *slot = NULL;
+
 	if (partition >= HV_MAX_FREERTOS_PARTITIONS || ctx == NULL) {
 		return HV_EINVAL;
 	}
@@ -157,7 +206,123 @@ hv_status_t hv_freertos_restore_context(hv_u32 partition,
 		return HV_EPERM;
 	}
 
-	/* Context restore recorded. */
+	/* Locate the task to restore — must be READY or RUNNING. */
+	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
+				   HV_MAX_FREERTOS_PARTITIONS;
+	     i++) {
+		if (task_registry[i].allocated &&
+		    task_registry[i].partition == partition &&
+		    task_registry[i].task_id == ctx->task_id) {
+			slot = &task_registry[i];
+			break;
+		}
+	}
+
+	if (slot != NULL &&
+	    slot->state != HV_TASK_READY && slot->state != HV_TASK_RUNNING) {
+		return HV_EPERM;
+	}
+
+	/* Call arch hook — on host this is a no-op; on ARM64 it restores. */
+	hv_arch_context_restore(ctx);
+
+	if (slot != NULL) {
+		slot->state = HV_TASK_RUNNING;
+	}
+
+	return HV_OK;
+}
+
+hv_status_t hv_freertos_task_block(hv_u32 partition, hv_u32 task_id)
+{
+	hv_u32 i;
+	hv_task_t *slot = NULL;
+	hv_u32 blocked_priority = 0U;
+
+	if (partition >= HV_MAX_FREERTOS_PARTITIONS || task_id == 0U) {
+		return HV_EINVAL;
+	}
+
+	if (!freertos_partitions[partition].allocated) {
+		return HV_EPERM;
+	}
+
+	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
+				   HV_MAX_FREERTOS_PARTITIONS;
+	     i++) {
+		if (task_registry[i].allocated &&
+		    task_registry[i].partition == partition &&
+		    task_registry[i].task_id == task_id) {
+			slot = &task_registry[i];
+			blocked_priority = task_registry[i].priority;
+			break;
+		}
+	}
+
+	if (slot == NULL) {
+		return HV_EINVAL;
+	}
+
+	if (slot->state == HV_TASK_BLOCKED) {
+		return HV_EPERM; /* Already blocked */
+	}
+
+	/* Priority inversion detection: warn if a lower-priority task is
+	 * RUNNING while this (potentially higher-priority) task blocks. */
+	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
+				   HV_MAX_FREERTOS_PARTITIONS;
+	     i++) {
+		if (task_registry[i].allocated &&
+		    task_registry[i].partition == partition &&
+		    task_registry[i].state == HV_TASK_RUNNING &&
+		    task_registry[i].priority > blocked_priority) {
+			hv_printk(
+				"HAVEN[freertos]: priority inversion — "
+				"task %u (pri=%u) blocking while task %u "
+				"(pri=%u) runs\n",
+				task_id, blocked_priority,
+				task_registry[i].task_id,
+				task_registry[i].priority);
+		}
+	}
+
+	slot->state = HV_TASK_BLOCKED;
+	return HV_OK;
+}
+
+hv_status_t hv_freertos_task_unblock(hv_u32 partition, hv_u32 task_id)
+{
+	hv_u32 i;
+	hv_task_t *slot = NULL;
+
+	if (partition >= HV_MAX_FREERTOS_PARTITIONS || task_id == 0U) {
+		return HV_EINVAL;
+	}
+
+	if (!freertos_partitions[partition].allocated) {
+		return HV_EPERM;
+	}
+
+	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
+				   HV_MAX_FREERTOS_PARTITIONS;
+	     i++) {
+		if (task_registry[i].allocated &&
+		    task_registry[i].partition == partition &&
+		    task_registry[i].task_id == task_id) {
+			slot = &task_registry[i];
+			break;
+		}
+	}
+
+	if (slot == NULL) {
+		return HV_EINVAL;
+	}
+
+	if (slot->state != HV_TASK_BLOCKED) {
+		return HV_EPERM; /* Not blocked */
+	}
+
+	slot->state = HV_TASK_READY;
 	return HV_OK;
 }
 
@@ -175,8 +340,8 @@ hv_status_t hv_freertos_allocate_shared_region(hv_u32 partition1,
 		return HV_EINVAL;
 	}
 
-	if ((size & 0xFFF) != 0) {
-		return HV_EINVAL; /* Must be page-aligned */
+	if ((size == 0U) || (size & 0xFFFUL) != 0U) {
+		return HV_EINVAL; /* Must be non-zero and page-aligned */
 	}
 
 	if (!freertos_partitions[partition1].allocated ||
