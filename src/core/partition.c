@@ -141,6 +141,33 @@ static const struct hv_budget part_b_budget = {
 extern void hv_arch_start_partition(uintptr_t entry, uintptr_t sp,
 				    uintptr_t arg);
 extern void hv_arch_stage2_enable(uint32_t partition_id, uint32_t vmid);
+extern void hv_arch_secondary_start(uint32_t cpu_id,
+				    void (*entry_fn)(uint64_t cpu_id));
+extern int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
+/* Symbol defined in arch/arm64/boot.S - the secondary CPU spin-loop entry */
+extern void secondary_entry(void);
+
+/*
+ * partition_b_secondary_cpu_init - runs on CPU 2 after PSCI wakeup.
+ *
+ * Enables stage-2 translation for Partition B and ERETSs into
+ * Partition B's EL1 entry point.  This function never returns.
+ */
+__attribute__((noreturn)) static void
+partition_b_secondary_cpu_init(uint64_t cpu_id)
+{
+	(void)cpu_id;
+
+	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
+
+	/* ERET to Partition B entry at its IPA base. */
+	hv_arch_start_partition(
+		(uintptr_t)PART_B_IPA_BASE,
+		(uintptr_t)(PART_B_IPA_BASE + PART_B_SIZE - 0x1000UL), 0UL);
+
+	/* Unreachable */
+	__builtin_unreachable();
+}
 #endif
 
 extern void hv_panic(const char *msg);
@@ -220,6 +247,22 @@ void partitions_launch(void)
 	hv_printk("HAVEN: enabling stage-2 for partition A (VMID=%u)\n",
 		  PARTITION_A_ID);
 	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
+
+	/* Bring up CPU 2 via PSCI and point it at Haven's secondary spin-loop.
+	 * Once the mailbox is filled (hv_arch_secondary_start below), CPU 2
+	 * will jump to partition_b_secondary_cpu_init and ERET into Partition B.
+	 *
+	 * The PSCI CPU_ON call is asynchronous: CPU 2 may still be waking up
+	 * when we write the mailbox, so the SEV in hv_arch_secondary_start
+	 * guarantees the wake-up is observed. */
+	if (hv_arch_psci_cpu_on(2U, (uintptr_t)secondary_entry) == 0) {
+		hv_arch_secondary_start(2U, partition_b_secondary_cpu_init);
+		hv_printk("HAVEN: CPU 2 woken for partition B (VMID=%u)\n",
+			  PARTITION_B_ID);
+	} else {
+		hv_printk(
+			"HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive\n");
+	}
 
 	hv_printk("HAVEN: ERET -> partition A entry IPA=0x%lx\n",
 		  (unsigned long)PART_A_IPA_BASE);

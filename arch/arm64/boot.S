@@ -146,6 +146,41 @@ hv_arch_secondary_start:
 
 
 /* -----------------------------------------------------------------------
+ * hv_arch_psci_cpu_on - bring a secondary CPU online via PSCI CPU_ON.
+ *
+ * C prototype:
+ *   int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
+ *
+ * ARM64 PSCI 0.2 SMC64 calling convention (QEMU virt uses HVC conduit):
+ *   Function ID : 0xC4000003  (PSCI_CPU_ON, SMC64)
+ *   x0          = function ID
+ *   x1          = target_cpu  (MPIDR encoding: Aff2:Aff1:Aff0)
+ *   x2          = entry_point_address (PA)
+ *   x3          = context_id (0; passed back as x0 on secondary entry)
+ *
+ * For a single-cluster board: MPIDR = cpu_id (Aff0 = cpu_id, Aff1/2 = 0).
+ *
+ * Returns: 0 = PSCI_SUCCESS, non-zero = error code.
+ * ----------------------------------------------------------------------- */
+
+        .global hv_arch_psci_cpu_on
+        .align  3
+hv_arch_psci_cpu_on:
+        /* x0 = cpu_id (uint32_t), x1 = entry_pa (uintptr_t) */
+        mov     x2, x1              /* x2 = entry_point_address          */
+        mov     x3, #0              /* x3 = context_id (0)               */
+        mov     x1, x0              /* x1 = MPIDR (Aff0 = cpu_id)        */
+        /* Load PSCI_CPU_ON (0xC4000003) using two 16-bit halves */
+        mov     x0, #0x0003
+        movk    x0, #0xC400, lsl #16
+        /* QEMU virt uses HVC as the PSCI conduit */
+        hvc     #0
+        ret
+
+        .size hv_arch_psci_cpu_on, . - hv_arch_psci_cpu_on
+
+
+/* -----------------------------------------------------------------------
  * Error paths
  * ----------------------------------------------------------------------- */
 
