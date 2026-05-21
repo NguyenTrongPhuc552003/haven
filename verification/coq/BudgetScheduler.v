@@ -202,8 +202,9 @@ Theorem consume_list_preserves_valid :
     budget_valid b ->
     budget_valid (consume_list b amounts).
 Proof.
-  intros b amounts Hv.
-  induction amounts as [| a rest IH]; simpl.
+  intros b amounts.
+  revert b.
+  induction amounts as [| a rest IH]; simpl; intros b Hv.
   - exact Hv.
   - apply IH.
     apply consume_preserves_bound.
