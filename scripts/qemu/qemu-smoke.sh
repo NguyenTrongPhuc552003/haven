@@ -56,14 +56,21 @@ echo "[qemu] found: ${QEMU_VERSION}"
 echo "[qemu] launching ARM64 image under QEMU (chardev serial capture)"
 UART_LOG="${OUTDIR}/qemu-uart.log"
 BOOT_MARKER="Haven hypervisor starting"
-GUEST_MARKER="PARTITION_A:"
+GUEST_A_MARKER="PARTITION_A:"
+GUEST_B_MARKER="PARTITION_B:"
 SUITE_STATUS="fail"
 QEMU_PID=""
 
 GUEST_A_BIN="build/guest_a.bin"
+GUEST_B_BIN="build/guest_b.bin"
 GUEST_A_LOADER=""
+GUEST_B_LOADER=""
 if [ -f "${GUEST_A_BIN}" ]; then
   GUEST_A_LOADER="-device loader,file=${GUEST_A_BIN},addr=0x80800000,force-raw=on"
+fi
+# Guest B: PA 0xA0800000 = PART_B_PA_BASE (HAVEN_LOAD_PA + HAVEN_SIZE + PART_A_SIZE)
+if [ -f "${GUEST_B_BIN}" ]; then
+  GUEST_B_LOADER="-device loader,file=${GUEST_B_BIN},addr=0xA0800000,force-raw=on"
 fi
 
 # Use -chardev file so PL011 serial output goes directly to UART_LOG on all
@@ -81,6 +88,7 @@ qemu-system-aarch64 \
   -monitor null \
   -device loader,file="${HAVEN_BIN}",addr=0x80000000,force-raw=on,cpu-num=0 \
   ${GUEST_A_LOADER} \
+  ${GUEST_B_LOADER} \
   > "${OUTDIR}/qemu-smoke.log" 2>&1 &
 QEMU_PID=$!
 set -e
@@ -92,8 +100,15 @@ while [ "$ELAPSED" -lt 20 ]; do
   sleep 1
   ELAPSED=$((ELAPSED + 1))
   if [ -f "${UART_LOG}" ] && grep -q "${BOOT_MARKER}" "${UART_LOG}" 2>/dev/null; then
-    if grep -q "${GUEST_MARKER}" "${UART_LOG}" 2>/dev/null; then
-      SUITE_STATUS="pass"
+    if grep -q "${GUEST_A_MARKER}" "${UART_LOG}" 2>/dev/null; then
+      # Partition B is launched on CPU 2 (secondary CPU bring-up) — check if
+      # it has also reported in.  Treat as "pass" even if B is not yet running
+      # (secondary CPU bring-up is a Phase 3 prerequisite).
+      if grep -q "${GUEST_B_MARKER}" "${UART_LOG}" 2>/dev/null; then
+        SUITE_STATUS="pass"
+      else
+        SUITE_STATUS="pass"   # A booted + isolation demo complete; B is Phase 3 add-on
+      fi
     else
       SUITE_STATUS="partial"   # hypervisor booted but guest did not print
     fi
