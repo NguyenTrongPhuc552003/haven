@@ -65,7 +65,9 @@ Mandatory checks:
 **Theme**: Platform validation depth and mixed-environment verification.
 
 Deliverables:
-- QEMU end-to-end boot with two-partition demo (UART evidence). ← IN PROGRESS
+- QEMU end-to-end boot with two-partition demo (UART evidence). ✓
+- Secondary CPU bring-up: PSCI CPU_ON wires CPU 2 → Partition B. ✓ **(v0.6.0)**
+- FreeRTOS context-switch hardening: state-machine validation + arch hooks. ✓ **(v0.6.0)**
 - Full i.MX95 validation campaign with repeatable evidence capture.
 - Cross-OS virtual validation (macOS / Linux / Windows).
 - Secondary heterogeneous board baseline (i.MX8QM-MEK or equivalent).
@@ -97,11 +99,19 @@ Mandatory checks:
 ```
 [R1] ████████████████████████████████ COMPLETE (merged 2026-05-10)
 [R2] ████████████████████████████████ COMPLETE (merged 2026-05-18)
-[R3] ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░ IN PROGRESS
+[R3] ████████████░░░░░░░░░░░░░░░░░░░░ IN PROGRESS (v0.6.0 — 2026-05-21)
 [R4] ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ PLANNED
 ```
 
-### R2 Completion Summary (2026-05-18)
+### v0.6.0 Completion Summary (2026-05-21)
+
+- **Secondary CPU AMP boot**: PSCI CPU_ON wires CPU 2 to Partition B; two-partition ERET sequence complete.
+- **FreeRTOS context hardening**: task state-machine enforcement; `hv_arch_context_save/restore` arch hooks; priority inversion detection.
+- **New tests**: 6 secondary CPU isolation integration tests + 4 FreeRTOS hardening groups (17 assertions).
+- **CI benchmark regression gate**: nightly job blocks on >10% latency regression.
+- **EL2 virtual IRQ injection**: VBAR_EL2 + GICv3 LR programming complete.
+
+### R3 Remaining Items
 
 - ARM64 hardware binding layer: 9 files in `arch/arm64/`
 - Hardware drivers: GICv3 (`drivers/irqchip/`), SMMUv3 (`drivers/iommu/`), UART (`drivers/uart/`)

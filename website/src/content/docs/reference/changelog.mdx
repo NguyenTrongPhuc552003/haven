@@ -12,11 +12,31 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Planned
 - i.MX95 hardware bring-up and EL2 boot validation.
-- Stage-2 LPAE descriptor programming for ARM64.
-- Budget scheduler timer integration (`CNTHP_TVAL_EL2`).
-- IRQ denial enforcement on QEMU GICv3.
-- SMMUv3 2-level stream table support.
-- Negative isolation tests for cross-partition memory access.
+- Linux guest kernel module userspace CLI expansion.
+- Formal verification: Coq proof completion for budget scheduler CBS invariant.
+
+---
+
+## [0.6.0] - 2026-05-21
+
+### Added
+- **Secondary CPU bring-up**: `hv_arch_psci_cpu_on()` in `arch/arm64/boot.S` (PSCI CPU_ON SMC64 via HVC conduit). Partition B (RTOS, CPU 2) is now woken by PSCI before the ERET to Partition A. `partition_b_secondary_cpu_init()` enables stage-2 for VMID 2 and ERETSs into Partition B's IPA at `0x60000000`.
+- **FreeRTOS context hardening**: `hv_freertos_save_context` / `hv_freertos_restore_context` now enforce task state-machine transitions (save requires RUNNING; restore requires READY/RUNNING). Weak-symbol arch hooks `hv_arch_context_save` / `hv_arch_context_restore` allow ARM64 overrides.
+- `hv_freertos_task_block` / `hv_freertos_task_unblock` with priority inversion detection.
+- 6 secondary CPU isolation integration tests (`tests/integration/test_secondary_cpu_isolation.c`).
+- 4 new FreeRTOS hardening unit test groups (46 assertions total).
+- CI benchmark regression gate with 10% threshold in `.github/workflows/nightly.yml`.
+- EL2 virtual IRQ injection: `VBAR_EL2` wired + GICv3 LR programming.
+- Partition B RTOS guest stub (`tests/demos/guest_b_entry.S`) with 3 RTOS task loops, deliberate stage-2 DABT, and WFI halt.
+- SMMU integration test expanded to 8 fault-injection scenarios.
+
+### Changed
+- `hv_freertos_allocate_shared_region`: zero-size regions now rejected (`HV_EINVAL`) in addition to non-page-aligned.
+- `scripts/qemu/qemu-smoke.sh`: removed stale Phase 3 placeholder comment; both partition A and B UART markers now report success.
+
+### Fixed
+- SMMU `reset_partition` memory leak in 8-scenario test expansion.
+- `hv_budget_set` documentation corrected: `budget_ns == period_ns` is permitted (full-period monopoly); only zero and `budget_ns > period_ns` are rejected.
 
 ---
 
