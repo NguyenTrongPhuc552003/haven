@@ -12,9 +12,17 @@
 
 /* External: ARM64 arch layer - weak so host unit-test builds link cleanly. */
 extern void hv_install_vectors(void) __attribute__((weak));
+extern void hv_arch_gic_el2_setup(void) __attribute__((weak));
+extern hv_status_t hv_arch_inject_virtual_irq(uint32_t virq,
+					      uint32_t priority)
+	__attribute__((weak));
 
 /* External: printk for stage-2 fault reporting */
 extern void hv_printk(const char *fmt, ...) __attribute__((weak));
+
+/* Default GIC priority for virtual IRQ injection (lower number = higher priority).
+ * 0xA0 is a safe default in the non-secure priority range (0x80–0xFF). */
+#define HV_VIRT_IRQ_PRIORITY 0xA0U
 
 /* -----------------------------------------------------------------------
  * ESR_EL2 Exception Class (EC) field: bits [31:26]
@@ -93,11 +101,6 @@ static hv_u16 partition_handler_count = 0;
 
 hv_status_t hv_el2_exceptions_init(void)
 {
-	/**
-   * Initialize exception handling state.
-   * In real implementation, would configure VBAR_EL2 (exception table base)
-   * and enable exception delivery.
-   */
 	memset(&current_exc_context, 0, sizeof(current_exc_context));
 	memset(global_handlers, 0, sizeof(global_handlers));
 	memset(irq_routes, 0, sizeof(irq_routes));
@@ -107,6 +110,19 @@ hv_status_t hv_el2_exceptions_init(void)
 	for (int i = 0; i < 4; i++) {
 		exception_enabled[i] = 1;
 	}
+
+#ifdef HAVEN_ARCH_ARM64
+	/* Install the ARM64 exception vector table (sets VBAR_EL2).
+	 * hv_install_vectors() is defined in arch/arm64/cpu.c and uses
+	 * the .el2_exception_table symbol from arch/arm64/entry.S. */
+	if (hv_install_vectors != NULL)
+		hv_install_vectors();
+
+	/* Configure the GICv3 virtual CPU interface so the hypervisor can
+	 * inject virtual interrupts into guests via ICH_LR<n>_EL2. */
+	if (hv_arch_gic_el2_setup != NULL)
+		hv_arch_gic_el2_setup();
+#endif
 
 	return HV_OK;
 }
@@ -207,12 +223,23 @@ hv_status_t hv_el2_inject_exception(hv_u32 partition, hv_exc_type_t exc_type,
 		return HV_EPERM;
 	}
 
-	/**
-   * In real implementation, would:
-   * 1. Validate partition is ready
-   * 2. Write exception injection state to appropriate register
-   * 3. Return from hypervisor to guest with exception pending
-   */
+#ifdef HAVEN_ARCH_ARM64
+	/*
+	 * IRQ injection: write a GICv3 List Register (ICH_LR<n>_EL2) with
+	 * the virtual IRQ number and Pending state.  The guest sees the
+	 * interrupt when it takes an IRQ exception from EL1 (lower EL).
+	 *
+	 * For SYNC/FIQ/SERR types the hardware path is not yet wired
+	 * (requires ESR/FAR injection which is software-model only); fall
+	 * through to the counter update so the policy layer tracks them.
+	 */
+	if (exc_type == HV_EXC_IRQ && hv_arch_inject_virtual_irq != NULL) {
+		hv_status_t rc = hv_arch_inject_virtual_irq((uint32_t)vector,
+							    HV_VIRT_IRQ_PRIORITY);
+		if (rc != HV_OK)
+			return rc;
+	}
+#endif
 
 	exception_counts[exc_type]++;
 	return HV_OK;
