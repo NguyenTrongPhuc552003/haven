@@ -65,13 +65,17 @@ All isolation claims in the thesis are scoped to this model.
 | Attack                                  | Module        | Mitigation                         | Test evidence                  |
 | --------------------------------------- | ------------- | ---------------------------------- | ------------------------------ |
 | Guest maps peer's PA                    | Stage-2       | Cross-partition PA overlap denial  | `test_spatial_isolation.c`     |
-| Device DMA escapes to peer PA           | SMMU          | PA containment check vs Stage-2    | `test_spatial_isolation.c`     |
+| Device DMA escapes to peer PA           | SMMU          | PA containment check vs Stage-2    | `test_smmu_hardware.c` (S1–S5)  |
+| DMA window type mismatch (RO vs RW)     | SMMU          | Access-flag enforcement (S6/S7)    | `test_smmu_hardware.c` (S6–S7)  |
+| StreamID pool exhaustion DoS            | SMMU          | Hard cap HV_ENOSPC (S8)            | `test_smmu_hardware.c` (S8)    |
 | Guest steals peer's IRQ                 | IRQ ownership | Owner check + EPERM                | `test_isolation_negative.c`    |
 | Guest steals peer's IOMMU group         | IOMMU         | Owner check + EPERM                | `test_isolation_negative.c`    |
 | Guest exhausts CPU budget across period | Budget        | `hv_budget_consume` deny           | `test_temporal_isolation.c`    |
 | Guest bypasses timer deadline           | Timer         | Fail-closed unack guard            | `test_timer.c`                 |
 | Hypervisor state corruption via re-init | All modules   | `selftest_reinit` invariant        | `test_hypervisor_invariants.c` |
 | Malformed hypercall arguments           | All modules   | Boundary validation at every entry | All unit test negative paths   |
+| Partition B UART MMIO access            | Stage-2       | No UART map for B; stage-2 DABT    | `test_spatial_isolation.c`     |
+| EL2 virtual IRQ injection without owner| IRQ ownership | Ownership validated before ICH_LR  | `test_el2_exceptions.c`        |
 
 ## Non-goals
 

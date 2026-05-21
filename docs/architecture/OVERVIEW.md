@@ -10,6 +10,9 @@ with latency overhead below 100 µs?
 Haven's thesis argues *yes*, through a combination of formal policy proofs
 (Coq, Isabelle/HOL) and empirical validation on QEMU and i.MX95 hardware.
 
+**Current version:** v0.6.0 — EL2 virtual IRQ injection, Partition B RTOS
+stub, SMMU 8-scenario integration test, CI benchmark regression gate.
+
 ---
 
 ## System Architecture
@@ -82,6 +85,13 @@ Every DMA transfer from a device assigned to Partition A is constrained to
 Partition A's physical memory window.  Implemented in
 `src/core/dma/smmu.c` and `drivers/iommu/smmu_v3.c`.
 
+Enforced policies (v0.6.0, 8 integration scenarios):
+- Stream ID ownership exclusivity (`HV_EPERM` on cross-partition configure).
+- DMA window read/write permission enforcement (S6/S7: RO/WO window violations).
+- StreamID pool exhaustion hard cap (`HV_ENOSPC`, S8).
+- `reset_partition` releases both configured and unconfigured StreamID
+  allocations (pool-leak fix, PR #19).
+
 ### Layer 3 - IOMMU Group Ownership (Device Assignment)
 
 Peripherals are statically assigned to partitions in the YAML config.  Haven
@@ -96,6 +106,12 @@ exclusively to its owning partition's virtual CPU interface.  Cross-partition
 interrupt injection (e.g., a malicious guest triggering a SGI to another
 partition) is blocked by the `irq_ownership` check in
 `src/core/irq/ownership.c`.
+
+**Virtual IRQ injection** (v0.6.0, PR #17): `hv_el2_inject_exception()` writes
+a free GICv3 List Register (`ICH_LR<n>_EL2`) with Pending state to deliver a
+virtual IRQ to the target partition.  VBAR_EL2 installation (`hv_install_vectors`)
+and GICv3 virtual CPU interface setup (`hv_arch_gic_el2_setup`) are wired in
+`hv_el2_exceptions_init()`.  35/35 EL2 unit tests pass.
 
 ### Layer 5 - Budget Scheduler + Timer (Temporal Isolation)
 
@@ -196,6 +212,8 @@ tests/
   integration/ - Full partition bring-up tests
   isolation/   - Spatial and temporal isolation tests
   benchmarks/  - Latency and throughput measurements
+               latency-baseline.json - 15-entry regression baseline (committed)
+  demos/     - Guest EL1 stubs (Partition A + B)
 ```
 
 ---
@@ -206,3 +224,4 @@ tests/
 - `docs/safety/THREAT_MODEL.md` - threat model and assumptions
 - `verification/coq/README.md` - Coq proof guide
 - `docs/methodology/BENCHMARK_BASELINE.md` - benchmark baselines and acceptance thresholds
+- `docs/methodology/CHAPTER_TRACEABILITY.md` - chapter↔artifact traceability matrix (v0.6.0 milestone summary)
