@@ -96,21 +96,29 @@ TF-A (EL3) - sets up secure world, jumps to Haven at EL2
   │
   ▼
 Haven EL2 init
-  ├─ hv_stage2_init()     - zero stage-2 tables
-  ├─ hv_irq_owner_init()  - zero IRQ ownership map
-  ├─ hv_budget_sched_init() - zero budget state
-  ├─ hv_smmu_init()       - reset SMMU stream tables
+  ├─ hv_stage2_init()        - zero stage-2 tables
+  ├─ hv_irq_owner_init()     - zero IRQ ownership map
+  ├─ hv_budget_sched_init()  - zero budget state
+  ├─ hv_smmu_init()          - reset SMMU stream tables
   │
   ├─ Load partition config (compile-time baked or from secure storage)
   │
-  ├─ hv_stage2_map_partition()  - for each partition
+  ├─ hv_stage2_map_partition()  - for each partition (A: 512 MB, B: 64 MB)
   ├─ hv_irq_assign()            - for each interrupt route
-  ├─ hv_budget_set()            - for each partition budget
+  ├─ hv_budget_set()            - A=8ms/10ms, B=2ms/10ms
   ├─ hv_smmu_map_device()       - for each DMA device
   │
+  ├─ hv_arch_psci_cpu_on(2, secondary_entry)      ← v0.6.0: wake CPU 2
+  ├─ hv_arch_secondary_start(2, part_b_init)      ← fill CPU 2 mailbox
+  │
   ▼
-Launch Linux partition  (EL1, A55 cores 0–3)
-Launch RTOS partition   (EL1 or bare-metal on M7)
+ERET → Partition A (Linux, CPUs 0–1) at IPA 0x40000000
+  │
+  ▼   (CPU 2 mailbox fires concurrently)
+part_b_secondary_cpu_init(cpu_id=2)
+  ├─ hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID)
+  ▼
+ERET → Partition B (RTOS, CPU 2) at IPA 0x60000000
   │
   ▼
 Steady state - EL2 handles faults and budget preemptions only

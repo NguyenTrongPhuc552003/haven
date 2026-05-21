@@ -9,6 +9,11 @@ Every thesis claim must trace to a concrete repository artifact or measured
 evidence package. This matrix is the authoritative link between the thesis
 document and the Haven repository.
 
+:::note[v0.6.0 status]
+Release v0.6.0 (May 2026) completes the secondary CPU bring-up (PSCI CPU_ON)
+and FreeRTOS context hardening. The table below reflects this state.
+:::
+
 ## Traceability Matrix
 
 | Chapter                    | Thesis Claim                                                             | Repository Deliverables                                                  | Evidence Artifacts              |
@@ -17,6 +22,8 @@ document and the Haven repository.
 | **Ch. 2 - Background**     | Static partition hypervisors are the right approach                      | `docs/architecture/ISOLATION_MODEL.md`, `docs/safety/THREAT_MODEL.md`    | Jailhouse/Bao comparison        |
 | **Ch. 3 - Design**         | Haven's architecture enforces spatial and temporal invariants            | `src/core/mm/`, `src/core/irq/`, `src/core/sched/`, `include/haven/`     | Code review + unit test pass    |
 | **Ch. 4 - Implementation** | Stage-2, IRQ ownership, SMMU, budget scheduler are implemented correctly | All source modules, test results                                         | `build/tests/test_*` pass logs  |
+| **Ch. 4 - Implementation** | Secondary CPU AMP boot via PSCI CPU_ON                                   | `arch/arm64/boot.S`, `src/core/partition.c`                              | `tests/integration/test_secondary_cpu_isolation.c` |
+| **Ch. 4 - Implementation** | FreeRTOS guest RTOS context-switch is safely mediated                    | `src/guest/rtos/freertos_integration.c`, `include/haven/freertos_integration.h` | `tests/unit/test_freertos_integration.c` |
 | **Ch. 5 - Evaluation**     | Isolation holds under violation attempts; RTOS latency is bounded        | `tests/integration/`, `tests/isolation/`                                 | `build/evidence/imx95/metrics/` |
 | **Ch. 6 - Discussion**     | TCB is minimal; formal analysis is tractable                             | `verification/coq/`, `verification/isabelle/`                            | LOC count, proof sketches       |
 | **Ch. 7 - Conclusion**     | Haven demonstrates feasibility on real i.MX95 hardware                   | Full evidence package                                                    | `build/evidence/` archive       |
