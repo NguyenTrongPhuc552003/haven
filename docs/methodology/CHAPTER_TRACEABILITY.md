@@ -111,33 +111,42 @@ demonstrate that unauthorized access paths are closed.
 
 | Artifact                   | Path                                   | Purpose                                        |
 | -------------------------- | -------------------------------------- | ---------------------------------------------- |
-| Guest EL1 stub             | `tests/demos/guest_a_entry.S`          | Bare-metal Partition A; triggers cross-partition fault |
-| Guest linker script        | `linker-guest.ld`                      | Links guest at IPA 0x40000000                  |
-| QEMU smoke runner          | `scripts/qemu-smoke.sh`                | Validates boot + fault + resume end-to-end     |
-| QEMU run script            | `scripts/qemu-run.sh`                  | Interactive QEMU launch with guest_a.bin       |
+| Guest A EL1 stub           | `tests/demos/guest_a_entry.S`          | Bare-metal Partition A; triggers cross-partition fault |
+| Guest A linker script      | `linker-guest.ld`                      | Links guest A at IPA 0x40000000                |
+| Guest B EL1 stub           | `tests/demos/guest_b_entry.S`          | Bare-metal Partition B RTOS stub; triggers A→B isolation fault |
+| Guest B linker script      | `linker-guest-b.ld`                    | Links guest B at IPA 0x60000000 (PART_B_IPA_BASE) |
+| QEMU smoke runner          | `scripts/qemu/qemu-smoke.sh`           | Validates boot + fault + resume end-to-end (both partitions) |
+| QEMU run script            | `scripts/qemu/qemu-run.sh`             | Interactive QEMU launch with guest_a.bin + guest_b.bin |
 | Memory map                 | `src/platform/qemu-virt/memory.h`      | Corrected PA layout (8 MB Haven, distinct IPAs) |
-| Partition config           | `src/core/partition.c`                 | Stage-2 maps: 512 MB DRAM + UART MMIO for A    |
-| EL2 fault handler          | `src/core/exc/el2_exceptions.c`        | ESR/HPFAR decode, violation log, ELR skip      |
+| Partition config           | `src/core/partition.c`                 | Stage-2 maps: 512 MB DRAM + UART MMIO for A; 64 MB for B |
+| EL2 fault handler          | `src/core/exc/el2_exceptions.c`        | ESR/HPFAR decode, violation log, ELR skip; virtual IRQ injection |
 | Stage-2 page table builder | `arch/arm64/mm.c`                      | S2AP fix: Normal WB RW / Device nGnRE RW       |
 
 ### 4.5 Evidence artifacts
 
 - Unit and integration test run logs: `build/tests/`
-- Config lint output: produced by `scripts/check-configs.sh`
-- Evidence package: `scripts/package-evidence.sh`
-- **QEMU hardware demo**: `build/smoke/uart.log` — captured UART output from live QEMU run showing two-partition isolation in action.
+- Config lint output: produced by `scripts/compile/check-configs.sh`
+- Evidence package: `scripts/evidence/package-evidence.sh`
+- **QEMU hardware demo (Partition A)**: `build/smoke/uart.log` — captured UART output showing Partition A boot, violation denial, post-fault resume.
+- **SMMU integration**: 8/8 scenarios pass; `tests/integration/test_smmu_hardware.c`.
+- **Benchmark regression gate**: `tests/benchmarks/latency-baseline.json` — 15 named entries, all within 10% tolerance; verified by `scripts/ci/bench-regression.sh`.
 
-### 4.6 Measured results (QEMU baseline)
+### 4.6 Measured results (QEMU baseline — v0.6.0)
 
 - `bench_isolation_latency` hot paths: `stage2_partition_contains_pa` and
   `smmu_check_dma_access` measure sub-microsecond on QEMU (100 000 iterations).
 - Stage-2 containment boundary cases (hot/cold/low/high): all measured via
   `bench_stage2_fault.c`; results written to `build/benchmarks/stage2-fault.json`.
-- SMMU policy cases (hot, boundary, denied, StreamID alloc): all measured via
-  `bench_smmu_policy.c`; results written to `build/benchmarks/smmu-policy.json`.
+- SMMU policy cases (hot, boundary, denied, StreamID alloc, RO-window, WO-window, pool
+  exhaustion): all measured via `bench_smmu_policy.c`; results written to
+  `build/benchmarks/smmu-policy.json`.
 - Fault injection matrix: 8/8 scenarios PASS on every CI run.
 - Spatial isolation test suite: 100 % pass rate.
-- **End-to-end QEMU demo** (R3): guest EL1 stub boots under stage-2, triggers cross-partition violation at IPA 0x60000000, Haven logs `ESR=0x93c08006` (EC=0x24, FSC=0x06), advances ELR, guest prints "Post-fault check OK". Smoke test: `validation_status=pass`.
+- **End-to-end QEMU demo** (R3): guest EL1 stub boots under stage-2, triggers cross-partition
+  violation at IPA 0x60000000, Haven logs `ESR=0x93c08006` (EC=0x24, FSC=0x06), advances ELR,
+  guest prints "Post-fault check OK". Smoke test: `validation_status=pass`.
+- **EL2 virtual IRQ injection**: 35/35 unit tests pass; ICH_LR<n>_EL2 write path verified
+  (`fix/el2-inject-virtual-irq`, PR #17).
 
 ---
 
@@ -242,17 +251,21 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 
 ### 7.1 Implementation artifacts (analysis tooling)
 
-| Tool / script                | Path                                      |
-| ---------------------------- | ----------------------------------------- |
-| Latency analyzer             | `tools/analysis/latency_analyzer.py`      |
-| Jitter plotter               | `tools/analysis/jitter_plot.py`           |
-| Evidence report generator    | `tools/analysis/evidence_report.py`       |
-| Evidence packager            | `scripts/package-evidence.sh`             |
-| CI preflight                 | `scripts/ci-preflight.sh`                 |
-| QEMU smoke runner            | `scripts/qemu-smoke.sh`                   |
-| Traceability checker         | `scripts/check-traceability.sh`           |
-| CI validation                | `scripts/ci-validate.sh`                  |
-| Evidence comparison          | `scripts/compare-evidence.py`             |
+| Tool / script                | Path                                           |
+| ---------------------------- | ---------------------------------------------- |
+| Latency analyzer             | `tools/analysis/latency_analyzer.py`           |
+| Jitter plotter               | `tools/analysis/jitter_plot.py`                |
+| Evidence report generator    | `tools/analysis/evidence_report.py`            |
+| Evidence packager            | `scripts/evidence/package-evidence.sh`         |
+| CI preflight                 | `scripts/ci/ci-preflight.sh`                   |
+| QEMU smoke runner            | `scripts/qemu/qemu-smoke.sh`                   |
+| Benchmark regression gate    | `scripts/ci/bench-regression.sh`               |
+| Benchmark baseline updater   | `scripts/ci/bench-update-baseline.sh`          |
+| Latency baseline             | `tests/benchmarks/latency-baseline.json`       |
+| Traceability checker         | `scripts/dev/check-traceability.sh`            |
+| CI validation                | `scripts/ci/ci-validate.sh`                    |
+| Evidence comparison          | `scripts/evidence/compare-evidence.py`         |
+| Release validation           | `scripts/release.sh`                           |
 
 ### 7.2 Test files providing evaluation evidence
 
@@ -264,18 +277,23 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 | `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput            |
 | `tests/integration/test_fault_injection.c`    | Fault containment (F1–F8)        |
 | `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence           |
-| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU)  |
+| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU) — Partition A |
+| `tests/demos/guest_b_entry.S`                 | Hardware end-to-end demo (QEMU) — Partition B RTOS stub |
 
 ### 7.3 Benchmark output locations
 
-- Local runs: `build/benchmarks/baseline.json`
-- CI artifacts: `benchmark-<compiler>-<run-id>/baseline.json`
+- Local runs: `build/benchmarks/` (gitignored; regenerated per run)
+- Regression baseline: `tests/benchmarks/latency-baseline.json` (committed)
+- CI nightly artifacts: uploaded as `benchmark-results` (30-day retention, `.github/workflows/nightly.yml`)
 
 ### 7.4 Acceptance criteria
 
 - Fault injection matrix: all 8 scenarios PASS.
+- SMMU integration test: all 8 scenarios PASS (S1–S8, `test_smmu_hardware.c`).
 - Latency benchmark: median stage-2 fault containment < 10 µs on QEMU.
 - Deadline miss benchmark: 0 misses in 1 000-iteration run.
+- Benchmark regression: no named hot-path exceeds 10 % regression from
+  `tests/benchmarks/latency-baseline.json` (enforced by nightly CI job).
 - **QEMU two-partition demo** (R3): smoke test `validation_status=pass`; UART log shows greeting, violation denial, and post-fault resume — archived in `build/smoke/`.
 - Board-backed evidence: IMX95 validation runbook completed (R3/M5 gate).
   Template: `docs/methodology/IMX95_EVIDENCE_TEMPLATE.md`
@@ -335,8 +353,27 @@ chapter claims; future-work section references open issues.
 
 ## CI traceability checks
 
-The script `scripts/check-traceability.sh` verifies that every artifact path
-listed in this matrix exists in the repository and that all referenced test
-binaries are built and pass under `make test`.
+The script `scripts/dev/check-traceability.sh` verifies that every artifact
+path listed in this matrix exists in the repository and that all referenced
+test binaries are built and pass under `make test`.
+
+The nightly job `benchmark-regression` in `.github/workflows/nightly.yml`
+automatically gates on the 15-entry latency baseline and uploads results as
+30-day artifacts for longitudinal comparison.
+
+---
+
+## v0.6.0 milestone summary
+
+| Milestone artifact              | Status  | Evidence location                           |
+| ------------------------------- | ------- | ------------------------------------------- |
+| Partition B RTOS stub           | ✅ Done  | `tests/demos/guest_b_entry.S`               |
+| EL2 virtual IRQ injection wired | ✅ Done  | `src/core/exc/el2_exceptions.c`             |
+| SMMU 8-scenario integration     | ✅ Done  | `tests/integration/test_smmu_hardware.c`    |
+| SMMU StreamID pool-leak fix     | ✅ Done  | `src/core/dma/smmu.c`                       |
+| Benchmark regression gate       | ✅ Done  | `scripts/ci/bench-regression.sh`            |
+| Nightly regression CI job       | ✅ Done  | `.github/workflows/nightly.yml`             |
+| Release script                  | ✅ Done  | `scripts/release.sh`                        |
+| Secondary-CPU ERET (Partition B) | ⏳ Next | Phase 3 — secondary CPU bring-up            |
 
 Schedule: run on every pull request targeting `main`.
