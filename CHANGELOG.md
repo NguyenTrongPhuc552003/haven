@@ -11,6 +11,69 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - i.MX95 physical board bring-up and EL2 boot validation (requires hardware).
 - SMMUv3 stream table population wired to real SMMUv3 MMIO.
 - Budget scheduler timer interrupt integration with GICv3 virtual timer.
+- Secondary-CPU ERET for Partition B (Phase 3 multi-CPU bring-up).
+
+---
+
+## [0.6.0] - 2026-05-14
+
+### Added
+
+**Partition B RTOS-class Guest Stub (PR #18)**
+- `tests/demos/guest_b_entry.S` — bare-metal EL1 stub for Partition B (IPA `0x60000000`,
+  PART_B_IPA_BASE). Runs 3 simulated RTOS task periods (busy-wait loops), deliberately reads
+  Partition A's IPA base (`0x40000000`) to trigger a stage-2 DABT (Haven logs denial and resumes),
+  then writes a `0xDEADBEEF` sentinel at IPA+0x100 as a health-check indicator. No UART mapped —
+  the PL011 at `0x09000000` is exclusively owned by Partition A; any B→UART access faults at
+  stage-2, preserving the spatial isolation invariant.
+- `linker-guest-b.ld` — ELF64 AArch64 linker script placing the stub at VMA `0x60000000`.
+  Haven maps PA `0xA0800000` → IPA `0x60000000` for Partition B.
+- `Makefile` — ARM64 `all` target now includes `guest_b.bin`; added `guest_b.elf` / `guest_b.bin`
+  assembly + objcopy rules.
+- `scripts/qemu/qemu-run.sh` — optional `GUEST_B_LOADER` at PA `0xA0800000` (PART_B_PA_BASE).
+- `scripts/qemu/qemu-smoke.sh` — loads guest B at `0xA0800000` when the binary is present;
+  detects `PARTITION_B:` marker (active once secondary-CPU bring-up is wired).
+
+**SMMU Integration Test Expansion (PR #19)**
+- `tests/integration/test_smmu_hardware.c` — added 3 new scenarios (total 8):
+  - S6: Read-only DMA window blocks write access (HV_EPERM for WO/RW request).
+  - S7: Write-only DMA window blocks read access (HV_EPERM for RO/RW request).
+  - S8: StreamID pool exhaustion → HV_ENOSPC (hard upper bound at HV_MAX_SMMU_DEVICES=64).
+
+**CI Benchmark Regression Gate (PR #20)**
+- `scripts/ci/bench-regression.sh` — parses `build/benchmarks/*.json`, compares `mean_ns` per
+  benchmark against `tests/benchmarks/latency-baseline.json`, exits 1 on >10% regression.
+  Uses Python 3 stdlib only.
+- `scripts/ci/bench-update-baseline.sh` — reruns benchmark suite and regenerates the baseline
+  file from current measurements.
+- `tests/benchmarks/latency-baseline.json` — 15 baseline entries covering stage-2, IRQ, budget,
+  SMMU, timer, and IOMMU hot paths. Seeded from current CI measurements.
+- `.github/workflows/nightly.yml` — new `benchmark-regression` job: builds benchmarks, runs
+  them, calls `bench-regression.sh` with 10% threshold, uploads results as 30-day artifact.
+
+### Fixed
+
+**EL2 Virtual IRQ Injection (PR #17)**
+- `src/core/exc/el2_exceptions.c` — completed two remaining stubs:
+  - `hv_el2_exceptions_init()`: calls `hv_install_vectors()` (writes VBAR_EL2) and
+    `hv_arch_gic_el2_setup()` (enables GICv3 virtual CPU interface via ICH_HCR_EL2/ICH_VMCR_EL2)
+    under `HAVEN_ARCH_ARM64`. Both symbols are `__attribute__((weak))` for host builds.
+  - `hv_el2_inject_exception()`: for `HV_EXC_IRQ` on ARM64, calls `hv_arch_inject_virtual_irq()`
+    which writes a free GICv3 List Register (ICH_LR<n>_EL2) with Pending state so the guest
+    receives the interrupt on next IRQ exception from EL1.
+
+**SMMU StreamID Pool Leak (PR #19)**
+- `src/core/dma/smmu.c`, `hv_smmu_reset_partition()` — previously only freed StreamIDs whose
+  DMA window had been configured. An allocated-but-unconfigured StreamID (e.g., one whose
+  `configure_dma_window` call was rejected due to PA overlap) would never be freed, permanently
+  leaking quota from the global StreamID pool. Fixed: `reset_partition` now also frees
+  unconfigured StreamIDs for the target partition.
+
+### Evidence
+
+- SMMU integration: **8/8 scenarios pass** (S1–S8); host + CI verified.
+- EL2 exception unit tests: **35/35 pass** (host builds, pre-merge validation).
+- Benchmark regression baseline: **15/15 named benchmarks within 10% tolerance**.
 
 ---
 
