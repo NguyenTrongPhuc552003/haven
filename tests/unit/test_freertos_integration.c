@@ -145,20 +145,20 @@ static void test_freertos_context_operations(void)
 	hv_task_context_t ctx = {
 		.task_id = 1,
 		.priority = 10,
-		.state = HV_TASK_RUNNING,
+		.state = HV_TASK_READY,
 		.sp = 0x1000,
 		.pc = 0x80000000,
 	};
 
-	/* Save context. */
-	status = hv_freertos_save_context(part_id, &ctx);
-	assert(status == HV_OK);
-	TEST_PASS("freertos_context: save succeeds");
-
-	/* Restore context. */
+	/* First restore to move the task to RUNNING state. */
 	status = hv_freertos_restore_context(part_id, &ctx);
 	assert(status == HV_OK);
-	TEST_PASS("freertos_context: restore succeeds");
+	TEST_PASS("freertos_context: restore (READY→RUNNING) succeeds");
+
+	/* Now save is valid — task is RUNNING. */
+	status = hv_freertos_save_context(part_id, &ctx);
+	assert(status == HV_OK);
+	TEST_PASS("freertos_context: save (RUNNING→READY) succeeds");
 
 	/* Negative: NULL context. */
 	status = hv_freertos_save_context(part_id, NULL);
@@ -364,9 +364,10 @@ static void test_freertos_statistics(void)
 		hv_freertos_deliver_timer(part_id);
 	}
 
-	/* Save context to increment context_switches. */
+	/* Move task 1 to RUNNING so save_context succeeds. */
 	hv_task_context_t ctx = {.task_id = 1};
-	hv_freertos_save_context(part_id, &ctx);
+	hv_freertos_restore_context(part_id, &ctx);  /* READY → RUNNING */
+	hv_freertos_save_context(part_id, &ctx);     /* RUNNING → READY, ++ctx_switches */
 
 	/* Get statistics. */
 	hv_u32 task_count;
@@ -393,6 +394,160 @@ static void test_freertos_statistics(void)
 }
 
 /**
+ * Test: Context state-machine hardening.
+ *
+ * save_context must fail unless the task is in RUNNING state.
+ * restore_context must fail for BLOCKED/DELETED tasks.
+ */
+static void test_context_state_machine(void)
+{
+	hv_freertos_init();
+
+	hv_u32 part_id;
+	hv_freertos_config_t config = {
+		.partition = 0, .cpu_cores = 1,
+		.time_budget_us = 10000, .max_tasks = 4,
+		.timer_frequency = 1000,
+	};
+	hv_freertos_create_partition(&config, &part_id);
+	/* Register task — initial state is READY, not RUNNING */
+	hv_freertos_register_task(part_id, 1, 10, 0x1000);
+
+	hv_task_context_t ctx = { .task_id = 1, .sp = 0x1000,
+				   .pc = 0x80000000,
+				   .state = HV_TASK_READY };
+
+	/* save must fail: task is READY, not RUNNING */
+	assert(hv_freertos_save_context(part_id, &ctx) == HV_EPERM);
+	TEST_PASS("context_state_machine: save blocked for READY task");
+
+	/* restore must succeed: task is READY → moves to RUNNING */
+	assert(hv_freertos_restore_context(part_id, &ctx) == HV_OK);
+	TEST_PASS("context_state_machine: restore succeeds for READY task");
+
+	/* Now task is RUNNING — save must succeed */
+	assert(hv_freertos_save_context(part_id, &ctx) == HV_OK);
+	TEST_PASS("context_state_machine: save succeeds for RUNNING task");
+
+	/* After save, task is READY. Block it. */
+	assert(hv_freertos_task_block(part_id, 1) == HV_OK);
+
+	/* restore must fail for BLOCKED task */
+	assert(hv_freertos_restore_context(part_id, &ctx) == HV_EPERM);
+	TEST_PASS("context_state_machine: restore blocked for BLOCKED task");
+}
+
+/**
+ * Test: Max-task boundary enforcement.
+ *
+ * Registers exactly max_tasks tasks; the next one must be rejected.
+ */
+static void test_max_tasks_boundary(void)
+{
+	hv_freertos_init();
+
+	hv_u32 part_id;
+	hv_freertos_config_t config = {
+		.partition = 0, .cpu_cores = 1,
+		.time_budget_us = 10000, .max_tasks = 3,
+		.timer_frequency = 1000,
+	};
+	hv_freertos_create_partition(&config, &part_id);
+
+	assert(hv_freertos_register_task(part_id, 1, 10, 0x1000) == HV_OK);
+	assert(hv_freertos_register_task(part_id, 2, 20, 0x2000) == HV_OK);
+	assert(hv_freertos_register_task(part_id, 3, 30, 0x3000) == HV_OK);
+
+	/* max_tasks = 3 is now full */
+	assert(hv_freertos_register_task(part_id, 4, 40, 0x4000) == HV_ENOSPC);
+	TEST_PASS("max_tasks_boundary: (max+1)th task rejected with HV_ENOSPC");
+}
+
+/**
+ * Test: Task block / unblock cycle.
+ *
+ * Validates full RUNNING → BLOCKED → READY state transitions.
+ */
+static void test_task_block_unblock(void)
+{
+	hv_freertos_init();
+
+	hv_u32 part_id;
+	hv_freertos_config_t config = {
+		.partition = 0, .cpu_cores = 1,
+		.time_budget_us = 10000, .max_tasks = 4,
+		.timer_frequency = 1000,
+	};
+	hv_freertos_create_partition(&config, &part_id);
+	hv_freertos_register_task(part_id, 1, 10, 0x1000);
+
+	hv_task_context_t ctx = { .task_id = 1, .sp = 0x1000,
+				   .pc = 0x80000000 };
+
+	/* Move task to RUNNING */
+	assert(hv_freertos_restore_context(part_id, &ctx) == HV_OK);
+
+	/* Block it */
+	assert(hv_freertos_task_block(part_id, 1)   == HV_OK);
+	/* Double-block must fail */
+	assert(hv_freertos_task_block(part_id, 1)   == HV_EPERM);
+	TEST_PASS("task_block_unblock: block RUNNING task; double-block rejected");
+
+	/* Unblock restores READY */
+	assert(hv_freertos_task_unblock(part_id, 1)  == HV_OK);
+	/* Double-unblock must fail */
+	assert(hv_freertos_task_unblock(part_id, 1)  == HV_EPERM);
+	TEST_PASS("task_block_unblock: unblock BLOCKED task; double-unblock rejected");
+
+	/* Non-existent task */
+	assert(hv_freertos_task_block(part_id, 99)   == HV_EINVAL);
+	assert(hv_freertos_task_unblock(part_id, 99) == HV_EINVAL);
+	TEST_PASS("task_block_unblock: invalid task_id rejected");
+}
+
+/**
+ * Test: Shared region exact-boundary handling.
+ *
+ * Zero-size and non-page-aligned regions must be rejected.
+ * A single-page region at exactly 0x1000 must be accepted.
+ */
+static void test_shared_region_boundary(void)
+{
+	hv_freertos_init();
+
+	hv_u32 p1, p2, rid;
+	hv_freertos_config_t config = {
+		.partition = 0, .cpu_cores = 1,
+		.time_budget_us = 10000, .max_tasks = 4,
+		.timer_frequency = 1000,
+	};
+	config.partition = 0;
+	hv_freertos_create_partition(&config, &p1);
+	config.partition = 1;
+	hv_freertos_create_partition(&config, &p2);
+
+	/* Zero size — rejected */
+	assert(hv_freertos_allocate_shared_region(p1, p2, 0, HV_SHARED_RW,
+						  &rid) == HV_EINVAL);
+	TEST_PASS("shared_region_boundary: zero size rejected");
+
+	/* Non-aligned — rejected */
+	assert(hv_freertos_allocate_shared_region(p1, p2, 0x0FFF, HV_SHARED_RW,
+						  &rid) == HV_EINVAL);
+	TEST_PASS("shared_region_boundary: non-page-aligned size rejected");
+
+	/* Exactly one page — accepted */
+	assert(hv_freertos_allocate_shared_region(p1, p2, 0x1000, HV_SHARED_RO,
+						  &rid) == HV_OK);
+	TEST_PASS("shared_region_boundary: exact single-page region accepted");
+
+	/* Third-party access denied */
+	hv_u64 addr;
+	assert(hv_freertos_get_shared_address(rid, 2, &addr) == HV_EPERM);
+	TEST_PASS("shared_region_boundary: third-party partition access denied");
+}
+
+/**
  * Main test runner.
  */
 int main(void)
@@ -408,6 +563,12 @@ int main(void)
 	test_freertos_irq_routing();
 	test_freertos_destroy_partition();
 	test_freertos_statistics();
+
+	/* Hardening tests added in feat/freertos-context-hardening */
+	test_context_state_machine();
+	test_max_tasks_boundary();
+	test_task_block_unblock();
+	test_shared_region_boundary();
 
 	printf("\n=== All FreeRTOS integration tests passed ===\n\n");
 	return 0;

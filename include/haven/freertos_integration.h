@@ -167,6 +167,33 @@ hv_status_t hv_freertos_restore_context(hv_u32 partition,
 					const hv_task_context_t *ctx);
 
 /**
+ * Block a FreeRTOS task (transition RUNNING/READY → BLOCKED).
+ *
+ * Detects priority inversion: logs a warning when a higher-priority task
+ * blocks while a lower-priority task is currently RUNNING.
+ *
+ * @param partition  RTOS partition ID
+ * @param task_id    Task to block
+ *
+ * @return HV_OK on success
+ * @return HV_EINVAL if partition or task_id invalid or task not found
+ * @return HV_EPERM  if partition not allocated or task already blocked
+ */
+hv_status_t hv_freertos_task_block(hv_u32 partition, hv_u32 task_id);
+
+/**
+ * Unblock a FreeRTOS task (transition BLOCKED → READY).
+ *
+ * @param partition  RTOS partition ID
+ * @param task_id    Task to unblock
+ *
+ * @return HV_OK on success
+ * @return HV_EINVAL if partition or task_id invalid or task not found
+ * @return HV_EPERM  if partition not allocated or task not blocked
+ */
+hv_status_t hv_freertos_task_unblock(hv_u32 partition, hv_u32 task_id);
+
+/**
      * Allocate shared memory region between two partitions.
      *
      * Creates a shared memory region for inter-partition communication.
