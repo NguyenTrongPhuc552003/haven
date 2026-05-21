@@ -146,18 +146,24 @@ Proof.
   - destruct (Nat.eqb_spec hd.(ps_id) id) as [Heq | Hne].
     + simpl in Hin.
       destruct Hin as [Hhd | Htl].
-      * exists hd. split. left; reflexivity.
-        left. split. exact Heq.
+      * (* p is the updated head: p.ps_regions = r :: hd.ps_regions *)
+        exists hd. left. split. left; reflexivity.
+        split. exact Heq.
         subst p. simpl. reflexivity.
-      * exists hd. split. left; reflexivity.
-        right. right; exact Htl.
+      * (* p is unchanged in the tail — witness with p itself *)
+        exists p. right. right; exact Htl.
     + simpl in Hin.
       destruct Hin as [Hhd | Htl].
-      * exists p. split. left; exact Hhd.
-        right. left; exact Hhd.
-      * specialize (IH id r p Htl Hid).
-        destruct IH as [p_orig [Horig Hcase]].
-        exists p_orig. split. right; exact Horig. exact Hcase.
+      * (* p = hd, which is already In (hd :: tl) *)
+        exists p. right. left; exact Hhd.
+      * (* p is in the recursively updated tail *)
+        specialize (IH id r p Htl Hid).
+        destruct IH as [p_orig Hcase].
+        exists p_orig.
+        destruct Hcase as [Hleft | Hright].
+        -- left. destruct Hleft as [H1 [H2 H3]].
+           split. right; exact H1. split; assumption.
+        -- right. right; exact Hright.
 Qed.
 
 (* ------------------------------------------------------------------ *)
@@ -194,8 +200,8 @@ Proof.
       * (* p is the updated head: p.ps_regions = r :: hd.ps_regions *)
         subst p. simpl in Hinr1, Hpid.
         destruct Hinr1 as [Heq | Hold].
-        -- (* r1 = r: contradicts r1 <> r *)
-           exfalso; apply Hne; exact Heq.
+        -- (* r1 = r: contradicts r1 <> r — Heq : r = r1, Hne : r1 <> r *)
+           exfalso; apply Hne; symmetry; exact Heq.
         -- (* r1 is in hd.ps_regions: take p_orig = hd *)
            exists hd. split.
            ++ left; reflexivity.
@@ -286,7 +292,7 @@ Proof.
       apply Hinv with (p1 := p1_orig) (p2 := p2).
       * exact Hinp1.
       * exact Hin2_orig.
-      * rewrite Hid1_orig; exact Hd1.
+      * rewrite Hid1_orig; intro H; exact (Hd1 (eq_sym H)).
       * exact Hinr1_orig.
       * exact Hinr2.
 
