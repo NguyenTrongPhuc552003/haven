@@ -172,9 +172,15 @@ static void scenario_s3_cross_partition_overlap_denied(void)
 	FAIL_IF(rc != HV_EPERM,
 		"S3: cross-partition PA overlap should return HV_EPERM");
 
-	/* Clean up. */
+	/* Clean up — revoke sid_a's configured window; free sid_b which was
+	 * allocated but never configured (reset_partition now handles both). */
 	rc = hv_smmu_revoke_dma_access(sid_a);
 	FAIL_IF(rc != HV_OK, "S3: revoke partition A DMA access");
+
+	/* sid_b was allocated but its configure call was rejected.  Use
+	 * reset_partition so the unconfigured slot is freed. */
+	rc = hv_smmu_reset_partition(PART_B);
+	FAIL_IF(rc != HV_OK, "S3: reset partition B to free unconfigured StreamID");
 
 	PASS("S3: cross-partition DMA window overlap is rejected");
 }
@@ -286,6 +292,118 @@ static void scenario_s5_revocation_and_reuse(void)
 }
 
 /* -----------------------------------------------------------------------
+ * S6 - Read-only DMA window blocks write access
+ *
+ * Configure a window with HV_DMA_RO; a write-access check must return
+ * HV_EPERM, confirming DMA access-mode isolation is enforced.
+ * ----------------------------------------------------------------------- */
+
+static void scenario_s6_readonly_window_blocks_write(void)
+{
+	hv_u16 sid = 0;
+	hv_status_t rc;
+
+	rc = hv_smmu_allocate_streamid(PART_A, &sid);
+	FAIL_IF(rc != HV_OK, "S6: allocate StreamID");
+
+	rc = hv_smmu_configure_dma_window(sid, DMA_WINDOW_BASE, DMA_WINDOW_SIZE,
+					  DMA_WINDOW_BASE, HV_DMA_RO);
+	FAIL_IF(rc != HV_OK, "S6: configure read-only DMA window");
+
+	/* Read access within window must be permitted. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_RO);
+	FAIL_IF(rc != HV_OK, "S6: read within RO window should be HV_OK");
+
+	/* Write access must be denied even though the address is in window. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_WO);
+	FAIL_IF(rc != HV_EPERM, "S6: write to RO window should return HV_EPERM");
+
+	/* Read-write access must also be denied. */
+	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM, "S6: RW to RO window should return HV_EPERM");
+
+	rc = hv_smmu_revoke_dma_access(sid);
+	FAIL_IF(rc != HV_OK, "S6: revoke");
+
+	PASS("S6: read-only window blocks write DMA access");
+}
+
+/* -----------------------------------------------------------------------
+ * S7 - Write-only DMA window blocks read access
+ *
+ * Symmetric to S6: a HV_DMA_WO window must deny HV_DMA_RO checks.
+ * ----------------------------------------------------------------------- */
+
+static void scenario_s7_writeonly_window_blocks_read(void)
+{
+	hv_u16 sid = 0;
+	hv_status_t rc;
+
+	rc = hv_smmu_allocate_streamid(PART_B, &sid);
+	FAIL_IF(rc != HV_OK, "S7: allocate StreamID");
+
+	rc = hv_smmu_configure_dma_window(sid, PA_B_BASE, DMA_WINDOW_SIZE,
+					  PA_B_BASE, HV_DMA_WO);
+	FAIL_IF(rc != HV_OK, "S7: configure write-only DMA window");
+
+	/* Write access within window must be permitted. */
+	rc = hv_smmu_check_dma_access(sid, PA_B_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_WO);
+	FAIL_IF(rc != HV_OK, "S7: write within WO window should be HV_OK");
+
+	/* Read access must be denied. */
+	rc = hv_smmu_check_dma_access(sid, PA_B_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_RO);
+	FAIL_IF(rc != HV_EPERM, "S7: read from WO window should return HV_EPERM");
+
+	/* Read-write access must also be denied. */
+	rc = hv_smmu_check_dma_access(sid, PA_B_BASE + 0x1000U, 0x1000U,
+				      HV_DMA_RW);
+	FAIL_IF(rc != HV_EPERM, "S7: RW from WO window should return HV_EPERM");
+
+	rc = hv_smmu_revoke_dma_access(sid);
+	FAIL_IF(rc != HV_OK, "S7: revoke");
+
+	PASS("S7: write-only window blocks read DMA access");
+}
+
+/* -----------------------------------------------------------------------
+ * S8 - StreamID pool exhaustion returns HV_ENOSPC
+ *
+ * Allocate exactly HV_MAX_SMMU_DEVICES StreamIDs; the (N+1)-th call
+ * must return HV_ENOSPC (not crash or wrap).  Confirms the hypervisor
+ * enforces a hard upper bound on concurrent DMA assignments, preventing
+ * a rogue partition from consuming unbounded SMMU resources.
+ * ----------------------------------------------------------------------- */
+
+static void scenario_s8_streamid_exhaustion(void)
+{
+	hv_u16 sid = 0;
+	hv_status_t rc;
+	int i;
+
+	/* Fill the pool up to the maximum. */
+	for (i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+		rc = hv_smmu_allocate_streamid(PART_A, &sid);
+		FAIL_IF(rc != HV_OK, "S8: pool fill should succeed");
+	}
+
+	/* One more allocation must fail with HV_ENOSPC. */
+	rc = hv_smmu_allocate_streamid(PART_A, &sid);
+	FAIL_IF(rc != HV_ENOSPC,
+		"S8: allocation beyond HV_MAX_SMMU_DEVICES should return HV_ENOSPC");
+
+	/* Reset to clean state for any subsequent tests. */
+	rc = hv_smmu_reset_partition(PART_A);
+	FAIL_IF(rc != HV_OK, "S8: reset after exhaustion test");
+
+	PASS("S8: StreamID pool exhaustion returns HV_ENOSPC");
+}
+
+/* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 
@@ -338,6 +456,9 @@ int main(void)
 	scenario_s3_cross_partition_overlap_denied();
 	scenario_s4_reset_partition_revokes_all();
 	scenario_s5_revocation_and_reuse();
+	scenario_s6_readonly_window_blocks_write();
+	scenario_s7_writeonly_window_blocks_read();
+	scenario_s8_streamid_exhaustion();
 
 	fprintf(stderr, "[test_smmu_hardware] all scenarios passed\n");
 	return 0;
