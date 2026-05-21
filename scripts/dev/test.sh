@@ -207,6 +207,17 @@ echo "[test] running SMMU DMA policy benchmark"
 	-o build/tests/bench_smmu_policy
 ./build/tests/bench_smmu_policy
 
+echo "[test] running secondary CPU isolation policy test"
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/integration/test_secondary_cpu_isolation.c \
+	tests/common/printk_stub.c \
+	src/core/mm/stage2.c \
+	src/core/irq/ownership.c \
+	src/core/sched/budget.c \
+	-o build/tests/test_secondary_cpu_isolation
+
+./build/tests/test_secondary_cpu_isolation
+
 echo "[test] validating configuration schema"
 ./scripts/compile/check-configs.sh
 

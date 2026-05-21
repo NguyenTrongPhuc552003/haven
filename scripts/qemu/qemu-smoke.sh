@@ -101,13 +101,10 @@ while [ "$ELAPSED" -lt 20 ]; do
   ELAPSED=$((ELAPSED + 1))
   if [ -f "${UART_LOG}" ] && grep -q "${BOOT_MARKER}" "${UART_LOG}" 2>/dev/null; then
     if grep -q "${GUEST_A_MARKER}" "${UART_LOG}" 2>/dev/null; then
-      # Partition B is launched on CPU 2 (secondary CPU bring-up) — check if
-      # it has also reported in.  Treat as "pass" even if B is not yet running
-      # (secondary CPU bring-up is a Phase 3 prerequisite).
       if grep -q "${GUEST_B_MARKER}" "${UART_LOG}" 2>/dev/null; then
-        SUITE_STATUS="pass"
+        SUITE_STATUS="pass"   # Both partitions active — secondary CPU running
       else
-        SUITE_STATUS="pass"   # A booted + isolation demo complete; B is Phase 3 add-on
+        SUITE_STATUS="pass"   # Partition A booted + isolation demo complete
       fi
     else
       SUITE_STATUS="partial"   # hypervisor booted but guest did not print
