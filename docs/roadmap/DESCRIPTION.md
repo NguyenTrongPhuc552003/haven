@@ -999,3 +999,322 @@ cd verification/coq && coqc IsolationModel.v Stage2Policy.v BudgetScheduler.v
 python3 tools/analysis/latency_analyzer.py build/benchmarks/temporal-imx95.json
 # Expect: p99 < 50µs, max < 100µs for 10ms period RTOS task
 ```
+
+---
+
+## Part 8: Post-Thesis Extension Roadmap
+
+The sections below describe work beyond the 12-month thesis window. They are captured here to preserve architectural intent and provide a clear handoff for continued development or follow-on research.
+
+---
+
+### Phase 5: Secondary CPU Full Integration + FreeRTOS Wire-Up Validation
+
+**Theme:** Validate the full AMP dual-partition path on real hardware — secondary CPU bring-up confirmed, FreeRTOS context switch mediated at EL2, measured scheduling fidelity.
+
+**Scope:**
+- Harden `hv_arch_psci_cpu_on` path: add PSCI error-code logging (`PSCI_E_ALREADY_ON`, `PSCI_E_INVALID_PARAMS`, etc.)
+- Wire FreeRTOS `configCPU_CLOCK_HZ` to the EL2 physical timer frequency (`CNTFRQ_EL0`)
+- Implement `hv_arch_context_save` / `hv_arch_context_restore` in `arch/arm64/context.S` (replace weak-symbol stubs)
+- Add cooperative yield path: FreeRTOS `vPortYield()` triggers HVC → EL2 records budget tick
+- Priority inversion test: confirm `hv_freertos_task_unblock()` ceiling-protocol enforcement on real RTOS workload
+
+**Files affected:**
+
+| File | Change |
+| ---- | ------ |
+| `arch/arm64/context.S` | Implement full GP-register + FPSIMD save/restore for EL2-mediated context switch |
+| `arch/arm64/boot.S` | Add PSCI error decode after `hvc #0`; log `x0` return code via hypervisor UART |
+| `src/core/partition.c` | Remove `partition_b_secondary_cpu_init` placeholder; use real platform init sequence |
+| `src/guest/rtos/freertos_integration.c` | Replace `HV_ARCH_CONTEXT_STUB` weak symbols with calls to arch/arm64/context.S exports |
+| `tests/integration/test_secondary_cpu_isolation.c` | Add T7: PSCI error-path rejection (invalid MPIDR), T8: FreeRTOS task period fidelity |
+| `tests/benchmarks/bench_isolation_latency.c` | Add FreeRTOS yield-to-EL2-and-back round-trip latency measurement |
+
+**Exit criteria:**
+- [ ] CPU 2 boots to Partition B guest entry via real PSCI on QEMU arm64
+- [ ] FreeRTOS task completes 1000 periods with deadline miss rate < 0.1%
+- [ ] `hv_arch_context_save` / `hv_arch_context_restore` confirmed by register-comparison selftest
+- [ ] Bench report shows median EL2 mediation overhead < 2µs
+
+---
+
+### Phase 6: Static Analysis + Safety Certification Pathway
+
+**Theme:** Gate all merges on cppcheck + clang `--analyze`; establish a MISRA-C subset compliance baseline to support any future ISO 26262 or IEC 61508 claim.
+
+> **Status as of v0.6.0:** The CI workflow (`.github/workflows/static-analysis.yml`) and local script (`scripts/ci/static-analysis.sh`) are complete and passing. The remaining work is the MISRA-C rule selection and deviation documentation.
+
+**Static analysis gate (complete — `feat/static-analysis-gate`):**
+- cppcheck: `src/core/`, `src/guest/`, `drivers/` (except `drivers/linux/` — kernel module)
+- clang `--analyze`: `src/core/`, `src/guest/` — core, deadcode, security checkers
+- Both tools run in CI and locally; `PASS`/`FAIL` exit codes enforce the gate
+
+**MISRA-C subset (future work):**
+
+Select a targeted subset of MISRA-C:2012 rules for the TCB core (`src/core/` only):
+
+| Rule ID | Requirement | Rationale |
+| ------- | ----------- | --------- |
+| 15.5 | A function have a single point of exit | Auditable control flow |
+| 17.7 | Return value of non-void functions not discarded | Prevents silent failure |
+| 21.3 | `<stdlib.h>` memory allocation not used | No dynamic allocation in TCB |
+| 21.6 | Standard I/O not used in production paths | No `printf` in core |
+| 14.4 | Controlling expression of `if` shall be essentially boolean | Reduces implicit conversions |
+| 11.1–11.8 | Pointer conversions restricted | Prevents type confusion attacks |
+
+**Deviation record template:**
+
+```markdown
+## MISRA-C Deviation DR-001
+
+Rule: 11.1 — Conversions shall not be performed between a pointer to a function and any other type.
+File: arch/arm64/boot.S (inline function pointer cast for PSCI entry)
+Justification: The PSCI entry point must be cast from uintptr_t to function pointer
+  to satisfy the HVC ABI. The cast is reviewed for alignment and type safety.
+Review: Isolation Guardian sign-off required before merge.
+```
+
+**Files to create:**
+
+| File | Purpose |
+| ---- | ------- |
+| `docs/safety/MISRA_DEVIATION_RECORD.md` | Deviation log for TCB MISRA-C subset |
+| `docs/safety/STATIC_ANALYSIS_POLICY.md` | Tool selection rationale, suppression policy, false-positive registry |
+| `scripts/ci/misra-check.sh` | cppcheck MISRA mode runner (when MISRA addon available) |
+| `.github/workflows/misra-advisory.yml` | Advisory-only MISRA run (non-blocking, results uploaded as artifact) |
+
+**Exit criteria:**
+- [ ] Zero `--enable=warning` findings in `src/core/` with cppcheck
+- [ ] Zero security checker findings in `src/core/` with clang `--analyze`
+- [ ] MISRA deviation record created for all intentional rule violations
+- [ ] Static analysis policy documented and linked from `CONTRIBUTING.md`
+
+---
+
+### Phase 7: Long-Term Maintenance Strategy
+
+**Theme:** Establish processes that keep Haven buildable, secure, and thesis-reproducible beyond the submission window.
+
+#### 7.1 Version Management
+
+Haven uses [Semantic Versioning](https://semver.org/):
+
+```
+MAJOR.MINOR.PATCH[-prerelease]
+```
+
+| Increment | When |
+| --------- | ---- |
+| PATCH | Bug fixes, documentation corrections, test additions that don't change API |
+| MINOR | New isolation features, new platform support, new drivers — backwards-compatible ABI |
+| MAJOR | Breaking API changes, isolation model changes, TCB restructuring |
+
+**Branching model:**
+
+```
+main          ← always releasable; protected branch; requires PR + CI pass
+feat/*        ← feature branches; squash-merged to main
+fix/*         ← bug fix branches
+docs/*        ← documentation-only branches
+chore/*       ← non-functional changes (CI, deps, formatting)
+release/vX.Y  ← release preparation branches; tagged and frozen after release
+```
+
+**Backport policy:**
+- Critical security fixes: backport to the two most recent MINOR releases
+- Bug fixes that affect thesis reproducibility: backport to `release/v1.0` (thesis tag)
+- New features: no backport; forward-only
+
+#### 7.2 Security Advisory Process
+
+All security-relevant changes (isolation boundary violations, privilege escalation vectors, SMMU bypass paths) follow this process:
+
+1. **Discovery**: File a GitHub Security Advisory (private) with CVSS score estimate
+2. **Triage**: Isolation Guardian reviews within 48 hours
+3. **Fix**: Implemented on a private fork; tested on QEMU + i.MX95
+4. **Disclosure**: 90-day coordinated disclosure; advisory published on fix merge
+5. **Changelog**: `SECURITY.md` updated; `CHANGELOG.md` entry under `### Security`
+
+Scope of security coverage:
+
+| Threat | Scope | Out of Scope |
+| ------ | ----- | ------------ |
+| Partition escape (stage-2 bypass) | In scope | Side-channel attacks (Spectre/Meltdown) |
+| SMMU bypass (DMA to wrong partition) | In scope | Physical attacks |
+| Budget exhaustion (temporal starvation) | In scope | Supply-chain attacks on toolchain |
+| PSCI privilege escalation | In scope | Host OS (Linux) vulnerabilities |
+
+#### 7.3 Dependency Pinning
+
+Haven's build chain has no runtime dependencies, but the CI toolchain must be pinned for reproducibility:
+
+```yaml
+# .github/workflows/ci.yml — toolchain pinning
+env:
+  QEMU_VERSION: "8.2.0"
+  GCC_AARCH64_VERSION: "13.2.0"
+  CPPCHECK_VERSION: "2.13"
+  CLANG_VERSION: "17.0.6"
+```
+
+- Toolchain versions pinned in `build/ci/metadata.txt` after each release
+- Docker image `Dockerfile` pins all tool versions; SHA256 digest recorded in `docs/thesis/REPRODUCIBILITY_APPENDIX.md`
+- `dependabot.yml` (GitHub Actions) enabled for workflow action version pins
+
+#### 7.4 Deprecation Policy
+
+- Deprecated APIs marked with `/* HAVEN_DEPRECATED(reason) */` comment block
+- Deprecated items remain for two MINOR releases before removal
+- Deprecation list maintained in `CHANGELOG.md` under `### Deprecated`
+
+**Files to create/update for Phase 7:**
+
+| File | Change |
+| ---- | ------ |
+| `docs/contributing/RELEASE_PROCESS.md` | Version bump checklist, tag procedure, changelog update steps |
+| `docs/contributing/SECURITY_PROCESS.md` | Advisory process, CVSS triage guide, disclosure timeline |
+| `docs/contributing/BACKPORT_POLICY.md` | Criteria for backporting, stable branch management |
+| `.github/dependabot.yml` | Automated action version updates |
+| `docs/thesis/REPRODUCIBILITY_APPENDIX.md` | Full commands, Docker SHA, expected outputs, variance ranges |
+
+**Exit criteria:**
+- [ ] `RELEASE_PROCESS.md` reviewed and agreed by thesis supervisor
+- [ ] `SECURITY_PROCESS.md` linked from `SECURITY.md`
+- [ ] Toolchain versions in `build/ci/metadata.txt` match pinned values in workflow
+- [ ] `dependabot.yml` active and first auto-PR handled
+
+---
+
+### Phase 8: Community + Publication Pathway
+
+**Theme:** Prepare Haven for external visibility — conference submission, reproducibility packaging, and optional open-source community seeding.
+
+#### 8.1 Target Venues
+
+| Venue | Type | Deadline window | Why Haven fits |
+| ----- | ---- | --------------- | -------------- |
+| ECRTS | Conference | January (full) / March (WiP) | Real-time isolation on AMP — core topic |
+| RTSS | Conference | May | Mixed-criticality, temporal isolation |
+| DATE | Conference | September | Embedded systems, SoC-level isolation |
+| EMSOFT | Workshop→conf | April | Embedded software, safety-critical OS |
+| OSDI / EuroSys | Conference | October | Systems software, if TCB story is strong |
+
+**Paper structure recommendation** (for ECRTS 10-page limit):
+1. Introduction + Motivation (1 page): AMP isolation gap, TCB minimality argument
+2. Background (1 page): EL2 architecture, SMMUv3, GICv3 virtualization
+3. Design (2 pages): 5-layer isolation model, static partitioning decisions, PSCI secondary CPU
+4. Implementation (1.5 pages): key code paths, TCB size, formal proof structure
+5. Evaluation (3 pages): latency benchmarks (QEMU + i.MX95), deadline miss rates, fault injection results, comparison table vs Jailhouse/Bao
+6. Related Work (0.5 page): Jailhouse, Bao, Omnivisor, seL4
+7. Conclusion (0.5 page): summary, open problems, future work
+
+#### 8.2 Reproducibility Package
+
+For any submission, a companion reproducibility package must be submitted (or posted to Zenodo):
+
+```
+haven-repro-v1.0.tar.gz
+├── Dockerfile               ← exact toolchain
+├── README-REPRO.md          ← step-by-step from docker run to results
+├── scripts/
+│   ├── run-all-benchmarks.sh
+│   └── generate-paper-figures.py
+├── expected-results/
+│   ├── qemu-latency.json    ← reference outputs with variance bounds
+│   └── fault-injection.json
+└── SHA256SUMS               ← integrity manifest
+```
+
+**Requirements for reproducibility claim:**
+- [ ] Any reviewer can `docker run haven-repro:v1.0 ./run-all-benchmarks.sh` and get matching results
+- [ ] Variance tolerance documented: ±15% for latency on QEMU, ±5% on i.MX95
+- [ ] All benchmark data archived on Zenodo with DOI
+- [ ] Paper figures auto-generated from benchmark JSON (no manual transcription)
+
+#### 8.3 Conference Demo Plan (QEMU-based)
+
+A live QEMU demo showing:
+1. Haven boots, prints partition table
+2. Partition A (Linux-class) attempts to write to Partition B memory → stage-2 fault logged
+3. Partition B (RTOS) completes 100 tasks without deadline miss during Partition A stress
+4. SMMU blocks rogue DMA → fault logged
+
+Demo script: `scripts/demo/conference-demo.sh`
+- Self-contained; runs on any Linux/macOS host with QEMU 8.x installed
+- Expected runtime: < 60 seconds
+- Output: pass/fail summary + latency histogram
+
+#### 8.4 Open Source Community Seeding (Optional)
+
+If the thesis receives a passing grade and the supervisor approves public release:
+
+1. **License audit**: Confirm Apache-2.0 coverage for all files; check for GPL contamination from any driver code
+2. **Clean history**: `git filter-repo` to remove any accidental credentials or large binary blobs
+3. **Issue templates**: Create GitHub issue templates for bug reports, feature requests, and platform bring-up requests
+4. **Discussions**: Enable GitHub Discussions for Q&A; link from `README.md`
+5. **Good first issues**: Tag 5–10 issues as `good-first-issue` (e.g., adding a new UART driver, porting to a new board)
+
+**Files to create for Phase 8:**
+
+| File | Purpose |
+| ---- | ------- |
+| `scripts/demo/conference-demo.sh` | Self-contained QEMU live demo |
+| `docs/thesis/PAPER_OUTLINE.md` | Paper structure, argument chain, evidence mapping |
+| `docs/contributing/GOOD_FIRST_ISSUES.md` | Curated list of entry-point tasks for new contributors |
+| `.github/ISSUE_TEMPLATE/bug_report.md` | Structured bug report template |
+| `.github/ISSUE_TEMPLATE/platform_bringup.md` | Platform bring-up request template |
+| `.github/ISSUE_TEMPLATE/feature_request.md` | Feature request template |
+
+**Exit criteria:**
+- [ ] `conference-demo.sh` runs end-to-end on fresh macOS host with QEMU 8.x
+- [ ] `PAPER_OUTLINE.md` reviewed and covers all 8 ECRTS paper sections
+- [ ] Reproducibility package tested by at least one independent reviewer
+- [ ] Zenodo DOI assigned for benchmark dataset
+
+---
+
+## Part 9: Implementation Progress Tracker
+
+This section tracks completed milestones against the 12-month plan. Updated at each release tag.
+
+### Completed Milestones
+
+| PR | Branch | Description | Release |
+| -- | ------ | ----------- | ------- |
+| #1–9 | various | CI/CD foundation, core contracts, test infrastructure | v0.1.0-dev |
+| #10–15 | various | SMMU 8-scenario coverage, EL2 exception injection, benchmark suite | v0.4.0 |
+| #16–22 | various | QEMU two-partition smoke test, IRQ injection, temporal isolation demo | v0.5.0 |
+| #23 | `feat/secondary-cpu-bringup` | Secondary CPU (CPU 2) PSCI bring-up, Partition B AMP launch | v0.6.0 |
+| #24 | `feat/freertos-context-hardening` | FreeRTOS context-switch state machine, task block/unblock, priority ceiling | v0.6.0 |
+| #25 | `chore/website-v0.6.0-sync` | Changelog, architecture overview, thesis traceability updated for v0.6.0 | v0.6.0 |
+| #26 | `feat/static-analysis-gate` | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh` | v0.6.0 |
+
+### Open Milestones
+
+| ID | Description | Phase | Priority |
+| -- | ----------- | ----- | -------- |
+| M-P5-1 | Implement `hv_arch_context_save/restore` in `arch/arm64/context.S` | Phase 5 | High |
+| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path | Phase 5 | High |
+| M-P5-3 | PSCI error-code decode and logging | Phase 5 | Medium |
+| M-P6-1 | MISRA-C deviation record for `src/core/` | Phase 6 | Medium |
+| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md` | Phase 6 | Low |
+| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md` | Phase 7 | Medium |
+| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md` | Phase 7 | High |
+| M-P8-1 | `scripts/demo/conference-demo.sh` | Phase 8 | Medium |
+| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md` | Phase 8 | High |
+| M-P4-1 | Coq formal proofs (`verification/coq/`) | Phase 4 | High |
+| M-P4-2 | i.MX95 measured benchmark campaign | Phase 4 | High |
+
+### Quality Gate Dashboard
+
+| Gate | Status | Notes |
+| ---- | ------ | ----- |
+| ARM64 binary builds (cross-compile) | ✅ | `make ARCH=arm64` produces `build/haven.elf` |
+| All unit + integration tests pass | ✅ | 46 FreeRTOS + secondary CPU tests pass |
+| QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` — Partition A + B markers pass |
+| Static analysis gate | ✅ | cppcheck + clang `--analyze` both PASS (as of #26) |
+| i.MX95 evidence package | ⬜ | Phase 3 / R3 — in progress |
+| Formal proofs check | ⬜ | Phase 4 / R4 — not started |
+| RTOS latency ≤ threshold | 🔄 | Benchmark infra ready; i.MX95 run pending |
+| Traceability matrix complete | 🔄 | Ch. 1–4 rows present; Ch. 5–8 pending |
+| Publication-quality paper draft | ⬜ | Phase 8 — not started |
