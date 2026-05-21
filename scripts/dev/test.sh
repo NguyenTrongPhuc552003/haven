@@ -106,6 +106,7 @@ echo "[test] running fault-injection matrix"
 echo "[test] running SMMU hardware integration test"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/integration/test_smmu_hardware.c \
+	tests/common/printk_stub.c \
 	src/core/mm/stage2.c \
 	src/core/dma/smmu.c \
 	-o build/tests/test_smmu_hardware
