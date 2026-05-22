@@ -8,7 +8,7 @@
 ---
 
 # ---------------------------------------------------------------------------
-# Indentation — Linux/kernel style: tabs, 8-column
+# Indentation - Linux/kernel style: tabs, 8-column
 # ---------------------------------------------------------------------------
 IndentWidth: 8
 TabWidth: 8
@@ -22,7 +22,7 @@ ConstructorInitializerIndentWidth: 8
 ColumnLimit: 80
 
 # ---------------------------------------------------------------------------
-# Brace style — K&R with function bodies on new line (Linux style)
+# Brace style - K&R with function bodies on new line (Linux style)
 # ---------------------------------------------------------------------------
 BreakBeforeBraces: Custom
 BraceWrapping:
@@ -72,7 +72,7 @@ BinPackArguments: true
 BinPackParameters: true
 
 # ---------------------------------------------------------------------------
-# Pointer alignment — `int *p` not `int* p`
+# Pointer alignment - `int *p` not `int* p`
 # ---------------------------------------------------------------------------
 PointerAlignment: Right
 DerivePointerAlignment: false
@@ -98,7 +98,7 @@ ReflowComments: false
 CommentPragmas: '^ IWYU pragma:'
 
 # ---------------------------------------------------------------------------
-# Includes — preserve order; do not auto-sort (include order is semantic in
+# Includes - preserve order; do not auto-sort (include order is semantic in
 # bare-metal code: arch headers may depend on earlier definitions)
 # ---------------------------------------------------------------------------
 SortIncludes: false
@@ -136,7 +136,7 @@ PenaltyExcessCharacter: 100
 PenaltyReturnTypeOnItsOwnLine: 60
 
 # ---------------------------------------------------------------------------
-# Standard — pure C project; Cpp03 avoids C++-specific parsing heuristics
+# Standard - pure C project; Cpp03 avoids C++-specific parsing heuristics
 # ---------------------------------------------------------------------------
 Standard: Cpp03
 

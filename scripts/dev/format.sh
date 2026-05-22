@@ -2,10 +2,10 @@
 # Haven clang-format automation script.
 #
 # Usage:
-#   scripts/format.sh               — format all tracked C/H files in-place
-#   scripts/format.sh --staged      — format only files staged for this commit
-#   scripts/format.sh --check       — check all tracked files (exit 1 if any need reformatting)
-#   scripts/format.sh --staged --check — check only staged files (used by pre-commit hook)
+#   scripts/format.sh               - format all tracked C/H files in-place
+#   scripts/format.sh --staged      - format only files staged for this commit
+#   scripts/format.sh --check       - check all tracked files (exit 1 if any need reformatting)
+#   scripts/format.sh --staged --check - check only staged files (used by pre-commit hook)
 #
 # Assembly (.S) files are intentionally excluded: ARM64 EL2 entry code uses
 # GNU assembler directives that clang-format mishandles.

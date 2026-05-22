@@ -75,7 +75,7 @@ cmake --build build
 # → build/haven.elf, build/haven.bin, build/guest_a.bin, build/guest_b.bin
 ```
 
-**ARM64 cross-compile (i.MX95 — thesis primary board):**
+**ARM64 cross-compile (i.MX95 - thesis primary board):**
 
 ```sh
 cmake --preset arm64-imx95

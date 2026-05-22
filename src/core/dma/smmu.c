@@ -291,7 +291,7 @@ hv_status_t hv_smmu_reset_partition(hv_u32 partition)
 	/* Free every StreamID owned by this partition, whether or not its DMA
 	 * window was ever configured.  An allocated-but-unconfigured StreamID
 	 * (e.g., one whose configure call was rejected due to a PA overlap)
-	 * must not persist after a partition reset — it would otherwise leak
+	 * must not persist after a partition reset - it would otherwise leak
 	 * quota from the global StreamID pool. */
 	for (hv_u16 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
 		if (!smmu_state.streamid_allocated[i] ||

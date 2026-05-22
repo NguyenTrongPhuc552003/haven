@@ -10,7 +10,7 @@
 extern void hv_printk(const char *fmt, ...);
 
 /* -----------------------------------------------------------------------
- * Architecture context hooks — weak defaults are no-ops on the host.
+ * Architecture context hooks - weak defaults are no-ops on the host.
  * On ARM64 hardware, arch/arm64/context.S overrides these via strong
  * symbols to perform real register save/restore.
  * ----------------------------------------------------------------------- */
@@ -161,7 +161,7 @@ hv_status_t hv_freertos_save_context(hv_u32 partition, hv_task_context_t *ctx)
 		return HV_EPERM;
 	}
 
-	/* Locate the task being saved — must be in RUNNING state. */
+	/* Locate the task being saved - must be in RUNNING state. */
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
 				   HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
@@ -178,7 +178,7 @@ hv_status_t hv_freertos_save_context(hv_u32 partition, hv_task_context_t *ctx)
 		return HV_EPERM;
 	}
 
-	/* Call arch hook — on host this is a no-op; on ARM64 it saves regs. */
+	/* Call arch hook - on host this is a no-op; on ARM64 it saves regs. */
 	hv_arch_context_save(ctx);
 
 	/* Sync stack pointer into the registry for scheduler visibility. */
@@ -206,7 +206,7 @@ hv_status_t hv_freertos_restore_context(hv_u32 partition,
 		return HV_EPERM;
 	}
 
-	/* Locate the task to restore — must be READY or RUNNING. */
+	/* Locate the task to restore - must be READY or RUNNING. */
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
 				   HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
@@ -223,7 +223,7 @@ hv_status_t hv_freertos_restore_context(hv_u32 partition,
 		return HV_EPERM;
 	}
 
-	/* Call arch hook — on host this is a no-op; on ARM64 it restores. */
+	/* Call arch hook - on host this is a no-op; on ARM64 it restores. */
 	hv_arch_context_restore(ctx);
 
 	if (slot != NULL) {
@@ -277,7 +277,7 @@ hv_status_t hv_freertos_task_block(hv_u32 partition, hv_u32 task_id)
 		    task_registry[i].state == HV_TASK_RUNNING &&
 		    task_registry[i].priority > blocked_priority) {
 			hv_printk(
-				"HAVEN[freertos]: priority inversion — "
+				"HAVEN[freertos]: priority inversion - "
 				"task %u (pri=%u) blocking while task %u "
 				"(pri=%u) runs\n",
 				task_id, blocked_priority,

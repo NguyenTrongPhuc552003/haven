@@ -182,7 +182,7 @@ static void smmu_invalidate_ste(uint32_t sid)
 		/* Yield a DSB to prevent the compiler/CPU from collapsing the loop */
 		__asm__ volatile("dsb sy" ::: "memory");
 		if (++spin >= SMMU_CMDQ_POLL_LIMIT) {
-			/* Hardware fault — SMMU command queue permanently full.
+			/* Hardware fault - SMMU command queue permanently full.
 			 * This is a fatal isolation error: log and halt. */
 			__asm__ volatile(
 				"b ." ::

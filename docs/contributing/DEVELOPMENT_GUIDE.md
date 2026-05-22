@@ -146,7 +146,7 @@ For every new enforcement path:
 2. Implement the invariant in `src/core/<subsystem>/`.
 3. Add a negative test to `tests/integration/test_isolation_negative.c`
    proving a cross-partition violation is rejected.
-4. Run `ctest --test-dir build-host` — all tests must pass before opening a PR.
+4. Run `ctest --test-dir build-host` - all tests must pass before opening a PR.
 
 ---
 

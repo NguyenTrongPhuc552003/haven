@@ -34,7 +34,7 @@ extern void hv_printk(const char *fmt, ...) __attribute__((weak));
 #define ESR_EC_DABT_LOW 0x24U /* Data Abort from lower EL          */
 #define ESR_FSC_MASK 0x3FU /* Fault Status Code: bits [5:0] */
 
-/* DFSC / IFSC field: bits [5:0] — fault status code.
+/* DFSC / IFSC field: bits [5:0] - fault status code.
  * Stage-2 (and stage-1) faults share the same FSC encoding:
  *   0x04–0x07 = Translation fault, level 0–3
  *   0x08–0x0B = Access flag fault, level 0–3

@@ -1,7 +1,7 @@
 # i.MX95 Validation Runbook
 
 Primary target board: NXP i.MX95 Dev Kit (8 Cortex-A55 + 1 Cortex-M33)  
-Thesis chapter: Chapter 6 — Platform Evaluation and Evidence
+Thesis chapter: Chapter 6 - Platform Evaluation and Evidence
 
 ---
 
@@ -32,7 +32,7 @@ qemu-system-aarch64 --version    # expect: QEMU 8.x
 
 ---
 
-## Step 1 — Build the Haven image
+## Step 1 - Build the Haven image
 
 ```bash
 cd /path/to/haven
@@ -54,7 +54,7 @@ ls -lh build-imx95/haven.bin
 
 ---
 
-## Step 2 — Flash via UUU
+## Step 2 - Flash via UUU
 
 1. Put the board in **download mode**: hold **SW1** while applying power.
 2. Connect the USB-A download cable to J17 and the host.
@@ -70,7 +70,7 @@ uuu -b emmc_all \
 
 ---
 
-## Step 3 — Connect the UART console
+## Step 3 - Connect the UART console
 
 ```bash
 # Find the serial device (macOS example)
@@ -85,7 +85,7 @@ picocom -b 115200 /dev/ttyUSB0
 
 ---
 
-## Step 4 — Expected boot output
+## Step 4 - Expected boot output
 
 ```
 Haven Hypervisor v0.1.0-dev (arm64 imx95-devkit)
@@ -107,14 +107,14 @@ If boot hangs:
 
 ---
 
-## Step 5 — Spatial isolation tests
+## Step 5 - Spatial isolation tests
 
 ```bash
 # Connect to partition A Linux console via virtio-uart (ch1)
 # (Replace /dev/ttyUSB1 with your secondary UART)
 screen /dev/ttyUSB1 115200
 
-# Inside Linux (Partition A) — attempt to access Partition B IPA
+# Inside Linux (Partition A) - attempt to access Partition B IPA
 devmem2 0xA0000000    # should trigger Stage-2 fault and be blocked
 
 # On host, verify the hypervisor fault log appears on the debug UART:
@@ -124,20 +124,20 @@ devmem2 0xA0000000    # should trigger Stage-2 fault and be blocked
 
 ```bash
 # DMA isolation: trigger a bounce-buffer write outside assigned region
-# (requires test harness module — see tests/integration/test_smmu_dma)
+# (requires test harness module - see tests/integration/test_smmu_dma)
 insmod /lib/modules/haven_smmu_test.ko
 dmesg | grep haven_smmu    # expect: "DMA fault injected, SMMU blocked access"
 ```
 
 ---
 
-## Step 6 — Temporal isolation tests
+## Step 6 - Temporal isolation tests
 
 ```bash
-# Inside Partition A (Linux) — start CPU stress
+# Inside Partition A (Linux) - start CPU stress
 stress-ng --cpu 6 --timeout 30s &
 
-# On host — capture RTOS latency log (Partition B prints to UART ch2)
+# On host - capture RTOS latency log (Partition B prints to UART ch2)
 screen /dev/ttyUSB2 115200
 # Expected lines:
 #   [FreeRTOS] Period deadline met: 10 ms (actual: 10.031 ms)
@@ -155,7 +155,7 @@ scripts/evidence/capture_imx95.sh \
 
 ---
 
-## Step 7 — Capture evidence artifacts
+## Step 7 - Capture evidence artifacts
 
 ```bash
 # Generate the full evidence bundle for this run

@@ -102,7 +102,7 @@ while [ "$ELAPSED" -lt 20 ]; do
   if [ -f "${UART_LOG}" ] && grep -q "${BOOT_MARKER}" "${UART_LOG}" 2>/dev/null; then
     if grep -q "${GUEST_A_MARKER}" "${UART_LOG}" 2>/dev/null; then
       if grep -q "${GUEST_B_MARKER}" "${UART_LOG}" 2>/dev/null; then
-        SUITE_STATUS="pass"   # Both partitions active — secondary CPU running
+        SUITE_STATUS="pass"   # Both partitions active - secondary CPU running
       else
         SUITE_STATUS="pass"   # Partition A booted + isolation demo complete
       fi

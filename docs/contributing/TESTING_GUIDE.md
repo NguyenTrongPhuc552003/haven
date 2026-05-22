@@ -116,8 +116,8 @@ The CI pipeline (`.github/workflows/`) runs the following matrix:
 
 | Job            | Runner        | What it does                                        |
 | -------------- | ------------- | --------------------------------------------------- |
-| `host-tests`   | ubuntu-latest | CMake `host-tests` preset — builds and runs all tests via CTest |
-| `arm64-build`  | ubuntu-latest | CMake `arm64-qemu` preset — cross-compiles to ELF               |
+| `host-tests`   | ubuntu-latest | CMake `host-tests` preset - builds and runs all tests via CTest |
+| `arm64-build`  | ubuntu-latest | CMake `arm64-qemu` preset - cross-compiles to ELF               |
 | `qemu-smoke`   | ubuntu-latest | `scripts/qemu-smoke.sh` - boots ELF in QEMU         |
 | `ci-preflight` | ubuntu-latest | `scripts/ci-preflight.sh` - lint, headers           |
 | `traceability` | ubuntu-latest | `scripts/check-traceability.sh` - requirement links |

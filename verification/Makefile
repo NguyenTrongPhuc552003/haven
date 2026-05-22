@@ -85,7 +85,7 @@ isabelle: $(ISA_BUILD)/.isabelle_stamp
 
 $(ISA_BUILD)/.isabelle_stamp: $(ISA_SRC)/HavenIsolation.thy $(ISA_SRC)/ROOT | $(ISA_BUILD)
 	@if ! command -v $(ISABELLE) >/dev/null 2>&1; then \
-	  echo "[isabelle] WARNING: '$(ISABELLE)' not found on PATH — skipping"; \
+	  echo "[isabelle] WARNING: '$(ISABELLE)' not found on PATH - skipping"; \
 	  touch $@; \
 	else \
 	  echo "[isabelle] building HavenIsolation session → $(ISA_BUILD)"; \

@@ -10,7 +10,7 @@ with latency overhead below 100 µs?
 Haven's thesis argues *yes*, through a combination of formal policy proofs
 (Coq, Isabelle/HOL) and empirical validation on QEMU and i.MX95 hardware.
 
-**Current version:** v0.6.0 — EL2 virtual IRQ injection, Partition B RTOS
+**Current version:** v0.6.0 - EL2 virtual IRQ injection, Partition B RTOS
 stub, SMMU 8-scenario integration test, CI benchmark regression gate.
 
 ---

@@ -21,7 +21,7 @@
 #                            applies (default: 8).  Suppresses false positives from
 #                            timer-granularity noise (~30 ns) in virtualised CI runners.
 #
-# Dependencies: python3 (standard library only — no third-party packages needed).
+# Dependencies: python3 (standard library only - no third-party packages needed).
 
 set -euo pipefail
 
@@ -113,7 +113,7 @@ for fname in sorted(os.listdir(results_dir)):
 
         baseline_val = bl_map[name]
         if baseline_val == 0:
-            # Baseline is 0 ns on host — skip ratio check
+            # Baseline is 0 ns on host - skip ratio check
             skipped.append((fname, name))
             continue
 
@@ -150,7 +150,7 @@ print()
 print(f"[bench-regression] passed={len(passed)}  failed={len(failed)}  skipped={len(skipped)}")
 
 if failed:
-    print(f"[bench-regression] REGRESSION DETECTED — {len(failed)} benchmark(s) exceed "
+    print(f"[bench-regression] REGRESSION DETECTED - {len(failed)} benchmark(s) exceed "
           f"{threshold_pct}% threshold", file=sys.stderr)
     sys.exit(1)
 

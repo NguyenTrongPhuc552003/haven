@@ -61,7 +61,7 @@ count_dir() {
   fi
 
   if command -v cloc &>/dev/null; then
-    # cloc: count C, C header, Assembly — suppress banner/progress
+    # cloc: count C, C header, Assembly - suppress banner/progress
     cloc --quiet --csv --include-lang="C,C/C++ Header,Assembly" \
          --not-match-f="test_|_test\." "$full" 2>/dev/null \
       | awk -F',' 'NR>1 && $2 ~ /^(C|C\/C\+\+ Header|Assembly)$/ {sum += $5} END {print sum+0}'
@@ -83,7 +83,7 @@ count_dir() {
 # ---------------------------------------------------------------------------
 # Main: iterate modules, accumulate totals
 # ---------------------------------------------------------------------------
-echo "Haven Trusted Computing Base — Line Count"
+echo "Haven Trusted Computing Base - Line Count"
 echo "=========================================="
 printf "%-35s  %8s\n" "Module" "SLOC"
 echo "------------------------------------------"
@@ -104,7 +104,7 @@ echo ""
 if [[ "$grand_total" -le "$THRESHOLD" ]]; then
   echo "OK: TCB is ${grand_total} SLOC (threshold: ${THRESHOLD})"
 else
-  echo "WARNING: TCB is ${grand_total} SLOC — EXCEEDS threshold of ${THRESHOLD}"
+  echo "WARNING: TCB is ${grand_total} SLOC - EXCEEDS threshold of ${THRESHOLD}"
 fi
 
 if [[ "$VERBOSE" == "1" ]]; then

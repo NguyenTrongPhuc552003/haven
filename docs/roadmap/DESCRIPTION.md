@@ -1006,7 +1006,7 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 ### Phase 5: Secondary CPU Full Integration + FreeRTOS Wire-Up Validation
 
-**Theme:** Validate the full AMP dual-partition path on real hardware — secondary CPU bring-up confirmed, FreeRTOS context switch mediated at EL2, measured scheduling fidelity.
+**Theme:** Validate the full AMP dual-partition path on real hardware - secondary CPU bring-up confirmed, FreeRTOS context switch mediated at EL2, measured scheduling fidelity.
 
 **Scope:**
 - Harden `hv_arch_psci_cpu_on` path: add PSCI error-code logging (`PSCI_E_ALREADY_ON`, `PSCI_E_INVALID_PARAMS`, etc.)
@@ -1040,9 +1040,9 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 > **Status as of v0.6.0:** The CI workflow (`.github/workflows/static-analysis.yml`) and local script (`scripts/ci/static-analysis.sh`) are complete and passing. The remaining work is the MISRA-C rule selection and deviation documentation.
 
-**Static analysis gate (complete — `feat/static-analysis-gate`):**
-- cppcheck: `src/core/`, `src/guest/`, `drivers/` (except `drivers/linux/` — kernel module)
-- clang `--analyze`: `src/core/`, `src/guest/` — core, deadcode, security checkers
+**Static analysis gate (complete - `feat/static-analysis-gate`):**
+- cppcheck: `src/core/`, `src/guest/`, `drivers/` (except `drivers/linux/` - kernel module)
+- clang `--analyze`: `src/core/`, `src/guest/` - core, deadcode, security checkers
 - Both tools run in CI and locally; `PASS`/`FAIL` exit codes enforce the gate
 
 **MISRA-C subset (future work):**
@@ -1063,7 +1063,7 @@ Select a targeted subset of MISRA-C:2012 rules for the TCB core (`src/core/` onl
 ```markdown
 ## MISRA-C Deviation DR-001
 
-Rule: 11.1 — Conversions shall not be performed between a pointer to a function and any other type.
+Rule: 11.1 - Conversions shall not be performed between a pointer to a function and any other type.
 File: arch/arm64/boot.S (inline function pointer cast for PSCI entry)
 Justification: The PSCI entry point must be cast from uintptr_t to function pointer
   to satisfy the HVC ABI. The cast is reviewed for alignment and type safety.
@@ -1102,7 +1102,7 @@ MAJOR.MINOR.PATCH[-prerelease]
 | Increment | When |
 | --------- | ---- |
 | PATCH | Bug fixes, documentation corrections, test additions that don't change API |
-| MINOR | New isolation features, new platform support, new drivers — backwards-compatible ABI |
+| MINOR | New isolation features, new platform support, new drivers - backwards-compatible ABI |
 | MAJOR | Breaking API changes, isolation model changes, TCB restructuring |
 
 **Branching model:**
@@ -1145,7 +1145,7 @@ Scope of security coverage:
 Haven's build chain has no runtime dependencies, but the CI toolchain must be pinned for reproducibility:
 
 ```yaml
-# .github/workflows/ci.yml — toolchain pinning
+# .github/workflows/ci.yml - toolchain pinning
 env:
   QEMU_VERSION: "8.2.0"
   GCC_AARCH64_VERSION: "13.2.0"
@@ -1183,13 +1183,13 @@ env:
 
 ### Phase 8: Community + Publication Pathway
 
-**Theme:** Prepare Haven for external visibility — conference submission, reproducibility packaging, and optional open-source community seeding.
+**Theme:** Prepare Haven for external visibility - conference submission, reproducibility packaging, and optional open-source community seeding.
 
 #### 8.1 Target Venues
 
 | Venue | Type | Deadline window | Why Haven fits |
 | ----- | ---- | --------------- | -------------- |
-| ECRTS | Conference | January (full) / March (WiP) | Real-time isolation on AMP — core topic |
+| ECRTS | Conference | January (full) / March (WiP) | Real-time isolation on AMP - core topic |
 | RTSS | Conference | May | Mixed-criticality, temporal isolation |
 | DATE | Conference | September | Embedded systems, SoC-level isolation |
 | EMSOFT | Workshop→conf | April | Embedded software, safety-critical OS |
@@ -1307,10 +1307,10 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | ---- | ------ | ----- |
 | ARM64 binary builds (cross-compile) | ✅ | `cmake --preset arm64-qemu && cmake --build build` produces `build/haven.elf` |
 | All unit + integration tests pass | ✅ | 46 FreeRTOS + secondary CPU tests pass |
-| QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` — Partition A + B markers pass |
+| QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` - Partition A + B markers pass |
 | Static analysis gate | ✅ | cppcheck + clang `--analyze` both PASS (as of #26) |
-| i.MX95 evidence package | ⬜ | Phase 3 / R3 — in progress |
-| Formal proofs check | ⬜ | Phase 4 / R4 — not started |
+| i.MX95 evidence package | ⬜ | Phase 3 / R3 - in progress |
+| Formal proofs check | ⬜ | Phase 4 / R4 - not started |
 | RTOS latency ≤ threshold | 🔄 | Benchmark infra ready; i.MX95 run pending |
 | Traceability matrix complete | 🔄 | Ch. 1–4 rows present; Ch. 5–8 pending |
-| Publication-quality paper draft | ⬜ | Phase 8 — not started |
+| Publication-quality paper draft | ⬜ | Phase 8 - not started |
