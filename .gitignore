@@ -2,7 +2,7 @@
 .DS_Store
 
 # Build outputs
-build/
+build*/
 out/
 *.o
 *.a
@@ -23,6 +23,9 @@ __pycache__/
 .idea/
 compile_commands.json
 coverage/
+
+# CMake user-local overrides (not committed)
+CMakeUserPresets.json
 .vercel
 
 # Astro / website build outputs

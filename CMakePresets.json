@@ -1,0 +1,93 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 22,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "arm64-qemu",
+            "displayName": "ARM64 — QEMU virt (default)",
+            "description": "Cross-compile for ARM64 targeting QEMU virt machine",
+            "toolchainFile": "${sourceDir}/cmake/arm64.cmake",
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "PLATFORM": "qemu-virt",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "arm64-imx95",
+            "displayName": "ARM64 — NXP i.MX95 Dev Kit",
+            "description": "Cross-compile for ARM64 targeting the NXP i.MX95 Dev Kit (thesis primary board)",
+            "toolchainFile": "${sourceDir}/cmake/arm64.cmake",
+            "binaryDir": "${sourceDir}/build-imx95",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "PLATFORM": "imx95-devkit",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "arm64-imx8qm",
+            "displayName": "ARM64 — NXP i.MX8QM MEK",
+            "description": "Cross-compile for ARM64 targeting the NXP i.MX8QM MEK board",
+            "toolchainFile": "${sourceDir}/cmake/arm64.cmake",
+            "binaryDir": "${sourceDir}/build-imx8qm",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "PLATFORM": "imx8qm-mek",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "host-tests",
+            "displayName": "Host — unit + integration tests (native)",
+            "description": "Native host build for running all test suites with CTest",
+            "toolchainFile": "${sourceDir}/cmake/host.cmake",
+            "binaryDir": "${sourceDir}/build-host",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "arm64-qemu",
+            "configurePreset": "arm64-qemu",
+            "jobs": 4
+        },
+        {
+            "name": "arm64-imx95",
+            "configurePreset": "arm64-imx95",
+            "jobs": 4
+        },
+        {
+            "name": "arm64-imx8qm",
+            "configurePreset": "arm64-imx8qm",
+            "jobs": 4
+        },
+        {
+            "name": "host-tests",
+            "configurePreset": "host-tests",
+            "jobs": 4
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "host-tests",
+            "configurePreset": "host-tests",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "default"
+            },
+            "execution": {
+                "stopOnFailure": false,
+                "jobs": 4
+            }
+        }
+    ]
+}
