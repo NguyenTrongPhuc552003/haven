@@ -93,15 +93,14 @@ jobs:
           sudo apt-get install -y coq
 
       - name: Verify Coq isolation proofs
-        working-directory: verification/coq
-        run: |
-          echo "[coq] checking IsolationModel.v"
-          coqc IsolationModel.v
-          echo "[coq] checking Stage2Policy.v"
-          coqc Stage2Policy.v
-          echo "[coq] checking BudgetScheduler.v"
-          coqc BudgetScheduler.v
-          echo "[coq] all proofs verified"
+        run: make -C verification coq
+
+      - name: Upload compiled proof objects
+        uses: actions/upload-artifact@v4
+        with:
+          name: coq-proofs-${{ github.run_id }}
+          retention-days: 30
+          path: build/verification/coq/
 
   evidence-generation:
     runs-on: ubuntu-latest

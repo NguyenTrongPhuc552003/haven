@@ -11,12 +11,15 @@
 # Exit 1 if any benchmark regresses beyond the threshold.
 #
 # Environment variables:
-#   BASELINE          Path to the baseline JSON (default: build/benchmarks/latency-baseline.json)
-#   RESULTS_DIR       Directory containing benchmark result JSONs (default: build/benchmarks)
-#   REGRESSION_THRESHOLD_PCT
-#                     Integer percentage tolerance (default: 10).
-#                     A benchmark with mean_ns > baseline_ns * (1 + threshold/100)
-#                     is considered a regression.
+#   BASELINE                 Path to the baseline JSON (default: build/benchmarks/latency-baseline.json)
+#   RESULTS_DIR              Directory containing benchmark result JSONs (default: build/benchmarks)
+#   REGRESSION_THRESHOLD_PCT Integer percentage tolerance (default: 10).
+#                            A benchmark is a regression only when BOTH conditions hold:
+#                              1. mean_ns > baseline_ns * (1 + threshold/100)
+#                              2. absolute delta (mean_ns - baseline_ns) > MIN_ABS_NS
+#   MIN_ABS_NS               Minimum absolute increase (ns) before the percentage check
+#                            applies (default: 8).  Suppresses false positives from
+#                            timer-granularity noise (~30 ns) in virtualised CI runners.
 #
 # Dependencies: python3 (standard library only — no third-party packages needed).
 
@@ -28,6 +31,7 @@ ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BASELINE="${BASELINE:-${ROOT}/tests/benchmarks/latency-baseline.json}"
 RESULTS_DIR="${RESULTS_DIR:-${ROOT}/build/benchmarks}"
 REGRESSION_THRESHOLD_PCT="${REGRESSION_THRESHOLD_PCT:-10}"
+MIN_ABS_NS="${MIN_ABS_NS:-8}"
 
 # -----------------------------------------------------------------------
 # Preflight
@@ -44,12 +48,12 @@ if [ ! -f "${BASELINE}" ]; then
     exit 1
 fi
 
-echo "[bench-regression] threshold=${REGRESSION_THRESHOLD_PCT}% baseline=${BASELINE}"
+echo "[bench-regression] threshold=${REGRESSION_THRESHOLD_PCT}% min_abs=${MIN_ABS_NS}ns baseline=${BASELINE}"
 
 # -----------------------------------------------------------------------
 # Python3 comparison script (executed inline for portability)
 # -----------------------------------------------------------------------
-python3 - "${BASELINE}" "${RESULTS_DIR}" "${REGRESSION_THRESHOLD_PCT}" << 'PYEOF'
+python3 - "${BASELINE}" "${RESULTS_DIR}" "${REGRESSION_THRESHOLD_PCT}" "${MIN_ABS_NS}" << 'PYEOF'
 import json
 import os
 import sys
@@ -57,6 +61,7 @@ import sys
 baseline_path = sys.argv[1]
 results_dir   = sys.argv[2]
 threshold_pct = int(sys.argv[3])
+min_abs_ns    = int(sys.argv[4]) if len(sys.argv) > 4 else 8
 
 # Load baseline: flat dict {name: mean_ns}
 with open(baseline_path) as f:
@@ -114,8 +119,12 @@ for fname in sorted(os.listdir(results_dir)):
 
         ratio_pct = ((measured - baseline_val) / baseline_val) * 100.0
         limit_ns  = int(baseline_val * (1 + threshold_pct / 100.0))
+        abs_delta = measured - baseline_val
 
-        if measured > limit_ns:
+        # A regression requires BOTH a percentage increase above threshold AND
+        # an absolute delta above min_abs_ns.  The absolute guard suppresses
+        # false positives from timer-granularity noise in virtualised CI runners.
+        if measured > limit_ns and abs_delta > min_abs_ns:
             failed.append((fname, name, baseline_val, measured, ratio_pct))
         else:
             passed.append((fname, name, baseline_val, measured, ratio_pct))
