@@ -4,12 +4,27 @@
 set(CMAKE_SYSTEM_NAME      Generic)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-# Auto-detect cross-compiler: prefer aarch64-unknown-linux-gnu-, fall back to aarch64-elf-
-find_program(_CROSS_GCC_PROBE aarch64-unknown-linux-gnu-gcc)
-if(_CROSS_GCC_PROBE)
+# Auto-detect cross-compiler.
+# Priority:
+#   1. aarch64-linux-gnu-      — Ubuntu/Debian gcc-aarch64-linux-gnu package (CI default)
+#   2. aarch64-unknown-linux-gnu- — custom Linaro / crosstool-ng toolchain
+#   3. aarch64-elf-            — bare-metal newlib toolchain
+find_program(_CROSS_GCC_PROBE_LINUXGNU  aarch64-linux-gnu-gcc)
+find_program(_CROSS_GCC_PROBE_UNKNOWN   aarch64-unknown-linux-gnu-gcc)
+find_program(_CROSS_GCC_PROBE_ELF       aarch64-elf-gcc)
+
+if(_CROSS_GCC_PROBE_LINUXGNU)
+    set(CROSS_PREFIX aarch64-linux-gnu-)
+elseif(_CROSS_GCC_PROBE_UNKNOWN)
     set(CROSS_PREFIX aarch64-unknown-linux-gnu-)
-else()
+elseif(_CROSS_GCC_PROBE_ELF)
     set(CROSS_PREFIX aarch64-elf-)
+else()
+    message(FATAL_ERROR
+        "No AArch64 cross-compiler found. Install one of:\n"
+        "  Ubuntu/Debian: sudo apt-get install gcc-aarch64-linux-gnu\n"
+        "  Homebrew:      brew install aarch64-elf-gcc\n"
+        "Or set CMAKE_C_COMPILER explicitly.")
 endif()
 
 set(CMAKE_C_COMPILER   ${CROSS_PREFIX}gcc)
