@@ -26,13 +26,13 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc make python3 qemu-system-arm qemu-system-aarch64
+          sudo apt-get install -y gcc cmake ninja-build python3 qemu-system-arm qemu-system-aarch64
 
       - name: Setup macOS toolchain
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install make python qemu
+          brew install cmake ninja python qemu
 
       - name: Setup Windows toolchain
         if: runner.os == 'Windows'
@@ -42,7 +42,8 @@ jobs:
           update: true
           install: >-
             git
-            make
+            cmake
+            ninja
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-python
             mingw-w64-ucrt-x86_64-qemu
