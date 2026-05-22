@@ -72,11 +72,12 @@ mean 58 ns confirms the scheduler adds negligible overhead even under pressure.
 **Step 1 - Build and run the benchmark suite:**
 
 ```bash
-make test
+cmake --preset host-tests && cmake --build build-host
+ctest --test-dir build-host --output-on-failure
 ```
 
-This builds the hypervisor, runs unit + integration tests, and writes
-benchmark JSON files to `build/benchmarks/`.
+This builds all test and benchmark binaries, runs them, and writes
+benchmark JSON files to `build-host/`.
 
 **Step 2 - Print the latency table:**
 
@@ -121,8 +122,8 @@ Benchmarks run automatically on every push to `main` via:
 ```
 
 The workflow:
-1. Builds the hypervisor with `make all`.
-2. Runs `make test` to produce `build/benchmarks/isolation-latency.json`.
+1. Builds the hypervisor with `cmake --preset arm64-qemu && cmake --build build`.
+2. Runs `cmake --preset host-tests && cmake --build build-host && ctest --test-dir build-host` to produce benchmark JSON in `build-host/`.
 3. Invokes `python3 tools/analysis/latency_analyzer.py` and fails the job if
    any benchmark exceeds `THRESHOLD_NS = 100,000 ns`.
 4. Uploads `build/benchmarks/` as a workflow artefact named
@@ -154,7 +155,7 @@ To capture hardware baselines on an i.MX95-devkit board:
 
 ```bash
 # 1. Cross-compile for i.MX95
-make ARCH=arm64 PLATFORM=imx95-devkit CROSS_COMPILE=aarch64-linux-gnu- all
+cmake --preset arm64-imx95 && cmake --build build-imx95
 
 # 2. Boot Haven on the board via U-Boot:
 #    => fatload mmc 0:1 0x80000000 haven.bin; go 0x80000000

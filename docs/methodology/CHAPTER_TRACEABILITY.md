@@ -55,7 +55,7 @@ interface contracts between subsystems.
 | Repository structure   | `docs/architecture/REPOSITORY_STRUCTURE.md` |
 
 **Acceptance criteria:** Interface review complete; all public API headers
-compile cleanly under `make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all`.
+compile cleanly under `cmake --preset arm64-qemu && cmake --build build`.
 
 ---
 
@@ -355,7 +355,7 @@ chapter claims; future-work section references open issues.
 
 The script `scripts/dev/check-traceability.sh` verifies that every artifact
 path listed in this matrix exists in the repository and that all referenced
-test binaries are built and pass under `make test`.
+test binaries are built and pass under `cmake --preset host-tests && ctest --test-dir build-host`.
 
 The nightly job `benchmark-regression` in `.github/workflows/nightly.yml`
 automatically gates on the 15-entry latency baseline and uploads results as
