@@ -2,17 +2,18 @@
   "_description": "Haven isolation hot-path latency baseline for regression gating.",
   "_usage": "Run scripts/ci/bench-regression.sh to compare build/benchmarks/*.json against this file.",
   "_update": "Run scripts/ci/bench-update-baseline.sh to refresh from current measurements.",
-  "created_utc": "2026-05-13T00:00:00Z",
+  "_environment": "GitHub Actions ubuntu-latest (virtualized); timer resolution ~30 ns.",
+  "created_utc": "2026-05-23T00:00:00Z",
   "regression_threshold_pct": 10,
   "benchmarks": [
     {
       "name": "stage2_partition_contains_pa",
-      "mean_ns": 47,
+      "mean_ns": 31,
       "note": "stage-2 PA containment check hot-path (isolation-latency)"
     },
     {
       "name": "irq_is_owned_by",
-      "mean_ns": 35,
+      "mean_ns": 29,
       "note": "IRQ ownership lookup (isolation-latency)"
     },
     {
@@ -22,62 +23,62 @@
     },
     {
       "name": "smmu_check_dma_access",
-      "mean_ns": 29,
+      "mean_ns": 32,
       "note": "SMMU DMA access policy check (isolation-latency)"
     },
     {
       "name": "timer_check_deadline",
-      "mean_ns": 25,
+      "mean_ns": 30,
       "note": "timer deadline check (isolation-latency)"
     },
     {
       "name": "iommu_check_group",
-      "mean_ns": 24,
+      "mean_ns": 29,
       "note": "IOMMU group check (isolation-latency)"
     },
     {
       "name": "stage2_contains_hot_path",
-      "mean_ns": 44,
+      "mean_ns": 31,
       "note": "stage-2 containment hot-path (stage2-fault)"
     },
     {
       "name": "stage2_contains_cold_path",
-      "mean_ns": 40,
+      "mean_ns": 31,
       "note": "stage-2 containment cold-path (stage2-fault)"
     },
     {
       "name": "stage2_contains_low_boundary",
-      "mean_ns": 20,
+      "mean_ns": 31,
       "note": "stage-2 containment low-boundary (stage2-fault)"
     },
     {
       "name": "stage2_contains_high_boundary",
-      "mean_ns": 30,
+      "mean_ns": 31,
       "note": "stage-2 containment high-boundary (stage2-fault)"
     },
     {
       "name": "smmu_check_access_hot",
-      "mean_ns": 27,
+      "mean_ns": 32,
       "note": "SMMU access check hot-path (smmu-policy)"
     },
     {
       "name": "smmu_check_window_boundary_low",
-      "mean_ns": 26,
+      "mean_ns": 31,
       "note": "SMMU boundary check low (smmu-policy)"
     },
     {
       "name": "smmu_check_window_boundary_high",
-      "mean_ns": 25,
+      "mean_ns": 31,
       "note": "SMMU boundary check high (smmu-policy)"
     },
     {
       "name": "smmu_check_access_denied",
-      "mean_ns": 22,
+      "mean_ns": 30,
       "note": "SMMU denied access check (smmu-policy)"
     },
     {
       "name": "smmu_allocate_streamid",
-      "mean_ns": 25,
+      "mean_ns": 31,
       "note": "SMMU StreamID allocation (smmu-policy)"
     }
   ]
