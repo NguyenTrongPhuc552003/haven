@@ -57,12 +57,11 @@ software conditions is not accepted as thesis evidence.
 ### Build for i.MX95
 
 ```bash
-make ARCH=arm64 PLATFORM=imx95-devkit \
-     CROSS_COMPILE=aarch64-unknown-linux-gnu- \
-     all
+cmake --preset arm64-imx95
+cmake --build build-imx95
 ```
 
-The resulting ELF and ITB images are placed in `build/imx95-devkit/`.
+The resulting ELF and ITB images are placed in `build-imx95/`.
 
 ### Package evidence
 

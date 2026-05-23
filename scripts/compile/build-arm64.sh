@@ -4,8 +4,8 @@ set -eu
 
 JOBS=${JOBS:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}
 
-# Probe for available cross-compiler prefix
-for PREFIX in aarch64-unknown-linux-gnu- aarch64-linux-gnu- aarch64-none-elf-; do
+# Probe for available cross-compiler prefix (matching cmake/arm64.cmake priorities)
+for PREFIX in aarch64-linux-gnu- aarch64-unknown-linux-gnu- aarch64-elf-; do
     if command -v "${PREFIX}gcc" >/dev/null 2>&1; then
         CROSS_COMPILE="$PREFIX"
         break
@@ -20,9 +20,10 @@ if [ -z "${CROSS_COMPILE:-}" ]; then
 fi
 
 echo "[build-arm64] using cross-compiler: ${CROSS_COMPILE}gcc"
-echo "[build-arm64] jobs: ${JOBS}"
+echo "[build-arm64] cmake --preset arm64-qemu (toolchain auto-detected by cmake/arm64.cmake)"
 
-make ARCH=arm64 CROSS_COMPILE="${CROSS_COMPILE}" -j"${JOBS}" all
+cmake --preset arm64-qemu
+cmake --build build --parallel "${JOBS}"
 
 echo "[build-arm64] build complete: build/haven.elf  build/haven.bin"
 ${CROSS_COMPILE}size build/haven.elf

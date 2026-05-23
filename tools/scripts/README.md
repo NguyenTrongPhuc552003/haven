@@ -7,7 +7,7 @@ Helper shell scripts for building Haven and launching QEMU guests.
 ## `cross-compile.sh`
 
 Detects or installs the AArch64 cross-compilation toolchain and runs a full
-`make ARCH=arm64` build of the Haven hypervisor.
+CMake ARM64 build of the Haven hypervisor (`cmake --preset arm64-qemu`).
 
 ### Usage
 
@@ -23,7 +23,8 @@ tools/scripts/cross-compile.sh [--toolchain PATH] [--jobs N]
    (macOS/Homebrew).
 2. **Build invocation** - runs:
    ```bash
-   make ARCH=arm64 CROSS_COMPILE=<detected-prefix> -j${JOBS:-$(nproc)} all
+   cmake --preset arm64-qemu
+   cmake --build build --parallel ${JOBS:-$(nproc)}
    ```
 3. **Artefacts** - places the hypervisor ELF at `build/haven.elf` and a flat
    binary at `build/haven.bin`.
@@ -33,14 +34,15 @@ tools/scripts/cross-compile.sh [--toolchain PATH] [--jobs N]
 | Flag          | Default       | Description                                                   |
 | ------------- | ------------- | ------------------------------------------------------------- |
 | `--toolchain` | auto-detected | Override: prefix path, e.g. `/opt/xcc/bin/aarch64-linux-gnu-` |
-| `--jobs`      | `nproc`       | Parallel make jobs                                            |
+| `--jobs`      | `nproc`       | Parallel CMake/Ninja jobs                                     |
 
 ### Prerequisites
 
 | Dependency                      | Minimum version | Notes                         |
 | ------------------------------- | --------------- | ----------------------------- |
-| `aarch64-unknown-linux-gnu-gcc` | GCC 12+         | Or any AArch64 cross-compiler |
-| GNU Make                        | 4.3+            |                               |
+| `aarch64-linux-gnu-gcc`         | GCC 12+         | Or any AArch64 cross-compiler |
+| CMake                           | 3.22+           |                               |
+| Ninja                           | 1.10+           |                               |
 | Python 3                        | 3.10+           | Used by config-gen scripts    |
 
 ---

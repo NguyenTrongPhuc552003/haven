@@ -175,7 +175,7 @@ Smoke test result: `validation_status=pass`, `elapsed_seconds=1`.
 
 **Infrastructure**
 - `Dockerfile` - Ubuntu 24.04, aarch64 cross-compiler, QEMU, Coq 8.18, Python/matplotlib.
-- `scripts/build-arm64.sh` - auto-detects cross-compiler prefix; runs `make ARCH=arm64`.
+- `scripts/build-arm64.sh` - auto-detects cross-compiler prefix; runs `cmake --preset arm64-qemu` + `cmake --build build`.
 - `linker.ld` - ELF linker script, `.text` at `0x80000000`, 4-CPU stacks.
 - `CMakeLists.txt` - optional CMake support for IDE integration.
 - `configs/riscv/qemu-riscv64.yaml` and `configs/x86/qemu-x86_64.yaml` - future platform stubs.

@@ -86,10 +86,13 @@ else
     fi
 fi
 
-echo "[cross-compile] Testing build with CROSS_COMPILE=$CROSS_COMPILE..."
+echo "[cross-compile] Building with cmake --preset arm64-qemu (toolchain auto-detected)..."
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 if [[ -z "$JOBS" ]]; then
     JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)"
 fi
-make -C "$ROOT" ARCH=arm64 CROSS_COMPILE="$CROSS_COMPILE" -j"$JOBS" all
+pushd "$ROOT" >/dev/null
+cmake --preset arm64-qemu
+cmake --build build --parallel "$JOBS"
+popd >/dev/null
 echo "[cross-compile] SUCCESS: build/haven.elf produced."
