@@ -1,6 +1,6 @@
 # Release 2 (Month 4-6)
 
-**Status: COMPLETE** — merged 2026-05-18 via PR #5
+**Status: COMPLETE** - merged 2026-05-18 via PR #5
 
 Theme:
 - Isolation mechanisms maturity and hardware binding layer.

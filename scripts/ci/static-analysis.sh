@@ -101,9 +101,9 @@ if [ "$TARGET" = "all" ] || [ "$TARGET" = "drivers" ]; then
 fi
 
 if [ "$FAILED" -ne 0 ]; then
-    echo "[static-analysis] FAIL — defects found above"
+    echo "[static-analysis] FAIL - defects found above"
     exit 1
 fi
 
-echo "[static-analysis] PASS — no defects"
+echo "[static-analysis] PASS - no defects"
 exit 0

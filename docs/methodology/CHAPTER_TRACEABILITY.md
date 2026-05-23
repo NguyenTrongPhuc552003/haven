@@ -55,7 +55,7 @@ interface contracts between subsystems.
 | Repository structure   | `docs/architecture/REPOSITORY_STRUCTURE.md` |
 
 **Acceptance criteria:** Interface review complete; all public API headers
-compile cleanly under `make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all`.
+compile cleanly under `cmake --preset arm64-qemu && cmake --build build`.
 
 ---
 
@@ -127,11 +127,11 @@ demonstrate that unauthorized access paths are closed.
 - Unit and integration test run logs: `build/tests/`
 - Config lint output: produced by `scripts/compile/check-configs.sh`
 - Evidence package: `scripts/evidence/package-evidence.sh`
-- **QEMU hardware demo (Partition A)**: `build/smoke/uart.log` — captured UART output showing Partition A boot, violation denial, post-fault resume.
+- **QEMU hardware demo (Partition A)**: `build/smoke/uart.log` - captured UART output showing Partition A boot, violation denial, post-fault resume.
 - **SMMU integration**: 8/8 scenarios pass; `tests/integration/test_smmu_hardware.c`.
-- **Benchmark regression gate**: `tests/benchmarks/latency-baseline.json` — 15 named entries, all within 10% tolerance; verified by `scripts/ci/bench-regression.sh`.
+- **Benchmark regression gate**: `tests/benchmarks/latency-baseline.json` - 15 named entries, all within 10% tolerance; verified by `scripts/ci/bench-regression.sh`.
 
-### 4.6 Measured results (QEMU baseline — v0.6.0)
+### 4.6 Measured results (QEMU baseline - v0.6.0)
 
 - `bench_isolation_latency` hot paths: `stage2_partition_contains_pa` and
   `smmu_check_dma_access` measure sub-microsecond on QEMU (100 000 iterations).
@@ -277,8 +277,8 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 | `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput            |
 | `tests/integration/test_fault_injection.c`    | Fault containment (F1–F8)        |
 | `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence           |
-| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU) — Partition A |
-| `tests/demos/guest_b_entry.S`                 | Hardware end-to-end demo (QEMU) — Partition B RTOS stub |
+| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU) - Partition A |
+| `tests/demos/guest_b_entry.S`                 | Hardware end-to-end demo (QEMU) - Partition B RTOS stub |
 
 ### 7.3 Benchmark output locations
 
@@ -294,7 +294,7 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 - Deadline miss benchmark: 0 misses in 1 000-iteration run.
 - Benchmark regression: no named hot-path exceeds 10 % regression from
   `tests/benchmarks/latency-baseline.json` (enforced by nightly CI job).
-- **QEMU two-partition demo** (R3): smoke test `validation_status=pass`; UART log shows greeting, violation denial, and post-fault resume — archived in `build/smoke/`.
+- **QEMU two-partition demo** (R3): smoke test `validation_status=pass`; UART log shows greeting, violation denial, and post-fault resume - archived in `build/smoke/`.
 - Board-backed evidence: IMX95 validation runbook completed (R3/M5 gate).
   Template: `docs/methodology/IMX95_EVIDENCE_TEMPLATE.md`
 
@@ -355,7 +355,7 @@ chapter claims; future-work section references open issues.
 
 The script `scripts/dev/check-traceability.sh` verifies that every artifact
 path listed in this matrix exists in the repository and that all referenced
-test binaries are built and pass under `make test`.
+test binaries are built and pass under `cmake --preset host-tests && ctest --test-dir build-host`.
 
 The nightly job `benchmark-regression` in `.github/workflows/nightly.yml`
 automatically gates on the 15-entry latency baseline and uploads results as
@@ -374,6 +374,6 @@ automatically gates on the 15-entry latency baseline and uploads results as
 | Benchmark regression gate       | ✅ Done  | `scripts/ci/bench-regression.sh`            |
 | Nightly regression CI job       | ✅ Done  | `.github/workflows/nightly.yml`             |
 | Release script                  | ✅ Done  | `scripts/release.sh`                        |
-| Secondary-CPU ERET (Partition B) | ⏳ Next | Phase 3 — secondary CPU bring-up            |
+| Secondary-CPU ERET (Partition B) | ⏳ Next | Phase 3 - secondary CPU bring-up            |
 
 Schedule: run on every pull request targeting `main`.

@@ -155,7 +155,7 @@ static void test_freertos_context_operations(void)
 	assert(status == HV_OK);
 	TEST_PASS("freertos_context: restore (READY→RUNNING) succeeds");
 
-	/* Now save is valid — task is RUNNING. */
+	/* Now save is valid - task is RUNNING. */
 	status = hv_freertos_save_context(part_id, &ctx);
 	assert(status == HV_OK);
 	TEST_PASS("freertos_context: save (RUNNING→READY) succeeds");
@@ -410,7 +410,7 @@ static void test_context_state_machine(void)
 		.timer_frequency = 1000,
 	};
 	hv_freertos_create_partition(&config, &part_id);
-	/* Register task — initial state is READY, not RUNNING */
+	/* Register task - initial state is READY, not RUNNING */
 	hv_freertos_register_task(part_id, 1, 10, 0x1000);
 
 	hv_task_context_t ctx = { .task_id = 1, .sp = 0x1000,
@@ -425,7 +425,7 @@ static void test_context_state_machine(void)
 	assert(hv_freertos_restore_context(part_id, &ctx) == HV_OK);
 	TEST_PASS("context_state_machine: restore succeeds for READY task");
 
-	/* Now task is RUNNING — save must succeed */
+	/* Now task is RUNNING - save must succeed */
 	assert(hv_freertos_save_context(part_id, &ctx) == HV_OK);
 	TEST_PASS("context_state_machine: save succeeds for RUNNING task");
 
@@ -526,17 +526,17 @@ static void test_shared_region_boundary(void)
 	config.partition = 1;
 	hv_freertos_create_partition(&config, &p2);
 
-	/* Zero size — rejected */
+	/* Zero size - rejected */
 	assert(hv_freertos_allocate_shared_region(p1, p2, 0, HV_SHARED_RW,
 						  &rid) == HV_EINVAL);
 	TEST_PASS("shared_region_boundary: zero size rejected");
 
-	/* Non-aligned — rejected */
+	/* Non-aligned - rejected */
 	assert(hv_freertos_allocate_shared_region(p1, p2, 0x0FFF, HV_SHARED_RW,
 						  &rid) == HV_EINVAL);
 	TEST_PASS("shared_region_boundary: non-page-aligned size rejected");
 
-	/* Exactly one page — accepted */
+	/* Exactly one page - accepted */
 	assert(hv_freertos_allocate_shared_region(p1, p2, 0x1000, HV_SHARED_RO,
 						  &rid) == HV_OK);
 	TEST_PASS("shared_region_boundary: exact single-page region accepted");

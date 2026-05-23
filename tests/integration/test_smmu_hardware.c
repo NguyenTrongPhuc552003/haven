@@ -172,7 +172,7 @@ static void scenario_s3_cross_partition_overlap_denied(void)
 	FAIL_IF(rc != HV_EPERM,
 		"S3: cross-partition PA overlap should return HV_EPERM");
 
-	/* Clean up — revoke sid_a's configured window; free sid_b which was
+	/* Clean up - revoke sid_a's configured window; free sid_b which was
 	 * allocated but never configured (reset_partition now handles both). */
 	rc = hv_smmu_revoke_dma_access(sid_a);
 	FAIL_IF(rc != HV_OK, "S3: revoke partition A DMA access");

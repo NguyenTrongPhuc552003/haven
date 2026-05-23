@@ -13,11 +13,12 @@ build, run, and extend the project on macOS and Linux.
 | Tool                      | Minimum version    | Notes                                       |
 | ------------------------- | ------------------ | ------------------------------------------- |
 | C compiler (cc/gcc/clang) | GCC 12 or Clang 15 | Must support C11                            |
+| CMake                     | 3.22               | Primary build system; Presets v3 support    |
+| Ninja                     | 1.10               | Default CMake generator                     |
 | QEMU                      | 7.2                | `qemu-system-aarch64` for ARM64 smoke tests |
 | Python                    | 3.10               | Evidence comparison script                  |
-| GNU Make                  | 4.3                | Build orchestration                         |
 
-### ARM64 cross-compiler (for `make ARCH=arm64 all`)
+### ARM64 cross-compiler (for `cmake --preset arm64-qemu`)
 
 #### macOS (Homebrew)
 
@@ -67,31 +68,44 @@ toolchain. They stub out EL2 hardware instructions so the policy logic can
 be exercised on x86-64 or Apple Silicon without QEMU.
 
 ```bash
-make test
+cmake --preset host-tests
+cmake --build build-host
+ctest --test-dir build-host --output-on-failure
 ```
 
-This invokes `scripts/test.sh`, which:
-1. Compiles each unit / integration / isolation test.
-2. Runs every test binary and fails fast on the first error.
-3. Compiles and runs all benchmarks, writing JSON to `build/benchmarks/`.
-4. Validates YAML configuration files via `scripts/check-configs.sh`.
+This builds and runs 21 unit, integration, isolation, selftest, demo, and
+benchmark targets. CTest fails on the first failing test unless
+`--stop-on-failure` is omitted.
 
 ### ARM64 cross-compile (hypervisor image)
 
 ```bash
-make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all
+# Auto-detects aarch64-unknown-linux-gnu- or aarch64-elf-
+cmake --preset arm64-qemu
+cmake --build build
+# Outputs: build/haven.elf, build/haven.bin, build/guest_a.bin, build/guest_b.bin
 ```
 
-Output: `build/haven.elf` - a flat ELF suitable for loading by QEMU or a
-bare-metal bootloader.
+For the i.MX95 Dev Kit (thesis primary board):
+
+```bash
+cmake --preset arm64-imx95
+cmake --build build-imx95
+```
 
 ### QEMU smoke test
 
 ```bash
-bash scripts/qemu-smoke.sh
+cmake --build build --target qemu-run
 ```
 
-The script boots `build/haven.elf` under `qemu-system-aarch64 -M virt` and
+Or directly:
+
+```bash
+bash scripts/qemu/qemu-run.sh
+```
+
+The script boots `build/haven.bin` under `qemu-system-aarch64 -M virt` and
 checks that the hypervisor prints its startup banner without faulting. It
 exits 0 on success, 1 on failure.
 
@@ -132,7 +146,7 @@ For every new enforcement path:
 2. Implement the invariant in `src/core/<subsystem>/`.
 3. Add a negative test to `tests/integration/test_isolation_negative.c`
    proving a cross-partition violation is rejected.
-4. Run `make test` - all tests must pass before opening a PR.
+4. Run `ctest --test-dir build-host` - all tests must pass before opening a PR.
 
 ---
 
@@ -179,5 +193,6 @@ from `src/core/sched/budget.c`. Each `hv_budget_consume()` call prints the
 remaining budget and partition ID to the debug UART.
 
 ```bash
-make ARCH=arm64 CFLAGS="-DHAVEN_TRACE_BUDGET=1" all
+cmake --preset arm64-qemu -DCMAKE_C_FLAGS="-DHAVEN_TRACE_BUDGET=1"
+cmake --build build
 ```

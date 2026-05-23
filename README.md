@@ -51,24 +51,47 @@ Haven is a static partition hypervisor research artifact that runs at **EL2** on
 
 ## Quick Start
 
-**Prerequisites:** `gcc` or `clang`, `make`, `python3`, `qemu-system-aarch64` (optional)
+**Prerequisites:** `gcc` or `clang`, `cmake` ≥ 3.22, `ninja-build`, `python3`, `qemu-system-aarch64` (optional)
 
 ```sh
 git clone https://github.com/NguyenTrongPhuc552003/haven.git
 cd haven
-./scripts/build.sh       # compile all C modules
-./scripts/test.sh        # run unit + integration tests
-./scripts/check-configs.sh  # validate partition configs
 ```
 
-Or with Make:
+**Host unit + integration tests:**
 
 ```sh
-make build
-make test
-make style-check
-make evidence       # package evaluation artifacts
+cmake --preset host-tests
+cmake --build build-host
+ctest --test-dir build-host --output-on-failure
 ```
+
+**ARM64 cross-compile (QEMU):**
+
+```sh
+# Requires: aarch64-linux-gnu-gcc or aarch64-elf-gcc
+cmake --preset arm64-qemu
+cmake --build build
+# → build/haven.elf, build/haven.bin, build/guest_a.bin, build/guest_b.bin
+```
+
+**ARM64 cross-compile (i.MX95 - thesis primary board):**
+
+```sh
+cmake --preset arm64-imx95
+cmake --build build-imx95
+```
+
+**Other targets:**
+
+```sh
+cmake --build <dir> --target style-check   # style + config checks
+cmake --build <dir> --target verification  # Coq isolation proofs
+cmake --build <dir> --target evidence      # package evaluation artifacts
+cmake --build <dir> --target qemu-run      # launch Haven on QEMU (ARM64 build only)
+```
+
+See [CMakePresets.json](CMakePresets.json) for all available presets.
 
 ---
 

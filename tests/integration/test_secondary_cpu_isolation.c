@@ -111,7 +111,7 @@ static void test_both_partitions_stage2_map(void)
 
 	hv_stage2_unmap_partition(PARTITION_A_ID);
 	hv_stage2_unmap_partition(PARTITION_B_ID);
-	TEST_PASS("T1: two-partition stage-2 map — disjoint PA regions");
+	TEST_PASS("T1: two-partition stage-2 map - disjoint PA regions");
 }
 
 /* -----------------------------------------------------------------------
@@ -149,7 +149,7 @@ static void test_partition_b_no_uart(void)
 }
 
 /* -----------------------------------------------------------------------
- * T3: IRQ ownership exclusivity — CPU 0 SPI for Partition A
+ * T3: IRQ ownership exclusivity - CPU 0 SPI for Partition A
  *
  * IRQ 33 (PL011 UART) assigned to Partition A on CPU 0.
  * A second assignment of the same IRQ to Partition B must be rejected.
@@ -174,11 +174,11 @@ static void test_irq_exclusivity(void)
 	assert(hv_irq_assign(&b_irq_steal) == HV_EPERM);
 
 	hv_irq_revoke(33U, PARTITION_A_ID);
-	TEST_PASS("T3: IRQ 33 exclusivity — Partition B steal rejected");
+	TEST_PASS("T3: IRQ 33 exclusivity - Partition B steal rejected");
 }
 
 /* -----------------------------------------------------------------------
- * T4: CPU budget partition — A+B budgets must each be ≤ their period
+ * T4: CPU budget partition - A+B budgets must each be ≤ their period
  *
  * Validates the AMP-specific budget split: 8ms/10ms for A (80%)
  * and 2ms/10ms for B (20%).  Both satisfy the budget ≤ period invariant.
@@ -213,11 +213,11 @@ static void test_cpu_budget_partition(void)
 	assert(hv_budget_consume(PARTITION_B_ID, 200000ULL) == HV_EPERM);
 
 	TEST_PASS(
-		"T4: CPU budget partition — A=8ms/10ms, B=2ms/10ms, independent");
+		"T4: CPU budget partition - A=8ms/10ms, B=2ms/10ms, independent");
 }
 
 /* -----------------------------------------------------------------------
- * T5: Budget boundary — zero or over-period budget must be rejected
+ * T5: Budget boundary - zero or over-period budget must be rejected
  *
  * Confirms that misconfigured RTOS budgets (budget > period or zero) are
  * caught before any ERET is issued, maintaining the fail-closed invariant.
@@ -338,7 +338,7 @@ static void test_full_secondary_launch_sequence(void)
 	hv_stage2_unmap_partition(PARTITION_B_ID);
 
 	TEST_PASS(
-		"T6: Full secondary CPU launch sequence — policy state correct");
+		"T6: Full secondary CPU launch sequence - policy state correct");
 }
 
 int main(void)

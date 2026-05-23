@@ -12,7 +12,7 @@
  * What this stub does:
  *   1. Initialises the EL1 stack.
  *   2. Prints "PARTITION_A: Hello from partition A (EL1 guest)\r\n" via PL011.
- *   3. Reads from IPA 0x60000000 (Partition B's IPA base) — this must trigger
+ *   3. Reads from IPA 0x60000000 (Partition B's IPA base) - this must trigger
  *      a stage-2 fault which Haven catches, logs, skips, and returns here.
  *   4. Prints "PARTITION_A: Post-fault check OK\r\n" to confirm Haven handled
  *      the fault and resumed execution.

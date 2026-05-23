@@ -150,7 +150,7 @@ Proof.
         exists hd. left. split. left; reflexivity.
         split. exact Heq.
         subst p. simpl. reflexivity.
-      * (* p is unchanged in the tail — witness with p itself *)
+      * (* p is unchanged in the tail - witness with p itself *)
         exists p. right. right; exact Htl.
     + simpl in Hin.
       destruct Hin as [Hhd | Htl].
@@ -200,7 +200,7 @@ Proof.
       * (* p is the updated head: p.ps_regions = r :: hd.ps_regions *)
         subst p. simpl in Hinr1, Hpid.
         destruct Hinr1 as [Heq | Hold].
-        -- (* r1 = r: contradicts r1 <> r — Heq : r = r1, Hne : r1 <> r *)
+        -- (* r1 = r: contradicts r1 <> r - Heq : r = r1, Hne : r1 <> r *)
            exfalso; apply Hne; symmetry; exact Heq.
         -- (* r1 is in hd.ps_regions: take p_orig = hd *)
            exists hd. split.
@@ -307,7 +307,7 @@ Proof.
     + (* Case B1: p2 is the updated partition *)
       destruct (mem_region_eq_dec r2 r) as [Hr2_eq | Hr2_ne].
 
-      * (* Case B1a: r2 = r (new region) — symmetric to Case A1 *)
+      * (* Case B1a: r2 = r (new region) - symmetric to Case A1 *)
         subst r2.
         apply regions_disjoint_sym.
         apply Hok with (p := p1).

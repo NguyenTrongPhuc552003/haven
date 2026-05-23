@@ -21,7 +21,7 @@ The Linux kernel's organizational philosophy produces the world's most peer-revi
 | `include/linux/` vs `include/uapi/`                 | Public API vs internal API                            | `include/haven/` (public) vs `include/arch/` (hardware)                          |
 | `lib/` - shared utilities (string, bitmap, etc.)    | Avoids code duplication                               | `src/common/` with string.c, printk.c, panic.c                                   |
 | `Documentation/` with subdirectories                | Living docs tied to subsystems                        | Expand `docs/` with subsystem-specific guides                                    |
-| Kbuild - incremental, parallel, cross-compile       | Fast, reproducible builds                             | Evolve Makefile to support `ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu-` |
+| CMake ≥ 3.22 - presets, Ninja, cross-compile        | Fast, reproducible builds                             | CMake is the primary build system; `CMakePresets.json` defines arm64-qemu, arm64-imx95, host-tests |
 
 ### Comparable Projects: Key Structural Lessons
 
@@ -104,7 +104,6 @@ haven/
 │       ├── cpu.c                 ← HCR_EL2, SCTLR_EL2, MDCR_EL2 init
 │       ├── mm.c                  ← TTBR0_EL2, page-table walk
 │       ├── timer.c               ← CNTHP_CTL_EL2, CNTVOFF_EL2
-│       ├── Makefile
 │       └── include/
 │           └── asm/
 │               ├── sysregs.h     ← ARM64 system register accessors
@@ -115,25 +114,21 @@ haven/
 ├── drivers/
 │   ├── irqchip/
 │   │   ├── gic_v3.c             ← [NEW] GICv3 programming
-│   │   ├── gic_v3.h
-│   │   └── Makefile
+│   │   └── gic_v3.h
 │   ├── iommu/
 │   │   ├── smmu_v3.c            ← [NEW] SMMUv3 stream tables
-│   │   ├── smmu_v3.h
-│   │   └── Makefile
+│   │   └── smmu_v3.h
 │   ├── uart/
 │   │   ├── pl011.c              ← [NEW] PL011 (QEMU)
 │   │   ├── imx_uart.c           ← [NEW] i.MX UART
-│   │   ├── uart.h
-│   │   └── Makefile
+│   │   └── uart.h
 │   ├── linux/
 │   │   ├── haven_driver.c       ← [NEW] Linux .ko guest bridge
 │   │   ├── Kbuild
 │   │   └── README.md
 │   └── guest-tools/
 │       ├── haven_tool.c         ← [NEW] Userspace CLI
-│       ├── haven_ioctl.h        ← IOCTL interface
-│       └── Makefile
+│       └── haven_ioctl.h        ← IOCTL interface
 │
 ├── include/
 │   ├── haven/                   ← (keep existing public headers)
@@ -221,8 +216,9 @@ haven/
 │
 ├── website/                     ← (keep Astro Starlight site)
 ├── scripts/                     ← (keep existing scripts)
-├── Makefile                     ← (evolve for cross-compile)
-├── CMakeLists.txt               ← [NEW] Optional CMake for IDE support
+├── CMakeLists.txt               ← PRIMARY build system (replaces Makefile)
+├── CMakePresets.json            ← arm64-qemu, arm64-imx95, arm64-imx8qm, host-tests
+├── cmake/                       ← arm64.cmake, host.cmake, flags.cmake
 └── .github/                     ← (keep + expand workflows)
 ```
 
@@ -398,7 +394,7 @@ extern const struct hv_platform_ops *platform;
 - i.MX8QM GIC400 (GICv2), IOMMU differences documented
 
 **Month 3 Exit Criteria:**
-- [ ] `make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu-` completes without error
+- [ ] `cmake --preset arm64-qemu && cmake --build build` completes without error
 - [ ] `arch/arm64/entry.S` assembles with GNU assembler
 - [ ] `src/core/init.c` compiles and calls all `_init()` functions
 - [ ] All existing unit tests still pass (regression gate)
@@ -509,7 +505,7 @@ Key STE fields to implement:
 
 **Week 23–24: Improved Build System**
 
-*Update: `Makefile`* - cross-compile support
+*Update: `CMakeLists.txt` and `cmake/`* - cross-compile support complete via CMake presets
 ```makefile
 ARCH       ?= arm64
 CROSS_COMPILE ?= aarch64-unknown-linux-gnu-
@@ -546,7 +542,7 @@ build/haven.bin: build/haven.elf
 - Tests cross-compilation with `arm64/cpu.c`
 
 **Month 6 Exit Criteria:**
-- [ ] `make ARCH=arm64` produces `build/haven.elf` (real ARM64 binary)
+- [ ] `cmake --preset arm64-qemu && cmake --build build` produces `build/haven.elf` (real ARM64 binary)
 - [ ] `drivers/irqchip/gic_v3.c` compiles cleanly with ARM64 toolchain
 - [ ] `drivers/iommu/smmu_v3.c` compiles cleanly
 - [ ] `src/core/irq/ownership.c` + `gic_v3.c` linked together - IRQ assignment writes hardware
@@ -636,7 +632,7 @@ Goal: Boot QEMU with Haven loading a minimal bare-metal "guest" that:
 
 *Create: `docs/porting/IMX95_VALIDATION_RUNBOOK.md`* (critical missing doc)
 Step-by-step:
-1. Build: `make ARCH=arm64 PLATFORM=imx95 CROSS_COMPILE=aarch64-unknown-linux-gnu-`
+1. Build: `cmake --preset arm64-imx95 && cmake --build build-imx95`
 2. Flash: `uuu -b emmc_all imx-boot.bin haven.bin`
 3. Connect: `screen /dev/ttyUSB0 115200`
 4. Expected output: Haven initialization messages
@@ -880,7 +876,7 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 | `src/core/partition.c`                   | Partition launcher logic   |
 | `tests/integration/test_smmu_hardware.c` | HW SMMU test               |
 | `tools/scripts/qemu-run.sh`              | QEMU launch script         |
-| `Makefile` (updated)                     | Cross-compile support      |
+| `CMakeLists.txt` + `CMakePresets.json` + `cmake/`  | Cross-compile + preset build system |
 | `linker.ld` (updated)                    | Final linker script        |
 
 ### Phase 3 (M7–9): 12 new files, 4 empty dirs eliminated
@@ -967,9 +963,9 @@ For submission-quality paper, Haven must demonstrate:
 
 **Phase 1 (M3):**
 ```bash
-make ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- all
+cmake --preset arm64-qemu && cmake --build build
 # Expect: build/haven.elf (ARM64 ELF)
-make test  # Still passes host-compiled tests
+ctest --test-dir build-host  # Still passes host-compiled tests
 aarch64-unknown-linux-gnu-objdump -d build/haven.elf | grep el2_exception_table
 # Expect: exception table at aligned address
 ```
@@ -1010,7 +1006,7 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 ### Phase 5: Secondary CPU Full Integration + FreeRTOS Wire-Up Validation
 
-**Theme:** Validate the full AMP dual-partition path on real hardware — secondary CPU bring-up confirmed, FreeRTOS context switch mediated at EL2, measured scheduling fidelity.
+**Theme:** Validate the full AMP dual-partition path on real hardware - secondary CPU bring-up confirmed, FreeRTOS context switch mediated at EL2, measured scheduling fidelity.
 
 **Scope:**
 - Harden `hv_arch_psci_cpu_on` path: add PSCI error-code logging (`PSCI_E_ALREADY_ON`, `PSCI_E_INVALID_PARAMS`, etc.)
@@ -1044,9 +1040,9 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 > **Status as of v0.6.0:** The CI workflow (`.github/workflows/static-analysis.yml`) and local script (`scripts/ci/static-analysis.sh`) are complete and passing. The remaining work is the MISRA-C rule selection and deviation documentation.
 
-**Static analysis gate (complete — `feat/static-analysis-gate`):**
-- cppcheck: `src/core/`, `src/guest/`, `drivers/` (except `drivers/linux/` — kernel module)
-- clang `--analyze`: `src/core/`, `src/guest/` — core, deadcode, security checkers
+**Static analysis gate (complete - `feat/static-analysis-gate`):**
+- cppcheck: `src/core/`, `src/guest/`, `drivers/` (except `drivers/linux/` - kernel module)
+- clang `--analyze`: `src/core/`, `src/guest/` - core, deadcode, security checkers
 - Both tools run in CI and locally; `PASS`/`FAIL` exit codes enforce the gate
 
 **MISRA-C subset (future work):**
@@ -1067,7 +1063,7 @@ Select a targeted subset of MISRA-C:2012 rules for the TCB core (`src/core/` onl
 ```markdown
 ## MISRA-C Deviation DR-001
 
-Rule: 11.1 — Conversions shall not be performed between a pointer to a function and any other type.
+Rule: 11.1 - Conversions shall not be performed between a pointer to a function and any other type.
 File: arch/arm64/boot.S (inline function pointer cast for PSCI entry)
 Justification: The PSCI entry point must be cast from uintptr_t to function pointer
   to satisfy the HVC ABI. The cast is reviewed for alignment and type safety.
@@ -1106,7 +1102,7 @@ MAJOR.MINOR.PATCH[-prerelease]
 | Increment | When |
 | --------- | ---- |
 | PATCH | Bug fixes, documentation corrections, test additions that don't change API |
-| MINOR | New isolation features, new platform support, new drivers — backwards-compatible ABI |
+| MINOR | New isolation features, new platform support, new drivers - backwards-compatible ABI |
 | MAJOR | Breaking API changes, isolation model changes, TCB restructuring |
 
 **Branching model:**
@@ -1149,7 +1145,7 @@ Scope of security coverage:
 Haven's build chain has no runtime dependencies, but the CI toolchain must be pinned for reproducibility:
 
 ```yaml
-# .github/workflows/ci.yml — toolchain pinning
+# .github/workflows/ci.yml - toolchain pinning
 env:
   QEMU_VERSION: "8.2.0"
   GCC_AARCH64_VERSION: "13.2.0"
@@ -1187,13 +1183,13 @@ env:
 
 ### Phase 8: Community + Publication Pathway
 
-**Theme:** Prepare Haven for external visibility — conference submission, reproducibility packaging, and optional open-source community seeding.
+**Theme:** Prepare Haven for external visibility - conference submission, reproducibility packaging, and optional open-source community seeding.
 
 #### 8.1 Target Venues
 
 | Venue | Type | Deadline window | Why Haven fits |
 | ----- | ---- | --------------- | -------------- |
-| ECRTS | Conference | January (full) / March (WiP) | Real-time isolation on AMP — core topic |
+| ECRTS | Conference | January (full) / March (WiP) | Real-time isolation on AMP - core topic |
 | RTSS | Conference | May | Mixed-criticality, temporal isolation |
 | DATE | Conference | September | Embedded systems, SoC-level isolation |
 | EMSOFT | Workshop→conf | April | Embedded software, safety-critical OS |
@@ -1309,12 +1305,12 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 
 | Gate | Status | Notes |
 | ---- | ------ | ----- |
-| ARM64 binary builds (cross-compile) | ✅ | `make ARCH=arm64` produces `build/haven.elf` |
+| ARM64 binary builds (cross-compile) | ✅ | `cmake --preset arm64-qemu && cmake --build build` produces `build/haven.elf` |
 | All unit + integration tests pass | ✅ | 46 FreeRTOS + secondary CPU tests pass |
-| QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` — Partition A + B markers pass |
+| QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` - Partition A + B markers pass |
 | Static analysis gate | ✅ | cppcheck + clang `--analyze` both PASS (as of #26) |
-| i.MX95 evidence package | ⬜ | Phase 3 / R3 — in progress |
-| Formal proofs check | ⬜ | Phase 4 / R4 — not started |
+| i.MX95 evidence package | ⬜ | Phase 3 / R3 - in progress |
+| Formal proofs check | ⬜ | Phase 4 / R4 - not started |
 | RTOS latency ≤ threshold | 🔄 | Benchmark infra ready; i.MX95 run pending |
 | Traceability matrix complete | 🔄 | Ch. 1–4 rows present; Ch. 5–8 pending |
-| Publication-quality paper draft | ⬜ | Phase 8 — not started |
+| Publication-quality paper draft | ⬜ | Phase 8 - not started |

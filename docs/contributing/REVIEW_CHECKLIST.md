@@ -64,7 +64,7 @@ wc -l src/core/**/*.c
       `tests/unit/test_<subsystem>.c`.
 - [ ] New isolation enforcement paths have a boundary test in
       `tests/isolation/`.
-- [ ] `make test` passes locally before opening the PR.
+- [ ] `ctest --test-dir build-host` passes locally before opening the PR.
 - [ ] If a new benchmark is added, expected output ranges are documented
       in `docs/thesis/REPRODUCIBILITY_APPENDIX.md`.
 
