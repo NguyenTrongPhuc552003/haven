@@ -50,13 +50,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install ARM64 cross-compiler
+      - name: Install ARM64 cross-compiler and CMake
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make
+          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu cmake ninja-build
+
+      - name: Configure (CMake arm64-qemu preset)
+        run: cmake --preset arm64-qemu
 
       - name: Cross-compile haven.elf (ARM64)
-        run: make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- all
+        run: cmake --build build
 
       - name: Verify ELF target architecture
         run: |
@@ -92,3 +95,23 @@ jobs:
       - name: Build website
         working-directory: website
         run: npm run build
+
+  cmake-host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install CMake, Ninja, and GCC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc cmake ninja-build
+
+      - name: Configure (CMake host-tests preset)
+        run: cmake --preset host-tests
+
+      - name: Build all host test binaries
+        run: cmake --build build-host
+
+      - name: Run test suite (CTest)
+        run: ctest --test-dir build-host --output-on-failure
