@@ -511,3 +511,19 @@ hv_status_t hv_freertos_get_stats(hv_u32 partition, hv_u32 *task_count_ptr,
 
 	return HV_OK;
 }
+/* -----------------------------------------------------------------------
+ * hv_freertos_yield_budget_tick - voluntary yield to EL2 scheduler.
+ *
+ * On ARM64 hardware (HAVEN_ARCH_ARM64) this issues HVC #HV_HVC_BUDGET_TICK
+ * which causes a synchronous exception to EL2.  The EL2 handler debits the
+ * remaining budget and schedules the next partition.
+ *
+ * On host builds (unit tests) this is a no-op so test binaries compile and
+ * run without an ARM64 target.
+ * ----------------------------------------------------------------------- */
+void hv_freertos_yield_budget_tick(void)
+{
+#if defined(HAVEN_ARCH_ARM64) && !defined(HAVEN_HOST_TEST)
+        __asm__ volatile("hvc %0" : : "I"(HV_HVC_BUDGET_TICK) : "memory");
+#endif
+}

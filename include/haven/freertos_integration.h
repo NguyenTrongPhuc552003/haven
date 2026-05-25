@@ -40,6 +40,15 @@ extern "C" {
 #define HV_MAX_SHARED_REGIONS 32
 
 /**
+ * HVC function IDs for guest-to-hypervisor calls from EL1 guests.
+ *
+ * Guests invoke these via `hvc #<id>`.  EL2 dispatches on the ESR_EL2
+ * ISS field.
+ */
+/** Voluntary yield / budget tick notification from FreeRTOS guest. */
+#define HV_HVC_BUDGET_TICK 1
+
+/**
      * FreeRTOS task state enumeration.
      */
 typedef enum {
@@ -303,8 +312,17 @@ hv_status_t hv_freertos_get_stats(hv_u32 partition, hv_u32 *task_count,
 				  hv_u64 *context_switches,
 				  hv_u64 *timer_ticks);
 
-#ifdef __cplusplus
-}
-#endif
+/**
+ * Voluntary yield and budget tick notification to the hypervisor.
+ *
+ * Invokes HVC #HV_HVC_BUDGET_TICK from EL1 to notify the EL2 scheduler
+ * that the current partition is voluntarily yielding its remaining time
+ * budget.  On ARM64 hardware this issues a real HVC instruction; on host
+ * builds it is a no-op so unit tests continue to compile and run.
+ *
+ * Call from the FreeRTOS tick hook or from a task that wishes to give up
+ * the remainder of its scheduling period.
+ */
+void hv_freertos_yield_budget_tick(void);
 
 #endif /* HAVEN_FREERTOS_INTEGRATION_H */

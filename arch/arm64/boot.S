@@ -175,6 +175,13 @@ hv_arch_psci_cpu_on:
         movk    x0, #0xC400, lsl #16
         /* QEMU virt uses HVC as the PSCI conduit */
         hvc     #0
+        /* x0 = PSCI return code (0 = SUCCESS, negative = error) */
+        cbz     x0, .Lpsci_cpu_on_ok
+        /* Non-zero: log the error code (x0 already holds it as int32_t arg) */
+        stp     x0, x30, [sp, #-16]!    /* save result + LR (16-byte aligned) */
+        bl      hv_arch_psci_log_error  /* logs error; does not touch x0 slot */
+        ldp     x0, x30, [sp], #16      /* restore result + LR                */
+.Lpsci_cpu_on_ok:
         ret
 
         .size hv_arch_psci_cpu_on, . - hv_arch_psci_cpu_on

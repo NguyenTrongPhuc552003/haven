@@ -374,3 +374,104 @@ hv_context_switch:
         /* Fall through: restore new partition's context from *x1 */
         mov     x0, x1
         b       hv_restore_guest_context   /* tail call - ends with ERET */
+
+
+/* -----------------------------------------------------------------------
+ * void hv_arch_context_save(hv_task_context_t *ctx)
+ *
+ * Strong symbol override for the weak no-op in freertos_integration.c.
+ * Called from the FreeRTOS tick hook at EL1 (inside a guest partition).
+ *
+ * Saves the callee-saved subset of hv_task_context_t:
+ *   x19–x28  (ARM64 callee-saved general-purpose registers)
+ *   x29      (frame pointer)
+ *   x30/LR   (stored in ctx->pc so restore can return via ret)
+ *   SP       (current EL1 stack pointer, stored in ctx->sp)
+ *   NZCV     (condition flags, stored in ctx->x0_x30[0])
+ *
+ * hv_task_context_t layout (see include/haven/freertos_integration.h):
+ *   +0   task_id  (u32)
+ *   +4   priority (u32)
+ *   +8   state    (enum/int)
+ *   +12  [pad]
+ *   +16  sp       (u64)   <- CTX_TASK_SP
+ *   +24  pc       (u64)   <- CTX_TASK_PC  (we store LR here)
+ *   +32  x0_x30[0] (u64) <- CTX_TASK_NZCV (we store NZCV here)
+ *   +184 x0_x30[19] .. x0_x30[29]
+ *
+ * On entry:  x0 = ctx pointer
+ * Clobbers:  x1 (scratch)
+ * ----------------------------------------------------------------------- */
+
+/* Offsets into hv_task_context_t */
+#define CTX_TASK_SP    16
+#define CTX_TASK_PC    24
+#define CTX_TASK_NZCV  32
+#define CTX_TASK_X19   184   /* 32 + 19*8 */
+#define CTX_TASK_X21   200   /* 32 + 21*8 */
+#define CTX_TASK_X23   216
+#define CTX_TASK_X25   232
+#define CTX_TASK_X27   248
+#define CTX_TASK_X29   264
+
+        .global hv_arch_context_save
+        .align  3
+hv_arch_context_save:
+        /* Save NZCV condition flags into ctx->x0_x30[0] */
+        mrs     x1, nzcv
+        str     x1, [x0, #CTX_TASK_NZCV]
+
+        /* Save current stack pointer into ctx->sp */
+        mov     x1, sp
+        str     x1, [x0, #CTX_TASK_SP]
+
+        /* Save link register (return address) into ctx->pc */
+        str     x30, [x0, #CTX_TASK_PC]
+
+        /* Save callee-saved GPRs x19–x28 and frame pointer x29 */
+        stp     x19, x20, [x0, #CTX_TASK_X19]
+        stp     x21, x22, [x0, #CTX_TASK_X21]
+        stp     x23, x24, [x0, #CTX_TASK_X23]
+        stp     x25, x26, [x0, #CTX_TASK_X25]
+        stp     x27, x28, [x0, #CTX_TASK_X27]
+        str     x29,      [x0, #CTX_TASK_X29]
+
+        ret
+        .size hv_arch_context_save, . - hv_arch_context_save
+
+
+/* -----------------------------------------------------------------------
+ * void hv_arch_context_restore(const hv_task_context_t *ctx)
+ *
+ * Symmetric restore for hv_arch_context_save.  Returns to the address
+ * that was stored in ctx->pc (the LR at save time), so no explicit
+ * branch is needed — the `ret` transfers control to the saved return site.
+ *
+ * On entry:  x0 = ctx pointer (const)
+ * Clobbers:  x1 (scratch — must be caller-saved by the caller of restore)
+ * ----------------------------------------------------------------------- */
+
+        .global hv_arch_context_restore
+        .align  3
+hv_arch_context_restore:
+        /* Restore NZCV condition flags */
+        ldr     x1, [x0, #CTX_TASK_NZCV]
+        msr     nzcv, x1
+
+        /* Restore stack pointer */
+        ldr     x1, [x0, #CTX_TASK_SP]
+        mov     sp, x1
+
+        /* Restore link register (becomes the return address after `ret`) */
+        ldr     x30, [x0, #CTX_TASK_PC]
+
+        /* Restore callee-saved GPRs x19–x28 and frame pointer x29 */
+        ldp     x19, x20, [x0, #CTX_TASK_X19]
+        ldp     x21, x22, [x0, #CTX_TASK_X21]
+        ldp     x23, x24, [x0, #CTX_TASK_X23]
+        ldp     x25, x26, [x0, #CTX_TASK_X25]
+        ldp     x27, x28, [x0, #CTX_TASK_X27]
+        ldr     x29,      [x0, #CTX_TASK_X29]
+
+        ret   /* returns to address restored into x30 (ctx->pc) */
+        .size hv_arch_context_restore, . - hv_arch_context_restore
