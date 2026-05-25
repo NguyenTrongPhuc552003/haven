@@ -48,6 +48,10 @@ fi
 
 echo "[release] preparing version: $RELEASE_VERSION"
 
+echo "[release] step 0/4 - fixing em-dashes …"
+./scripts/dev/fix-emdash.sh
+echo "[release] em-dash cleanup complete."
+
 if [ "$ALLOW_DIRTY" -eq 0 ]; then
 	if command -v git > /dev/null 2>&1 && git rev-parse --git-dir > /dev/null 2>&1; then
 		if ! git diff --quiet HEAD; then

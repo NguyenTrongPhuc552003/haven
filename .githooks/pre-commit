@@ -10,4 +10,8 @@ echo "[hook:pre-commit] running style checks"
 echo "[hook:pre-commit] running config checks"
 ./scripts/compile/check-configs.sh
 
+echo "[hook:pre-commit] fixing em-dashes"
+./scripts/dev/fix-emdash.sh
+git diff --name-only | xargs -r git add
+
 echo "[hook:pre-commit] ok"
