@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(haven VERSION 0.1.0 LANGUAGES C ASM)
+project(haven VERSION 0.6.0 LANGUAGES C ASM)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Haven — Static Partition Hypervisor

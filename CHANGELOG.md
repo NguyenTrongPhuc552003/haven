@@ -15,6 +15,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.6.1] - 2026-05-26
+
+### Changed
+
+**Full CMake migration — Makefiles retired (PRs #31–#34)**
+- `CMakeLists.txt` — primary build system migrated from Makefile to CMake ≥ 3.22 + Ninja;
+  `CMakePresets.json` provides four named presets: `arm64-qemu`, `arm64-imx95`, `arm64-imx8qm`,
+  `host-tests`. Project version synced to `0.6.0`.
+- `cmake/arm64.cmake`, `cmake/host.cmake`, `cmake/flags.cmake` — cross-compile toolchain files
+  and compiler flag sets extracted from old Makefile rules.
+- All GitHub Actions workflows updated: `make` removed from `apt-get install` in `ci.yml`,
+  `nightly.yml`, `benchmark.yml`, `evidence-pack.yml`; build steps now call `cmake --preset …`.
+
+### Fixed
+
+**`scripts/evidence/benchmark-baseline.py` broken paths (PR #34)**
+- Script called `./scripts/build.sh`, `./scripts/style-check.sh`, `./scripts/test.sh`, which
+  no longer exist after the script directory reorganisation. Paths corrected to
+  `./scripts/compile/build.sh`, `./scripts/dev/style-check.sh`, `./scripts/dev/test.sh`.
+- `scripts/compile/build-arm64.sh`, `tools/scripts/cross-compile.sh` — switched from
+  `make` invocation to `cmake --preset arm64-qemu && cmake --build build`.
+
+### Documentation
+
+- `docs/` and `website/` references updated from `make` to `cmake` build commands.
+- `docs/wiki` submodule `chore/cmake-ref-cleanup` branch: Getting-Started, Contributing,
+  and Changelog pages updated with cmake preset quick-start instructions.
+
+---
+
 ## [0.6.0] - 2026-05-14
 
 ### Added

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml/badge.svg)](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml)
 [![Docs](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/vercel.yml/badge.svg)](https://haven-tau-eight.vercel.app/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0--dev-orange.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.6.0-green.svg)](VERSION)
 [![Platform](https://img.shields.io/badge/platform-ARM64%20AArch64-lightgrey.svg)](configs/arm64/)
 
 > **Master's Thesis** - Computer Engineering  
@@ -39,13 +39,13 @@ Haven is a static partition hypervisor research artifact that runs at **EL2** on
 
 ### Core Guarantees
 
-| Property               | Mechanism                                     | Status           |
-| ---------------------- | --------------------------------------------- | ---------------- |
-| **Spatial isolation**  | Stage-2 page tables, SMMU stream policy       | Stub implemented |
-| **Temporal isolation** | Budget-based EL2 scheduler, overrun detection | Stub implemented |
-| **IRQ ownership**      | Deny-by-default interrupt routing table       | Stub implemented |
-| **DMA isolation**      | Per-partition SMMU context                    | Stub implemented |
-| **Minimal TCB**        | No dynamic alloc, no FP, bounded loops        | By design        |
+| Property               | Mechanism                                     | Status                       |
+| ---------------------- | --------------------------------------------- | ---------------------------- |
+| **Spatial isolation**  | Stage-2 page tables, SMMU stream policy       | Implemented — QEMU-validated |
+| **Temporal isolation** | Budget-based EL2 scheduler, overrun detection | Implemented — QEMU-validated |
+| **IRQ ownership**      | Deny-by-default interrupt routing table       | Implemented — QEMU-validated |
+| **DMA isolation**      | Per-partition SMMU context                    | Implemented — QEMU-validated |
+| **Minimal TCB**        | No dynamic alloc, no FP, bounded loops        | By design                    |
 
 ---
 
