@@ -14,7 +14,7 @@ GUEST_B_LOAD_ADDR="${GUEST_B_LOAD_ADDR:-0xA0800000}"
 
 # Check build exists
 if [ ! -f "$HAVEN_BIN" ]; then
-    echo "[qemu-run] ERROR: $HAVEN_BIN not found. Run: make ARCH=arm64 all"
+    echo "[qemu-run] ERROR: $HAVEN_BIN not found. Run: cmake --preset arm64-qemu && cmake --build build"
     exit 1
 fi
 
@@ -31,13 +31,12 @@ echo "[qemu-run] Hypervisor: $HAVEN_BIN @ $HV_LOAD_ADDR"
 if [ -f "$GUEST_A_BIN" ]; then
     echo "[qemu-run] Guest A:    $GUEST_A_BIN @ $GUEST_A_LOAD_ADDR"
 else
-    echo "[qemu-run] Guest A:    not found (run: make ARCH=arm64 all)"
+    echo "[qemu-run] Guest A:    not found (run: cmake --preset arm64-qemu && cmake --build build)"
 fi
 if [ -f "$GUEST_B_BIN" ]; then
     echo "[qemu-run] Guest B:    $GUEST_B_BIN @ $GUEST_B_LOAD_ADDR"
 else
-    echo "[qemu-run] Guest B:    not found (run: make ARCH=arm64 all)"
-fi
+    echo "[qemu-run] Guest B:    not found (run: cmake --preset arm64-qemu && cmake --build build)"fi
 echo "[qemu-run] Press Ctrl-A X to quit QEMU"
 echo ""
 

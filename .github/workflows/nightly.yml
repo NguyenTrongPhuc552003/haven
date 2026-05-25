@@ -24,7 +24,7 @@ jobs:
       - name: Setup toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc clang make python3
+          sudo apt-get install -y gcc clang python3
 
       - name: Preflight
         run: ./scripts/ci/ci-preflight.sh
@@ -115,7 +115,7 @@ jobs:
       - name: Setup toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc make python3 python3-pip qemu-system-aarch64
+          sudo apt-get install -y gcc python3 python3-pip qemu-system-aarch64
           pip3 install --no-cache-dir matplotlib numpy
 
       - name: Run full test suite and benchmarks
