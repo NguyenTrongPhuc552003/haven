@@ -366,8 +366,9 @@ static void test_freertos_statistics(void)
 
 	/* Move task 1 to RUNNING so save_context succeeds. */
 	hv_task_context_t ctx = {.task_id = 1};
-	hv_freertos_restore_context(part_id, &ctx);  /* READY → RUNNING */
-	hv_freertos_save_context(part_id, &ctx);     /* RUNNING → READY, ++ctx_switches */
+	hv_freertos_restore_context(part_id, &ctx); /* READY → RUNNING */
+	hv_freertos_save_context(part_id,
+				 &ctx); /* RUNNING → READY, ++ctx_switches */
 
 	/* Get statistics. */
 	hv_u32 task_count;
@@ -405,17 +406,20 @@ static void test_context_state_machine(void)
 
 	hv_u32 part_id;
 	hv_freertos_config_t config = {
-		.partition = 0, .cpu_cores = 1,
-		.time_budget_us = 10000, .max_tasks = 4,
+		.partition = 0,
+		.cpu_cores = 1,
+		.time_budget_us = 10000,
+		.max_tasks = 4,
 		.timer_frequency = 1000,
 	};
 	hv_freertos_create_partition(&config, &part_id);
 	/* Register task - initial state is READY, not RUNNING */
 	hv_freertos_register_task(part_id, 1, 10, 0x1000);
 
-	hv_task_context_t ctx = { .task_id = 1, .sp = 0x1000,
-				   .pc = 0x80000000,
-				   .state = HV_TASK_READY };
+	hv_task_context_t ctx = {.task_id = 1,
+				 .sp = 0x1000,
+				 .pc = 0x80000000,
+				 .state = HV_TASK_READY};
 
 	/* save must fail: task is READY, not RUNNING */
 	assert(hv_freertos_save_context(part_id, &ctx) == HV_EPERM);
@@ -448,8 +452,10 @@ static void test_max_tasks_boundary(void)
 
 	hv_u32 part_id;
 	hv_freertos_config_t config = {
-		.partition = 0, .cpu_cores = 1,
-		.time_budget_us = 10000, .max_tasks = 3,
+		.partition = 0,
+		.cpu_cores = 1,
+		.time_budget_us = 10000,
+		.max_tasks = 3,
 		.timer_frequency = 1000,
 	};
 	hv_freertos_create_partition(&config, &part_id);
@@ -474,33 +480,36 @@ static void test_task_block_unblock(void)
 
 	hv_u32 part_id;
 	hv_freertos_config_t config = {
-		.partition = 0, .cpu_cores = 1,
-		.time_budget_us = 10000, .max_tasks = 4,
+		.partition = 0,
+		.cpu_cores = 1,
+		.time_budget_us = 10000,
+		.max_tasks = 4,
 		.timer_frequency = 1000,
 	};
 	hv_freertos_create_partition(&config, &part_id);
 	hv_freertos_register_task(part_id, 1, 10, 0x1000);
 
-	hv_task_context_t ctx = { .task_id = 1, .sp = 0x1000,
-				   .pc = 0x80000000 };
+	hv_task_context_t ctx = {.task_id = 1, .sp = 0x1000, .pc = 0x80000000};
 
 	/* Move task to RUNNING */
 	assert(hv_freertos_restore_context(part_id, &ctx) == HV_OK);
 
 	/* Block it */
-	assert(hv_freertos_task_block(part_id, 1)   == HV_OK);
+	assert(hv_freertos_task_block(part_id, 1) == HV_OK);
 	/* Double-block must fail */
-	assert(hv_freertos_task_block(part_id, 1)   == HV_EPERM);
-	TEST_PASS("task_block_unblock: block RUNNING task; double-block rejected");
+	assert(hv_freertos_task_block(part_id, 1) == HV_EPERM);
+	TEST_PASS(
+		"task_block_unblock: block RUNNING task; double-block rejected");
 
 	/* Unblock restores READY */
-	assert(hv_freertos_task_unblock(part_id, 1)  == HV_OK);
+	assert(hv_freertos_task_unblock(part_id, 1) == HV_OK);
 	/* Double-unblock must fail */
-	assert(hv_freertos_task_unblock(part_id, 1)  == HV_EPERM);
-	TEST_PASS("task_block_unblock: unblock BLOCKED task; double-unblock rejected");
+	assert(hv_freertos_task_unblock(part_id, 1) == HV_EPERM);
+	TEST_PASS(
+		"task_block_unblock: unblock BLOCKED task; double-unblock rejected");
 
 	/* Non-existent task */
-	assert(hv_freertos_task_block(part_id, 99)   == HV_EINVAL);
+	assert(hv_freertos_task_block(part_id, 99) == HV_EINVAL);
 	assert(hv_freertos_task_unblock(part_id, 99) == HV_EINVAL);
 	TEST_PASS("task_block_unblock: invalid task_id rejected");
 }
@@ -517,8 +526,10 @@ static void test_shared_region_boundary(void)
 
 	hv_u32 p1, p2, rid;
 	hv_freertos_config_t config = {
-		.partition = 0, .cpu_cores = 1,
-		.time_budget_us = 10000, .max_tasks = 4,
+		.partition = 0,
+		.cpu_cores = 1,
+		.time_budget_us = 10000,
+		.max_tasks = 4,
 		.timer_frequency = 1000,
 	};
 	config.partition = 0;
@@ -544,7 +555,8 @@ static void test_shared_region_boundary(void)
 	/* Third-party access denied */
 	hv_u64 addr;
 	assert(hv_freertos_get_shared_address(rid, 2, &addr) == HV_EPERM);
-	TEST_PASS("shared_region_boundary: third-party partition access denied");
+	TEST_PASS(
+		"shared_region_boundary: third-party partition access denied");
 }
 
 /**

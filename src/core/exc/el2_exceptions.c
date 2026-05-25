@@ -13,8 +13,7 @@
 /* External: ARM64 arch layer - weak so host unit-test builds link cleanly. */
 extern void hv_install_vectors(void) __attribute__((weak));
 extern void hv_arch_gic_el2_setup(void) __attribute__((weak));
-extern hv_status_t hv_arch_inject_virtual_irq(uint32_t virq,
-					      uint32_t priority)
+extern hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 	__attribute__((weak));
 
 /* External: printk for stage-2 fault reporting */
@@ -234,8 +233,8 @@ hv_status_t hv_el2_inject_exception(hv_u32 partition, hv_exc_type_t exc_type,
 	 * through to the counter update so the policy layer tracks them.
 	 */
 	if (exc_type == HV_EXC_IRQ && hv_arch_inject_virtual_irq != NULL) {
-		hv_status_t rc = hv_arch_inject_virtual_irq((uint32_t)vector,
-							    HV_VIRT_IRQ_PRIORITY);
+		hv_status_t rc = hv_arch_inject_virtual_irq(
+			(uint32_t)vector, HV_VIRT_IRQ_PRIORITY);
 		if (rc != HV_OK)
 			return rc;
 	}

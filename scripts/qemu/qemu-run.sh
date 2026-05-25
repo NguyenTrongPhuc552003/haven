@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 HAVEN_BIN="${ROOT}/build/haven.bin"
 GUEST_A_BIN="${ROOT}/build/guest_a.bin"
 GUEST_B_BIN="${ROOT}/build/guest_b.bin"
