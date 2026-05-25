@@ -37,60 +37,60 @@ Linux 6.6 host, host-test simulation, 100,000 iterations per benchmark
 
 100,000 iterations, 1,000 warmup, host simulation.
 
-| Benchmark                      | Min (ns) | Mean (ns) | Max (ns)  | Threshold  | Verdict |
-| ------------------------------ | -------- | --------- | --------- | ---------- | ------- |
-| `stage2_partition_contains_pa` | 0        | 38        | 30,000    | < 100,000  | PASS    |
-| `irq_is_owned_by`              | 0        | 40        | 1,000     | < 100,000  | PASS    |
-| `budget_consume`               | 0        | 33        | 1,000     | < 100,000  | PASS    |
-| `smmu_check_dma_access`        | 0        | 31        | 1,000     | < 100,000  | PASS    |
-| `timer_check_deadline`         | 0        | 27        | 1,000     | < 100,000  | PASS    |
-| `iommu_check_group`            | 0        | 25        | 1,000     | < 100,000  | PASS    |
+| Benchmark                      | Min (ns) | Mean (ns) | Max (ns) | Threshold | Verdict |
+| ------------------------------ | -------- | --------- | -------- | --------- | ------- |
+| `stage2_partition_contains_pa` | 0        | 38        | 30,000   | < 100,000 | PASS    |
+| `irq_is_owned_by`              | 0        | 40        | 1,000    | < 100,000 | PASS    |
+| `budget_consume`               | 0        | 33        | 1,000    | < 100,000 | PASS    |
+| `smmu_check_dma_access`        | 0        | 31        | 1,000    | < 100,000 | PASS    |
+| `timer_check_deadline`         | 0        | 27        | 1,000    | < 100,000 | PASS    |
+| `iommu_check_group`            | 0        | 25        | 1,000    | < 100,000 | PASS    |
 
 ### `build/benchmarks/stage2-fault.json` — Stage-2 containment boundary
 
 100,000 iterations, 1,000 warmup.
 
-| Benchmark                        | Min (ns) | Mean (ns) | Max (ns)  | Threshold  | Verdict |
-| -------------------------------- | -------- | --------- | --------- | ---------- | ------- |
-| `stage2_contains_hot_path`       | 0        | 62        | 35,000    | < 100,000  | PASS    |
-| `stage2_contains_cold_path`      | 0        | 47        | 1,000     | < 100,000  | PASS    |
-| `stage2_contains_low_boundary`   | 0        | 35        | 16,000    | < 100,000  | PASS    |
-| `stage2_contains_high_boundary`  | 0        | 45        | 47,000    | < 100,000  | PASS    |
+| Benchmark                       | Min (ns) | Mean (ns) | Max (ns) | Threshold | Verdict |
+| ------------------------------- | -------- | --------- | -------- | --------- | ------- |
+| `stage2_contains_hot_path`      | 0        | 62        | 35,000   | < 100,000 | PASS    |
+| `stage2_contains_cold_path`     | 0        | 47        | 1,000    | < 100,000 | PASS    |
+| `stage2_contains_low_boundary`  | 0        | 35        | 16,000   | < 100,000 | PASS    |
+| `stage2_contains_high_boundary` | 0        | 45        | 47,000   | < 100,000 | PASS    |
 
 ### `build/benchmarks/smmu-policy.json` — SMMU DMA policy enforcement
 
 100,000 iterations, 1,000 warmup.
 
-| Benchmark                        | Min (ns) | Mean (ns) | Max (ns)  | Threshold  | Verdict |
-| -------------------------------- | -------- | --------- | --------- | ---------- | ------- |
-| `smmu_check_access_hot`          | 0        | 66        | 24,000    | < 100,000  | PASS    |
-| `smmu_check_window_boundary_low` | 0        | 38        | 15,000    | < 100,000  | PASS    |
-| `smmu_check_window_boundary_high`| 0        | 40        | 1,000     | < 100,000  | PASS    |
-| `smmu_check_access_denied`       | 0        | 41        | 13,000    | < 100,000  | PASS    |
-| `smmu_allocate_streamid`         | 0        | 37        | 15,000    | < 100,000  | PASS    |
+| Benchmark                         | Min (ns) | Mean (ns) | Max (ns) | Threshold | Verdict |
+| --------------------------------- | -------- | --------- | -------- | --------- | ------- |
+| `smmu_check_access_hot`           | 0        | 66        | 24,000   | < 100,000 | PASS    |
+| `smmu_check_window_boundary_low`  | 0        | 38        | 15,000   | < 100,000 | PASS    |
+| `smmu_check_window_boundary_high` | 0        | 40        | 1,000    | < 100,000 | PASS    |
+| `smmu_check_access_denied`        | 0        | 41        | 13,000   | < 100,000 | PASS    |
+| `smmu_allocate_streamid`          | 0        | 37        | 15,000   | < 100,000 | PASS    |
 
 ### `build/benchmarks/temporal-isolation.json` — RTOS response under Linux load
 
 10,000 iterations per cell; 3 RTOS periods × 5 load levels = 15 cells.
 Budget = 20% of period (200 µs / 1 ms, 1 ms / 5 ms, 2 ms / 10 ms).
 
-| Benchmark                        | Period   | Load | Mean (ns) | Max (ns)  | Verdict            |
-| -------------------------------- | -------- | ---- | --------- | --------- | ------------------ |
-| `rtos_response_1ms_load_0pct`    | 1 ms     | 0 %  | 33        | 1,000     | PASS               |
-| `rtos_response_1ms_load_25pct`   | 1 ms     | 25 % | 0         | 1,000     | PASS               |
-| `rtos_response_1ms_load_50pct`   | 1 ms     | 50 % | 1         | 3,000     | PASS               |
-| `rtos_response_1ms_load_75pct`   | 1 ms     | 75 % | 0         | 1,000     | PASS               |
-| `rtos_response_1ms_load_100pct`  | 1 ms     | 100 %| 0         | 1,000     | PASS               |
-| `rtos_response_5ms_load_0pct`    | 5 ms     | 0 %  | 16        | 1,000     | PASS               |
-| `rtos_response_5ms_load_25pct`   | 5 ms     | 25 % | 0         | 1,000     | PASS               |
-| `rtos_response_5ms_load_50pct`   | 5 ms     | 50 % | 1         | 3,000     | PASS               |
-| `rtos_response_5ms_load_75pct`   | 5 ms     | 75 % | 2         | 10,000    | PASS               |
-| `rtos_response_5ms_load_100pct`  | 5 ms     | 100 %| 1         | 3,000     | PASS               |
-| `rtos_response_10ms_load_0pct`   | 10 ms    | 0 %  | 19        | 1,000     | PASS               |
-| `rtos_response_10ms_load_25pct`  | 10 ms    | 25 % | 0         | 1,000     | PASS               |
-| `rtos_response_10ms_load_50pct`  | 10 ms    | 50 % | 13        | 5,000     | PASS               |
-| `rtos_response_10ms_load_75pct`  | 10 ms    | 75 % | 76        | 315,000   | PASS (note: max outlier, see §) |
-| `rtos_response_10ms_load_100pct` | 10 ms    | 100 %| 5         | 3,000     | PASS               |
+| Benchmark                        | Period | Load  | Mean (ns) | Max (ns) | Verdict                         |
+| -------------------------------- | ------ | ----- | --------- | -------- | ------------------------------- |
+| `rtos_response_1ms_load_0pct`    | 1 ms   | 0 %   | 33        | 1,000    | PASS                            |
+| `rtos_response_1ms_load_25pct`   | 1 ms   | 25 %  | 0         | 1,000    | PASS                            |
+| `rtos_response_1ms_load_50pct`   | 1 ms   | 50 %  | 1         | 3,000    | PASS                            |
+| `rtos_response_1ms_load_75pct`   | 1 ms   | 75 %  | 0         | 1,000    | PASS                            |
+| `rtos_response_1ms_load_100pct`  | 1 ms   | 100 % | 0         | 1,000    | PASS                            |
+| `rtos_response_5ms_load_0pct`    | 5 ms   | 0 %   | 16        | 1,000    | PASS                            |
+| `rtos_response_5ms_load_25pct`   | 5 ms   | 25 %  | 0         | 1,000    | PASS                            |
+| `rtos_response_5ms_load_50pct`   | 5 ms   | 50 %  | 1         | 3,000    | PASS                            |
+| `rtos_response_5ms_load_75pct`   | 5 ms   | 75 %  | 2         | 10,000   | PASS                            |
+| `rtos_response_5ms_load_100pct`  | 5 ms   | 100 % | 1         | 3,000    | PASS                            |
+| `rtos_response_10ms_load_0pct`   | 10 ms  | 0 %   | 19        | 1,000    | PASS                            |
+| `rtos_response_10ms_load_25pct`  | 10 ms  | 25 %  | 0         | 1,000    | PASS                            |
+| `rtos_response_10ms_load_50pct`  | 10 ms  | 50 %  | 13        | 5,000    | PASS                            |
+| `rtos_response_10ms_load_75pct`  | 10 ms  | 75 %  | 76        | 315,000  | PASS (note: max outlier, see §) |
+| `rtos_response_10ms_load_100pct` | 10 ms  | 100 % | 5         | 3,000    | PASS                            |
 
 > **10ms/75% outlier note:** The single 315 µs outlier in `rtos_response_10ms_load_75pct`
 > reflects a host OS scheduling event during the simulation run, not a Haven policy
