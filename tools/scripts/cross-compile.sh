@@ -91,5 +91,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 if [[ -z "$JOBS" ]]; then
     JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)"
 fi
-make -C "$ROOT" ARCH=arm64 CROSS_COMPILE="$CROSS_COMPILE" -j"$JOBS" all
+pushd "$ROOT" > /dev/null
+CROSS_COMPILE="$CROSS_COMPILE" cmake --preset arm64-qemu
+CROSS_COMPILE="$CROSS_COMPILE" cmake --build build -- -j"$JOBS"
+popd > /dev/null
 echo "[cross-compile] SUCCESS: build/haven.elf produced."

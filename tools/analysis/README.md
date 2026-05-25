@@ -1,7 +1,7 @@
 # Haven Analysis Tools
 
 This directory contains three Python 3 analysis scripts that consume the
-JSON output produced by Haven's benchmark suite (`make test` writes results
+JSON output produced by Haven's benchmark suite (`cmake --preset host-tests && cmake --build build-host && ctest --test-dir build-host` writes results
 to `build/benchmarks/`).
 
 ---
@@ -134,7 +134,7 @@ The report footer automatically captures the current `HEAD` commit hash via
 
 ```bash
 # 1. Run benchmarks (requires built hypervisor)
-make test
+cmake --preset host-tests && cmake --build build-host && ctest --test-dir build-host
 
 # 2. Print latency table
 python3 tools/analysis/latency_analyzer.py \

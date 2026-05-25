@@ -163,7 +163,7 @@ hv_status_t hv_freertos_save_context(hv_u32 partition, hv_task_context_t *ctx)
 
 	/* Locate the task being saved - must be in RUNNING state. */
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
-				   HV_MAX_FREERTOS_PARTITIONS;
+				 HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
 		if (task_registry[i].allocated &&
 		    task_registry[i].partition == partition &&
@@ -208,7 +208,7 @@ hv_status_t hv_freertos_restore_context(hv_u32 partition,
 
 	/* Locate the task to restore - must be READY or RUNNING. */
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
-				   HV_MAX_FREERTOS_PARTITIONS;
+				 HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
 		if (task_registry[i].allocated &&
 		    task_registry[i].partition == partition &&
@@ -218,8 +218,8 @@ hv_status_t hv_freertos_restore_context(hv_u32 partition,
 		}
 	}
 
-	if (slot != NULL &&
-	    slot->state != HV_TASK_READY && slot->state != HV_TASK_RUNNING) {
+	if (slot != NULL && slot->state != HV_TASK_READY &&
+	    slot->state != HV_TASK_RUNNING) {
 		return HV_EPERM;
 	}
 
@@ -248,7 +248,7 @@ hv_status_t hv_freertos_task_block(hv_u32 partition, hv_u32 task_id)
 	}
 
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
-				   HV_MAX_FREERTOS_PARTITIONS;
+				 HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
 		if (task_registry[i].allocated &&
 		    task_registry[i].partition == partition &&
@@ -270,19 +270,18 @@ hv_status_t hv_freertos_task_block(hv_u32 partition, hv_u32 task_id)
 	/* Priority inversion detection: warn if a lower-priority task is
 	 * RUNNING while this (potentially higher-priority) task blocks. */
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
-				   HV_MAX_FREERTOS_PARTITIONS;
+				 HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
 		if (task_registry[i].allocated &&
 		    task_registry[i].partition == partition &&
 		    task_registry[i].state == HV_TASK_RUNNING &&
 		    task_registry[i].priority > blocked_priority) {
-			hv_printk(
-				"HAVEN[freertos]: priority inversion - "
-				"task %u (pri=%u) blocking while task %u "
-				"(pri=%u) runs\n",
-				task_id, blocked_priority,
-				task_registry[i].task_id,
-				task_registry[i].priority);
+			hv_printk("HAVEN[freertos]: priority inversion - "
+				  "task %u (pri=%u) blocking while task %u "
+				  "(pri=%u) runs\n",
+				  task_id, blocked_priority,
+				  task_registry[i].task_id,
+				  task_registry[i].priority);
 		}
 	}
 
@@ -304,7 +303,7 @@ hv_status_t hv_freertos_task_unblock(hv_u32 partition, hv_u32 task_id)
 	}
 
 	for (i = 0U; i < HV_MAX_FREERTOS_TASKS_PER_PARTITION *
-				   HV_MAX_FREERTOS_PARTITIONS;
+				 HV_MAX_FREERTOS_PARTITIONS;
 	     i++) {
 		if (task_registry[i].allocated &&
 		    task_registry[i].partition == partition &&

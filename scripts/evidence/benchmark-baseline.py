@@ -9,9 +9,9 @@ import time
 
 
 COMMANDS = [
-    ["./scripts/build.sh"],
-    ["./scripts/style-check.sh"],
-    ["./scripts/test.sh"],
+    ["./scripts/compile/build.sh"],
+    ["./scripts/dev/style-check.sh"],
+    ["./scripts/dev/test.sh"],
 ]
 
 

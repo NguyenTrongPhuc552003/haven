@@ -180,7 +180,8 @@ static void scenario_s3_cross_partition_overlap_denied(void)
 	/* sid_b was allocated but its configure call was rejected.  Use
 	 * reset_partition so the unconfigured slot is freed. */
 	rc = hv_smmu_reset_partition(PART_B);
-	FAIL_IF(rc != HV_OK, "S3: reset partition B to free unconfigured StreamID");
+	FAIL_IF(rc != HV_OK,
+		"S3: reset partition B to free unconfigured StreamID");
 
 	PASS("S3: cross-partition DMA window overlap is rejected");
 }
@@ -318,7 +319,8 @@ static void scenario_s6_readonly_window_blocks_write(void)
 	/* Write access must be denied even though the address is in window. */
 	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
 				      HV_DMA_WO);
-	FAIL_IF(rc != HV_EPERM, "S6: write to RO window should return HV_EPERM");
+	FAIL_IF(rc != HV_EPERM,
+		"S6: write to RO window should return HV_EPERM");
 
 	/* Read-write access must also be denied. */
 	rc = hv_smmu_check_dma_access(sid, DMA_WINDOW_BASE + 0x1000U, 0x1000U,
@@ -357,7 +359,8 @@ static void scenario_s7_writeonly_window_blocks_read(void)
 	/* Read access must be denied. */
 	rc = hv_smmu_check_dma_access(sid, PA_B_BASE + 0x1000U, 0x1000U,
 				      HV_DMA_RO);
-	FAIL_IF(rc != HV_EPERM, "S7: read from WO window should return HV_EPERM");
+	FAIL_IF(rc != HV_EPERM,
+		"S7: read from WO window should return HV_EPERM");
 
 	/* Read-write access must also be denied. */
 	rc = hv_smmu_check_dma_access(sid, PA_B_BASE + 0x1000U, 0x1000U,

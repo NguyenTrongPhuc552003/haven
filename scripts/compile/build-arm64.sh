@@ -22,7 +22,8 @@ fi
 echo "[build-arm64] using cross-compiler: ${CROSS_COMPILE}gcc"
 echo "[build-arm64] jobs: ${JOBS}"
 
-make ARCH=arm64 CROSS_COMPILE="${CROSS_COMPILE}" -j"${JOBS}" all
+CROSS_COMPILE="${CROSS_COMPILE}" cmake --preset arm64-qemu
+CROSS_COMPILE="${CROSS_COMPILE}" cmake --build build -- -j"${JOBS}"
 
 echo "[build-arm64] build complete: build/haven.elf  build/haven.bin"
 ${CROSS_COMPILE}size build/haven.elf

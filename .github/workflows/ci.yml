@@ -28,7 +28,7 @@ jobs:
       - name: Setup toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc clang make python3
+          sudo apt-get install -y gcc clang python3
 
       - name: Preflight (${{ matrix.compiler }})
         run: ./scripts/ci/ci-preflight.sh
