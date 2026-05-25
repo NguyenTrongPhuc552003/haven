@@ -1284,6 +1284,9 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | #24 | `feat/freertos-context-hardening` | FreeRTOS context-switch state machine, task block/unblock, priority ceiling | v0.6.0 |
 | #25 | `chore/website-v0.6.0-sync` | Changelog, architecture overview, thesis traceability updated for v0.6.0 | v0.6.0 |
 | #26 | `feat/static-analysis-gate` | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh` | v0.6.0 |
+| #31 | `chore/cmake-migration` | Full CMake ≥ 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets | v0.6.1 |
+| #32 | `docs/cmake-migration` | Docs and website updated to cmake preset commands; Getting-Started updated | v0.6.1 |
+| #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs | v0.6.1 |
 
 ### Open Milestones
 
@@ -1309,8 +1312,9 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | All unit + integration tests pass | ✅ | 46 FreeRTOS + secondary CPU tests pass |
 | QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` - Partition A + B markers pass |
 | Static analysis gate | ✅ | cppcheck + clang `--analyze` both PASS (as of #26) |
+| Benchmark baseline captured | ✅ | 15/15 benchmarks in `build/benchmarks/`; actual data in `docs/methodology/BENCHMARK_BASELINE.md` |
+| Traceability matrix Ch1–5 | ✅ | Ch1–5 rows complete with evidence paths; Ch6–8 present |
 | i.MX95 evidence package | ⬜ | Phase 3 / R3 - in progress |
 | Formal proofs check | ⬜ | Phase 4 / R4 - not started |
-| RTOS latency ≤ threshold | 🔄 | Benchmark infra ready; i.MX95 run pending |
-| Traceability matrix complete | 🔄 | Ch. 1–4 rows present; Ch. 5–8 pending |
+| RTOS latency ≤ threshold | 🔄 | QEMU baseline captured (all PASS); i.MX95 hardware run pending |
 | Publication-quality paper draft | ⬜ | Phase 8 - not started |
