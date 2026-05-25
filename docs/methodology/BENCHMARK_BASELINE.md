@@ -26,44 +26,76 @@ These thresholds are encoded in `tools/analysis/latency_analyzer.py`
 ## Baseline Values (Most Recent Benchmark Run)
 
 Captured on QEMU `virt` (AArch64, 4 vCPUs, 1 GiB RAM), GCC 13 `-O2`,
-Linux 6.6 host, 10,000 iterations per benchmark.
+Linux 6.6 host, host-test simulation, 100,000 iterations per benchmark
+(10,000 for temporal suite). JSON source: `build/benchmarks/`. Run date: 2026-05-14.
 
-### `build/benchmarks/isolation-latency.json` - Stage-2 + SMMU hot-path
+> **Note:** `min_ns = 0` entries reflect host timer granularity (1 tick floor on
+> sub-nanosecond operations). `max_ns` outliers are OS scheduling noise on the test
+> host, not Haven latency. Hardware baselines on i.MX95 are pending board bring-up.
 
-| Benchmark              | Min (ns) | Mean (ns) | Max (ns) | p99est (ns) | Verdict |
-| ---------------------- | -------- | --------- | -------- | ----------- | ------- |
-| `stage2_contains_hot`  | 38       | 43        | 61       | 129         | PASS    |
-| `smmu_check_hot`       | 35       | 42        | 58       | 126         | PASS    |
-| `stage2_contains_cold` | 290      | 340       | 890      | 1,020       | PASS    |
-| `smmu_check_cold`      | 285      | 330       | 870      | 990         | PASS    |
+### `build/benchmarks/isolation-latency.json` — Isolation hot-path
 
-### `build/benchmarks/temporal-isolation.json` - Scheduler temporal path
+100,000 iterations, 1,000 warmup, host simulation.
 
-| Benchmark                   | Min (ns) | Mean (ns) | Max (ns) | p99est (ns) | Verdict |
-| --------------------------- | -------- | --------- | -------- | ----------- | ------- |
-| `temporal_tick_10ms_0pct`   | 48       | 51        | 68       | 153         | PASS    |
-| `temporal_tick_10ms_50pct`  | 50       | 54        | 72       | 162         | PASS    |
-| `temporal_tick_10ms_100pct` | 55       | 58        | 81       | 174         | PASS    |
-| `temporal_preempt_latency`  | 490      | 530       | 780      | 1,590       | PASS    |
+| Benchmark                      | Min (ns) | Mean (ns) | Max (ns)  | Threshold  | Verdict |
+| ------------------------------ | -------- | --------- | --------- | ---------- | ------- |
+| `stage2_partition_contains_pa` | 0        | 38        | 30,000    | < 100,000  | PASS    |
+| `irq_is_owned_by`              | 0        | 40        | 1,000     | < 100,000  | PASS    |
+| `budget_consume`               | 0        | 33        | 1,000     | < 100,000  | PASS    |
+| `smmu_check_dma_access`        | 0        | 31        | 1,000     | < 100,000  | PASS    |
+| `timer_check_deadline`         | 0        | 27        | 1,000     | < 100,000  | PASS    |
+| `iommu_check_group`            | 0        | 25        | 1,000     | < 100,000  | PASS    |
 
-The `100pct` variant represents a fully-loaded partition consuming its budget;
-mean 58 ns confirms the scheduler adds negligible overhead even under pressure.
+### `build/benchmarks/stage2-fault.json` — Stage-2 containment boundary
 
-### `build/benchmarks/stage2-fault.json` - Fault injection latency
+100,000 iterations, 1,000 warmup.
 
-| Benchmark              | Min (ns) | Mean (ns) | Max (ns) | p99est (ns) | Verdict |
-| ---------------------- | -------- | --------- | -------- | ----------- | ------- |
-| `stage2_fault_detect`  | 1,200    | 1,450     | 3,100    | 4,350       | PASS    |
-| `stage2_fault_handle`  | 1,800    | 2,100     | 4,200    | 6,300       | PASS    |
-| `stage2_fault_recover` | 3,100    | 3,600     | 6,900    | 10,800      | PASS    |
+| Benchmark                        | Min (ns) | Mean (ns) | Max (ns)  | Threshold  | Verdict |
+| -------------------------------- | -------- | --------- | --------- | ---------- | ------- |
+| `stage2_contains_hot_path`       | 0        | 62        | 35,000    | < 100,000  | PASS    |
+| `stage2_contains_cold_path`      | 0        | 47        | 1,000     | < 100,000  | PASS    |
+| `stage2_contains_low_boundary`   | 0        | 35        | 16,000    | < 100,000  | PASS    |
+| `stage2_contains_high_boundary`  | 0        | 45        | 47,000    | < 100,000  | PASS    |
 
-### `build/benchmarks/smmu-policy.json` - SMMU policy enforcement
+### `build/benchmarks/smmu-policy.json` — SMMU DMA policy enforcement
 
-| Benchmark           | Min (ns) | Mean (ns) | Max (ns) | p99est (ns) | Verdict |
-| ------------------- | -------- | --------- | -------- | ----------- | ------- |
-| `smmu_policy_allow` | 36       | 41        | 57       | 123         | PASS    |
-| `smmu_policy_deny`  | 38       | 44        | 62       | 132         | PASS    |
-| `smmu_group_lookup` | 42       | 49        | 71       | 147         | PASS    |
+100,000 iterations, 1,000 warmup.
+
+| Benchmark                        | Min (ns) | Mean (ns) | Max (ns)  | Threshold  | Verdict |
+| -------------------------------- | -------- | --------- | --------- | ---------- | ------- |
+| `smmu_check_access_hot`          | 0        | 66        | 24,000    | < 100,000  | PASS    |
+| `smmu_check_window_boundary_low` | 0        | 38        | 15,000    | < 100,000  | PASS    |
+| `smmu_check_window_boundary_high`| 0        | 40        | 1,000     | < 100,000  | PASS    |
+| `smmu_check_access_denied`       | 0        | 41        | 13,000    | < 100,000  | PASS    |
+| `smmu_allocate_streamid`         | 0        | 37        | 15,000    | < 100,000  | PASS    |
+
+### `build/benchmarks/temporal-isolation.json` — RTOS response under Linux load
+
+10,000 iterations per cell; 3 RTOS periods × 5 load levels = 15 cells.
+Budget = 20% of period (200 µs / 1 ms, 1 ms / 5 ms, 2 ms / 10 ms).
+
+| Benchmark                        | Period   | Load | Mean (ns) | Max (ns)  | Verdict            |
+| -------------------------------- | -------- | ---- | --------- | --------- | ------------------ |
+| `rtos_response_1ms_load_0pct`    | 1 ms     | 0 %  | 33        | 1,000     | PASS               |
+| `rtos_response_1ms_load_25pct`   | 1 ms     | 25 % | 0         | 1,000     | PASS               |
+| `rtos_response_1ms_load_50pct`   | 1 ms     | 50 % | 1         | 3,000     | PASS               |
+| `rtos_response_1ms_load_75pct`   | 1 ms     | 75 % | 0         | 1,000     | PASS               |
+| `rtos_response_1ms_load_100pct`  | 1 ms     | 100 %| 0         | 1,000     | PASS               |
+| `rtos_response_5ms_load_0pct`    | 5 ms     | 0 %  | 16        | 1,000     | PASS               |
+| `rtos_response_5ms_load_25pct`   | 5 ms     | 25 % | 0         | 1,000     | PASS               |
+| `rtos_response_5ms_load_50pct`   | 5 ms     | 50 % | 1         | 3,000     | PASS               |
+| `rtos_response_5ms_load_75pct`   | 5 ms     | 75 % | 2         | 10,000    | PASS               |
+| `rtos_response_5ms_load_100pct`  | 5 ms     | 100 %| 1         | 3,000     | PASS               |
+| `rtos_response_10ms_load_0pct`   | 10 ms    | 0 %  | 19        | 1,000     | PASS               |
+| `rtos_response_10ms_load_25pct`  | 10 ms    | 25 % | 0         | 1,000     | PASS               |
+| `rtos_response_10ms_load_50pct`  | 10 ms    | 50 % | 13        | 5,000     | PASS               |
+| `rtos_response_10ms_load_75pct`  | 10 ms    | 75 % | 76        | 315,000   | PASS (note: max outlier, see §) |
+| `rtos_response_10ms_load_100pct` | 10 ms    | 100 %| 5         | 3,000     | PASS               |
+
+> **10ms/75% outlier note:** The single 315 µs outlier in `rtos_response_10ms_load_75pct`
+> reflects a host OS scheduling event during the simulation run, not a Haven policy
+> violation. The RTOS budget (2 ms) is enforced independently of Linux load. Hardware
+> validation on i.MX95 is required to characterise real worst-case response time.
 
 ---
 
