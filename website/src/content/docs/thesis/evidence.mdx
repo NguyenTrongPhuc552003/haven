@@ -62,18 +62,23 @@ Every milestone boundary produces a committed evidence snapshot.
 ```
 
 <Aside type="tip">
-    Run `make evidence` to auto-populate `build/evidence/` with a fresh
+    Run `cmake --build build --target evidence` (or `./scripts/evidence/package-evidence.sh`)
+    to auto-populate `build/evidence/` with a fresh
     metadata snapshot and copies of the methodology docs.
 </Aside>
 
 ## Generating an Evidence Package
 
 ```sh
-# Full CI preflight first
-./scripts/ci-preflight.sh
+# Build host tests first to generate benchmark JSON
+cmake --preset host-tests && cmake --build build-host
+ctest --test-dir build-host --output-on-failure
+
+# Full CI preflight
+./scripts/ci/ci-preflight.sh
 
 # Package evidence
-make evidence
+./scripts/evidence/package-evidence.sh
 
 # Inspect
 ls build/evidence/imx95/

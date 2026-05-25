@@ -17,6 +17,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.6.1] - 2026-05-26
+
+### Changed
+- **Full CMake migration**: build system migrated from Makefile to CMake ≥ 3.22 + Ninja.
+  `CMakePresets.json` provides four named presets: `arm64-qemu`, `arm64-imx95`, `arm64-imx8qm`, `host-tests`.
+- All CI workflows updated: `make` removed; steps use `cmake --preset …` and `ctest`.
+- Documentation and website updated with cmake preset commands.
+
+### Fixed
+- `scripts/evidence/benchmark-baseline.py` corrected script paths after directory reorganisation.
+- `scripts/compile/build-arm64.sh`, `tools/scripts/cross-compile.sh` switched to cmake invocations.
+
+---
+
 ## [0.6.0] - 2026-05-21
 
 ### Added

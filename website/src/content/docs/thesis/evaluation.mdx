@@ -74,7 +74,7 @@ Expected overhead: < 5% for workloads not involving frequent EL2 exits.
 | Board             | NXP i.MX95 Dev Kit                                 |
 | Linux image       | Yocto Kirkstone, kernel 6.6 LTS                    |
 | RTOS image        | FreeRTOS 10.6.2                                    |
-| Haven build       | `make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- all`     |
+| Haven build       | `cmake --preset arm64-imx95 && cmake --build build-imx95` |
 | Load generator    | `stress-ng 0.17.x`                                 |
 | Timer measurement | ARM Generic Timer (CNTPCT_EL0), 1 ns resolution    |
 | UART capture      | `minicom -D /dev/ttyUSB0 -b 115200 -C capture.log` |
@@ -104,7 +104,8 @@ Analysis scripts in `tools/analysis/`:
 After each campaign run:
 
 ```sh
-make evidence
+cmake --build build --target evidence
+# or: ./scripts/evidence/package-evidence.sh
 ```
 
 This produces `build/evidence/imx95/` with:

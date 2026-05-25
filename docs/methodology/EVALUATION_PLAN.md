@@ -21,17 +21,24 @@
 ## Experimental procedure (how to measure)
 
 1. Run configuration validation:
-   - `./scripts/check-configs.sh`
+   - `cmake --preset host-tests && cmake --build build-host`
+   - `ctest --test-dir build-host -R config --output-on-failure`
+   - Or: `./scripts/compile/check-configs.sh`
 2. Run correctness baseline:
-   - `./scripts/test.sh`
+   - `ctest --test-dir build-host --output-on-failure`
+   - Or: `./scripts/dev/test.sh`
 3. Run benchmark collection:
-   - `./scripts/benchmark-baseline.py`
+   - `python3 scripts/evidence/benchmark-baseline.py`
+   - Results written to `build/benchmarks/*.json`
 4. Execute virtual smoke scenario:
-   - `./scripts/qemu-smoke.sh`
+   - `cmake --preset arm64-qemu && cmake --build build`
+   - `./scripts/qemu/qemu-smoke.sh`
 5. Execute board validation workflow:
+   - `cmake --preset arm64-imx95 && cmake --build build-imx95`
    - Follow `docs/porting/IMX95_VALIDATION_RUNBOOK.md`
 6. Package and archive evidence:
-   - `./scripts/package-evidence.sh`
+   - `cmake --build build --target evidence`
+   - Or: `./scripts/evidence/package-evidence.sh`
 
 ## Acceptance criteria by isolation claim
 

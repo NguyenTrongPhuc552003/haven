@@ -142,3 +142,210 @@ The `coq-proof-check` nightly job compiles all proofs on every CI run.
 A failing nightly on this job means an implementation change broke a
 verified invariant - treat this as a P0 isolation regression.
 
+---
+
+## §8 - QEMU End-to-End Validation Workflow
+
+Run this workflow to confirm the complete isolation demo works on QEMU
+before recording evidence for a milestone.
+
+### Step-by-step
+
+```bash
+# 1. Clean build (ARM64 QEMU target)
+rm -rf build/
+cmake --preset arm64-qemu
+cmake --build build
+
+# Verify expected outputs
+file build/haven.elf         # must say "ARM aarch64"
+ls -la build/haven.bin       # raw binary for QEMU -kernel
+ls -la build/guest_a.bin     # Partition A EL1 stub
+ls -la build/guest_b.bin     # Partition B RTOS stub
+
+# 2. Run QEMU smoke test (automated pass/fail)
+./scripts/qemu/qemu-smoke.sh
+# Expected output: "validation_status=pass"
+# Key markers to verify in output:
+#   HAVEN: boot banner + version
+#   HAVEN: partition A started
+#   HAVEN: partition B started
+#   HAVEN: stage-2 violation detected (cross-partition fault)
+#   HAVEN: guest resumed after fault (ELR advanced)
+
+# 3. Interactive QEMU session (for manual inspection)
+./scripts/qemu/qemu-run.sh
+# Serial UART output available on stdout
+# Ctrl+A X to exit QEMU
+```
+
+### Pass criteria
+
+- `scripts/qemu/qemu-smoke.sh` exits 0
+- Both partition boot markers present in UART log
+- At least one stage-2 fault denial logged (ESR_EL2 decoded, guest resumed)
+- No QEMU crash or assertion failure
+
+### Recording QEMU evidence for a chapter
+
+```bash
+# Capture UART log with timestamp
+./scripts/qemu/qemu-smoke.sh 2>&1 | tee build/evidence/qemu-$(date +%Y%m%d-%H%M%S).log
+
+# Package the run into the evidence bundle
+./scripts/evidence/package-evidence.sh
+
+# Update CHAPTER_TRACEABILITY.md §4.5 with:
+# - Git SHA: $(git rev-parse HEAD)
+# - QEMU version: $(qemu-system-aarch64 --version | head -1)
+# - Log path: build/evidence/qemu-<timestamp>.log
+```
+
+---
+
+## §9 - Benchmark Campaign Procedure
+
+Run this before closing M4 (Temporal Guarantees) or M5 (Thesis Evidence).
+
+### Step 1 — Build and run the full suite
+
+```bash
+# Host simulation benchmarks (fast, CI-reproducible)
+cmake --preset host-tests
+cmake --build build-host
+ctest --test-dir build-host --output-on-failure
+
+# Benchmark JSON files produced in build/benchmarks/:
+#   isolation-latency.json     ← stage2, irq, budget, smmu, timer, iommu hot paths
+#   stage2-fault.json          ← stage-2 containment boundary variants
+#   smmu-policy.json           ← SMMU DMA policy enforcement variants
+#   temporal-isolation.json    ← 3 periods × 5 load levels = 15 cells
+```
+
+### Step 2 — Analyse against thresholds
+
+```bash
+python3 tools/analysis/latency_analyzer.py \
+    --input    build/benchmarks/isolation-latency.json \
+    --platform qemu-virt \
+    --json     build/benchmarks/analysis-qemu-virt.json
+
+# Threshold: all benchmarks must be < 100,000 ns max
+# Non-zero exit code = threshold breach = do not record as milestone evidence
+```
+
+### Step 3 — Compare to baseline
+
+```bash
+./scripts/ci/bench-regression.sh
+# Reads build/benchmarks/*.json vs tests/benchmarks/latency-baseline.json
+# Exits 1 if any mean_ns increases by > 10% from baseline
+# Zero exit = regression-free; safe to record
+```
+
+### Step 4 — Generate visualisation and report
+
+```bash
+python3 tools/analysis/jitter_plot.py \
+    --input    build/benchmarks/isolation-latency.json \
+    --output   build/benchmarks/latency_plot.png \
+    --platform qemu-virt
+
+python3 tools/analysis/evidence_report.py \
+    --evidence-dir build/evidence \
+    --benchmarks   build/benchmarks/isolation-latency.json \
+    --output       build/evidence/report.html
+```
+
+### Step 5 — Update documentation
+
+If mean values differ > 20% from `docs/methodology/BENCHMARK_BASELINE.md`,
+update that file with the new measured values and commit the change:
+
+```bash
+# Update BENCHMARK_BASELINE.md tables with new JSON values
+# Then commit:
+git add docs/methodology/BENCHMARK_BASELINE.md build/benchmarks/
+git commit --no-verify -m "docs(evidence): update benchmark baseline $(date +%Y-%m-%d)"
+```
+
+### Campaign evidence record
+
+For every campaign, record in `docs/methodology/CHAPTER_TRACEABILITY.md`:
+
+```
+- Platform: qemu-virt / imx95-devkit
+- Date: YYYY-MM-DD
+- Git SHA: <sha>
+- Compiler: aarch64-linux-gnu-gcc <version> / gcc <version>
+- CMake preset: arm64-qemu / host-tests
+- Result: N/N benchmarks PASS, worst max_ns = X ns
+```
+
+---
+
+## §10 - Chapter Traceability Sign-Off Checklist
+
+Use at each milestone boundary to confirm thesis chapter coverage is complete.
+
+### Pre-sign-off checklist (run before closing a milestone)
+
+```
+[ ] docs/methodology/CHAPTER_TRACEABILITY.md:
+    [ ] Ch1 (Problem): architecture doc and threat model linked ✓
+    [ ] Ch2 (Related Work): isolation model and comparative notes linked ✓
+    [ ] Ch3 (Design): all public API headers compile under cmake --preset arm64-qemu ✓
+    [ ] Ch4 (Spatial Isolation):
+        [ ] Implementation artifacts present and passing
+        [ ] F1-F8 fault injection matrix: 8/8 pass
+        [ ] §4.6 measured results populated with actual data
+        [ ] QEMU demo smoke log referenced
+    [ ] Ch5 (Temporal Isolation):
+        [ ] Budget scheduler + timer artifacts present
+        [ ] Benchmark cells 1-15 all PASS in temporal-isolation.json
+        [ ] §5.4 measured results populated
+    [ ] Ch6 (Formal Verification):
+        [ ] Coq proofs build without error
+        [ ] Isabelle theory validated
+        [ ] Nightly coq-proof-check CI job green
+    [ ] Ch7 (Evaluation):
+        [ ] Latency analyzer invoked, threshold check green
+        [ ] Evidence report HTML generated
+        [ ] build/evidence/summary.json present
+
+[ ] docs/methodology/BENCHMARK_BASELINE.md:
+    [ ] Tables reflect most recent JSON data (not placeholder values)
+    [ ] All verdict cells show PASS
+
+[ ] docs/roadmap/MILESTONES.md:
+    [ ] Completed milestones marked ✅ with brief description
+
+[ ] docs/roadmap/DESCRIPTION.md Part 9:
+    [ ] Completed Milestones table updated with latest PRs
+    [ ] Quality Gate Dashboard reflects current status
+
+[ ] build/evidence/:
+    [ ] summary.json present and contains git SHA
+    [ ] metadata.txt present
+
+[ ] CI gates (verify on GitHub Actions):
+    [ ] ci.yml: latest push GREEN on arm64-cross-compile + cmake-host-tests
+    [ ] static-analysis.yml: cppcheck + clang-analyze GREEN
+    [ ] nightly.yml: coq-proof-check GREEN (if proofs committed)
+    [ ] benchmark.yml: latest run GREEN; artifact downloaded and spot-checked
+```
+
+### Post-milestone record
+
+After all checks pass, commit a sign-off note to
+`docs/methodology/CHAPTER_TRACEABILITY.md` with:
+
+```markdown
+## Milestone Sign-Off — M<N> — <date>
+
+- Git SHA: <sha>
+- CI run: <GitHub Actions URL>
+- Benchmark artifact: <artifact download URL or path>
+- Reviewer: <name>
+- Notes: <any caveats or residual risks>
+```
