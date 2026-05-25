@@ -14,13 +14,13 @@ The project has solid contract-level C (7 isolation modules, ~1,200 lines, all t
 
 The Linux kernel's organizational philosophy produces the world's most peer-reviewed embedded codebase. Haven should adopt its key structural lessons:
 
-| Linux Kernel Pattern                                | Problem It Solves                                     | Haven Application                                                                |
-| --------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `arch/<target>/` - all HW-specific code isolated    | Prevents hardware details leaking into portable logic | `src/core/arch/arm64/` for entry.S, context.S, hw registers                      |
-| `drivers/<subsystem>/` - drivers separate from core | Subsystem policy ≠ hardware driver                    | `drivers/irqchip/` for GICv3, `drivers/iommu/` for SMMUv3                        |
-| `include/linux/` vs `include/uapi/`                 | Public API vs internal API                            | `include/haven/` (public) vs `include/arch/` (hardware)                          |
-| `lib/` - shared utilities (string, bitmap, etc.)    | Avoids code duplication                               | `src/common/` with string.c, printk.c, panic.c                                   |
-| `Documentation/` with subdirectories                | Living docs tied to subsystems                        | Expand `docs/` with subsystem-specific guides                                    |
+| Linux Kernel Pattern                                | Problem It Solves                                     | Haven Application                                                                                  |
+| --------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `arch/<target>/` - all HW-specific code isolated    | Prevents hardware details leaking into portable logic | `src/core/arch/arm64/` for entry.S, context.S, hw registers                                        |
+| `drivers/<subsystem>/` - drivers separate from core | Subsystem policy ≠ hardware driver                    | `drivers/irqchip/` for GICv3, `drivers/iommu/` for SMMUv3                                          |
+| `include/linux/` vs `include/uapi/`                 | Public API vs internal API                            | `include/haven/` (public) vs `include/arch/` (hardware)                                            |
+| `lib/` - shared utilities (string, bitmap, etc.)    | Avoids code duplication                               | `src/common/` with string.c, printk.c, panic.c                                                     |
+| `Documentation/` with subdirectories                | Living docs tied to subsystems                        | Expand `docs/` with subsystem-specific guides                                                      |
 | CMake ≥ 3.22 - presets, Ninja, cross-compile        | Fast, reproducible builds                             | CMake is the primary build system; `CMakePresets.json` defines arm64-qemu, arm64-imx95, host-tests |
 
 ### Comparable Projects: Key Structural Lessons
@@ -862,22 +862,22 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 
 ### Phase 2 (M4–6): 14 new files, 2 empty dirs eliminated
 
-| File                                     | Purpose                    |
-| ---------------------------------------- | -------------------------- |
-| `drivers/irqchip/gic_v3.c`               | GICv3 interrupt controller |
-| `drivers/irqchip/gic_v3.h`               | GICv3 interface            |
-| `drivers/iommu/smmu_v3.c`                | SMMUv3 stream tables       |
-| `drivers/iommu/smmu_v3.h`                | SMMUv3 interface           |
-| `drivers/uart/pl011.c`                   | PL011 UART (QEMU)          |
-| `drivers/uart/imx_uart.c`                | i.MX UART                  |
-| `arch/arm64/irq.c`                       | EL2 IRQ handling           |
-| `arch/arm64/partition.S`                 | Partition launch / ERET    |
-| `arch/arm64/boot.S`                      | Primary boot entry         |
-| `src/core/partition.c`                   | Partition launcher logic   |
-| `tests/integration/test_smmu_hardware.c` | HW SMMU test               |
-| `tools/scripts/qemu-run.sh`              | QEMU launch script         |
-| `CMakeLists.txt` + `CMakePresets.json` + `cmake/`  | Cross-compile + preset build system |
-| `linker.ld` (updated)                    | Final linker script        |
+| File                                              | Purpose                             |
+| ------------------------------------------------- | ----------------------------------- |
+| `drivers/irqchip/gic_v3.c`                        | GICv3 interrupt controller          |
+| `drivers/irqchip/gic_v3.h`                        | GICv3 interface                     |
+| `drivers/iommu/smmu_v3.c`                         | SMMUv3 stream tables                |
+| `drivers/iommu/smmu_v3.h`                         | SMMUv3 interface                    |
+| `drivers/uart/pl011.c`                            | PL011 UART (QEMU)                   |
+| `drivers/uart/imx_uart.c`                         | i.MX UART                           |
+| `arch/arm64/irq.c`                                | EL2 IRQ handling                    |
+| `arch/arm64/partition.S`                          | Partition launch / ERET             |
+| `arch/arm64/boot.S`                               | Primary boot entry                  |
+| `src/core/partition.c`                            | Partition launcher logic            |
+| `tests/integration/test_smmu_hardware.c`          | HW SMMU test                        |
+| `tools/scripts/qemu-run.sh`                       | QEMU launch script                  |
+| `CMakeLists.txt` + `CMakePresets.json` + `cmake/` | Cross-compile + preset build system |
+| `linker.ld` (updated)                             | Final linker script                 |
 
 ### Phase 3 (M7–9): 12 new files, 4 empty dirs eliminated
 
@@ -1017,14 +1017,14 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 **Files affected:**
 
-| File | Change |
-| ---- | ------ |
-| `arch/arm64/context.S` | Implement full GP-register + FPSIMD save/restore for EL2-mediated context switch |
-| `arch/arm64/boot.S` | Add PSCI error decode after `hvc #0`; log `x0` return code via hypervisor UART |
-| `src/core/partition.c` | Remove `partition_b_secondary_cpu_init` placeholder; use real platform init sequence |
-| `src/guest/rtos/freertos_integration.c` | Replace `HV_ARCH_CONTEXT_STUB` weak symbols with calls to arch/arm64/context.S exports |
-| `tests/integration/test_secondary_cpu_isolation.c` | Add T7: PSCI error-path rejection (invalid MPIDR), T8: FreeRTOS task period fidelity |
-| `tests/benchmarks/bench_isolation_latency.c` | Add FreeRTOS yield-to-EL2-and-back round-trip latency measurement |
+| File                                               | Change                                                                                 |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `arch/arm64/context.S`                             | Implement full GP-register + FPSIMD save/restore for EL2-mediated context switch       |
+| `arch/arm64/boot.S`                                | Add PSCI error decode after `hvc #0`; log `x0` return code via hypervisor UART         |
+| `src/core/partition.c`                             | Remove `partition_b_secondary_cpu_init` placeholder; use real platform init sequence   |
+| `src/guest/rtos/freertos_integration.c`            | Replace `HV_ARCH_CONTEXT_STUB` weak symbols with calls to arch/arm64/context.S exports |
+| `tests/integration/test_secondary_cpu_isolation.c` | Add T7: PSCI error-path rejection (invalid MPIDR), T8: FreeRTOS task period fidelity   |
+| `tests/benchmarks/bench_isolation_latency.c`       | Add FreeRTOS yield-to-EL2-and-back round-trip latency measurement                      |
 
 **Exit criteria:**
 - [ ] CPU 2 boots to Partition B guest entry via real PSCI on QEMU arm64
@@ -1049,14 +1049,14 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 Select a targeted subset of MISRA-C:2012 rules for the TCB core (`src/core/` only):
 
-| Rule ID | Requirement | Rationale |
-| ------- | ----------- | --------- |
-| 15.5 | A function have a single point of exit | Auditable control flow |
-| 17.7 | Return value of non-void functions not discarded | Prevents silent failure |
-| 21.3 | `<stdlib.h>` memory allocation not used | No dynamic allocation in TCB |
-| 21.6 | Standard I/O not used in production paths | No `printf` in core |
-| 14.4 | Controlling expression of `if` shall be essentially boolean | Reduces implicit conversions |
-| 11.1–11.8 | Pointer conversions restricted | Prevents type confusion attacks |
+| Rule ID   | Requirement                                                 | Rationale                       |
+| --------- | ----------------------------------------------------------- | ------------------------------- |
+| 15.5      | A function have a single point of exit                      | Auditable control flow          |
+| 17.7      | Return value of non-void functions not discarded            | Prevents silent failure         |
+| 21.3      | `<stdlib.h>` memory allocation not used                     | No dynamic allocation in TCB    |
+| 21.6      | Standard I/O not used in production paths                   | No `printf` in core             |
+| 14.4      | Controlling expression of `if` shall be essentially boolean | Reduces implicit conversions    |
+| 11.1–11.8 | Pointer conversions restricted                              | Prevents type confusion attacks |
 
 **Deviation record template:**
 
@@ -1072,12 +1072,12 @@ Review: Isolation Guardian sign-off required before merge.
 
 **Files to create:**
 
-| File | Purpose |
-| ---- | ------- |
-| `docs/safety/MISRA_DEVIATION_RECORD.md` | Deviation log for TCB MISRA-C subset |
+| File                                    | Purpose                                                               |
+| --------------------------------------- | --------------------------------------------------------------------- |
+| `docs/safety/MISRA_DEVIATION_RECORD.md` | Deviation log for TCB MISRA-C subset                                  |
 | `docs/safety/STATIC_ANALYSIS_POLICY.md` | Tool selection rationale, suppression policy, false-positive registry |
-| `scripts/ci/misra-check.sh` | cppcheck MISRA mode runner (when MISRA addon available) |
-| `.github/workflows/misra-advisory.yml` | Advisory-only MISRA run (non-blocking, results uploaded as artifact) |
+| `scripts/ci/misra-check.sh`             | cppcheck MISRA mode runner (when MISRA addon available)               |
+| `.github/workflows/misra-advisory.yml`  | Advisory-only MISRA run (non-blocking, results uploaded as artifact)  |
 
 **Exit criteria:**
 - [ ] Zero `--enable=warning` findings in `src/core/` with cppcheck
@@ -1099,11 +1099,11 @@ Haven uses [Semantic Versioning](https://semver.org/):
 MAJOR.MINOR.PATCH[-prerelease]
 ```
 
-| Increment | When |
-| --------- | ---- |
-| PATCH | Bug fixes, documentation corrections, test additions that don't change API |
-| MINOR | New isolation features, new platform support, new drivers - backwards-compatible ABI |
-| MAJOR | Breaking API changes, isolation model changes, TCB restructuring |
+| Increment | When                                                                                 |
+| --------- | ------------------------------------------------------------------------------------ |
+| PATCH     | Bug fixes, documentation corrections, test additions that don't change API           |
+| MINOR     | New isolation features, new platform support, new drivers - backwards-compatible ABI |
+| MAJOR     | Breaking API changes, isolation model changes, TCB restructuring                     |
 
 **Branching model:**
 
@@ -1133,12 +1133,12 @@ All security-relevant changes (isolation boundary violations, privilege escalati
 
 Scope of security coverage:
 
-| Threat | Scope | Out of Scope |
-| ------ | ----- | ------------ |
-| Partition escape (stage-2 bypass) | In scope | Side-channel attacks (Spectre/Meltdown) |
-| SMMU bypass (DMA to wrong partition) | In scope | Physical attacks |
-| Budget exhaustion (temporal starvation) | In scope | Supply-chain attacks on toolchain |
-| PSCI privilege escalation | In scope | Host OS (Linux) vulnerabilities |
+| Threat                                  | Scope    | Out of Scope                            |
+| --------------------------------------- | -------- | --------------------------------------- |
+| Partition escape (stage-2 bypass)       | In scope | Side-channel attacks (Spectre/Meltdown) |
+| SMMU bypass (DMA to wrong partition)    | In scope | Physical attacks                        |
+| Budget exhaustion (temporal starvation) | In scope | Supply-chain attacks on toolchain       |
+| PSCI privilege escalation               | In scope | Host OS (Linux) vulnerabilities         |
 
 #### 7.3 Dependency Pinning
 
@@ -1165,13 +1165,13 @@ env:
 
 **Files to create/update for Phase 7:**
 
-| File | Change |
-| ---- | ------ |
-| `docs/contributing/RELEASE_PROCESS.md` | Version bump checklist, tag procedure, changelog update steps |
-| `docs/contributing/SECURITY_PROCESS.md` | Advisory process, CVSS triage guide, disclosure timeline |
-| `docs/contributing/BACKPORT_POLICY.md` | Criteria for backporting, stable branch management |
-| `.github/dependabot.yml` | Automated action version updates |
-| `docs/thesis/REPRODUCIBILITY_APPENDIX.md` | Full commands, Docker SHA, expected outputs, variance ranges |
+| File                                      | Change                                                        |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| `docs/contributing/RELEASE_PROCESS.md`    | Version bump checklist, tag procedure, changelog update steps |
+| `docs/contributing/SECURITY_PROCESS.md`   | Advisory process, CVSS triage guide, disclosure timeline      |
+| `docs/contributing/BACKPORT_POLICY.md`    | Criteria for backporting, stable branch management            |
+| `.github/dependabot.yml`                  | Automated action version updates                              |
+| `docs/thesis/REPRODUCIBILITY_APPENDIX.md` | Full commands, Docker SHA, expected outputs, variance ranges  |
 
 **Exit criteria:**
 - [ ] `RELEASE_PROCESS.md` reviewed and agreed by thesis supervisor
@@ -1187,13 +1187,13 @@ env:
 
 #### 8.1 Target Venues
 
-| Venue | Type | Deadline window | Why Haven fits |
-| ----- | ---- | --------------- | -------------- |
-| ECRTS | Conference | January (full) / March (WiP) | Real-time isolation on AMP - core topic |
-| RTSS | Conference | May | Mixed-criticality, temporal isolation |
-| DATE | Conference | September | Embedded systems, SoC-level isolation |
-| EMSOFT | Workshop→conf | April | Embedded software, safety-critical OS |
-| OSDI / EuroSys | Conference | October | Systems software, if TCB story is strong |
+| Venue          | Type          | Deadline window              | Why Haven fits                           |
+| -------------- | ------------- | ---------------------------- | ---------------------------------------- |
+| ECRTS          | Conference    | January (full) / March (WiP) | Real-time isolation on AMP - core topic  |
+| RTSS           | Conference    | May                          | Mixed-criticality, temporal isolation    |
+| DATE           | Conference    | September                    | Embedded systems, SoC-level isolation    |
+| EMSOFT         | Workshop→conf | April                        | Embedded software, safety-critical OS    |
+| OSDI / EuroSys | Conference    | October                      | Systems software, if TCB story is strong |
 
 **Paper structure recommendation** (for ECRTS 10-page limit):
 1. Introduction + Motivation (1 page): AMP isolation gap, TCB minimality argument
@@ -1252,14 +1252,14 @@ If the thesis receives a passing grade and the supervisor approves public releas
 
 **Files to create for Phase 8:**
 
-| File | Purpose |
-| ---- | ------- |
-| `scripts/demo/conference-demo.sh` | Self-contained QEMU live demo |
-| `docs/thesis/PAPER_OUTLINE.md` | Paper structure, argument chain, evidence mapping |
-| `docs/contributing/GOOD_FIRST_ISSUES.md` | Curated list of entry-point tasks for new contributors |
-| `.github/ISSUE_TEMPLATE/bug_report.md` | Structured bug report template |
-| `.github/ISSUE_TEMPLATE/platform_bringup.md` | Platform bring-up request template |
-| `.github/ISSUE_TEMPLATE/feature_request.md` | Feature request template |
+| File                                         | Purpose                                                |
+| -------------------------------------------- | ------------------------------------------------------ |
+| `scripts/demo/conference-demo.sh`            | Self-contained QEMU live demo                          |
+| `docs/thesis/PAPER_OUTLINE.md`               | Paper structure, argument chain, evidence mapping      |
+| `docs/contributing/GOOD_FIRST_ISSUES.md`     | Curated list of entry-point tasks for new contributors |
+| `.github/ISSUE_TEMPLATE/bug_report.md`       | Structured bug report template                         |
+| `.github/ISSUE_TEMPLATE/platform_bringup.md` | Platform bring-up request template                     |
+| `.github/ISSUE_TEMPLATE/feature_request.md`  | Feature request template                               |
 
 **Exit criteria:**
 - [ ] `conference-demo.sh` runs end-to-end on fresh macOS host with QEMU 8.x
@@ -1275,46 +1275,205 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 
 ### Completed Milestones
 
-| PR | Branch | Description | Release |
-| -- | ------ | ----------- | ------- |
-| #1–9 | various | CI/CD foundation, core contracts, test infrastructure | v0.1.0-dev |
-| #10–15 | various | SMMU 8-scenario coverage, EL2 exception injection, benchmark suite | v0.4.0 |
-| #16–22 | various | QEMU two-partition smoke test, IRQ injection, temporal isolation demo | v0.5.0 |
-| #23 | `feat/secondary-cpu-bringup` | Secondary CPU (CPU 2) PSCI bring-up, Partition B AMP launch | v0.6.0 |
-| #24 | `feat/freertos-context-hardening` | FreeRTOS context-switch state machine, task block/unblock, priority ceiling | v0.6.0 |
-| #25 | `chore/website-v0.6.0-sync` | Changelog, architecture overview, thesis traceability updated for v0.6.0 | v0.6.0 |
-| #26 | `feat/static-analysis-gate` | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh` | v0.6.0 |
-| #31 | `chore/cmake-migration` | Full CMake ≥ 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets | v0.6.1 |
-| #32 | `docs/cmake-migration` | Docs and website updated to cmake preset commands; Getting-Started updated | v0.6.1 |
-| #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs | v0.6.1 |
+| PR     | Branch                                 | Description                                                                                        | Release    |
+| ------ | -------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------- |
+| #1–9   | various                                | CI/CD foundation, core contracts, test infrastructure                                              | v0.1.0-dev |
+| #10–15 | various                                | SMMU 8-scenario coverage, EL2 exception injection, benchmark suite                                 | v0.4.0     |
+| #16–22 | various                                | QEMU two-partition smoke test, IRQ injection, temporal isolation demo                              | v0.5.0     |
+| #23    | `feat/secondary-cpu-bringup`           | Secondary CPU (CPU 2) PSCI bring-up, Partition B AMP launch                                        | v0.6.0     |
+| #24    | `feat/freertos-context-hardening`      | FreeRTOS context-switch state machine, task block/unblock, priority ceiling                        | v0.6.0     |
+| #25    | `chore/website-v0.6.0-sync`            | Changelog, architecture overview, thesis traceability updated for v0.6.0                           | v0.6.0     |
+| #26    | `feat/static-analysis-gate`            | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh`                        | v0.6.0     |
+| #31    | `chore/cmake-migration`                | Full CMake ≥ 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets            | v0.6.1     |
+| #32    | `docs/cmake-migration`                 | Docs and website updated to cmake preset commands; Getting-Started updated                         | v0.6.1     |
+| #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs | v0.6.1     |
 
 ### Open Milestones
 
-| ID | Description | Phase | Priority |
-| -- | ----------- | ----- | -------- |
-| M-P5-1 | Implement `hv_arch_context_save/restore` in `arch/arm64/context.S` | Phase 5 | High |
-| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path | Phase 5 | High |
-| M-P5-3 | PSCI error-code decode and logging | Phase 5 | Medium |
-| M-P6-1 | MISRA-C deviation record for `src/core/` | Phase 6 | Medium |
-| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md` | Phase 6 | Low |
-| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md` | Phase 7 | Medium |
-| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md` | Phase 7 | High |
-| M-P8-1 | `scripts/demo/conference-demo.sh` | Phase 8 | Medium |
-| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md` | Phase 8 | High |
-| M-P4-1 | Coq formal proofs (`verification/coq/`) | Phase 4 | High |
-| M-P4-2 | i.MX95 measured benchmark campaign | Phase 4 | High |
+| ID     | Description                                                        | Phase   | Priority |
+| ------ | ------------------------------------------------------------------ | ------- | -------- |
+| M-P5-1 | Implement `hv_arch_context_save/restore` in `arch/arm64/context.S` | Phase 5 | High     |
+| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path                        | Phase 5 | High     |
+| M-P5-3 | PSCI error-code decode and logging                                 | Phase 5 | Medium   |
+| M-P6-1 | MISRA-C deviation record for `src/core/`                           | Phase 6 | Medium   |
+| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md`                            | Phase 6 | Low      |
+| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md`                             | Phase 7 | Medium   |
+| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md`                          | Phase 7 | High     |
+| M-P8-1 | `scripts/demo/conference-demo.sh`                                  | Phase 8 | Medium   |
+| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md`                                     | Phase 8 | High     |
+| M-P4-1 | Coq formal proofs (`verification/coq/`)                            | Phase 4 | High     |
+| M-P4-2 | i.MX95 measured benchmark campaign                                 | Phase 4 | High     |
 
 ### Quality Gate Dashboard
 
-| Gate | Status | Notes |
-| ---- | ------ | ----- |
-| ARM64 binary builds (cross-compile) | ✅ | `cmake --preset arm64-qemu && cmake --build build` produces `build/haven.elf` |
-| All unit + integration tests pass | ✅ | 46 FreeRTOS + secondary CPU tests pass |
-| QEMU boots to isolation demo | ✅ | `scripts/qemu/qemu-smoke.sh` - Partition A + B markers pass |
-| Static analysis gate | ✅ | cppcheck + clang `--analyze` both PASS (as of #26) |
-| Benchmark baseline captured | ✅ | 15/15 benchmarks in `build/benchmarks/`; actual data in `docs/methodology/BENCHMARK_BASELINE.md` |
-| Traceability matrix Ch1–5 | ✅ | Ch1–5 rows complete with evidence paths; Ch6–8 present |
-| i.MX95 evidence package | ⬜ | Phase 3 / R3 - in progress |
-| Formal proofs check | ⬜ | Phase 4 / R4 - not started |
-| RTOS latency ≤ threshold | 🔄 | QEMU baseline captured (all PASS); i.MX95 hardware run pending |
-| Publication-quality paper draft | ⬜ | Phase 8 - not started |
+| Gate                                | Status | Notes                                                                                            |
+| ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| ARM64 binary builds (cross-compile) | ✅      | `cmake --preset arm64-qemu && cmake --build build` produces `build/haven.elf`                    |
+| All unit + integration tests pass   | ✅      | 46 FreeRTOS + secondary CPU tests pass                                                           |
+| QEMU boots to isolation demo        | ✅      | `scripts/qemu/qemu-smoke.sh` - Partition A + B markers pass                                      |
+| Static analysis gate                | ✅      | cppcheck + clang `--analyze` both PASS (as of #26)                                               |
+| Benchmark baseline captured         | ✅      | 15/15 benchmarks in `build/benchmarks/`; actual data in `docs/methodology/BENCHMARK_BASELINE.md` |
+| Traceability matrix Ch1–5           | ✅      | Ch1–5 rows complete with evidence paths; Ch6–8 present                                           |
+| i.MX95 evidence package             | ⬜      | Phase 3 / R3 - in progress                                                                       |
+| Formal proofs check                 | ⬜      | Phase 4 / R4 - not started                                                                       |
+| RTOS latency ≤ threshold            | 🔄      | QEMU baseline captured (all PASS); i.MX95 hardware run pending                                   |
+| Publication-quality paper draft     | ⬜      | Phase 8 - not started                                                                            |
+
+---
+
+## Part 10: Long-Term Maintenance Roadmap (Phases 9-12)
+
+This part defines the post-publication maintenance and extensibility roadmap.
+Phases 9-12 begin after thesis submission and the v1.0.0 release tag.
+They are not required for thesis completion but are required for a production-ready AMP hypervisor.
+
+---
+
+### Phase 9: Upstream Compatibility and Standards Alignment
+
+**Objective:** Align Haven with upstream ARM64 ABI changes, Linux guest kernel compatibility
+updates, and PSCI 1.3 specification requirements.
+
+**Duration:** 3 months post-thesis.
+
+**Milestones:**
+
+| ID     | Description                                                        | Priority |
+| ------ | ------------------------------------------------------------------ | -------- |
+| M-P9-1 | Track ARM PSCI 1.3 spec changes; update `arch/arm64/boot.S` calls  | High     |
+| M-P9-2 | Linux 6.8+ guest compatibility test suite                          | Medium   |
+| M-P9-3 | FreeRTOS v11 API compatibility layer in `drivers/guest-tools/`     | Medium   |
+| M-P9-4 | GCC 14 / Clang 18 toolchain compatibility check and CI update      | Low      |
+
+**Exit criteria:**
+- CI passes on GCC 14 and Clang 18 toolchains
+- PSCI 1.3 hvc call semantics verified via test suite
+- Linux 6.8 guest boots in QEMU two-partition configuration
+
+**Files affected:**
+- `arch/arm64/boot.S` - PSCI call updates
+- `configs/arm64/*.yaml` - toolchain version pins
+- `tests/integration/` - new Linux compatibility tests
+- `.github/workflows/ci.yml` - toolchain matrix expansion
+
+---
+
+### Phase 10: Multi-Platform Port and Validation
+
+**Objective:** Port Haven to at least one additional AMP platform beyond i.MX95 and QEMU.
+Target: Raspberry Pi 5 (BCM2712) or NVIDIA Orin Nano as a secondary thesis-adjacent platform.
+
+**Duration:** 3 months (overlaps with Phase 9).
+
+**Milestones:**
+
+| ID      | Description                                                                 | Priority |
+| ------- | --------------------------------------------------------------------------- | -------- |
+| M-P10-1 | Platform configuration YAML for target board in `configs/arm64/`            | High     |
+| M-P10-2 | Board-specific UART driver or verified compatibility with existing driver    | High     |
+| M-P10-3 | Stage-2 memory map validated on target hardware                             | High     |
+| M-P10-4 | Full isolation test suite passing on target board                           | Medium   |
+| M-P10-5 | Porting guide added to `docs/porting/<board>/`                              | Medium   |
+
+**Exit criteria:**
+- `cmake --preset arm64-<board>` builds without error
+- QEMU-validated tests pass on hardware (minimum: isolation flow + benchmark suite)
+- Porting guide reviewed by at least one external contributor
+
+**Files to create:**
+- `configs/arm64/<board>.yaml`
+- `arch/arm64/include/haven/platform/<board>.h`
+- `docs/porting/<board>/PORTING_GUIDE.md`
+- `tests/integration/test_<board>_isolation.c`
+
+---
+
+### Phase 11: Security Audit and Hardening
+
+**Objective:** Conduct a security-focused review of the TCB, address any findings, and produce
+an auditable security posture document suitable for external review.
+
+**Duration:** 2 months.
+
+**Milestones:**
+
+| ID      | Description                                                                 | Priority |
+| ------- | --------------------------------------------------------------------------- | -------- |
+| M-P11-1 | Threat model document: `docs/safety/THREAT_MODEL.md`                        | High     |
+| M-P11-2 | STRIDE analysis of EL2 entry path, IPC, and SMMU configuration              | High     |
+| M-P11-3 | Address all HIGH findings from STRIDE analysis                              | High     |
+| M-P11-4 | Side-channel audit: cache-timing paths in `arch/arm64/mm.c`, `irq.c`        | Medium   |
+| M-P11-5 | Isolation Guardian sign-off on TCB surface area post-audit                  | High     |
+
+**Exit criteria:**
+- Threat model document reviewed and merged
+- All HIGH findings resolved or accepted with rationale
+- `docs/safety/MISRA_DEVIATION_RECORD.md` updated with any new deviations from audit
+- Isolation Guardian agent review completed and sign-off committed
+
+**Files to create/update:**
+- `docs/safety/THREAT_MODEL.md` (new)
+- `docs/safety/MISRA_DEVIATION_RECORD.md` (update)
+- `docs/safety/STATIC_ANALYSIS_POLICY.md` (update scope)
+
+---
+
+### Phase 12: Community and Publication Readiness
+
+**Objective:** Prepare Haven for open contribution, publication as a reference AMP hypervisor,
+and integration with thesis appendix material for journal/conference submission.
+
+**Duration:** 2 months (after Phases 9-11).
+
+**Milestones:**
+
+| ID      | Description                                                                 | Priority |
+| ------- | --------------------------------------------------------------------------- | -------- |
+| M-P12-1 | Contributor handbook: `docs/contributing/CONTRIBUTOR_HANDBOOK.md`           | High     |
+| M-P12-2 | GitHub issue templates for: bug report, feature request, porting request    | Medium   |
+| M-P12-3 | Conference/journal paper first draft from `docs/thesis/PAPER_OUTLINE.md`   | High     |
+| M-P12-4 | Artifact evaluation package: Docker + reproducibility script                | High     |
+| M-P12-5 | v1.0.0 release tag with full evidence bundle archived                       | High     |
+
+**Exit criteria:**
+- v1.0.0 tag pushed with `build/releases/1.0.0/` evidence archive
+- Paper draft reviewed by supervisor
+- Artifact evaluation package tested by at least one independent reviewer
+- CONTRIBUTING.md and CONTRIBUTOR_HANDBOOK.md consistent
+
+**Files to create/update:**
+- `docs/contributing/CONTRIBUTOR_HANDBOOK.md` (new)
+- `.github/ISSUE_TEMPLATE/bug_report.md` (new)
+- `.github/ISSUE_TEMPLATE/feature_request.md` (new)
+- `.github/ISSUE_TEMPLATE/porting_request.md` (new)
+- `docs/thesis/PAPER_OUTLINE.md` (update - initial outline created in Phase D)
+- `scripts/dev/release.sh` (update - v1.0.0 artifact evaluation package step)
+
+---
+
+### Phase 9-12 Quality Gate Overview
+
+| Gate                              | Required Phase | Status |
+| --------------------------------- | -------------- | ------ |
+| PSCI 1.3 compliance verified      | Phase 9        | ⬜      |
+| Multi-platform CI passing         | Phase 10       | ⬜      |
+| Threat model reviewed             | Phase 11       | ⬜      |
+| All HIGH security findings closed | Phase 11       | ⬜      |
+| Paper draft submitted             | Phase 12       | ⬜      |
+| Artifact evaluation package ready | Phase 12       | ⬜      |
+| v1.0.0 release tag applied        | Phase 12       | ⬜      |
+
+---
+
+### Long-Term Roadmap Dependencies
+
+```
+Phase 9 (Upstream Compat) ---+
+                             |
+Phase 10 (Multi-Platform) ---+--> Phase 11 (Security Audit) --> Phase 12 (Publication)
+                             |
+Phase D milestones (Paper)---+
+```
+
+Phase 11 depends on Phase 9 and 10 being stable (no large pending ABI changes).
+Phase 12 depends on Phase 11 sign-off (security posture must be known before publication).
