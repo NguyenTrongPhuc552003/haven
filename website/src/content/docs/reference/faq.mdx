@@ -65,13 +65,15 @@ GCC 12+ and Clang 16+.
 **How do I run the tests?**
 
 ```sh
-make test
+cmake --preset host-tests
+cmake --build build-host
+ctest --test-dir build-host --output-on-failure
 ```
 
 **How do I add a new test?**
 
 1. Add a `.c` file to `tests/unit/` or `tests/integration/`.
-2. Add the compile and run commands to `scripts/test.sh`.
+2. Add the executable to `CMakeLists.txt` under the `host-tests` configuration.
 3. Ensure the new test compiles and passes locally before opening a PR.
 
 **Can I contribute?**

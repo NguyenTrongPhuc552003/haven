@@ -38,7 +38,7 @@ git commit -s -m "feat(mm): add LPAE block entry mapping"
 - Isolation-sensitive changes (anything in `src/core/`) require design notes
 and a review from the Isolation Guardian agent before merge.
 - All PRs require the CI matrix to pass (gcc + clang on ubuntu-latest).
-- Style must pass (`make style-check`).
+- Style must pass (`cmake --build build-host --target style-check`).
 
 ## Commit Message Convention
 

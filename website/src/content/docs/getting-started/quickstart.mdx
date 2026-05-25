@@ -10,14 +10,15 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 | Tool         | Minimum version   | Purpose                   |
 | ------------ | ----------------- | ------------------------- |
 | GCC or Clang | gcc 12 / clang 16 | C11 cross-compilation     |
+| CMake        | 3.22              | Build system              |
+| Ninja        | 1.10              | Build backend             |
 | QEMU         | 8.0               | arm64 smoke validation    |
 | Python       | 3.10              | Config validation scripts |
-| GNU Make     | 4.3               | Build orchestration       |
 
 <Tabs>
     <TabItem label="macOS (OrbStack)">
         ```sh
-        brew install gcc llvm qemu python3 make
+        brew install gcc llvm qemu python3 cmake ninja
         # Verify
         qemu-system-aarch64 --version
         ```
@@ -26,13 +27,13 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
         ```sh
         sudo apt update
         sudo apt install build-essential gcc-aarch64-linux-gnu clang \
-            qemu-system-arm python3 make
+            qemu-system-arm python3 cmake ninja-build
         ```
     </TabItem>
     <TabItem label="Fedora / RHEL">
         ```sh
         sudo dnf install gcc gcc-aarch64-linux-gnu clang \
-            qemu-system-aarch64 python3 make
+            qemu-system-aarch64 python3 cmake ninja-build
         ```
     </TabItem>
 </Tabs>
@@ -52,31 +53,40 @@ cd haven
 ./scripts/setup-hooks.sh
 ```
 
-**3. Build core stubs**
+**3. Build — host unit + integration tests**
 
 ```sh
-make build
-# or explicitly with a compiler:
-CC=clang make build
+cmake --preset host-tests
+cmake --build build-host
 ```
 
-Expected output: `[build] compiling haven core stubs`
+Expected output: all test binaries compiled.
 
 **4. Run the full test suite**
 
 ```sh
-make test
+ctest --test-dir build-host --output-on-failure
 ```
 
-All test binaries are compiled and executed. You should see no assertion failures.
+All tests pass with zero failures.
 
 **5. Run style and config checks**
 
 ```sh
-make style-check
+cmake --build build-host --target style-check
+# or directly:
+./scripts/dev/style-check.sh
 ```
 
-**6. Run the QEMU smoke test**
+**6. Cross-compile for ARM64 (QEMU)**
+
+```sh
+cmake --preset arm64-qemu
+cmake --build build
+# → build/haven.elf, build/haven.bin, build/guest_a.bin, build/guest_b.bin
+```
+
+**7. Run the QEMU smoke test**
 
 ```sh
 ./scripts/qemu-smoke.sh
@@ -88,24 +98,24 @@ is a Release 2 milestone.
 ## Run the Full CI Preflight Locally
 
 ```sh
-./scripts/ci-preflight.sh
+./scripts/ci/ci-preflight.sh
 ```
 
-This runs `build → style-check → test → check-configs` in sequence, identical
-to what the CI pipeline executes.
+This runs `cmake host-tests → ctest → style-check → check-configs` in sequence,
+identical to what the CI pipeline executes.
 
 <Aside type="tip">
-    Set `CC=clang` or `CC=gcc` to match a specific CI matrix leg:
+    Set `CC=clang` or `CC=gcc` before configuring to match a specific CI matrix leg:
     ```sh
-    CC=clang ./scripts/ci-preflight.sh
-    CC=gcc   ./scripts/ci-preflight.sh
+    CC=clang cmake --preset host-tests && cmake --build build-host
+    CC=gcc   cmake --preset host-tests && cmake --build build-host
     ```
 </Aside>
 
 ## Capture a Benchmark Baseline
 
 ```sh
-python3 scripts/benchmark-baseline.py
+python3 scripts/evidence/benchmark-baseline.py
 ```
 
 Results are written to `build/benchmarks/baseline.json`. Commit this file to
