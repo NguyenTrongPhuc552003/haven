@@ -16,7 +16,7 @@ jobs:
       - name: Setup toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc python3
+          sudo apt-get install -y gcc cmake ninja-build python3
 
       - name: Run preflight
         run: ./scripts/ci/ci-preflight.sh
@@ -24,8 +24,21 @@ jobs:
       - name: Capture metadata
         run: ./scripts/ci/ci-metadata.sh
 
+      - name: Build host tests and capture benchmarks
+        run: |
+          cmake --preset host-tests
+          cmake --build build-host
+          ctest --test-dir build-host --output-on-failure
+
       - name: Package evidence
         run: ./scripts/evidence/package-evidence.sh
+
+      - name: Generate HTML evidence report
+        run: |
+          python3 tools/analysis/evidence_report.py \
+            --evidence-dir build/evidence \
+            --benchmarks   build/benchmarks/isolation-latency.json \
+            --output       build/evidence/report.html
 
       - name: Upload evidence artifact
         uses: actions/upload-artifact@v4

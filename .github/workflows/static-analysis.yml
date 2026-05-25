@@ -34,6 +34,7 @@ jobs:
             -I include \
             src/core/ \
             src/guest/ \
+            arch/arm64/ \
             2>&1 | tee /tmp/cppcheck.txt
 
       - name: Upload cppcheck report
