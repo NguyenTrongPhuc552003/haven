@@ -14,7 +14,11 @@ GUEST_B_LOAD_ADDR="${GUEST_B_LOAD_ADDR:-0xA0800000}"
 
 # Check build exists
 if [ ! -f "$HAVEN_BIN" ]; then
-    echo "[qemu-run] ERROR: $HAVEN_BIN not found. Run: cmake --preset arm64-qemu && cmake --build build"
+    echo "[qemu-run] ERROR: $HAVEN_BIN not found."
+    echo "  To build:   cmake --preset arm64-qemu && cmake --build build"
+    echo "  Toolchain (if not installed):"
+    echo "    macOS:  brew install aarch64-elf-gcc"
+    echo "    Linux:  sudo apt install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu cmake ninja-build"
     exit 1
 fi
 
@@ -36,7 +40,8 @@ fi
 if [ -f "$GUEST_B_BIN" ]; then
     echo "[qemu-run] Guest B:    $GUEST_B_BIN @ $GUEST_B_LOAD_ADDR"
 else
-    echo "[qemu-run] Guest B:    not found (run: cmake --preset arm64-qemu && cmake --build build)"fi
+    echo "[qemu-run] Guest B:    not found (run: cmake --preset arm64-qemu && cmake --build build)"
+fi
 echo "[qemu-run] Press Ctrl-A X to quit QEMU"
 echo ""
 
