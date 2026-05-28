@@ -114,7 +114,7 @@ static void hv_print_banner(void)
 	/* hv_printk is defined in src/common/printk.c */
 	extern void hv_printk(const char *fmt, ...);
 	hv_printk("Haven hypervisor starting\n");
-	hv_printk("  Version: 0.4.0-dev\n");
+	hv_printk("  Version: 0.6.2\n");
 	hv_printk("  Build:   " __DATE__ " " __TIME__ "\n");
 }
 

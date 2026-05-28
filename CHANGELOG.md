@@ -15,6 +15,77 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.6.2] - 2026-05-29
+
+### Added
+
+**Dev automation and hook hardening (PR #36)**
+- `scripts/dev/fix-emdash.sh` — scans all tracked text files and replaces em-dash characters
+  (`U+2014`) with ASCII hyphens to prevent toolchain/terminal encoding issues.
+- `.githooks/pre-commit` — updated to call `fix-emdash.sh` and re-stage affected files before
+  each commit; `scripts/dev/release.sh` updated to run em-dash cleanup as step 0.
+
+**Safety and compliance documentation (PR #38)**
+- `docs/safety/MISRA_DEVIATION_RECORD.md` — formal record of approved MISRA-C:2012 deviations
+  with justification and sign-off fields for each rule deviation.
+- `docs/safety/STATIC_ANALYSIS_POLICY.md` — static analysis toolchain policy: required tools,
+  CI gate thresholds, suppression annotation format, and review process.
+
+**Thesis process documentation (PR #39)**
+- `docs/contributing/RELEASE_PROCESS.md` — step-by-step release checklist covering version
+  bumps, evidence packs, artifact signing, and submodule pointer updates.
+- `docs/thesis/REPRODUCIBILITY_APPENDIX.md` — documents the reproducible build environment
+  (Docker, CMake presets, toolchain pins) needed to reproduce thesis experiment results.
+- `docs/thesis/PAPER_OUTLINE.md` — draft paper structure and chapter-to-milestone traceability
+  mapping (M-P1 through M-P8).
+
+**Conference demo script (PR #40)**
+- `scripts/demo/conference-demo.sh` — four-act interactive demo script covering boot isolation,
+  DMA policy, temporal scheduling, and fault injection; supports `--dry-run` mode for rehearsal.
+
+**ARM64 context save/restore and FreeRTOS HVC yield (PR #41)**
+- `arch/arm64/context.S` — strong-symbol implementations of `hv_arch_context_save()` and
+  `hv_arch_context_restore()` that save/restore x19–x29, SP, PC (from LR), and NZCV.
+  Override the weak no-op stubs in `freertos_integration.c` on ARM64 targets (M-P5-1).
+- `include/haven/freertos_integration.h`, `src/guest/rtos/freertos_integration.c` — added
+  `HV_HVC_BUDGET_TICK` constant and `hv_freertos_yield_budget_tick()` which issues
+  `hvc #1` on ARM64 targets; no-op on host builds (M-P5-2).
+- `arch/arm64/cpu.c` — `hv_arch_psci_log_error()` decodes all PSCI 1.2 error codes
+  (NOT_SUPPORTED through INVALID_ADDRESS) to human-readable strings via `hv_printk` (M-P5-3).
+- `arch/arm64/boot.S` — `hv_arch_psci_cpu_on` now calls `hv_arch_psci_log_error` on
+  non-zero return from the PSCI `CPU_ON` HVC (M-P5-3).
+
+**SKILL.md enhancements (PR #37)**
+- Added sections 1–4 (skill overview, evidence taxonomy, pre-task setup checklist, evidence
+  directory structure) and sections 11–12 (FreeRTOS integration patterns, PSCI error handling)
+  to `.github/skills/thesis-evidence/SKILL.md`.
+- `docs/roadmap/DESCRIPTION.md` — appended Part 10 (Long-Term Maintenance: Phases 9–12)
+  covering CI hardening, documentation debt, community readiness, and thesis finalisation.
+
+### Fixed
+
+**QEMU launch script (PR #42)**
+- `scripts/qemu/qemu-run.sh` — bash syntax error (`fi` on same line as `echo`) caused the
+  script to fail with a parse error on every invocation; fixed. Added macOS/Linux toolchain
+  install hints when `haven.bin` is missing.
+- `tools/scripts/qemu-run.sh` — restored accidentally-deleted wrapper; corrected delegation
+  path from `scripts/qemu-run.sh` (non-existent) to `scripts/qemu/qemu-run.sh`.
+- `src/guest/rtos/freertos_integration.c` — added missing trailing newline (EOF).
+- `.github/workflows/ci.yml` — added `qemu-smoke` job chained after `arm64-cross-compile`;
+  downloads `haven-arm64` artifact, runs `qemu-smoke.sh`, uploads validation JSON.
+
+**Host test build (PR #43)**
+- `cmake/flags.cmake` — `HAVEN_HOST_CFLAGS` now suppresses `-Wunused-variable` and
+  `-Wno-unused-but-set-variable` for host/test builds. 100 pre-existing errors across 9
+  test files broke the entire `cmake-host-tests` CI job; production ARM64 flags unchanged.
+
+### Changed
+
+- Hypervisor version banner in `src/core/init.c` updated from `0.4.0-dev` to `0.6.2`.
+- `VERSION` and `CMakeLists.txt` project version bumped from `0.6.0` to `0.6.2`.
+
+---
+
 ## [0.6.1] - 2026-05-26
 
 ### Changed
