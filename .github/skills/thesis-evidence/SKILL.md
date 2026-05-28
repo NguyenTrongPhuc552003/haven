@@ -680,3 +680,175 @@ python3 tools/analysis/evidence_report.py build/evidence/
 ```
 
 Update `build/ci/metadata.txt` git SHA whenever evidence is refreshed.
+
+---
+
+## §13 Host-Test Build Contract
+
+### Purpose
+
+Host tests compile and run on the developer's native machine (macOS or Linux) using the
+`host-tests` CMake preset. They exercise the C policy layer without ARM64 assembly or hardware.
+
+### HAVEN_HOST_TEST guard pattern
+
+Every source file that has hardware-only code must guard it:
+```c
+#if defined(HAVEN_ARCH_ARM64) && !defined(HAVEN_HOST_TEST)
+    __asm__ volatile("hvc %0" : : "I"(HV_HVC_BUDGET_TICK) : "memory");
+#endif
+```
+The `HAVEN_HOST_TEST` macro is defined by the `host-tests` CMake preset for all test targets.
+
+### Compilation check (pre-commit)
+
+Test stub files must compile standalone:
+```bash
+cc -std=c11 -Wall -Wextra -Werror -DHAVEN_HOST_TEST \
+   -I include/ <path>/freertos_integration.c -c -o /dev/null
+```
+
+### Unused-variable policy in test files
+
+Apple Clang fires `-Wunused-but-set-variable` on the assert-only pattern:
+```c
+hv_status_t status = func();
+assert(status == HV_OK);  // Clang does not consider assert() a consuming use
+```
+This is suppressed in `cmake/flags.cmake` via `HAVEN_HOST_CFLAGS` with:
+- `-Wno-unused-variable`
+- `-Wno-unused-but-set-variable`
+
+These suppressions apply ONLY to `HAVEN_HOST_CFLAGS` (test builds).
+`HAVEN_ARM64_CFLAGS` (production) retains full `-Werror` with no suppressions.
+
+### Adding a new host test
+
+1. Create `tests/{unit,integration,isolation}/test_<module>.c`.
+2. Add it to `tests/CMakeLists.txt` using the `haven_host_test()` helper macro.
+3. Compile and run locally: `cmake --build build-host --target test_<module> && ./build-host/tests/test_<module>`.
+4. Ensure `ctest --test-dir build-host` still passes.
+
+---
+
+## §14 QEMU Smoke Validation
+
+### Anatomy of qemu-smoke.sh
+
+`scripts/qemu/qemu-smoke.sh` runs QEMU headlessly and captures PL011 UART output:
+```
+qemu-system-aarch64 -machine virt,virtualization=on,gic-version=3,iommu=smmuv3
+    -cpu cortex-a72 -smp 4 -m 2G -nographic
+    -chardev file,id=uart0,path=build/evidence/qemu-uart.log
+    -serial chardev:uart0
+    -device loader,file=build/haven.bin,addr=0x80000000,force-raw=on,cpu-num=0
+```
+It then polls `qemu-uart.log` for the boot marker `"Haven hypervisor starting"`.
+
+### Smoke test states
+
+| `validation_status` | Meaning |
+|---|---|
+| `skipped` | `haven.bin` not built or QEMU not installed |
+| `partial` | Boot marker found; full isolation not yet verified |
+| `pass` | All markers found within timeout |
+| `fail` | Timeout elapsed; marker not found |
+
+### Adding a new boot marker
+
+1. Add `hv_printk("MARKER: <name>\n")` at the appropriate point in init.
+2. In `qemu-smoke.sh`, add:
+   ```sh
+   NAME_MARKER="MARKER: <name>"
+   ```
+   and update the marker-check loop.
+3. Update `§10.5` in `DESCRIPTION.md` with the new marker entry.
+4. Update the `qemu-validation.json` schema comment in the script.
+
+### CI job chain
+
+```yaml
+qemu-smoke:
+  needs: [arm64-cross-compile]
+  continue-on-error: true       # remove once boot is reliable
+  steps:
+    - uses: actions/download-artifact@v4
+      with: { name: haven-arm64-${{ github.sha }}, path: build/ }
+    - run: ./scripts/qemu/qemu-smoke.sh
+    - uses: actions/upload-artifact@v4
+      with: { path: build/evidence/qemu-validation.json }
+```
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `bash: syntax error near unexpected token` | `fi`/`fi` on same line as `echo` | Ensure every `if...fi` block has `fi` on its own line |
+| `ERROR: haven.bin not found` | ARM64 build not run | `cmake --preset arm64-qemu && cmake --build build` |
+| macOS: no `aarch64-elf-gcc` | Toolchain not installed | `brew install aarch64-elf-gcc` |
+| Linux: no cross-compiler | Toolchain not installed | `sudo apt install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu cmake ninja-build` |
+| QEMU exits immediately | ELF entry point wrong | Verify `build/haven.elf` entry is `0x80000000` via `aarch64-elf-objdump -f build/haven.elf` |
+
+---
+
+## §15 macOS Cross-Compile Setup
+
+### Install the toolchain
+
+```bash
+brew install aarch64-elf-gcc    # bare-metal ELF toolchain (Homebrew)
+brew install cmake ninja qemu   # build system + QEMU
+```
+
+Verify:
+```bash
+aarch64-elf-gcc --version   # should print GCC 13.x or later
+qemu-system-aarch64 --version
+```
+
+### Build the hypervisor
+
+```bash
+cd /path/to/haven
+cmake --preset arm64-qemu     # configures → build/
+cmake --build build           # cross-compiles haven.elf + haven.bin
+```
+
+Expected output: `[N/N] Linking C executable haven.elf`.
+
+### Run QEMU locally
+
+```bash
+./scripts/qemu/qemu-run.sh
+# Press Ctrl-A X to quit
+```
+
+Or use the tools wrapper (equivalent):
+```bash
+./tools/scripts/qemu-run.sh
+```
+
+### Run smoke test locally
+
+```bash
+./scripts/qemu/qemu-smoke.sh
+cat build/evidence/qemu-validation.json
+```
+
+### CMake presets reference
+
+| Preset | Output dir | Toolchain | Notes |
+|---|---|---|---|
+| `arm64-qemu` | `build/` | `aarch64-elf-gcc` (macOS) or `aarch64-linux-gnu-gcc` (Linux) | Primary dev target |
+| `arm64-imx95` | `build-imx95/` | same | i.MX95 production |
+| `arm64-imx8qm` | `build-imx8qm/` | same | i.MX8QM secondary board |
+| `host-tests` | `build-host/` | native `gcc`/`clang` | Unit + integration tests |
+
+### Toolchain auto-detection
+
+`cmake/arm64.cmake` probes in this order:
+1. `aarch64-linux-gnu-gcc` (standard Linux cross-compiler)
+2. `aarch64-unknown-linux-gnu-gcc` (Linaro/LLVM naming)
+3. `aarch64-elf-gcc` (Homebrew bare-metal, macOS)
+
+If none is found, CMake errors with an actionable message.
