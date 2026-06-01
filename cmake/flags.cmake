@@ -28,7 +28,15 @@ set(HAVEN_ARM64_LDFLAGS
 )
 
 # ── Host (native) C flags ─────────────────────────────────────────────────────
-set(HAVEN_HOST_CFLAGS ${HAVEN_COMMON_CFLAGS})
+# -Wno-unused-variable and -Wno-unused-but-set-variable are suppressed here
+# because test files use assert()-only patterns for variables that are valid
+# in test code (status checked only in assert calls, test fixture structs
+# passed only to assert-wrapped functions).  Production code (HAVEN_ARM64_CFLAGS)
+# retains full -Werror without these suppressions.
+set(HAVEN_HOST_CFLAGS ${HAVEN_COMMON_CFLAGS}
+    -Wno-unused-variable
+    -Wno-unused-but-set-variable
+)
 
 # ── Benchmark extra define ────────────────────────────────────────────────────
 set(HAVEN_BENCH_DEFINES _POSIX_C_SOURCE=200809L)
