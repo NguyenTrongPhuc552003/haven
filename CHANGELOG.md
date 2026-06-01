@@ -79,10 +79,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `-Wno-unused-but-set-variable` for host/test builds. 100 pre-existing errors across 9
   test files broke the entire `cmake-host-tests` CI job; production ARM64 flags unchanged.
 
+**Secondary CPU isolation tests and CI/docs hardening (PR #45)**
+- `tests/integration/test_secondary_cpu_isolation.c` — added T7 (`test_psci_error_path_rejection`):
+  verifies that `hv_irq_assign` with `target_cpu=999` is rejected and `hv_budget_set` with
+  `partition_id=0` returns `HV_EINVAL`; and T8 (`test_freertos_budget_period_fidelity`):
+  exercises budget period reset cycle for FreeRTOS scheduling fidelity coverage.
+- `docs/roadmap/DESCRIPTION.md` — added §10.5 (QEMU End-to-End CI Track) and §10.6
+  (Host-Test Stability Policy) to Part 11 as binding operational policies.
+- `.github/skills/thesis-evidence/SKILL.md` — added §13 (Host-Test Build Contract),
+  §14 (QEMU Smoke Validation protocol), and §15 (macOS Cross-Compile Setup notes).
+
 ### Changed
 
 - Hypervisor version banner in `src/core/init.c` updated from `0.4.0-dev` to `0.6.2`.
 - `VERSION` and `CMakeLists.txt` project version bumped from `0.6.0` to `0.6.2`.
+- CHANGELOG date corrected to 2026-05-29 for the [0.6.2] entry.
 
 ---
 

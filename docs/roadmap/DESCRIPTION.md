@@ -1284,25 +1284,45 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | #24    | `feat/freertos-context-hardening`      | FreeRTOS context-switch state machine, task block/unblock, priority ceiling                        | v0.6.0     |
 | #25    | `chore/website-v0.6.0-sync`            | Changelog, architecture overview, thesis traceability updated for v0.6.0                           | v0.6.0     |
 | #26    | `feat/static-analysis-gate`            | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh`                        | v0.6.0     |
-| #31    | `chore/cmake-migration`                | Full CMake ≥ 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets            | v0.6.1     |
+| #31    | `chore/cmake-migration`                | Full CMake >= 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets            | v0.6.1     |
 | #32    | `docs/cmake-migration`                 | Docs and website updated to cmake preset commands; Getting-Started updated                         | v0.6.1     |
 | #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs | v0.6.1     |
+| #36    | `chore/dev-automation`                 | `scripts/dev/fix-emdash.sh`; pre-commit hook em-dash cleanup; release.sh integration               | v0.6.2     |
+| #37    | `docs/skill-roadmap-enhancement`       | SKILL.md §1-4 preamble + §11-12 hardware procedures; DESCRIPTION.md Phases 9-12                    | v0.6.2     |
+| #38    | `docs/safety-compliance`               | `MISRA_DEVIATION_RECORD.md` (M-P6-1); `STATIC_ANALYSIS_POLICY.md` (M-P6-2)                        | v0.6.2     |
+| #39    | `docs/thesis-process`                  | `RELEASE_PROCESS.md` (M-P7-1); `REPRODUCIBILITY_APPENDIX.md` (M-P7-2); `PAPER_OUTLINE.md` (M-P8-2) | v0.6.2     |
+| #40    | `feat/conference-demo`                 | `scripts/demo/conference-demo.sh` — four-act QEMU demo with --dry-run mode (M-P8-1)                | v0.6.2     |
+| #41    | `feat/context-hvc-integration`         | `hv_arch_context_save/restore` in context.S (M-P5-1); HVC yield path (M-P5-2); PSCI decode (M-P5-3) | v0.6.2     |
+| #42    | `fix/qemu-launch`                      | boot.S .boot.text linker fix; qemu-smoke.sh -serial capture; CI qemu-smoke job                     | v0.6.2     |
+| #43    | `fix/host-test-warnings`               | HAVEN_HOST_CFLAGS suppresses -Wunused-variable/-Wunused-but-set-variable                           | v0.6.2     |
+| #44    | `chore/version-changelog`              | VERSION/CMakeLists.txt/init.c bumped to 0.6.2; CHANGELOG filled for #36-43                         | v0.6.2     |
+| #45    | `feat/secondary-cpu-tests`             | T7 PSCI error-path + T8 FreeRTOS period fidelity tests; DESCRIPTION §10.5/§10.6; SKILL §13-15     | v0.6.2     |
 
 ### Open Milestones
 
-| ID     | Description                                                        | Phase   | Priority |
-| ------ | ------------------------------------------------------------------ | ------- | -------- |
-| M-P5-1 | Implement `hv_arch_context_save/restore` in `arch/arm64/context.S` | Phase 5 | High     |
-| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path                        | Phase 5 | High     |
-| M-P5-3 | PSCI error-code decode and logging                                 | Phase 5 | Medium   |
-| M-P6-1 | MISRA-C deviation record for `src/core/`                           | Phase 6 | Medium   |
-| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md`                            | Phase 6 | Low      |
-| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md`                             | Phase 7 | Medium   |
-| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md`                          | Phase 7 | High     |
-| M-P8-1 | `scripts/demo/conference-demo.sh`                                  | Phase 8 | Medium   |
-| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md`                                     | Phase 8 | High     |
-| M-P4-1 | Coq formal proofs (`verification/coq/`)                            | Phase 4 | High     |
-| M-P4-2 | i.MX95 measured benchmark campaign                                 | Phase 4 | High     |
+| ID      | Description                                              | Phase    | Priority |
+| ------- | -------------------------------------------------------- | -------- | -------- |
+| M-P4-1  | Coq formal proofs compile under `coqc 8.18`              | Phase 4  | High     |
+| M-P4-2  | i.MX95 measured benchmark campaign                       | Phase 4  | High     |
+| M-P9-1  | PSCI 1.3 spec alignment in `arch/arm64/boot.S`           | Phase 9  | High     |
+| M-P9-2  | Linux 6.8+ guest compatibility test suite                | Phase 9  | Medium   |
+| M-P10-1 | Platform config YAML for secondary target board          | Phase 10 | High     |
+| M-P11-1 | Threat model document reviewed and merged                | Phase 11 | High     |
+| M-P12-1 | Contributor handbook and v1.0.0 release tag              | Phase 12 | High     |
+
+### Closed Milestones (v0.6.2)
+
+| ID     | Description                                                        | Closed in |
+| ------ | ------------------------------------------------------------------ | --------- |
+| M-P5-1 | `hv_arch_context_save/restore` in `arch/arm64/context.S`           | PR #41    |
+| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path                        | PR #41    |
+| M-P5-3 | PSCI error-code decode and logging                                 | PR #41    |
+| M-P6-1 | MISRA-C deviation record for `src/core/`                           | PR #38    |
+| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md`                            | PR #38    |
+| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md`                             | PR #39    |
+| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md`                          | PR #39    |
+| M-P8-1 | `scripts/demo/conference-demo.sh`                                  | PR #40    |
+| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md`                                     | PR #39    |
 
 ### Quality Gate Dashboard
 
@@ -1310,14 +1330,15 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
 | ARM64 binary builds (cross-compile) | ✅      | `cmake --preset arm64-qemu && cmake --build build` produces `build/haven.elf`                    |
 | All unit + integration tests pass   | ✅      | 46 FreeRTOS + secondary CPU tests pass                                                           |
-| QEMU boots to isolation demo        | ✅      | `scripts/qemu/qemu-smoke.sh` - Partition A + B markers pass                                      |
+| QEMU boots to isolation demo        | ✅      | boot banner `Haven hypervisor starting` confirmed at v0.6.2; smoke status=partial (PR #42)       |
 | Static analysis gate                | ✅      | cppcheck + clang `--analyze` both PASS (as of #26)                                               |
 | Benchmark baseline captured         | ✅      | 15/15 benchmarks in `build/benchmarks/`; actual data in `docs/methodology/BENCHMARK_BASELINE.md` |
 | Traceability matrix Ch1–5           | ✅      | Ch1–5 rows complete with evidence paths; Ch6–8 present                                           |
-| i.MX95 evidence package             | ⬜      | Phase 3 / R3 - in progress                                                                       |
-| Formal proofs check                 | ⬜      | Phase 4 / R4 - not started                                                                       |
-| RTOS latency ≤ threshold            | 🔄      | QEMU baseline captured (all PASS); i.MX95 hardware run pending                                   |
-| Publication-quality paper draft     | ⬜      | Phase 8 - not started                                                                            |
+| Secondary CPU T7/T8 tests           | ✅      | PSCI error-path + FreeRTOS fidelity tests added in PR #45; all pass                              |
+| i.MX95 evidence package             | ⬜      | Phase 3 / R3 - requires physical hardware                                                        |
+| Formal proofs check (CI)            | ⬜      | Phase 4 / R4 - advisory CI job planned (M-P4-1)                                                  |
+| RTOS latency <= threshold           | 🔄      | QEMU baseline captured (all PASS); i.MX95 hardware run pending                                   |
+| Publication-quality paper draft     | ⬜      | Phase 8 / PAPER_OUTLINE.md outline complete; draft pending                                       |
 
 ---
 
@@ -1515,6 +1536,11 @@ arm64-cross-compile
 **Exit criteria for removing `continue-on-error`:**
 - Three consecutive CI runs on `main` produce `"validation_status": "partial"` or better.
 - UART log contains `"Haven hypervisor starting"` within 30 seconds of QEMU launch.
+
+**T-QEMU-BOOT status (v0.6.2):** ACHIEVED. Boot banner first observed at v0.6.2 via the
+`.boot.text` linker fix (PR #42). The `qemu-smoke` job still carries `continue-on-error: true`
+pending three consecutive passing CI runs on `main` after PRs #42-45 merge. The
+`continue-on-error` flag should be removed in the next maintenance PR once verified.
 
 ---
 
