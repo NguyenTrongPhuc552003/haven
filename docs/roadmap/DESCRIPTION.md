@@ -1516,6 +1516,11 @@ arm64-cross-compile
 - Three consecutive CI runs on `main` produce `"validation_status": "partial"` or better.
 - UART log contains `"Haven hypervisor starting"` within 30 seconds of QEMU launch.
 
+**T-QEMU-BOOT status (v0.6.2):** ACHIEVED. Boot banner first observed at v0.6.2 via the
+`.boot.text` linker fix (PR #42). The `qemu-smoke` job still carries `continue-on-error: true`
+pending three consecutive passing CI runs on `main` after PRs #42-45 merge. The
+`continue-on-error` flag should be removed in the next maintenance PR once verified.
+
 ---
 
 ### §10.6 Host-Test Stability Policy

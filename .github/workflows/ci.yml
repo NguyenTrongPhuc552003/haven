@@ -8,6 +8,14 @@ on:
 permissions:
   contents: read
 
+# Toolchain version pins - update at each minor release to maintain reproducibility.
+# Versions recorded here must match Dockerfile and docs/thesis/REPRODUCIBILITY_APPENDIX.md.
+env:
+  QEMU_VERSION: "8.2.0"
+  GCC_AARCH64_VERSION: "12"
+  CPPCHECK_VERSION: "2.13"
+  CLANG_VERSION: "14"
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -156,3 +164,31 @@ jobs:
           name: qemu-validation-${{ github.sha }}
           retention-days: 30
           path: build/evidence/qemu-validation.json
+
+  coq-proofs:
+    # Advisory job: verifies Coq isolation proofs compile under coqc.
+    # continue-on-error until proofs are complete (M-P4-1).
+    # Remove continue-on-error once IsolationModel.v / Stage2Policy.v / BudgetScheduler.v
+    # all check cleanly in CI.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Coq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y coq
+
+      - name: Check Coq proofs
+        working-directory: verification/coq
+        run: coqc IsolationModel.v Stage2Policy.v BudgetScheduler.v
+
+      - name: Upload Coq proof check result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coq-proof-check-${{ github.sha }}
+          retention-days: 30
+          path: verification/coq/
