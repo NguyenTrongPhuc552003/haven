@@ -58,6 +58,13 @@ timing:
 ```
 
 This verifies `qemu-system-aarch64` is reachable and prints the version.
+
+<Aside type="tip">
+**v0.6.2 status:** The Haven QEMU boot banner `"Haven hypervisor starting"`
+was first confirmed in UART output at v0.6.2 after the `.boot.text` linker
+fix (PR #42). The `qemu-smoke` CI job archives the result in
+`build/evidence/qemu-validation.json`.
+</Aside>
 Full partition boot in QEMU is a Release 2 deliverable.
 
 ## CI Matrix
