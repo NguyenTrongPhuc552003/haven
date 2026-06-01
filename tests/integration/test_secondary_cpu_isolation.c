@@ -341,6 +341,89 @@ static void test_full_secondary_launch_sequence(void)
 		"T6: Full secondary CPU launch sequence - policy state correct");
 }
 
+/* -----------------------------------------------------------------------
+ * T7: PSCI error-path rejection at the C policy layer (M-P5-3 coverage)
+ *
+ * hv_arch_psci_cpu_on (M-P5-3) calls into the IRQ and budget policy
+ * before issuing the PSCI HVC.  Invalid configurations must be rejected
+ * at the C layer, mirroring the PSCI error codes decoded by
+ * hv_arch_psci_log_error():
+ *   PSCI_INVALID_PARAMETERS → target_cpu out of range
+ *   PSCI_DENIED             → partition_id 0 is reserved
+ *
+ * No ARM64 assembly or real PSCI HVC is required.
+ * ----------------------------------------------------------------------- */
+static void test_psci_error_path_rejection(void)
+{
+	struct hv_irq_route invalid_cpu_route = {
+		.irq_id = 50U,
+		.owner_partition_id = PARTITION_A_ID,
+		.target_cpu = 999U, /* out-of-range CPU → maps to PSCI INVALID_PARAMETERS */
+	};
+	struct hv_budget reserved_partition_budget = {
+		.partition_id = 0U, /* partition 0 is reserved → maps to PSCI DENIED */
+		.period_ns = 1000000ULL,
+		.budget_ns = 500000ULL,
+	};
+
+	assert(hv_irq_owner_init() == HV_OK);
+	assert(hv_budget_sched_init() == HV_OK);
+
+	/* Out-of-range CPU ID must be rejected before any HVC path */
+	assert(hv_irq_assign(&invalid_cpu_route) != HV_OK);
+
+	/* Reserved partition ID 0 must be rejected by budget policy */
+	assert(hv_budget_set(&reserved_partition_budget) == HV_EINVAL);
+
+	TEST_PASS(
+		"T7: PSCI error-path - invalid CPU/partition rejected by C policy layer");
+}
+
+/* -----------------------------------------------------------------------
+ * T8: FreeRTOS budget period fidelity (M-P5-2 coverage)
+ *
+ * Validates that the budget scheduler correctly replenishes a partition's
+ * budget after a period reset, modelling the hv_freertos_yield_budget_tick()
+ * → budget-tick handler cycle added in M-P5-2.
+ *
+ * Sequence:
+ *   Period 1:
+ *     - Consume 250 us (within 300 us budget) → HV_OK
+ *     - Consume 60 us more (total 310 us > 300 us) → HV_EPERM
+ *   Period reset (simulates FreeRTOS yield HVC completing the period):
+ *     - hv_budget_reset_period() replenishes all partition budgets
+ *   Period 2:
+ *     - Consume full 300 us budget → HV_OK
+ *     - Consume 1 ns more (budget exactly exhausted) → HV_EPERM
+ * ----------------------------------------------------------------------- */
+static void test_freertos_budget_period_fidelity(void)
+{
+	struct hv_budget b = {
+		.partition_id = PARTITION_B_ID,
+		.period_ns = 1000000ULL, /* 1 ms period  */
+		.budget_ns = 300000ULL, /* 300 us budget */
+	};
+
+	assert(hv_budget_sched_init() == HV_OK);
+	assert(hv_budget_set(&b) == HV_OK);
+
+	/* Period 1: partial consumption */
+	assert(hv_budget_consume(PARTITION_B_ID, 250000ULL) == HV_OK);
+	/* Over budget: denied */
+	assert(hv_budget_consume(PARTITION_B_ID, 60000ULL) == HV_EPERM);
+
+	/* Simulate FreeRTOS yield_budget_tick triggering a period reset */
+	assert(hv_budget_reset_period(1000001ULL) == HV_OK);
+
+	/* Period 2: full budget replenished */
+	assert(hv_budget_consume(PARTITION_B_ID, 300000ULL) == HV_OK);
+	/* Budget exactly exhausted: next consume denied */
+	assert(hv_budget_consume(PARTITION_B_ID, 1ULL) == HV_EPERM);
+
+	TEST_PASS(
+		"T8: FreeRTOS budget period fidelity - reset replenishes budget correctly");
+}
+
 int main(void)
 {
 	printf("=== secondary CPU isolation policy tests ===\n");
@@ -351,7 +434,9 @@ int main(void)
 	test_cpu_budget_partition();
 	test_budget_boundary_rejection();
 	test_full_secondary_launch_sequence();
+	test_psci_error_path_rejection();
+	test_freertos_budget_period_fidelity();
 
-	printf("=== all 6 secondary CPU isolation tests PASS ===\n");
+	printf("=== all 8 secondary CPU isolation tests PASS ===\n");
 	return 0;
 }

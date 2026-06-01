@@ -1477,3 +1477,70 @@ Phase D milestones (Paper)---+
 
 Phase 11 depends on Phase 9 and 10 being stable (no large pending ABI changes).
 Phase 12 depends on Phase 11 sign-off (security posture must be known before publication).
+
+---
+
+## Part 11: CI and Test Infrastructure Policies (Added 2026-05-29)
+
+These two subsections capture operational policies introduced during the v0.6.2 cycle.
+They are binding on all future contributions.
+
+### §10.5 QEMU End-to-End CI Track
+
+**Goal:** Every merge to `main` that touches isolation-critical paths must trigger an
+automated QEMU smoke validation and produce a signed `qemu-validation.json` artifact.
+
+**CI job chain (`.github/workflows/ci.yml`):**
+```
+arm64-cross-compile
+    └── qemu-smoke  (needs: [arm64-cross-compile])
+            └── uploads build/evidence/qemu-validation.json
+```
+
+**Policies:**
+1. The `qemu-smoke` job runs `scripts/qemu/qemu-smoke.sh` on the artifact from
+   `arm64-cross-compile`. It must NOT be skipped.
+2. `continue-on-error: true` is set until QEMU consistently boots past the
+   "Haven hypervisor starting" banner. Remove `continue-on-error` once T-QEMU-BOOT
+   milestone is achieved.
+3. Timeout: 120 seconds. A run that exceeds this is treated as a fail.
+4. Artifact retention: 30 days for `qemu-validation-*.json`.
+5. The smoke test marker string `"Haven hypervisor starting"` is normative — do NOT
+   change this string without updating `qemu-smoke.sh` and this document.
+6. A new boot marker may be added by:
+   a. Adding `hv_printk("MARKER: <name>\n")` to `src/core/init.c` or a subsystem.
+   b. Adding a corresponding `MARKER_<name>` entry to `qemu-smoke.sh`.
+   c. Updating this section with the new marker.
+
+**Exit criteria for removing `continue-on-error`:**
+- Three consecutive CI runs on `main` produce `"validation_status": "partial"` or better.
+- UART log contains `"Haven hypervisor starting"` within 30 seconds of QEMU launch.
+
+---
+
+### §10.6 Host-Test Stability Policy
+
+**Goal:** The `cmake-host-tests` CI job must always pass on `main`.
+A broken host-test build is a P0 defect — it blocks all subsequent CI analysis.
+
+**Rules:**
+1. `-Werror` is enforced on all host test builds via `HAVEN_COMMON_CFLAGS`.
+2. `HAVEN_HOST_CFLAGS` may suppress specific Apple Clang / GCC warnings that are
+   false-positives in test patterns (e.g. assert-only usage). Any new suppression
+   must be documented in `cmake/flags.cmake` with a comment explaining why.
+3. Test variables used ONLY inside `assert()` are valid — do NOT replace them with
+   bare function calls, as this removes human-readable test structure.
+4. No test source file may introduce a new `-Werror` failure without a simultaneous
+   `cmake/flags.cmake` suppression entry or a same-PR fix to the test file.
+5. Test stubs (`HAVEN_HOST_TEST` guards) must continue to compile with:
+   ```
+   cc -std=c11 -Wall -Wextra -Werror -DHAVEN_HOST_TEST <file>.c
+   ```
+6. `ctest --test-dir build-host` must pass with exit code 0 before any PR is merged
+   that touches files under `tests/`, `src/`, `include/`, or `cmake/`.
+
+**Current suppressions in `HAVEN_HOST_CFLAGS` (as of 2026-05-29):**
+| Flag | Reason |
+|---|---|
+| `-Wno-unused-variable` | Test fixture structs passed only inside `assert()` |
+| `-Wno-unused-but-set-variable` | Status variables read only via `assert()` on Apple Clang |
