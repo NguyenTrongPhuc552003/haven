@@ -99,9 +99,16 @@ Mandatory checks:
 ```
 [R1] ████████████████████████████████ COMPLETE (merged 2026-05-10)
 [R2] ████████████████████████████████ COMPLETE (merged 2026-05-18)
-[R3] ████████████░░░░░░░░░░░░░░░░░░░░ IN PROGRESS (v0.6.0 - 2026-05-21)
+[R3] ████████████████████░░░░░░░░░░░░ IN PROGRESS (v0.6.2 - 2026-06-01)
 [R4] ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ PLANNED
 ```
+
+### v0.6.2 Completion Summary (2026-06-01)
+
+- **Boot banner confirmed**: QEMU UART shows `"Haven hypervisor starting"` after `.boot.text` linker fix (PR #42). First successful QEMU EL2 boot.
+- **Secondary CPU isolation T7/T8**: PSCI error-path rejection (`HV_EACCES`) and FreeRTOS budget/period fidelity both PASS.
+- **CI hardening**: toolchain env pins + advisory `coq-proofs` Coq check job (M-P4-1).
+- **Roadmap expanded**: DESCRIPTION.md Parts 12-13 document CI/CD and docs lifecycle.
 
 ### v0.6.0 Completion Summary (2026-05-21)
 
@@ -113,16 +120,7 @@ Mandatory checks:
 
 ### R3 Remaining Items
 
-- ARM64 hardware binding layer: 9 files in `arch/arm64/`
-- Hardware drivers: GICv3 (`drivers/irqchip/`), SMMUv3 (`drivers/iommu/`), UART (`drivers/uart/`)
-- Formal proofs: 3 Coq `.v` files + Isabelle theory in `verification/`
-- Tests: 434 total - unit, integration, isolation, selftests, demos, 4 benchmarks
-- TCB size: `src/core/` stays within 5 KLOC target
-- CI gates: ARM64 cross-compile on every PR; nightly Coq proof + evidence bundle
-
-### R3 Remaining Items
-
-- QEMU two-partition boot with UART evidence capture (requires QEMU run)
-- i.MX95 physical board bring-up (requires hardware)
-- Cross-OS CI validation matrix completion
-- Latency baseline measurements on real hardware
+- Full i.MX95 hardware validation campaign and UART evidence capture
+- Cross-OS CI validation matrix completion (macOS / Linux / Windows)
+- Secondary heterogeneous board baseline (i.MX8QM-MEK or equivalent)
+- Three consecutive QEMU smoke CI passes to remove `continue-on-error` from `qemu-smoke` job

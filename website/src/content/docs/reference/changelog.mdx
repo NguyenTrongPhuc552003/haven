@@ -14,10 +14,40 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - i.MX95 hardware bring-up and EL2 boot validation.
 - Linux guest kernel module userspace CLI expansion.
 - Formal verification: Coq proof completion for budget scheduler CBS invariant.
+- Nightly CI workflow with hardware board matrix.
+- Doxygen API documentation generation.
 
 ---
 
-## [0.6.1] - 2026-05-26
+## [0.6.2] - 2026-06-01
+
+### Added
+- **Linker layout fix** (PR #42): `.boot.text` section now placed first at `0x80000000`;
+  `el2_exception_table` aligns to `0x80000800` (2KiB). QEMU boot banner
+  `"Haven hypervisor starting"` confirmed in UART output for the first time.
+- **EL2 exception entry hardening** (PR #43): `entry.S` exception handlers hardened;
+  `el2_exceptions.c` fault injection tests validated all 8 scenarios.
+- **PSCI CPU_ON error-path rejection** (PR #44, T7): `hv_arch_psci_cpu_on()` returns
+  `HV_EACCES` when a partition attempts to wake a non-owned secondary CPU.
+- **FreeRTOS budget/period fidelity** (PR #44, T8): FreeRTOS task wakeups remain within
+  one scheduler tick of configured period under cross-partition CPU stress.
+- **CI toolchain version pins** (PR #47): top-level `env:` block in `ci.yml` pins
+  `QEMU_VERSION`, `GCC_AARCH64_VERSION`, `CPPCHECK_VERSION`, `CLANG_VERSION`.
+- **Coq advisory CI job** (PR #47): `coq-proofs` job runs `coqc` on
+  `verification/coq/*.v` on every PR (continue-on-error: true; M-P4-1 gate).
+- **Evidence analysis tooling** (PR #49): `tools/analysis/latency_analyzer.py` gains
+  p99.9 estimate column; all three analysis scripts verified against live benchmark data.
+- **DESCRIPTION.md Parts 12-13** (PR #50): CI/CD automation lifecycle (multi-board
+  matrix, nightly split, artifact signing, toolchain refresh) and documentation
+  living lifecycle (quarterly review, Doxygen, diagram refresh triggers).
+
+### Changed
+- `CHAPTER_TRACEABILITY.md` §5.2: T7 and T8 added; §6.3 references advisory
+  Coq on-PR gate.
+- `docs/thesis/PAPER_OUTLINE.md` §7.5: QEMU boot banner and T7/T8 results added.
+- `docs/thesis/REPRODUCIBILITY_APPENDIX.md`: version reference bumped to v0.6.2.
+
+---
 
 ### Changed
 - **Full CMake migration**: build system migrated from Makefile to CMake ≥ 3.22 + Ninja.
