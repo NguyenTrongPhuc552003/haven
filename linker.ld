@@ -25,14 +25,25 @@ SECTIONS
         . = HV_LOAD_ADDR;
 
         /* ----------------------------------------------------------------
-         * .entry.text - exception vectors and boot stub.
-         * Must be placed before .text so VBAR_EL2 = HV_LOAD_ADDR
-         * is correctly aligned (2KiB for VBAR_EL2, but we align 4KiB
-         * for simplicity).
+         * .boot.text - primary and secondary CPU boot stub (_start).
+         * MUST be placed first so that HV_LOAD_ADDR == _start and
+         * QEMU/firmware jumps directly into the boot stub.
+         * boot.S places its code here exclusively so that no filename
+         * glob is needed (avoids CMake .obj vs .o ambiguity).
          * ---------------------------------------------------------------- */
-        .entry.text : ALIGN(4096)
+        .boot.text : ALIGN(4096)
         {
-                KEEP(*boot.o(.entry.text))
+                KEEP(*(.boot.text))
+        }
+
+        /* ----------------------------------------------------------------
+         * .entry.text - EL2 exception vector table (el2_exception_table).
+         * VBAR_EL2 is set to &el2_exception_table via adr (PC-relative)
+         * in hv_install_vectors, so the absolute address does not matter
+         * as long as it is 2KiB-aligned (.align 11 in entry.S).
+         * ---------------------------------------------------------------- */
+        .entry.text : ALIGN(2048)
+        {
                 *(.entry.text)
         }
 

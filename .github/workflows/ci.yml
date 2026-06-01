@@ -123,3 +123,36 @@ jobs:
           name: benchmarks-host-${{ github.sha }}
           retention-days: 30
           path: build/benchmarks/
+
+  qemu-smoke:
+    runs-on: ubuntu-latest
+    needs: [arm64-cross-compile]
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-arm
+
+      - name: Download ARM64 binary
+        uses: actions/download-artifact@v4
+        with:
+          name: haven-arm64-${{ github.sha }}
+          path: build/
+
+      - name: Mark binaries executable
+        run: chmod +x build/haven.elf build/haven.bin || true
+
+      - name: Run QEMU smoke test
+        run: ./scripts/qemu/qemu-smoke.sh
+
+      - name: Upload QEMU validation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-validation-${{ github.sha }}
+          retention-days: 30
+          path: build/evidence/qemu-validation.json

@@ -21,7 +21,7 @@
  * (including the 4MB page-table pool in BSS) exceeds the ±1MB adr reach.
  */
 
-        .section ".entry.text", "ax"
+        .section ".boot.text", "ax"
 
 /* -----------------------------------------------------------------------
  * Build-time constants (define before first use)

@@ -524,6 +524,6 @@ hv_status_t hv_freertos_get_stats(hv_u32 partition, hv_u32 *task_count_ptr,
 void hv_freertos_yield_budget_tick(void)
 {
 #if defined(HAVEN_ARCH_ARM64) && !defined(HAVEN_HOST_TEST)
-        __asm__ volatile("hvc %0" : : "I"(HV_HVC_BUDGET_TICK) : "memory");
+	__asm__ volatile("hvc %0" : : "I"(HV_HVC_BUDGET_TICK) : "memory");
 #endif
 }
