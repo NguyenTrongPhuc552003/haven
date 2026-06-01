@@ -1544,3 +1544,245 @@ A broken host-test build is a P0 defect — it blocks all subsequent CI analysis
 |---|---|
 | `-Wno-unused-variable` | Test fixture structs passed only inside `assert()` |
 | `-Wno-unused-but-set-variable` | Status variables read only via `assert()` on Apple Clang |
+
+---
+
+## Part 12: CI/CD Automation Lifecycle (Added 2026-06-01)
+
+This part documents the long-term automation strategy for the Haven CI/CD
+pipeline, from multi-board test coverage through artifact provenance and
+automated toolchain refresh.
+
+---
+
+### §12.1 Multi-Board CI Matrix
+
+**Goal:** Extend CI to cover every supported board configuration in a single
+coordinated matrix run.
+
+**Target matrix:**
+
+| Platform | Config preset | Runner requirement | Priority |
+| -------- | ------------- | ------------------- | -------- |
+| QEMU arm64 virt | `arm64-qemu` | `ubuntu-latest` | P0 — always on |
+| NXP i.MX95 Dev Kit | `arm64-imx95` | Self-hosted (lab) | P1 — gated |
+| NXP i.MX8QM MEK | `arm64-imx8qm` | Self-hosted (lab) | P2 — optional |
+
+**Design rules:**
+1. QEMU jobs run on every PR (`ubuntu-latest`); hardware board jobs run nightly
+   or on `main` merges only to avoid saturating shared lab hardware.
+2. Each board job uploads a platform-labelled evidence artifact
+   (`validation-<board>-<sha>.json`) with the same schema as
+   `build/evidence/qemu-validation.json`.
+3. A board job failure never blocks a PR merge unless that PR modifies
+   board-specific config files under `configs/` or `arch/arm64/`.
+4. The matrix is declared in `.github/workflows/ci.yml` using a top-level
+   `strategy.matrix.platform` array; board-specific steps are gated by
+   `if: matrix.platform == 'imx95'` etc.
+
+**Exit criteria for removing `continue-on-error` from board jobs:**
+- Three consecutive CI runs produce a JSON evidence file with
+  `"validation_status": "pass"` for that board.
+- Evidence is archived in `build/evidence/<board>/` and committed to a
+  milestone evidence tag.
+
+**Milestone gate:** M-P9-1 (multi-board CI matrix scaffold complete).
+
+---
+
+### §12.2 Nightly vs On-PR Job Split
+
+**Goal:** Reduce PR feedback latency while keeping full nightly coverage.
+
+**Split policy:**
+
+| Job type | When | Examples |
+| -------- | ---- | -------- |
+| Fast path | Every PR push | `build-and-check`, `cmake-host-tests`, `arm64-cross-compile` |
+| Advisory | Every PR push | `coq-proofs` (continue-on-error: true), `website-build` |
+| Slow path | Nightly on `main` | `qemu-smoke`, hardware board jobs, benchmark regression gate |
+| Evidence gate | `main` push + version tags | `package-evidence`, traceability checker |
+
+**Implementation plan:**
+1. Move `qemu-smoke` from `ci.yml` to `.github/workflows/nightly.yml` once
+   three consecutive passing runs are recorded (see §10.5 exit criteria).
+2. Create `nightly.yml` with `schedule: - cron: '0 2 * * *'` and `workflow_dispatch`.
+3. Nightly uploads all artifacts to a dedicated `nightly-<sha>` artifact set
+   with 90-day retention (vs 30-day for PR artifacts).
+4. A daily Slack/email notification posts the nightly pass/fail summary (future work).
+
+**Milestone gate:** M-P9-2 (nightly workflow YAML created and operational).
+
+---
+
+### §12.3 Artifact Signing and Provenance
+
+**Goal:** Every released Haven binary (`haven.elf`, `haven.bin`) should carry
+a verifiable provenance attestation suitable for supply-chain audit.
+
+**Implementation approach:**
+1. On each version tag push, the release workflow computes:
+   ```sh
+   sha256sum build/haven.elf build/haven.bin > SHA256SUMS
+   ```
+2. SLSA Level 1 provenance JSON is generated using the
+   [slsa-framework/slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator)
+   action (no code signing hardware required at L1).
+3. Both `SHA256SUMS` and `provenance.json` are attached to the GitHub Release
+   alongside the ELF binary.
+4. `scripts/release.sh` is updated to invoke the provenance step and verify
+   the SHA256 before finalising the release.
+
+**Constraints:**
+- Signing keys are NOT stored in the repository. Hardware signing (Sigstore
+  keyless) is the long-term target once a GitHub Actions OIDC provider is
+  configured for the lab runners.
+- SLSA L2/L3 requires a separate build system and is out of scope until
+  post-thesis.
+
+**Milestone gate:** M-P10-1 (SHA256SUMS + SLSA L1 provenance on v1.0.0 tag).
+
+---
+
+### §12.4 Bot-Driven Toolchain Version Refresh
+
+**Goal:** Keep the toolchain version pins in `.github/workflows/ci.yml` (§12
+`env:` block) and `docs/thesis/REPRODUCIBILITY_APPENDIX.md` in sync, with
+minimal manual effort.
+
+**Mechanism:**
+1. A monthly GitHub Actions workflow (`toolchain-refresh.yml`) queries the
+   Ubuntu `apt` package feed for the latest patch of each pinned tool and
+   opens a draft PR if a newer version is available.
+2. The PR description includes the old and new version strings plus a link to
+   the upstream release notes.
+3. A human reviewer approves and merges — no auto-merge.
+4. On merge, `REPRODUCIBILITY_APPENDIX.md` is updated in the same PR (the
+   workflow patches the version strings using `sed`).
+
+**Constraints:**
+- Only minor/patch version upgrades are auto-proposed. Major version bumps
+  require a manual RFC and an update to the thesis reproducibility appendix.
+- The workflow must be idempotent — re-running it on an already-up-to-date repo
+  must produce no diff.
+
+**Milestone gate:** M-P11-1 (toolchain-refresh.yml operational; first
+auto-generated PR merged).
+
+---
+
+## Part 13: Documentation Living Lifecycle (Added 2026-06-01)
+
+This part defines how the Haven documentation corpus stays accurate and
+consistent across releases, thesis milestones, and long-term maintenance.
+
+---
+
+### §13.1 DESCRIPTION.md Quarterly Review
+
+**Goal:** Prevent DESCRIPTION.md from drifting out of sync with the
+implementation as the project evolves post-thesis.
+
+**Review cadence and checklist:**
+
+| Period | Trigger | Reviewer | Deliverable |
+| ------ | ------- | -------- | ----------- |
+| Each minor release | Merge of version bump PR | Author | Parts 9 (tracker), §10.5 (QEMU status), §12 env pins |
+| Quarterly | First PR after quarter boundary | Maintainer | Full re-read of all 13 Parts; flag stale claims |
+| Major milestone | v1.0.0 tag, thesis submission | Author | Full audit + CHANGELOG entry |
+
+**Stale indicator definitions:**
+- A section is "stale" if it references a PR number, branch, or date that is
+  more than two releases old without a corresponding "Completed" marker.
+- A milestone is "stale" if its `Open` row has had no update in 90 days.
+- Open milestones with no linked PR after 180 days are re-labelled "Deferred".
+
+**Process:**
+1. Open a `docs/review-YYYY-QN` branch.
+2. Run `scripts/dev/check-traceability.sh` and resolve any failures.
+3. Update the "Completed Milestones" table in Part 9.
+4. Commit: `docs(roadmap): YYYY QN quarterly review`.
+5. PR title: `docs: DESCRIPTION.md YYYY QN review`.
+
+---
+
+### §13.2 CHAPTER_TRACEABILITY.md Evidence Refresh
+
+**Goal:** Keep `docs/methodology/CHAPTER_TRACEABILITY.md` aligned with the
+latest test files, evidence artifacts, and CI job names.
+
+**Rules:**
+1. Every new test file added under `tests/` must have a corresponding row in
+   the appropriate chapter section within the same PR.
+2. When a test is deleted or renamed, the CHAPTER_TRACEABILITY row is updated
+   in the same PR (no orphan rows).
+3. The script `scripts/dev/check-traceability.sh` is the canonical gate — it
+   must exit 0 before any PR that adds/removes test files is merged.
+4. At each minor release, the `ch5/ch7` measured-results sections are updated
+   with the latest benchmark output file references.
+
+**Quarterly evidence refresh checklist:**
+- [ ] All rows in §5.2 point to files that exist in the repo.
+- [ ] All rows in §7.2 point to files that exist in the repo.
+- [ ] §6.3 CI gate job name matches the actual job in `ci.yml`.
+- [ ] §6.4 status date is not more than one minor release old.
+
+---
+
+### §13.3 API Documentation Generation (Doxygen)
+
+**Goal:** Auto-generate HTML API docs from `include/haven/` and `src/` source
+comments and publish them alongside the project website.
+
+**Plan:**
+1. Add a `Doxyfile` at the repo root (or `docs/api/Doxyfile`).
+   - `INPUT = include/haven src/core src/common`
+   - `OUTPUT_DIRECTORY = build/doxygen`
+   - `GENERATE_HTML = YES`, `GENERATE_LATEX = NO`
+   - `WARN_AS_ERROR = YES` (enforces comment coverage)
+2. Add a `doxygen` CI job that runs `doxygen Doxyfile` and fails on warning
+   (`WARN_IF_UNDOCUMENTED = YES`).
+3. Upload `build/doxygen/html/` as a CI artifact and, on `main` merges,
+   deploy to GitHub Pages alongside the Astro website (`website/`).
+4. `docs/api/API_PLACEHOLDER.md` is replaced by the Doxygen index once the
+   first passing run is achieved.
+
+**Constraints:**
+- The Doxygen job is advisory (`continue-on-error: true`) until all public
+  API headers in `include/haven/` have doc comments.
+- LaTeX/PDF generation is explicitly disabled — HTML only for web deployment.
+
+**Milestone gate:** M-P12-1 (Doxyfile added, advisory CI job passing on at
+least 80% of public API symbols).
+
+---
+
+### §13.4 Architecture Diagram Refresh Trigger
+
+**Goal:** Ensure that the architecture diagrams in `docs/architecture/`
+(block diagrams, memory maps, interrupt routing) are updated whenever the
+corresponding source code changes in a structurally significant way.
+
+**Trigger rules:**
+Any PR that modifies the following files MUST include a diagram update OR a
+written justification in the PR description for why the diagram is still accurate:
+
+| Source path | Affected diagram(s) |
+| ----------- | ------------------- |
+| `arch/arm64/mm.c`, `src/core/mm/` | Memory map diagram (`docs/architecture/ISOLATION_MODEL.md`) |
+| `arch/arm64/irq.c`, `src/core/irq/` | Interrupt routing diagram (`docs/architecture/OVERVIEW.md`) |
+| `configs/arm64/*.yaml` | Platform config diagram (`docs/architecture/OVERVIEW.md`) |
+| `arch/arm64/entry.S`, `arch/arm64/boot.S` | Boot flow diagram (`docs/architecture/OVERVIEW.md`) |
+| `include/haven/hypervisor.h` (public API) | API surface diagram (`docs/api/`) |
+
+**Diagram format:** Mermaid (`\`\`\`mermaid` blocks embedded in Markdown).
+Mermaid is preferred over image files because it is diff-friendly and rendered
+natively in GitHub Markdown preview.
+
+**Review checklist for structural PRs:**
+- [ ] Diagram updated OR justification note in PR description.
+- [ ] Mermaid syntax validated (`npx @mermaid-js/mermaid-cli -i diagram.md`).
+- [ ] `docs/architecture/` committed in the same PR, not a follow-up.
+
+**Milestone gate:** None independently — this is a process rule enforced during
+code review. First Mermaid diagram should appear by v0.7.0.
