@@ -183,7 +183,10 @@ jobs:
 
       - name: Check Coq proofs
         working-directory: verification/coq
-        run: coqc IsolationModel.v Stage2Policy.v BudgetScheduler.v
+        run: |
+          coqc IsolationModel.v
+          coqc Stage2Policy.v
+          coqc BudgetScheduler.v
 
       - name: Upload Coq proof check result
         if: always()
