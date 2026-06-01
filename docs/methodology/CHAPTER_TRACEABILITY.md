@@ -168,15 +168,17 @@ that RTOS partition response time remains bounded under Linux-side stress.
 
 ### 5.2 Test files
 
-| Scenario                            | File                                          |
-| ----------------------------------- | --------------------------------------------- |
-| Temporal boundary positive/negative | `tests/isolation/test_temporal_isolation.c`   |
-| Budget unit tests                   | `tests/unit/test_core_stubs.c`                |
-| Timer unit tests                    | `tests/unit/test_timer.c`                     |
-| Temporal isolation benchmark        | `tests/benchmarks/bench_temporal_isolation.c` |
-| Isolation latency benchmark         | `tests/benchmarks/bench_isolation_latency.c`  |
-| Stage-2 fault containment benchmark | `tests/benchmarks/bench_stage2_fault.c`       |
-| SMMU DMA policy benchmark           | `tests/benchmarks/bench_smmu_policy.c`        |
+| Scenario                            | File                                                                |
+| ----------------------------------- | ------------------------------------------------------------------- |
+| Temporal boundary positive/negative | `tests/isolation/test_temporal_isolation.c`                         |
+| Budget unit tests                   | `tests/unit/test_core_stubs.c`                                      |
+| Timer unit tests                    | `tests/unit/test_timer.c`                                           |
+| Temporal isolation benchmark        | `tests/benchmarks/bench_temporal_isolation.c`                       |
+| Isolation latency benchmark         | `tests/benchmarks/bench_isolation_latency.c`                        |
+| Stage-2 fault containment benchmark | `tests/benchmarks/bench_stage2_fault.c`                             |
+| SMMU DMA policy benchmark           | `tests/benchmarks/bench_smmu_policy.c`                              |
+| T7: PSCI error-path rejection       | `tests/integration/test_secondary_cpu_isolation.c::test_psci_error_path_rejection` |
+| T8: FreeRTOS budget/period fidelity | `tests/integration/test_secondary_cpu_isolation.c::test_freertos_budget_period_fidelity` |
 
 ### 5.3 Acceptance criteria
 
@@ -237,10 +239,17 @@ coqc verification/coq/IsolationModel.v \
 ```
 Failure blocks nightly evidence generation.
 
+In addition, the on-PR `coq-proofs` job added in `.github/workflows/ci.yml`
+(Phase L, PR #47) also runs `coqc` on every pull request as an advisory check
+(`continue-on-error: true`). This job satisfies milestone gate M-P4-1.
+Once the proofs check cleanly on all supported Coq versions, `continue-on-error`
+will be removed to make it a hard gate.
+
 ### 6.4 Status
 
 All three Coq proofs committed and verified under Coq 8.18.  Isabelle theory
 cross-validates the same invariants.  Nightly CI gate active since 2026-05-18.
+Advisory on-PR gate added at v0.6.2 (M-P4-1, `.github/workflows/ci.yml`).
 
 ---
 
