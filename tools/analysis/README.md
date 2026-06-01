@@ -44,17 +44,17 @@ The tool accepts two JSON shapes:
 
 ```
 Haven Isolation Latency - Platform: qemu-virt
--------------------------------------------------------------------
-Benchmark                            Min(ns)   Mean(ns)    Max(ns)   p99est(ns)    Iters
--------------------------------------------------------------------
-stage2_contains_hot                       38         43         61          129    10000
-smmu_check_hot                            35         42         58          126    10000
--------------------------------------------------------------------
+----------------------------------------------------------------------------
+Benchmark                            Min(ns)   Mean(ns)    Max(ns)   p99est(ns)    p99.9est    Iters
+----------------------------------------------------------------------------
+stage2_contains_hot                       38         43         61          129         215    10000
+smmu_check_hot                            35         42         58          126         210    10000
+----------------------------------------------------------------------------
 Summary: PASS  (threshold 100000 ns / 100 µs)
 ```
 
-The exit code is `0` if all benchmarks pass, `1` otherwise - making it
-suitable for CI gating.
+The `p99est` column is `3 × mean` and `p99.9est` is `5 × mean` — both are
+conservative estimates when raw sample histograms are unavailable.
 
 ---
 

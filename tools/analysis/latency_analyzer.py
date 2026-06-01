@@ -47,16 +47,22 @@ def p99_estimate(mean_ns):
     return 3 * mean_ns
 
 
+def p999_estimate(mean_ns):
+    """Conservative p99.9 estimate when raw sample data is unavailable."""
+    return 5 * mean_ns
+
+
 def print_table(results, platform):
     col_w = 36
-    header = f"{'Benchmark':<{col_w}} {'Min(ns)':>10} {'Mean(ns)':>10} {'Max(ns)':>10} {'p99est(ns)':>12} {'Iters':>8}"
+    header = f"{'Benchmark':<{col_w}} {'Min(ns)':>10} {'Mean(ns)':>10} {'Max(ns)':>10} {'p99est(ns)':>12} {'p99.9est':>11} {'Iters':>8}"
     sep    = "-" * len(header)
     print(f"\nHaven Isolation Latency - Platform: {platform}")
     print(sep)
     print(header)
     print(sep)
     for r in results:
-        p99 = p99_estimate(r["mean_ns"])
+        p99  = p99_estimate(r["mean_ns"])
+        p999 = p999_estimate(r["mean_ns"])
         flag = "  WARN" if r["max_ns"] >= THRESHOLD_NS else ""
         print(
             f"{r['benchmark']:<{col_w}} "
@@ -64,6 +70,7 @@ def print_table(results, platform):
             f"{r['mean_ns']:>10} "
             f"{r['max_ns']:>10} "
             f"{p99:>12} "
+            f"{p999:>11} "
             f"{r['iters']:>8}"
             f"{flag}"
         )
@@ -90,13 +97,14 @@ def write_json(results, platform, path):
         "pass":      all(r["max_ns"] < THRESHOLD_NS for r in results),
         "results": [
             {
-                "benchmark": r["benchmark"],
-                "min_ns":    r["min_ns"],
-                "mean_ns":   r["mean_ns"],
-                "max_ns":    r["max_ns"],
-                "p99est_ns": p99_estimate(r["mean_ns"]),
-                "iters":     r["iters"],
-                "pass":      r["max_ns"] < THRESHOLD_NS,
+                "benchmark":   r["benchmark"],
+                "min_ns":      r["min_ns"],
+                "mean_ns":     r["mean_ns"],
+                "max_ns":      r["max_ns"],
+                "p99est_ns":   p99_estimate(r["mean_ns"]),
+                "p999est_ns":  p999_estimate(r["mean_ns"]),
+                "iters":       r["iters"],
+                "pass":        r["max_ns"] < THRESHOLD_NS,
             }
             for r in results
         ],
