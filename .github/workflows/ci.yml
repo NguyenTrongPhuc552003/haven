@@ -195,3 +195,35 @@ jobs:
           name: coq-proof-check-${{ github.sha }}
           retention-days: 30
           path: verification/coq/
+
+  doxygen:
+    # Advisory job: generates HTML API docs from include/haven/ and src/core/.
+    # continue-on-error until >=80% of public API symbols have doc comments (M-DOCS-1).
+    # Remove continue-on-error and set WARN_AS_ERROR=YES in Doxyfile once threshold is met.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      - name: Generate API documentation
+        run: doxygen Doxyfile
+
+      - name: Count documented vs undocumented symbols (advisory)
+        run: |
+          WARN_COUNT=$(doxygen Doxyfile 2>&1 | grep -c "warning:" || true)
+          echo "Doxygen warning count: ${WARN_COUNT}"
+          echo "doxygen_warnings=${WARN_COUNT}" >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload API documentation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-html-${{ github.run_id }}
+          retention-days: 30
+          path: build/doxygen/html/

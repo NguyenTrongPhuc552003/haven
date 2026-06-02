@@ -10,12 +10,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Doxygen API documentation** (M-DOCS-1): `Doxyfile` added at repo root; advisory
+  `doxygen` CI job (`continue-on-error: true`) generates HTML docs from `include/haven/`
+  and `src/core/`. Artifact `doxygen-html-<run_id>` uploaded with 30-day retention.
+  `WARN_AS_ERROR = NO` during advisory phase; will be promoted once ≥80% of
+  `include/haven/` symbols have doc comments.
+
 ### Planned
 - i.MX95 hardware bring-up and EL2 boot validation.
 - Linux guest kernel module userspace CLI expansion.
 - Formal verification: Coq proof completion for budget scheduler CBS invariant.
 - Nightly CI workflow with hardware board matrix.
-- Doxygen API documentation generation.
 
 ---
 
