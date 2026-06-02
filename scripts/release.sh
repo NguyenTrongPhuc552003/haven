@@ -142,6 +142,25 @@ if [ "$DRY_RUN" -eq 0 ]; then
         fi
     } > "$EVIDENCE_DIR/release-summary.txt"
 
+    # SHA256 checksums (graceful if binaries absent)
+    sha256sum build/haven.elf build/haven.bin > "$EVIDENCE_DIR/SHA256SUMS" 2>/dev/null || \
+        echo "[release] WARNING: binaries not present, SHA256SUMS skipped"
+
+    # SLSA L1 provenance stub
+    _rel_sha="$(git rev-parse HEAD)"
+    _rel_ts="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    cat > "$EVIDENCE_DIR/provenance.json" << EOF
+{
+  "version": "${VERSION}",
+  "git_sha": "${_rel_sha}",
+  "timestamp": "${_rel_ts}",
+  "sha256sums_file": "SHA256SUMS",
+  "slsa_level": 1,
+  "builder": "scripts/release.sh",
+  "note": "SLSA L2/L3 deferred post-thesis. Keyless signing target via GitHub Actions OIDC."
+}
+EOF
+
     # Copy benchmark results if available
     if [ -d "build/benchmarks" ]; then
         cp -r build/benchmarks "$EVIDENCE_DIR/"

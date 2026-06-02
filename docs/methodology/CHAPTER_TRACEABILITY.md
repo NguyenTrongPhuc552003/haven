@@ -275,6 +275,8 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 | CI validation                | `scripts/ci/ci-validate.sh`                    |
 | Evidence comparison          | `scripts/evidence/compare-evidence.py`         |
 | Release validation           | `scripts/release.sh`                           |
+| SHA256SUMS generator         | `scripts/release.sh` step 5 (M-CI-3)          |
+| SLSA L1 provenance stub      | `scripts/release.sh` step 5 (M-CI-3)          |
 
 ### 7.2 Test files providing evaluation evidence
 

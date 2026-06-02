@@ -10,6 +10,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **SHA256SUMS + SLSA L1 provenance** (M-CI-3): `scripts/release.sh` step 5 now
+  generates `SHA256SUMS` (sha256sum of `build/haven.elf` + `build/haven.bin`)
+  and `provenance.json` (SLSA L1 stub: version, git_sha, timestamp, builder path,
+  L2/L3 deferral note). Both files are written to `build/releases/<version>/`.
+  Checksums are skipped gracefully if binaries are absent.
+
 ### Planned
 - i.MX95 hardware bring-up and EL2 boot validation.
 - Linux guest kernel module userspace CLI expansion.
