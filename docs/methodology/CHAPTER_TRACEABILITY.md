@@ -109,18 +109,18 @@ demonstrate that unauthorized access paths are closed.
 
 ### 4.4 Hardware demo artifacts (R3 milestone)
 
-| Artifact                   | Path                                   | Purpose                                        |
-| -------------------------- | -------------------------------------- | ---------------------------------------------- |
-| Guest A EL1 stub           | `tests/demos/guest_a_entry.S`          | Bare-metal Partition A; triggers cross-partition fault |
-| Guest A linker script      | `linker-guest.ld`                      | Links guest A at IPA 0x40000000                |
-| Guest B EL1 stub           | `tests/demos/guest_b_entry.S`          | Bare-metal Partition B RTOS stub; triggers A→B isolation fault |
-| Guest B linker script      | `linker-guest-b.ld`                    | Links guest B at IPA 0x60000000 (PART_B_IPA_BASE) |
-| QEMU smoke runner          | `scripts/qemu/qemu-smoke.sh`           | Validates boot + fault + resume end-to-end (both partitions) |
-| QEMU run script            | `scripts/qemu/qemu-run.sh`             | Interactive QEMU launch with guest_a.bin + guest_b.bin |
-| Memory map                 | `src/platform/qemu-virt/memory.h`      | Corrected PA layout (8 MB Haven, distinct IPAs) |
-| Partition config           | `src/core/partition.c`                 | Stage-2 maps: 512 MB DRAM + UART MMIO for A; 64 MB for B |
+| Artifact                   | Path                                   | Purpose                                                          |
+| -------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
+| Guest A EL1 stub           | `tests/demos/guest_a_entry.S`          | Bare-metal Partition A; triggers cross-partition fault           |
+| Guest A linker script      | `linker-guest.ld`                      | Links guest A at IPA 0x40000000                                  |
+| Guest B EL1 stub           | `tests/demos/guest_b_entry.S`          | Bare-metal Partition B RTOS stub; triggers A→B isolation fault   |
+| Guest B linker script      | `linker-guest-b.ld`                    | Links guest B at IPA 0x60000000 (PART_B_IPA_BASE)                |
+| QEMU smoke runner          | `scripts/qemu/qemu-smoke.sh`           | Validates boot + fault + resume end-to-end (both partitions)     |
+| QEMU run script            | `scripts/qemu/qemu-run.sh`             | Interactive QEMU launch with guest_a.bin + guest_b.bin           |
+| Memory map                 | `src/platform/qemu-virt/memory.h`      | Corrected PA layout (8 MB Haven, distinct IPAs)                  |
+| Partition config           | `src/core/partition.c`                 | Stage-2 maps: 512 MB DRAM + UART MMIO for A; 64 MB for B         |
 | EL2 fault handler          | `src/core/exc/el2_exceptions.c`        | ESR/HPFAR decode, violation log, ELR skip; virtual IRQ injection |
-| Stage-2 page table builder | `arch/arm64/mm.c`                      | S2AP fix: Normal WB RW / Device nGnRE RW       |
+| Stage-2 page table builder | `arch/arm64/mm.c`                      | S2AP fix: Normal WB RW / Device nGnRE RW                         |
 
 ### 4.5 Evidence artifacts
 
@@ -168,16 +168,16 @@ that RTOS partition response time remains bounded under Linux-side stress.
 
 ### 5.2 Test files
 
-| Scenario                            | File                                                                |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| Temporal boundary positive/negative | `tests/isolation/test_temporal_isolation.c`                         |
-| Budget unit tests                   | `tests/unit/test_core_stubs.c`                                      |
-| Timer unit tests                    | `tests/unit/test_timer.c`                                           |
-| Temporal isolation benchmark        | `tests/benchmarks/bench_temporal_isolation.c`                       |
-| Isolation latency benchmark         | `tests/benchmarks/bench_isolation_latency.c`                        |
-| Stage-2 fault containment benchmark | `tests/benchmarks/bench_stage2_fault.c`                             |
-| SMMU DMA policy benchmark           | `tests/benchmarks/bench_smmu_policy.c`                              |
-| T7: PSCI error-path rejection       | `tests/integration/test_secondary_cpu_isolation.c::test_psci_error_path_rejection` |
+| Scenario                            | File                                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| Temporal boundary positive/negative | `tests/isolation/test_temporal_isolation.c`                                              |
+| Budget unit tests                   | `tests/unit/test_core_stubs.c`                                                           |
+| Timer unit tests                    | `tests/unit/test_timer.c`                                                                |
+| Temporal isolation benchmark        | `tests/benchmarks/bench_temporal_isolation.c`                                            |
+| Isolation latency benchmark         | `tests/benchmarks/bench_isolation_latency.c`                                             |
+| Stage-2 fault containment benchmark | `tests/benchmarks/bench_stage2_fault.c`                                                  |
+| SMMU DMA policy benchmark           | `tests/benchmarks/bench_smmu_policy.c`                                                   |
+| T7: PSCI error-path rejection       | `tests/integration/test_secondary_cpu_isolation.c::test_psci_error_path_rejection`       |
 | T8: FreeRTOS budget/period fidelity | `tests/integration/test_secondary_cpu_isolation.c::test_freertos_budget_period_fidelity` |
 
 ### 5.3 Acceptance criteria
@@ -275,19 +275,21 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 | CI validation                | `scripts/ci/ci-validate.sh`                    |
 | Evidence comparison          | `scripts/evidence/compare-evidence.py`         |
 | Release validation           | `scripts/release.sh`                           |
+| SHA256SUMS generator         | `scripts/release.sh` step 5 (M-CI-3)           |
+| SLSA L1 provenance stub      | `scripts/release.sh` step 5 (M-CI-3)           |
 | API documentation generator  | `Doxyfile` + `ci.yml` `doxygen` job (M-DOCS-1) |
 
 ### 7.2 Test files providing evaluation evidence
 
-| File                                          | Evidence class                   |
-| --------------------------------------------- | -------------------------------- |
-| `tests/benchmarks/bench_isolation_latency.c`  | Latency / jitter                 |
-| `tests/benchmarks/bench_temporal_isolation.c` | Deadline miss count              |
-| `tests/benchmarks/bench_stage2_fault.c`       | Stage-2 fault latency            |
-| `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput            |
-| `tests/integration/test_fault_injection.c`    | Fault containment (F1–F8)        |
-| `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence           |
-| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU) - Partition A |
+| File                                          | Evidence class                                          |
+| --------------------------------------------- | ------------------------------------------------------- |
+| `tests/benchmarks/bench_isolation_latency.c`  | Latency / jitter                                        |
+| `tests/benchmarks/bench_temporal_isolation.c` | Deadline miss count                                     |
+| `tests/benchmarks/bench_stage2_fault.c`       | Stage-2 fault latency                                   |
+| `tests/benchmarks/bench_smmu_policy.c`        | DMA policy throughput                                   |
+| `tests/integration/test_fault_injection.c`    | Fault containment (F1–F8)                               |
+| `tests/integration/test_smmu_hardware.c`      | Hardware DMA coherence                                  |
+| `tests/demos/guest_a_entry.S`                 | Hardware end-to-end demo (QEMU) - Partition A           |
 | `tests/demos/guest_b_entry.S`                 | Hardware end-to-end demo (QEMU) - Partition B RTOS stub |
 
 ### 7.3 Benchmark output locations
@@ -375,15 +377,15 @@ automatically gates on the 15-entry latency baseline and uploads results as
 
 ## v0.6.0 milestone summary
 
-| Milestone artifact              | Status  | Evidence location                           |
-| ------------------------------- | ------- | ------------------------------------------- |
-| Partition B RTOS stub           | ✅ Done  | `tests/demos/guest_b_entry.S`               |
-| EL2 virtual IRQ injection wired | ✅ Done  | `src/core/exc/el2_exceptions.c`             |
-| SMMU 8-scenario integration     | ✅ Done  | `tests/integration/test_smmu_hardware.c`    |
-| SMMU StreamID pool-leak fix     | ✅ Done  | `src/core/dma/smmu.c`                       |
-| Benchmark regression gate       | ✅ Done  | `scripts/ci/bench-regression.sh`            |
-| Nightly regression CI job       | ✅ Done  | `.github/workflows/nightly.yml`             |
-| Release script                  | ✅ Done  | `scripts/release.sh`                        |
-| Secondary-CPU ERET (Partition B) | ⏳ Next | Phase 3 - secondary CPU bring-up            |
+| Milestone artifact               | Status | Evidence location                        |
+| -------------------------------- | ------ | ---------------------------------------- |
+| Partition B RTOS stub            | Done   | `tests/demos/guest_b_entry.S`            |
+| EL2 virtual IRQ injection wired  | Done   | `src/core/exc/el2_exceptions.c`          |
+| SMMU 8-scenario integration      | Done   | `tests/integration/test_smmu_hardware.c` |
+| SMMU StreamID pool-leak fix      | Done   | `src/core/dma/smmu.c`                    |
+| Benchmark regression gate        | Done   | `scripts/ci/bench-regression.sh`         |
+| Nightly regression CI job        | Done   | `.github/workflows/nightly.yml`          |
+| Release script                   | Done   | `scripts/release.sh`                     |
+| Secondary-CPU ERET (Partition B) | Next   | Phase 3 - secondary CPU bring-up         |
 
 Schedule: run on every pull request targeting `main`.

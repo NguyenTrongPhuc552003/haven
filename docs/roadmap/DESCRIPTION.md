@@ -1666,6 +1666,12 @@ a verifiable provenance attestation suitable for supply-chain audit.
 - SLSA L2/L3 requires a separate build system and is out of scope until
   post-thesis.
 
+**Status (2026-06-03):** `scripts/release.sh` step 5 now generates
+`SHA256SUMS` (sha256sum of `build/haven.elf` + `build/haven.bin`, skipped
+gracefully if binaries absent) and `provenance.json` (SLSA L1 stub with
+version, git_sha, timestamp, builder path, and L2/L3 deferral note). Both
+files are written to `build/releases/<version>/` alongside `release-summary.txt`.
+
 **Milestone gate:** M-CI-3 (SHA256SUMS + SLSA L1 provenance on v1.0.0 tag).
 
 ---
