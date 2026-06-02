@@ -212,11 +212,14 @@ jobs:
           sudo apt-get install -y doxygen
 
       - name: Generate API documentation
-        run: doxygen Doxyfile
+        run: |
+          mkdir -p build/doxygen
+          doxygen Doxyfile 2>&1 | tee build/doxygen/doxygen.log
 
       - name: Count documented vs undocumented symbols (advisory)
+        if: always()
         run: |
-          WARN_COUNT=$(doxygen Doxyfile 2>&1 | grep -c "warning:" || true)
+          WARN_COUNT=$(grep -c "warning:" build/doxygen/doxygen.log || true)
           echo "Doxygen warning count: ${WARN_COUNT}"
           echo "doxygen_warnings=${WARN_COUNT}" >> "$GITHUB_STEP_SUMMARY" || true
 
