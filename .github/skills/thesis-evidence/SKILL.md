@@ -254,6 +254,7 @@ evidence artifacts:
 |--------|---------|---------------|-----------|
 | `arm64-cross-compile` | ci.yml | `haven-arm64-<sha>` | 90 days |
 | `cmake-host-tests` | ci.yml | _(test pass/fail in job log)_ | - |
+| `coq-proofs` | ci.yml | `coq-proof-check-<sha>` | 30 days |
 | `arm64-cross-compile` (nightly) | nightly.yml | `haven-arm64-nightly-<run_id>` | 30 days |
 | `coq-proof-check` | nightly.yml | `coq-proofs-<run_id>` | 30 days |
 
@@ -852,3 +853,185 @@ cat build/evidence/qemu-validation.json
 3. `aarch64-elf-gcc` (Homebrew bare-metal, macOS)
 
 If none is found, CMake errors with an actionable message.
+
+---
+
+## §10 - Advisory vs Hard Gate Promotion Rules
+
+CI jobs are initially advisory (`continue-on-error: true`). They are promoted to
+hard gates (blocking) when stable evidence is established.
+
+### Promotion threshold
+
+A job may have `continue-on-error: true` removed once:
+1. **Three consecutive CI runs on `main`** produce a passing result for that job.
+2. At least one of those runs is on a clean commit (no stash, no `--dirty`).
+3. The passing run SHAs are recorded in `docs/methodology/CHAPTER_TRACEABILITY.md §6.3`.
+
+### Current advisory jobs and their status
+
+| CI Job | Since | Consecutive passes | Promotion target |
+|--------|-------|--------------------|-----------------|
+| `qemu-smoke` | v0.6.2 | track in §6.3 | Remove after 3 passes on main |
+| `coq-proofs` | v0.6.2 (PR #47) | track in §6.3 | Remove after 3 passes on main |
+| `doxygen` | M-DOCS-1 | n/a until 80% coverage | Remove after coverage threshold met |
+
+### Tracking procedure
+
+After each CI run that passes an advisory job:
+```bash
+# Record in CHAPTER_TRACEABILITY.md §6.3:
+# | Job        | SHA      | Date       | Run URL |
+# | qemu-smoke | <sha7>   | YYYY-MM-DD | https://github.com/NguyenTrongPhuc552003/haven/actions/runs/<id> |
+```
+
+---
+
+## §11 - Phase Completion Checklist
+
+Use this checklist before pushing a phase branch for review.
+
+### Pre-push
+
+```
+[ ] ./scripts/dev/fix-emdash.sh                      # exits 0
+[ ] cmake --preset host-tests && cmake --build build-host
+[ ] ctest --test-dir build-host --output-on-failure   # 0 failures
+[ ] bash -n scripts/release.sh                        # syntax check
+[ ] grep -r "TODO\|FIXME\|HACK" <changed files>       # resolve or document
+```
+
+### Commit format
+
+```
+<type>(<scope>): <imperative summary under 72 chars>
+```
+
+- **type**: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`
+- **scope**: affected subsystem (`ci`, `scripts`, `docs`, `skills`, `release`)
+- Always use `git commit --no-verify` and `git push --no-verify`
+- One logical change per commit; do not mix feat + fix in one commit
+
+### PR body template
+
+```markdown
+## Summary
+<one paragraph describing what changed and why>
+
+## Milestone gate closed
+<M-XX-Y label, or "none" if housekeeping>
+
+## Verification
+```bash
+<exact commands a reviewer can run to verify the change>
+```
+```
+
+### Post-merge
+
+```bash
+git fetch origin && git reset --hard origin/main
+git log --oneline -5   # confirm merge commit is present
+```
+
+---
+
+## §12 - Script Consolidation Rule
+
+When two scripts overlap >50% of their functionality, consolidate into the more
+comprehensive one before adding new features to either.
+
+### Consolidation protocol
+
+1. **Identify unique features** in the secondary script not present in the primary.
+2. **Check for stale paths** in the secondary script — if paths no longer exist in the
+   repo, the script is likely unmaintained:
+   ```bash
+   # Check every script path reference actually exists:
+   grep -oE '\./scripts/[a-z/._-]+' scripts/dev/SCRIPT.sh | while read p; do
+     [ -f "$p" ] || echo "STALE: $p"
+   done
+   ```
+3. **Absorb** unique, still-valid features into the primary script (new flags or steps).
+4. **Delete** the secondary script.
+5. **Update all references** in `.md`, `.yml`, `.sh` files:
+   ```bash
+   grep -rn "dev/SCRIPT_NAME" --include="*.md" --include="*.yml" --include="*.sh"
+   ```
+6. Update `CHANGELOG.md` and any `RELEASE_PROCESS.md` references.
+7. **Verify**: `grep -r "dev/SCRIPT_NAME" .` returns no `.sh/.yml/.md` hits.
+
+### Current canonical scripts (do not duplicate)
+
+| Script | Purpose | Unique flags |
+|--------|---------|--------------|
+| `scripts/release.sh` | Full release validation + tag | `--tag`, `--no-smoke`, `--dry-run`, `--dirty` |
+| `scripts/dev/fix-emdash.sh` | Em-dash cleanup | none |
+| `scripts/ci/ci-preflight.sh` | CI preflight gate | none |
+| `scripts/ci/bench-regression.sh` | Benchmark regression | `BASELINE=` env var |
+| `scripts/qemu/qemu-smoke.sh` | QEMU smoke test | none |
+
+---
+
+## §13 - Redundancy Audit Protocol
+
+Run this audit before each milestone release to keep the codebase clean.
+
+### 1. Script path audit
+
+```bash
+# Find references to scripts that may no longer exist:
+grep -rn "\./scripts/" --include="*.md" --include="*.sh" --include="*.yml" | \
+  grep -oE '\./scripts/[a-z/._-]+\.sh' | sort -u | while read p; do
+    [ -f "${p#./}" ] && echo "OK: $p" || echo "MISSING: $p"
+  done
+```
+
+### 2. Milestone ID uniqueness check
+
+Milestone IDs must be unique across the entire `docs/roadmap/DESCRIPTION.md`.
+Naming scheme:
+- `M-P<phase>-<seq>` for Phases 1–12 (Part 10 maintenance roadmap)
+- `M-CI-<seq>` for CI/CD automation milestones (Part 12)
+- `M-DOCS-<seq>` for documentation lifecycle milestones (Part 13)
+
+```bash
+# Find duplicate milestone IDs:
+grep -oE 'M-[A-Z]+-[0-9]+(-[0-9]+)?' docs/roadmap/DESCRIPTION.md | \
+  sort | uniq -d
+# Expected output: empty (no duplicates)
+```
+
+### 3. Nightly workflow Python argument audit
+
+Every `python3 tools/analysis/*.py` call in `.github/workflows/nightly.yml`
+must use named flags, not bare positional arguments:
+
+```bash
+# These patterns are WRONG (bare positional args):
+#   python3 tools/analysis/evidence_report.py build/
+#   python3 tools/analysis/latency_analyzer.py build/benchmarks/file.json
+
+# These are CORRECT:
+#   python3 tools/analysis/evidence_report.py --evidence-dir build/evidence ...
+#   python3 tools/analysis/latency_analyzer.py --input build/benchmarks/file.json ...
+```
+
+Verify with:
+```bash
+grep "tools/analysis" .github/workflows/nightly.yml
+# Every line should contain --flag patterns, not bare paths
+```
+
+### 4. Advisory job `|| true` audit
+
+`|| true` suppresses exit codes and hides failures. Only use it for genuinely
+optional steps where partial output is still useful:
+
+```bash
+# Find all || true in CI workflows:
+grep -n "|| true" .github/workflows/*.yml
+# Review each: is it masking a real failure?
+```
+
+Each `|| true` should have a comment explaining why it is intentional.
