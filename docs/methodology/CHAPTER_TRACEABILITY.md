@@ -275,6 +275,7 @@ WCET, jitter, and deadline-miss metrics for thesis claims.
 | CI validation                | `scripts/ci/ci-validate.sh`                    |
 | Evidence comparison          | `scripts/evidence/compare-evidence.py`         |
 | Release validation           | `scripts/release.sh`                           |
+| API documentation generator  | `Doxyfile` + `ci.yml` `doxygen` job (M-DOCS-1) |
 
 ### 7.2 Test files providing evaluation evidence
 
