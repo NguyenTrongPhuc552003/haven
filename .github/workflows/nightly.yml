@@ -124,8 +124,13 @@ jobs:
       - name: Generate evidence report
         run: |
           mkdir -p build/evidence
-          python3 tools/analysis/evidence_report.py build/ || true
-          python3 tools/analysis/latency_analyzer.py build/benchmarks/isolation-latency.json || true
+          python3 tools/analysis/evidence_report.py \
+            --evidence-dir build/evidence \
+            --benchmarks build/benchmarks/isolation-latency.json \
+            --output build/evidence/report.html || true
+          python3 tools/analysis/latency_analyzer.py \
+            --input build/benchmarks/isolation-latency.json \
+            --platform qemu-virt || true
 
       - name: Upload evidence bundle
         uses: actions/upload-artifact@v4

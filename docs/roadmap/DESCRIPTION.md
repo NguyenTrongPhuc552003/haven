@@ -1468,7 +1468,7 @@ and integration with thesis appendix material for journal/conference submission.
 - `.github/ISSUE_TEMPLATE/feature_request.md` (new)
 - `.github/ISSUE_TEMPLATE/porting_request.md` (new)
 - `docs/thesis/PAPER_OUTLINE.md` (update - initial outline created in Phase D)
-- `scripts/dev/release.sh` (update - v1.0.0 artifact evaluation package step)
+- `scripts/release.sh` (update - v1.0.0 artifact evaluation package step)
 
 ---
 
@@ -1612,7 +1612,7 @@ coordinated matrix run.
 - Evidence is archived in `build/evidence/<board>/` and committed to a
   milestone evidence tag.
 
-**Milestone gate:** M-P9-1 (multi-board CI matrix scaffold complete).
+**Milestone gate:** M-CI-1 (multi-board CI matrix scaffold complete).
 
 ---
 
@@ -1637,7 +1637,7 @@ coordinated matrix run.
    with 90-day retention (vs 30-day for PR artifacts).
 4. A daily Slack/email notification posts the nightly pass/fail summary (future work).
 
-**Milestone gate:** M-P9-2 (nightly workflow YAML created and operational).
+**Milestone gate:** M-CI-2 (nightly workflow YAML created and operational).
 
 ---
 
@@ -1666,7 +1666,7 @@ a verifiable provenance attestation suitable for supply-chain audit.
 - SLSA L2/L3 requires a separate build system and is out of scope until
   post-thesis.
 
-**Milestone gate:** M-P10-1 (SHA256SUMS + SLSA L1 provenance on v1.0.0 tag).
+**Milestone gate:** M-CI-3 (SHA256SUMS + SLSA L1 provenance on v1.0.0 tag).
 
 ---
 
@@ -1692,7 +1692,7 @@ minimal manual effort.
 - The workflow must be idempotent — re-running it on an already-up-to-date repo
   must produce no diff.
 
-**Milestone gate:** M-P11-1 (toolchain-refresh.yml operational; first
+**Milestone gate:** M-CI-4 (toolchain-refresh.yml operational; first
 auto-generated PR merged).
 
 ---
@@ -1778,7 +1778,7 @@ comments and publish them alongside the project website.
   API headers in `include/haven/` have doc comments.
 - LaTeX/PDF generation is explicitly disabled — HTML only for web deployment.
 
-**Milestone gate:** M-P12-1 (Doxyfile added, advisory CI job passing on at
+**Milestone gate:** M-DOCS-1 (Doxyfile added, advisory CI job passing on at
 least 80% of public API symbols).
 
 ---

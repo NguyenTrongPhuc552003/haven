@@ -23,7 +23,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `scripts/dev/fix-emdash.sh` — scans all tracked text files and replaces em-dash characters
   (`U+2014`) with ASCII hyphens to prevent toolchain/terminal encoding issues.
 - `.githooks/pre-commit` — updated to call `fix-emdash.sh` and re-stage affected files before
-  each commit; `scripts/dev/release.sh` updated to run em-dash cleanup as step 0.
+  each commit; `scripts/release.sh` updated to absorb em-dash cleanup as step 0.
 
 **Safety and compliance documentation (PR #38)**
 - `docs/safety/MISRA_DEVIATION_RECORD.md` — formal record of approved MISRA-C:2012 deviations
