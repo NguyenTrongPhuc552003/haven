@@ -10,7 +10,7 @@
 ## Overview
 
 This document describes the end-to-end process for preparing, validating, and
-tagging a Haven release. The release script (`scripts/dev/release.sh`) automates
+tagging a Haven release. The release script (`scripts/release.sh`) automates
 most steps, but the maintainer must perform several manual checks before running it.
 
 A Haven release progresses through four stages:
@@ -34,7 +34,7 @@ A Haven release progresses through four stages:
 
 ## 2. Pre-Release Checklist
 
-Complete this checklist manually before running `scripts/dev/release.sh`.
+Complete this checklist manually before running `scripts/release.sh`.
 
 ### 2.1 Code quality
 
@@ -121,18 +121,23 @@ git commit --no-verify -m "chore(release): bump version to 0.7.0"
 ## 4. Running the Release Script
 
 ```bash
-./scripts/dev/release.sh 0.7.0
+./scripts/release.sh [--tag] [--no-smoke] [--dry-run] [--dirty]
+```
+
+For a full release with tag:
+```bash
+./scripts/release.sh --tag
 ```
 
 The script performs:
-1. Em-dash cleanup (`scripts/dev/fix-emdash.sh`)
-2. Working tree cleanliness check
-3. CI preflight gate (`scripts/ci/ci-preflight.sh`)
-4. Benchmark baseline refresh (`scripts/benchmark-baseline.py`)
-5. Evidence packaging (`scripts/evidence/package-evidence.sh`)
-6. Archive to `build/releases/0.7.0/`
-7. Optional git tag (confirm at prompt)
-8. Release summary
+0. Em-dash cleanup (`scripts/dev/fix-emdash.sh`)
+0b. Working tree cleanliness check (skip with `--dirty`)
+1. Version consistency check (`VERSION` file vs existing git tags)
+2. CI preflight gate (`scripts/ci/ci-preflight.sh`)
+3. Benchmark regression check against `tests/benchmarks/latency-baseline.json`
+4. QEMU smoke test (skip with `--no-smoke` or if `qemu-system-aarch64` not available)
+5. Evidence pack written to `build/releases/<version>/` (skip artefacts with `--dry-run`)
+6. Optional git tag (requires `--tag`)
 
 If any step fails, the script exits non-zero. **Do not force-continue** past failures —
 diagnose and fix before re-running.
@@ -141,8 +146,10 @@ diagnose and fix before re-running.
 
 | Flag | Effect |
 | ---- | ------ |
+| `--tag` | Create and push a git tag after successful validation |
+| `--no-smoke` | Skip the QEMU smoke test (for headless CI runners or missing cross-compiler) |
+| `--dry-run` | Run all checks but do not write artefacts or create a tag |
 | `--dirty` | Allow uncommitted changes (development use only — never for production releases) |
-| `--no-tag` | Skip git tagging (useful for testing the release pipeline without creating a tag) |
 
 ---
 
