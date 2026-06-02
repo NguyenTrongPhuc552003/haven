@@ -4,6 +4,7 @@
 # Haven release preparation script.
 #
 # Performs a complete pre-release validation pass:
+#   0. Em-dash cleanup (fix-emdash.sh).
 #   1. Version consistency check (VERSION file vs git tags).
 #   2. Preflight: build + style + unit/integration tests.
 #   3. Benchmark regression check against stored baseline.
@@ -12,11 +13,12 @@
 #   6. Optionally creates a signed git tag.
 #
 # Usage:
-#   ./scripts/release.sh [--tag] [--no-smoke] [--dry-run]
+#   ./scripts/release.sh [--tag] [--no-smoke] [--dry-run] [--dirty]
 #
 #   --tag       Create and push the git tag after successful validation.
 #   --no-smoke  Skip the QEMU smoke test (e.g. on headless CI runners).
 #   --dry-run   Run all checks but do not tag or write any release artefacts.
+#   --dirty     Allow uncommitted changes (development use only).
 #
 # Prerequisites:
 #   - cc (host build, GCC or Clang)
@@ -35,15 +37,17 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DO_TAG=0
 DO_SMOKE=1
 DRY_RUN=0
+ALLOW_DIRTY=0
 
 for arg in "$@"; do
     case "$arg" in
         --tag)      DO_TAG=1 ;;
         --no-smoke) DO_SMOKE=0 ;;
         --dry-run)  DRY_RUN=1 ;;
+        --dirty)    ALLOW_DIRTY=1 ;;
         *)
             echo "[release] ERROR: unknown argument: $arg" >&2
-            echo "  Usage: $0 [--tag] [--no-smoke] [--dry-run]" >&2
+            echo "  Usage: $0 [--tag] [--no-smoke] [--dry-run] [--dirty]" >&2
             exit 1
             ;;
     esac
@@ -58,6 +62,28 @@ ok()   { echo "[release] OK: $*"; }
 fail() { echo "[release] FAIL: $*" >&2; exit 1; }
 
 cd "$ROOT"
+
+# -----------------------------------------------------------------------
+# 0. Em-dash cleanup
+# -----------------------------------------------------------------------
+step "0/6  Em-dash cleanup"
+
+"$SCRIPT_DIR/dev/fix-emdash.sh"
+ok "em-dash cleanup complete"
+
+# -----------------------------------------------------------------------
+# 0b. Working tree check
+# -----------------------------------------------------------------------
+if [ "$ALLOW_DIRTY" -eq 0 ]; then
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        if ! git diff --quiet HEAD; then
+            fail "working tree has uncommitted changes. Use --dirty to override (development only)."
+        fi
+        ok "working tree clean"
+    fi
+else
+    echo "[release] --dirty set: skipping working tree check"
+fi
 
 # -----------------------------------------------------------------------
 # 1. Version consistency
@@ -126,20 +152,23 @@ if [ "$DRY_RUN" -eq 0 ]; then
     mkdir -p "$EVIDENCE_DIR"
 
     # Capture test results summary
+    TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    GIT_SHA="$(git rev-parse HEAD)"
+    QEMU_STATUS="SKIPPED"
+    if [ "$DO_SMOKE" -eq 1 ] && command -v qemu-system-aarch64 &>/dev/null && [ -f "build/haven.bin" ]; then
+        QEMU_STATUS="PASS"
+    fi
+
     {
         echo "Haven v${VERSION} release evidence"
-        echo "Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-        echo "Git commit: $(git rev-parse HEAD)"
+        echo "Generated: ${TIMESTAMP}"
+        echo "Git commit: ${GIT_SHA}"
         echo ""
         echo "Build: PASS"
         echo "Style: PASS"
         echo "Unit+integration tests: PASS"
         echo "Benchmark regression: PASS"
-        if [ "$DO_SMOKE" -eq 1 ] && command -v qemu-system-aarch64 &>/dev/null && [ -f "build/haven.bin" ]; then
-            echo "QEMU smoke: PASS"
-        else
-            echo "QEMU smoke: SKIPPED"
-        fi
+        echo "QEMU smoke: ${QEMU_STATUS}"
     } > "$EVIDENCE_DIR/release-summary.txt"
 
     # SHA256 checksums (graceful if binaries absent)
@@ -158,6 +187,19 @@ if [ "$DRY_RUN" -eq 0 ]; then
   "slsa_level": 1,
   "builder": "scripts/release.sh",
   "note": "SLSA L2/L3 deferred post-thesis. Keyless signing target via GitHub Actions OIDC."
+}
+EOF
+
+    # Write machine-readable release manifest
+    cat > "$EVIDENCE_DIR/release-manifest.json" << EOF
+{
+  "version": "${VERSION}",
+  "timestamp": "${TIMESTAMP}",
+  "git_sha": "${GIT_SHA}",
+  "preflight": "pass",
+  "benchmark_regression": "pass",
+  "qemu_smoke": "${QEMU_STATUS}",
+  "evidence_dir": "build/releases/${VERSION}/"
 }
 EOF
 

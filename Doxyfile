@@ -1,0 +1,78 @@
+# Doxyfile — Haven API documentation configuration
+#
+# Generates HTML API docs from the public headers and core source files.
+# Output lands in build/doxygen/ (excluded from source tree via .gitignore).
+#
+# Usage:
+#   doxygen Doxyfile
+#   open build/doxygen/html/index.html
+#
+# CI: an advisory 'doxygen' job in ci.yml runs this on every push.
+# The job is continue-on-error: true until at least 80% of public API
+# symbols in include/haven/ have doc comments (milestone M-DOCS-1).
+
+# ---------------------------------------------------------------------------
+# Project identity
+# ---------------------------------------------------------------------------
+PROJECT_NAME           = "Haven Hypervisor"
+PROJECT_NUMBER         = "v0.6.2"
+PROJECT_BRIEF          = "Static Partition Hypervisor for Asymmetric Multiprocessing"
+PROJECT_LOGO           =
+
+# ---------------------------------------------------------------------------
+# Input
+# ---------------------------------------------------------------------------
+INPUT                  = include/haven \
+                         src/core \
+                         src/common
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.c
+EXCLUDE_PATTERNS       = */build/* */tests/* *_test.* *_stub.*
+
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
+OUTPUT_DIRECTORY       = build/doxygen
+CREATE_SUBDIRS         = NO
+
+# HTML only — LaTeX/PDF intentionally disabled (web deployment target)
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_MAN           = NO
+GENERATE_RTF           = NO
+GENERATE_XML           = NO
+
+HTML_OUTPUT            = html
+HTML_COLORSTYLE        = LIGHT
+
+# ---------------------------------------------------------------------------
+# Extraction settings
+# ---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = NO
+SHOW_INCLUDE_FILES     = YES
+SHOW_FILES             = YES
+
+# ---------------------------------------------------------------------------
+# Warning settings (advisory phase: WARN_AS_ERROR = NO)
+# Set to YES once 80% of public API symbols have doc comments (M-DOCS-1).
+# ---------------------------------------------------------------------------
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_AS_ERROR          = NO
+
+# ---------------------------------------------------------------------------
+# Preprocessing
+# ---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = NO
+PREDEFINED             = __attribute__(x)= \
+                         __asm__(x)= \
+                         __volatile__=
+
+# ---------------------------------------------------------------------------
+# Diagrams (requires Graphviz dot; skipped if not installed)
+# ---------------------------------------------------------------------------
+HAVE_DOT               = NO

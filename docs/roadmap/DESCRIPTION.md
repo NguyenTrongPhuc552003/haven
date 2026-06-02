@@ -1275,54 +1275,54 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 
 ### Completed Milestones
 
-| PR     | Branch                                 | Description                                                                                        | Release    |
-| ------ | -------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------- |
-| #1–9   | various                                | CI/CD foundation, core contracts, test infrastructure                                              | v0.1.0-dev |
-| #10–15 | various                                | SMMU 8-scenario coverage, EL2 exception injection, benchmark suite                                 | v0.4.0     |
-| #16–22 | various                                | QEMU two-partition smoke test, IRQ injection, temporal isolation demo                              | v0.5.0     |
-| #23    | `feat/secondary-cpu-bringup`           | Secondary CPU (CPU 2) PSCI bring-up, Partition B AMP launch                                        | v0.6.0     |
-| #24    | `feat/freertos-context-hardening`      | FreeRTOS context-switch state machine, task block/unblock, priority ceiling                        | v0.6.0     |
-| #25    | `chore/website-v0.6.0-sync`            | Changelog, architecture overview, thesis traceability updated for v0.6.0                           | v0.6.0     |
-| #26    | `feat/static-analysis-gate`            | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh`                        | v0.6.0     |
+| PR     | Branch                                 | Description                                                                                         | Release    |
+| ------ | -------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------- |
+| #1–9   | various                                | CI/CD foundation, core contracts, test infrastructure                                               | v0.1.0-dev |
+| #10–15 | various                                | SMMU 8-scenario coverage, EL2 exception injection, benchmark suite                                  | v0.4.0     |
+| #16–22 | various                                | QEMU two-partition smoke test, IRQ injection, temporal isolation demo                               | v0.5.0     |
+| #23    | `feat/secondary-cpu-bringup`           | Secondary CPU (CPU 2) PSCI bring-up, Partition B AMP launch                                         | v0.6.0     |
+| #24    | `feat/freertos-context-hardening`      | FreeRTOS context-switch state machine, task block/unblock, priority ceiling                         | v0.6.0     |
+| #25    | `chore/website-v0.6.0-sync`            | Changelog, architecture overview, thesis traceability updated for v0.6.0                            | v0.6.0     |
+| #26    | `feat/static-analysis-gate`            | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh`                         | v0.6.0     |
 | #31    | `chore/cmake-migration`                | Full CMake >= 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets            | v0.6.1     |
-| #32    | `docs/cmake-migration`                 | Docs and website updated to cmake preset commands; Getting-Started updated                         | v0.6.1     |
-| #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs | v0.6.1     |
-| #36    | `chore/dev-automation`                 | `scripts/dev/fix-emdash.sh`; pre-commit hook em-dash cleanup; release.sh integration               | v0.6.2     |
-| #37    | `docs/skill-roadmap-enhancement`       | SKILL.md §1-4 preamble + §11-12 hardware procedures; DESCRIPTION.md Phases 9-12                    | v0.6.2     |
-| #38    | `docs/safety-compliance`               | `MISRA_DEVIATION_RECORD.md` (M-P6-1); `STATIC_ANALYSIS_POLICY.md` (M-P6-2)                        | v0.6.2     |
-| #39    | `docs/thesis-process`                  | `RELEASE_PROCESS.md` (M-P7-1); `REPRODUCIBILITY_APPENDIX.md` (M-P7-2); `PAPER_OUTLINE.md` (M-P8-2) | v0.6.2     |
-| #40    | `feat/conference-demo`                 | `scripts/demo/conference-demo.sh` — four-act QEMU demo with --dry-run mode (M-P8-1)                | v0.6.2     |
+| #32    | `docs/cmake-migration`                 | Docs and website updated to cmake preset commands; Getting-Started updated                          | v0.6.1     |
+| #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs  | v0.6.1     |
+| #36    | `chore/dev-automation`                 | `scripts/dev/fix-emdash.sh`; pre-commit hook em-dash cleanup; release.sh integration                | v0.6.2     |
+| #37    | `docs/skill-roadmap-enhancement`       | SKILL.md §1-4 preamble + §11-12 hardware procedures; DESCRIPTION.md Phases 9-12                     | v0.6.2     |
+| #38    | `docs/safety-compliance`               | `MISRA_DEVIATION_RECORD.md` (M-P6-1); `STATIC_ANALYSIS_POLICY.md` (M-P6-2)                          | v0.6.2     |
+| #39    | `docs/thesis-process`                  | `RELEASE_PROCESS.md` (M-P7-1); `REPRODUCIBILITY_APPENDIX.md` (M-P7-2); `PAPER_OUTLINE.md` (M-P8-2)  | v0.6.2     |
+| #40    | `feat/conference-demo`                 | `scripts/demo/conference-demo.sh` — four-act QEMU demo with --dry-run mode (M-P8-1)                 | v0.6.2     |
 | #41    | `feat/context-hvc-integration`         | `hv_arch_context_save/restore` in context.S (M-P5-1); HVC yield path (M-P5-2); PSCI decode (M-P5-3) | v0.6.2     |
-| #42    | `fix/qemu-launch`                      | boot.S .boot.text linker fix; qemu-smoke.sh -serial capture; CI qemu-smoke job                     | v0.6.2     |
-| #43    | `fix/host-test-warnings`               | HAVEN_HOST_CFLAGS suppresses -Wunused-variable/-Wunused-but-set-variable                           | v0.6.2     |
-| #44    | `chore/version-changelog`              | VERSION/CMakeLists.txt/init.c bumped to 0.6.2; CHANGELOG filled for #36-43                         | v0.6.2     |
-| #45    | `feat/secondary-cpu-tests`             | T7 PSCI error-path + T8 FreeRTOS period fidelity tests; DESCRIPTION §10.5/§10.6; SKILL §13-15     | v0.6.2     |
+| #42    | `fix/qemu-launch`                      | boot.S .boot.text linker fix; qemu-smoke.sh -serial capture; CI qemu-smoke job                      | v0.6.2     |
+| #43    | `fix/host-test-warnings`               | HAVEN_HOST_CFLAGS suppresses -Wunused-variable/-Wunused-but-set-variable                            | v0.6.2     |
+| #44    | `chore/version-changelog`              | VERSION/CMakeLists.txt/init.c bumped to 0.6.2; CHANGELOG filled for #36-43                          | v0.6.2     |
+| #45    | `feat/secondary-cpu-tests`             | T7 PSCI error-path + T8 FreeRTOS period fidelity tests; DESCRIPTION §10.5/§10.6; SKILL §13-15       | v0.6.2     |
 
 ### Open Milestones
 
-| ID      | Description                                              | Phase    | Priority |
-| ------- | -------------------------------------------------------- | -------- | -------- |
-| M-P4-1  | Coq formal proofs compile under `coqc 8.18`              | Phase 4  | High     |
-| M-P4-2  | i.MX95 measured benchmark campaign                       | Phase 4  | High     |
-| M-P9-1  | PSCI 1.3 spec alignment in `arch/arm64/boot.S`           | Phase 9  | High     |
-| M-P9-2  | Linux 6.8+ guest compatibility test suite                | Phase 9  | Medium   |
-| M-P10-1 | Platform config YAML for secondary target board          | Phase 10 | High     |
-| M-P11-1 | Threat model document reviewed and merged                | Phase 11 | High     |
-| M-P12-1 | Contributor handbook and v1.0.0 release tag              | Phase 12 | High     |
+| ID      | Description                                     | Phase    | Priority |
+| ------- | ----------------------------------------------- | -------- | -------- |
+| M-P4-1  | Coq formal proofs compile under `coqc 8.18`     | Phase 4  | High     |
+| M-P4-2  | i.MX95 measured benchmark campaign              | Phase 4  | High     |
+| M-P9-1  | PSCI 1.3 spec alignment in `arch/arm64/boot.S`  | Phase 9  | High     |
+| M-P9-2  | Linux 6.8+ guest compatibility test suite       | Phase 9  | Medium   |
+| M-P10-1 | Platform config YAML for secondary target board | Phase 10 | High     |
+| M-P11-1 | Threat model document reviewed and merged       | Phase 11 | High     |
+| M-P12-1 | Contributor handbook and v1.0.0 release tag     | Phase 12 | High     |
 
 ### Closed Milestones (v0.6.2)
 
-| ID     | Description                                                        | Closed in |
-| ------ | ------------------------------------------------------------------ | --------- |
-| M-P5-1 | `hv_arch_context_save/restore` in `arch/arm64/context.S`           | PR #41    |
-| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path                        | PR #41    |
-| M-P5-3 | PSCI error-code decode and logging                                 | PR #41    |
-| M-P6-1 | MISRA-C deviation record for `src/core/`                           | PR #38    |
-| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md`                            | PR #38    |
-| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md`                             | PR #39    |
-| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md`                          | PR #39    |
-| M-P8-1 | `scripts/demo/conference-demo.sh`                                  | PR #40    |
-| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md`                                     | PR #39    |
+| ID     | Description                                              | Closed in |
+| ------ | -------------------------------------------------------- | --------- |
+| M-P5-1 | `hv_arch_context_save/restore` in `arch/arm64/context.S` | PR #41    |
+| M-P5-2 | FreeRTOS yield → HVC → EL2 budget tick path              | PR #41    |
+| M-P5-3 | PSCI error-code decode and logging                       | PR #41    |
+| M-P6-1 | MISRA-C deviation record for `src/core/`                 | PR #38    |
+| M-P6-2 | `docs/safety/STATIC_ANALYSIS_POLICY.md`                  | PR #38    |
+| M-P7-1 | `docs/contributing/RELEASE_PROCESS.md`                   | PR #39    |
+| M-P7-2 | `docs/thesis/REPRODUCIBILITY_APPENDIX.md`                | PR #39    |
+| M-P8-1 | `scripts/demo/conference-demo.sh`                        | PR #40    |
+| M-P8-2 | `docs/thesis/PAPER_OUTLINE.md`                           | PR #39    |
 
 ### Quality Gate Dashboard
 
@@ -1359,12 +1359,12 @@ updates, and PSCI 1.3 specification requirements.
 
 **Milestones:**
 
-| ID     | Description                                                        | Priority |
-| ------ | ------------------------------------------------------------------ | -------- |
-| M-P9-1 | Track ARM PSCI 1.3 spec changes; update `arch/arm64/boot.S` calls  | High     |
-| M-P9-2 | Linux 6.8+ guest compatibility test suite                          | Medium   |
-| M-P9-3 | FreeRTOS v11 API compatibility layer in `drivers/guest-tools/`     | Medium   |
-| M-P9-4 | GCC 14 / Clang 18 toolchain compatibility check and CI update      | Low      |
+| ID     | Description                                                       | Priority |
+| ------ | ----------------------------------------------------------------- | -------- |
+| M-P9-1 | Track ARM PSCI 1.3 spec changes; update `arch/arm64/boot.S` calls | High     |
+| M-P9-2 | Linux 6.8+ guest compatibility test suite                         | Medium   |
+| M-P9-3 | FreeRTOS v11 API compatibility layer in `drivers/guest-tools/`    | Medium   |
+| M-P9-4 | GCC 14 / Clang 18 toolchain compatibility check and CI update     | Low      |
 
 **Exit criteria:**
 - CI passes on GCC 14 and Clang 18 toolchains
@@ -1388,13 +1388,13 @@ Target: Raspberry Pi 5 (BCM2712) or NVIDIA Orin Nano as a secondary thesis-adjac
 
 **Milestones:**
 
-| ID      | Description                                                                 | Priority |
-| ------- | --------------------------------------------------------------------------- | -------- |
-| M-P10-1 | Platform configuration YAML for target board in `configs/arm64/`            | High     |
-| M-P10-2 | Board-specific UART driver or verified compatibility with existing driver    | High     |
-| M-P10-3 | Stage-2 memory map validated on target hardware                             | High     |
-| M-P10-4 | Full isolation test suite passing on target board                           | Medium   |
-| M-P10-5 | Porting guide added to `docs/porting/<board>/`                              | Medium   |
+| ID      | Description                                                               | Priority |
+| ------- | ------------------------------------------------------------------------- | -------- |
+| M-P10-1 | Platform configuration YAML for target board in `configs/arm64/`          | High     |
+| M-P10-2 | Board-specific UART driver or verified compatibility with existing driver | High     |
+| M-P10-3 | Stage-2 memory map validated on target hardware                           | High     |
+| M-P10-4 | Full isolation test suite passing on target board                         | Medium   |
+| M-P10-5 | Porting guide added to `docs/porting/<board>/`                            | Medium   |
 
 **Exit criteria:**
 - `cmake --preset arm64-<board>` builds without error
@@ -1418,13 +1418,13 @@ an auditable security posture document suitable for external review.
 
 **Milestones:**
 
-| ID      | Description                                                                 | Priority |
-| ------- | --------------------------------------------------------------------------- | -------- |
-| M-P11-1 | Threat model document: `docs/safety/THREAT_MODEL.md`                        | High     |
-| M-P11-2 | STRIDE analysis of EL2 entry path, IPC, and SMMU configuration              | High     |
-| M-P11-3 | Address all HIGH findings from STRIDE analysis                              | High     |
-| M-P11-4 | Side-channel audit: cache-timing paths in `arch/arm64/mm.c`, `irq.c`        | Medium   |
-| M-P11-5 | Isolation Guardian sign-off on TCB surface area post-audit                  | High     |
+| ID      | Description                                                          | Priority |
+| ------- | -------------------------------------------------------------------- | -------- |
+| M-P11-1 | Threat model document: `docs/safety/THREAT_MODEL.md`                 | High     |
+| M-P11-2 | STRIDE analysis of EL2 entry path, IPC, and SMMU configuration       | High     |
+| M-P11-3 | Address all HIGH findings from STRIDE analysis                       | High     |
+| M-P11-4 | Side-channel audit: cache-timing paths in `arch/arm64/mm.c`, `irq.c` | Medium   |
+| M-P11-5 | Isolation Guardian sign-off on TCB surface area post-audit           | High     |
 
 **Exit criteria:**
 - Threat model document reviewed and merged
@@ -1448,13 +1448,13 @@ and integration with thesis appendix material for journal/conference submission.
 
 **Milestones:**
 
-| ID      | Description                                                                 | Priority |
-| ------- | --------------------------------------------------------------------------- | -------- |
-| M-P12-1 | Contributor handbook: `docs/contributing/CONTRIBUTOR_HANDBOOK.md`           | High     |
-| M-P12-2 | GitHub issue templates for: bug report, feature request, porting request    | Medium   |
-| M-P12-3 | Conference/journal paper first draft from `docs/thesis/PAPER_OUTLINE.md`   | High     |
-| M-P12-4 | Artifact evaluation package: Docker + reproducibility script                | High     |
-| M-P12-5 | v1.0.0 release tag with full evidence bundle archived                       | High     |
+| ID      | Description                                                              | Priority |
+| ------- | ------------------------------------------------------------------------ | -------- |
+| M-P12-1 | Contributor handbook: `docs/contributing/CONTRIBUTOR_HANDBOOK.md`        | High     |
+| M-P12-2 | GitHub issue templates for: bug report, feature request, porting request | Medium   |
+| M-P12-3 | Conference/journal paper first draft from `docs/thesis/PAPER_OUTLINE.md` | High     |
+| M-P12-4 | Artifact evaluation package: Docker + reproducibility script             | High     |
+| M-P12-5 | v1.0.0 release tag with full evidence bundle archived                    | High     |
 
 **Exit criteria:**
 - v1.0.0 tag pushed with `build/releases/1.0.0/` evidence archive
@@ -1468,7 +1468,7 @@ and integration with thesis appendix material for journal/conference submission.
 - `.github/ISSUE_TEMPLATE/feature_request.md` (new)
 - `.github/ISSUE_TEMPLATE/porting_request.md` (new)
 - `docs/thesis/PAPER_OUTLINE.md` (update - initial outline created in Phase D)
-- `scripts/dev/release.sh` (update - v1.0.0 artifact evaluation package step)
+- `scripts/release.sh` (update - v1.0.0 artifact evaluation package step)
 
 ---
 
@@ -1566,9 +1566,9 @@ A broken host-test build is a P0 defect — it blocks all subsequent CI analysis
    that touches files under `tests/`, `src/`, `include/`, or `cmake/`.
 
 **Current suppressions in `HAVEN_HOST_CFLAGS` (as of 2026-05-29):**
-| Flag | Reason |
-|---|---|
-| `-Wno-unused-variable` | Test fixture structs passed only inside `assert()` |
+| Flag                           | Reason                                                   |
+| ------------------------------ | -------------------------------------------------------- |
+| `-Wno-unused-variable`         | Test fixture structs passed only inside `assert()`       |
 | `-Wno-unused-but-set-variable` | Status variables read only via `assert()` on Apple Clang |
 
 ---
@@ -1588,11 +1588,11 @@ coordinated matrix run.
 
 **Target matrix:**
 
-| Platform | Config preset | Runner requirement | Priority |
-| -------- | ------------- | ------------------- | -------- |
-| QEMU arm64 virt | `arm64-qemu` | `ubuntu-latest` | P0 — always on |
-| NXP i.MX95 Dev Kit | `arm64-imx95` | Self-hosted (lab) | P1 — gated |
-| NXP i.MX8QM MEK | `arm64-imx8qm` | Self-hosted (lab) | P2 — optional |
+| Platform           | Config preset  | Runner requirement | Priority       |
+| ------------------ | -------------- | ------------------ | -------------- |
+| QEMU arm64 virt    | `arm64-qemu`   | `ubuntu-latest`    | P0 — always on |
+| NXP i.MX95 Dev Kit | `arm64-imx95`  | Self-hosted (lab)  | P1 — gated     |
+| NXP i.MX8QM MEK    | `arm64-imx8qm` | Self-hosted (lab)  | P2 — optional  |
 
 **Design rules:**
 1. QEMU jobs run on every PR (`ubuntu-latest`); hardware board jobs run nightly
@@ -1612,7 +1612,7 @@ coordinated matrix run.
 - Evidence is archived in `build/evidence/<board>/` and committed to a
   milestone evidence tag.
 
-**Milestone gate:** M-P9-1 (multi-board CI matrix scaffold complete).
+**Milestone gate:** M-CI-1 (multi-board CI matrix scaffold complete).
 
 ---
 
@@ -1622,12 +1622,12 @@ coordinated matrix run.
 
 **Split policy:**
 
-| Job type | When | Examples |
-| -------- | ---- | -------- |
-| Fast path | Every PR push | `build-and-check`, `cmake-host-tests`, `arm64-cross-compile` |
-| Advisory | Every PR push | `coq-proofs` (continue-on-error: true), `website-build` |
-| Slow path | Nightly on `main` | `qemu-smoke`, hardware board jobs, benchmark regression gate |
-| Evidence gate | `main` push + version tags | `package-evidence`, traceability checker |
+| Job type      | When                       | Examples                                                     |
+| ------------- | -------------------------- | ------------------------------------------------------------ |
+| Fast path     | Every PR push              | `build-and-check`, `cmake-host-tests`, `arm64-cross-compile` |
+| Advisory      | Every PR push              | `coq-proofs` (continue-on-error: true), `website-build`      |
+| Slow path     | Nightly on `main`          | `qemu-smoke`, hardware board jobs, benchmark regression gate |
+| Evidence gate | `main` push + version tags | `package-evidence`, traceability checker                     |
 
 **Implementation plan:**
 1. Move `qemu-smoke` from `ci.yml` to `.github/workflows/nightly.yml` once
@@ -1637,7 +1637,7 @@ coordinated matrix run.
    with 90-day retention (vs 30-day for PR artifacts).
 4. A daily Slack/email notification posts the nightly pass/fail summary (future work).
 
-**Milestone gate:** M-P9-2 (nightly workflow YAML created and operational).
+**Milestone gate:** M-CI-2 (nightly workflow YAML created and operational).
 
 ---
 
@@ -1698,7 +1698,7 @@ minimal manual effort.
 - The workflow must be idempotent — re-running it on an already-up-to-date repo
   must produce no diff.
 
-**Milestone gate:** M-P11-1 (toolchain-refresh.yml operational; first
+**Milestone gate:** M-CI-4 (toolchain-refresh.yml operational; first
 auto-generated PR merged).
 
 ---
@@ -1717,11 +1717,11 @@ implementation as the project evolves post-thesis.
 
 **Review cadence and checklist:**
 
-| Period | Trigger | Reviewer | Deliverable |
-| ------ | ------- | -------- | ----------- |
-| Each minor release | Merge of version bump PR | Author | Parts 9 (tracker), §10.5 (QEMU status), §12 env pins |
-| Quarterly | First PR after quarter boundary | Maintainer | Full re-read of all 13 Parts; flag stale claims |
-| Major milestone | v1.0.0 tag, thesis submission | Author | Full audit + CHANGELOG entry |
+| Period             | Trigger                         | Reviewer   | Deliverable                                          |
+| ------------------ | ------------------------------- | ---------- | ---------------------------------------------------- |
+| Each minor release | Merge of version bump PR        | Author     | Parts 9 (tracker), §10.5 (QEMU status), §12 env pins |
+| Quarterly          | First PR after quarter boundary | Maintainer | Full re-read of all 13 Parts; flag stale claims      |
+| Major milestone    | v1.0.0 tag, thesis submission   | Author     | Full audit + CHANGELOG entry                         |
 
 **Stale indicator definitions:**
 - A section is "stale" if it references a PR number, branch, or date that is
@@ -1784,7 +1784,12 @@ comments and publish them alongside the project website.
   API headers in `include/haven/` have doc comments.
 - LaTeX/PDF generation is explicitly disabled — HTML only for web deployment.
 
-**Milestone gate:** M-P12-1 (Doxyfile added, advisory CI job passing on at
+**Status (2026-06-03):** `Doxyfile` added at repo root and advisory `doxygen`
+CI job added to `ci.yml` (`continue-on-error: true`). Output uploads to
+`doxygen-html-<run_id>` artifact (30-day retention). `WARN_AS_ERROR = NO`
+during this phase. Promote once ≥80% of `include/haven/` symbols are documented.
+
+**Milestone gate:** M-DOCS-1 (Doxyfile added, advisory CI job passing on at
 least 80% of public API symbols).
 
 ---
@@ -1799,13 +1804,13 @@ corresponding source code changes in a structurally significant way.
 Any PR that modifies the following files MUST include a diagram update OR a
 written justification in the PR description for why the diagram is still accurate:
 
-| Source path | Affected diagram(s) |
-| ----------- | ------------------- |
-| `arch/arm64/mm.c`, `src/core/mm/` | Memory map diagram (`docs/architecture/ISOLATION_MODEL.md`) |
-| `arch/arm64/irq.c`, `src/core/irq/` | Interrupt routing diagram (`docs/architecture/OVERVIEW.md`) |
-| `configs/arm64/*.yaml` | Platform config diagram (`docs/architecture/OVERVIEW.md`) |
-| `arch/arm64/entry.S`, `arch/arm64/boot.S` | Boot flow diagram (`docs/architecture/OVERVIEW.md`) |
-| `include/haven/hypervisor.h` (public API) | API surface diagram (`docs/api/`) |
+| Source path                               | Affected diagram(s)                                         |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| `arch/arm64/mm.c`, `src/core/mm/`         | Memory map diagram (`docs/architecture/ISOLATION_MODEL.md`) |
+| `arch/arm64/irq.c`, `src/core/irq/`       | Interrupt routing diagram (`docs/architecture/OVERVIEW.md`) |
+| `configs/arm64/*.yaml`                    | Platform config diagram (`docs/architecture/OVERVIEW.md`)   |
+| `arch/arm64/entry.S`, `arch/arm64/boot.S` | Boot flow diagram (`docs/architecture/OVERVIEW.md`)         |
+| `include/haven/hypervisor.h` (public API) | API surface diagram (`docs/api/`)                           |
 
 **Diagram format:** Mermaid (`\`\`\`mermaid` blocks embedded in Markdown).
 Mermaid is preferred over image files because it is diff-friendly and rendered
