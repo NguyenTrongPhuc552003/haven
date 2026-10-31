@@ -66,6 +66,27 @@ static hv_u8 hv_range_contains(hv_u64 base, hv_u64 size, hv_u64 inner_base,
 	return 1U;
 }
 
+/* Return 1 when attrs is a valid HV_MEM_* combination (MM1):
+ *   - no bits outside HV_MEM_VALID_MASK;
+ *   - HV_MEM_R present (this also rejects 0, write-only and execute-only);
+ *   - never HV_MEM_DEVICE together with HV_MEM_X. */
+hv_u8 hv_stage2_attrs_valid(hv_u64 attrs)
+{
+	if ((attrs & ~HV_MEM_VALID_MASK) != 0U) {
+		return 0U;
+	}
+
+	if ((attrs & HV_MEM_R) == 0U) {
+		return 0U;
+	}
+
+	if ((attrs & HV_MEM_DEVICE) != 0U && (attrs & HV_MEM_X) != 0U) {
+		return 0U;
+	}
+
+	return 1U;
+}
+
 hv_status_t hv_stage2_init(void)
 {
 	hv_u32 i;
@@ -104,6 +125,10 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
 		const struct hv_mem_region *region = &cfg->regions[i];
 
 		if (region->size == 0U) {
+			return HV_EINVAL;
+		}
+
+		if (hv_stage2_attrs_valid(region->attrs) == 0U) {
 			return HV_EINVAL;
 		}
 

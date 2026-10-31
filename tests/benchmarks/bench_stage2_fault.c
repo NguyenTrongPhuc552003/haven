@@ -76,7 +76,7 @@ static void bench_setup(void)
 		.ipa_base = WINDOW_BASE,
 		.pa_base = WINDOW_BASE,
 		.size = WINDOW_SIZE,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	static struct hv_partition_mem cfg = {
 		.partition_id = BENCH_PARTITION_ID,

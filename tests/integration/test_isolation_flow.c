@@ -32,7 +32,7 @@ static void run_isolation_flow(void)
 		.ipa_base = 0x40000000,
 		.pa_base = 0x40000000,
 		.size = 0x02000000, /* 32 MiB, 4K-aligned */
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 
 	struct hv_partition_mem partition = {

@@ -40,14 +40,14 @@ static struct hv_mem_region region_p1 = {
 	.ipa_base = 0x10000000,
 	.pa_base = 0x10000000,
 	.size = 0x01000000,
-	.attrs = 0,
+	.attrs = HV_MEM_RWX,
 };
 
 static struct hv_mem_region region_p2 = {
 	.ipa_base = 0x20000000,
 	.pa_base = 0x20000000,
 	.size = 0x01000000,
-	.attrs = 0,
+	.attrs = HV_MEM_RWX,
 };
 
 static struct hv_partition_mem cfg_p1 = {
@@ -80,7 +80,7 @@ static void test_stage2_cross_partition_boundary(void)
 		.ipa_base = 0x30000000, /* different IPA */
 		.pa_base = 0x10000000, /* but P1's PA - conflict */
 		.size = 0x1000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_partition_mem cfg_escape = {
 		.partition_id = 3,

@@ -9,36 +9,38 @@ static void test_stage2_contract(void)
 	struct hv_mem_region regions[1] = {{.ipa_base = 0x1000,
 					    .pa_base = 0x2000,
 					    .size = 0x1000,
-					    .attrs = 0}};
+					    .attrs = HV_MEM_RWX}};
 	struct hv_mem_region misaligned_ipa_region[1] = {{.ipa_base = 0x1800,
 							  .pa_base = 0x3000,
 							  .size = 0x1000,
-							  .attrs = 0}};
+							  .attrs = HV_MEM_RWX}};
 	struct hv_mem_region misaligned_pa_region[1] = {{.ipa_base = 0x2000,
 							 .pa_base = 0x2800,
 							 .size = 0x1000,
-							 .attrs = 0}};
-	struct hv_mem_region misaligned_size_region[1] = {{.ipa_base = 0x3000,
-							   .pa_base = 0x4000,
-							   .size = 0x1800,
-							   .attrs = 0}};
-	struct hv_mem_region second_partition_regions[1] = {{.ipa_base = 0x1000,
-							     .pa_base = 0x2000,
-							     .size = 0x1000,
-							     .attrs = 0}};
+							 .attrs = HV_MEM_RWX}};
+	struct hv_mem_region misaligned_size_region[1] = {
+		{.ipa_base = 0x3000,
+		 .pa_base = 0x4000,
+		 .size = 0x1800,
+		 .attrs = HV_MEM_RWX}};
+	struct hv_mem_region second_partition_regions[1] = {
+		{.ipa_base = 0x1000,
+		 .pa_base = 0x2000,
+		 .size = 0x1000,
+		 .attrs = HV_MEM_RWX}};
 	struct hv_mem_region non_overlapping_partition_regions[1] = {
 		{.ipa_base = 0x4000,
 		 .pa_base = 0x5000,
 		 .size = 0x1000,
-		 .attrs = 0}};
+		 .attrs = HV_MEM_RWX}};
 	struct hv_mem_region overlap_regions[2] = {{.ipa_base = 0x3000,
 						    .pa_base = 0x5000,
 						    .size = 0x2000,
-						    .attrs = 0},
+						    .attrs = HV_MEM_RWX},
 						   {.ipa_base = 0x3800,
 						    .pa_base = 0x8000,
 						    .size = 0x1000,
-						    .attrs = 0}};
+						    .attrs = HV_MEM_RWX}};
 	struct hv_partition_mem cfg = {
 		.partition_id = 1, .regions = regions, .region_count = 1};
 	struct hv_partition_mem second_partition_overlap_cfg = {

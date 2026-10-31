@@ -40,7 +40,7 @@ static void setup_partition_memory(hv_u32 partition, hv_u64 pa_base,
 		.ipa_base = pa_base,
 		.pa_base = pa_base,
 		.size = size,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_partition_mem cfg = {
 		.partition_id = partition,

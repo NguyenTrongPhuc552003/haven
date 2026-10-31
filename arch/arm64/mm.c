@@ -14,6 +14,7 @@
  */
 
 #include <asm/page.h>
+#include <asm/s2_attrs.h>
 #include <asm/sysregs.h>
 #include <haven/types.h>
 #include <stddef.h>
@@ -89,7 +90,9 @@ hv_status_t hv_arch_stage2_init_partition(uint32_t partition_id)
  * ipa:   guest-visible base address (must be HV_PAGE_SIZE aligned)
  * pa:    host physical base address (must be HV_PAGE_SIZE aligned)
  * size:  mapping size in bytes (must be HV_PAGE_SIZE multiple)
- * flags: S2AP_* | S2_MEMATTR_* | S2_SH_* from page.h
+ * flags: portable HV_MEM_* bits (include/haven/stage2.h), already checked
+ *        by hv_stage2_attrs_valid() in the core; translated by
+ *        hv_s2_hw_attrs() (asm/s2_attrs.h)
  *
  * Uses 4KB pages for all sizes (simple and safe; 2MB blocks are an
  * optimization that can be added later without changing the policy layer).
@@ -112,18 +115,9 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
 	uint64_t cur_pa = pa;
 	uint64_t end_ipa = ipa + size;
 
-	/* Translate flags to hardware S2AP+MemAttr once (same for all pages). */
-	uint64_t hw_attrs;
-	if (flags == 1U) {
-		/* Device MMIO: nGnRE, non-executable, non-cacheable */
-		hw_attrs = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS |
-				      S2AP_RW) |
-			   S2_XN_ALL;
-	} else {
-		/* Normal DRAM: WB cacheable, inner-shareable, RW */
-		hw_attrs =
-			(uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS | S2AP_RW);
-	}
+	/* Translate portable bits to S2AP, MemAttr, SH and XN once
+	 * (same for all pages in the region). */
+	uint64_t hw_attrs = hv_s2_hw_attrs(flags);
 
 	while (cur_ipa < end_ipa) {
 		uint32_t l1_idx = s2_l1_index(cur_ipa);

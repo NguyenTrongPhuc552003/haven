@@ -53,7 +53,7 @@ static const struct hv_mem_region part_a_regions[] = {
 		.ipa_base = PART_A_IPA_BASE,
 		.pa_base = PART_A_PA_BASE,
 		.size = PART_A_SIZE,
-		.attrs = 0, /* normal cacheable, full access */
+		.attrs = HV_MEM_RWX, /* Normal WB, read/write/execute */
 	},
 	/* PL011 UART0 MMIO - identity-mapped so the guest stub can print.
 	 * The device is owned by partition A; partition B has no UART mapping,
@@ -62,7 +62,7 @@ static const struct hv_mem_region part_a_regions[] = {
 		.ipa_base = QEMU_UART_BASE,
 		.pa_base = QEMU_UART_BASE,
 		.size = 0x1000UL, /* 4 KB MMIO page */
-		.attrs = 1, /* device memory (nGnRE) */
+		.attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */
 	},
 };
 
@@ -71,7 +71,7 @@ static const struct hv_mem_region part_b_regions[] = {
 		.ipa_base = PART_B_IPA_BASE,
 		.pa_base = PART_B_PA_BASE,
 		.size = PART_B_SIZE,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	},
 };
 

@@ -76,14 +76,18 @@
  * Stage-2 block/page upper attributes (bits [63:51] and [54:52])
  * ----------------------------------------------------------------------- */
 
-/* XN[1:0] - Execute Never (bits [54:53]) */
-#define S2_XN_EL1_SHIFT 53
-#define S2_XN_EL0_SHIFT 54
-#define S2_XN_NONE (0UL) /* Execute allowed */
-#define S2_XNX (1UL << S2_XN_EL1_SHIFT) /* EL1 execute never */
-#define S2_UXN (1UL << S2_XN_EL0_SHIFT) /* EL0 execute never */
-#define S2_PXN S2_XNX
-#define S2_XN_ALL (S2_XNX | S2_UXN) /* All execute never */
+/* XN[1:0] - stage-2 execute-never field, bits [54:53] (MM2).
+ * Without FEAT_XNX only bit 54 is defined (1 = execute-never) and bit 53 is
+ * ignored. With FEAT_XNX the field encodes 00: EL1 and EL0 may execute,
+ * 01: EL0 only, 10: neither, 11: EL1 only. 0b10 is the one value that means
+ * "never execute" on both kinds of CPU. The previous S2_XN_ALL (0b11) left
+ * mappings executable at EL1 on CPUs with FEAT_XNX. Source for the encoding:
+ * QEMU's ARMv8.2-TTS2UXN implementation; confirm against the Arm ARM. */
+#define S2_XN_SHIFT 53
+#define S2_XN_MASK (3UL << S2_XN_SHIFT)
+#define S2_XN_EXEC (0UL << S2_XN_SHIFT) /* 00: executable at EL1 and EL0 */
+#define S2_XN_NEVER (2UL << S2_XN_SHIFT) /* 10: never executable */
+#define S2_XN_ALL S2_XN_NEVER /* kept for existing users; now 0b10 */
 
 /* Contiguous hint (bit 52) */
 #define S2_CONT (1UL << 52)

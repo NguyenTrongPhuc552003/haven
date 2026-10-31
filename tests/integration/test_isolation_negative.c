@@ -13,31 +13,31 @@ static void run_negative_isolation_flow(void)
 		.ipa_base = 0x60000000,
 		.pa_base = 0x60000000,
 		.size = 0,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_mem_region valid_region = {
 		.ipa_base = 0x61000000,
 		.pa_base = 0x61000000,
 		.size = 0x1000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_mem_region dma_region = {
 		.ipa_base = 0x70000000,
 		.pa_base = 0x70000000,
 		.size = 0x10000000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_mem_region misaligned_region = {
 		.ipa_base = 0x62000800,
 		.pa_base = 0x62000000,
 		.size = 0x1000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_mem_region conflicting_pa_region = {
 		.ipa_base = 0x62000000,
 		.pa_base = 0x61000000,
 		.size = 0x1000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_partition_mem zero_size_cfg = {
 		.partition_id = 7,

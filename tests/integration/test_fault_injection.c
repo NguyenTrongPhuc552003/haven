@@ -66,7 +66,7 @@ static struct hv_mem_region p1_reg = {
 	.ipa_base = 0x40000000,
 	.pa_base = 0x40000000,
 	.size = 0x04000000,
-	.attrs = 0,
+	.attrs = HV_MEM_RWX,
 };
 static struct hv_partition_mem p1_mem = {.partition_id = 1,
 					 .regions = &p1_reg,
@@ -76,7 +76,7 @@ static struct hv_mem_region p2_reg = {
 	.ipa_base = 0x50000000,
 	.pa_base = 0x50000000,
 	.size = 0x01000000,
-	.attrs = 0,
+	.attrs = HV_MEM_RWX,
 };
 static struct hv_partition_mem p2_mem = {.partition_id = 2,
 					 .regions = &p2_reg,
@@ -141,7 +141,7 @@ static void fault_f1_stage2_escape(void)
 		.ipa_base = 0x60000000,
 		.pa_base = 0x40000000, /* P1 PA */
 		.size = 0x1000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	static struct hv_partition_mem escape_cfg = {
 		.partition_id = 2,
@@ -286,7 +286,7 @@ static void fault_f8_compound(void)
 		.ipa_base = 0x60000000,
 		.pa_base = 0x41000000,
 		.size = 0x1000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	static struct hv_partition_mem esc_cfg = {
 		.partition_id = 2, .regions = &esc_reg, .region_count = 1};

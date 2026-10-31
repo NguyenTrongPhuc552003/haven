@@ -139,7 +139,7 @@ static void b1_setup(void)
 		.ipa_base = 0x40000000,
 		.pa_base = 0x40000000,
 		.size = 0x04000000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	static struct hv_partition_mem cfg = {
 		.partition_id = 1,
@@ -200,7 +200,7 @@ static void b4_setup(void)
 		.ipa_base = 0x50000000,
 		.pa_base = 0x50000000,
 		.size = 0x02000000,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	static struct hv_partition_mem p4_cfg = {
 		.partition_id = 4,

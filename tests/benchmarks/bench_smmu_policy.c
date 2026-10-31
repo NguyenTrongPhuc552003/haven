@@ -87,7 +87,7 @@ static void bench_setup(void)
 		.ipa_base = DMA_PHYS_BASE,
 		.pa_base = DMA_PHYS_BASE,
 		.size = DMA_WINDOW_SZ,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	static struct hv_partition_mem cfg = {
 		.partition_id = BENCH_PARTITION_ID,

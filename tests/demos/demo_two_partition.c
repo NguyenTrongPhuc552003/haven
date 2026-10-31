@@ -40,7 +40,7 @@ static struct hv_mem_region p1_region = {
 	.ipa_base = 0x40000000,
 	.pa_base = 0x40000000,
 	.size = 0x08000000,
-	.attrs = 0,
+	.attrs = HV_MEM_RWX,
 };
 static struct hv_partition_mem p1_cfg = {
 	.partition_id = 1,
@@ -67,7 +67,7 @@ static struct hv_mem_region p2_region = {
 	.ipa_base = 0x50000000,
 	.pa_base = 0x50000000,
 	.size = 0x00400000,
-	.attrs = 0,
+	.attrs = HV_MEM_RWX,
 };
 static struct hv_partition_mem p2_cfg = {
 	.partition_id = 2,

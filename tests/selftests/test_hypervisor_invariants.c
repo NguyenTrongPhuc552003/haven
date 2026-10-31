@@ -209,7 +209,7 @@ static void selftest_reinit_idempotency(void)
 	struct hv_mem_region r = {.ipa_base = 0x10000000,
 				  .pa_base = 0x10000000,
 				  .size = 0x1000,
-				  .attrs = 0};
+				  .attrs = HV_MEM_RWX};
 	struct hv_partition_mem pm = {
 		.partition_id = 1, .regions = &r, .region_count = 1};
 	struct hv_irq_route route = {

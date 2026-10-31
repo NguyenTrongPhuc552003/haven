@@ -59,14 +59,14 @@ static void test_both_partitions_stage2_map(void)
 			.ipa_base = PART_A_IPA_BASE,
 			.pa_base = PART_A_PA_BASE,
 			.size = PART_A_SIZE,
-			.attrs = 0,
+			.attrs = HV_MEM_RWX,
 		},
 		{
 			/* PL011 UART - owned exclusively by Partition A */
 			.ipa_base = QEMU_UART_BASE,
 			.pa_base = QEMU_UART_BASE,
 			.size = 0x1000UL,
-			.attrs = 1,
+			.attrs = HV_MEM_DEVICE_RW,
 		},
 	};
 	struct hv_partition_mem a_mem = {
@@ -80,7 +80,7 @@ static void test_both_partitions_stage2_map(void)
 			.ipa_base = PART_B_IPA_BASE,
 			.pa_base = PART_B_PA_BASE,
 			.size = PART_B_SIZE,
-			.attrs = 0,
+			.attrs = HV_MEM_RWX,
 		},
 	};
 	struct hv_partition_mem b_mem = {
@@ -127,7 +127,7 @@ static void test_partition_b_no_uart(void)
 			.ipa_base = PART_B_IPA_BASE,
 			.pa_base = PART_B_PA_BASE,
 			.size = PART_B_SIZE,
-			.attrs = 0,
+			.attrs = HV_MEM_RWX,
 		},
 	};
 	struct hv_partition_mem b_mem = {
@@ -266,17 +266,17 @@ static void test_full_secondary_launch_sequence(void)
 		{.ipa_base = PART_A_IPA_BASE,
 		 .pa_base = PART_A_PA_BASE,
 		 .size = PART_A_SIZE,
-		 .attrs = 0},
+		 .attrs = HV_MEM_RWX},
 		{.ipa_base = QEMU_UART_BASE,
 		 .pa_base = QEMU_UART_BASE,
 		 .size = 0x1000UL,
-		 .attrs = 1},
+		 .attrs = HV_MEM_DEVICE_RW},
 	};
 	struct hv_mem_region b_r[] = {
 		{.ipa_base = PART_B_IPA_BASE,
 		 .pa_base = PART_B_PA_BASE,
 		 .size = PART_B_SIZE,
-		 .attrs = 0},
+		 .attrs = HV_MEM_RWX},
 	};
 	struct hv_partition_mem a_mem = {.partition_id = PARTITION_A_ID,
 					 .regions = a_r,

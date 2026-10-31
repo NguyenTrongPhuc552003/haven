@@ -427,7 +427,7 @@ int main(void)
 		.ipa_base = PA_A_BASE,
 		.pa_base = PA_A_BASE,
 		.size = PA_A_SIZE,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_partition_mem part_a_cfg = {
 		.partition_id = PART_A,
@@ -439,7 +439,7 @@ int main(void)
 		.ipa_base = PA_B_BASE,
 		.pa_base = PA_B_BASE,
 		.size = PA_B_SIZE,
-		.attrs = 0,
+		.attrs = HV_MEM_RWX,
 	};
 	struct hv_partition_mem part_b_cfg = {
 		.partition_id = PART_B,
