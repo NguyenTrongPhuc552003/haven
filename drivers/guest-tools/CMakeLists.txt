@@ -1,4 +1,4 @@
-# Haven guest userspace tool — native host build
+# Haven guest userspace tool - native host build
 # Replaces drivers/guest-tools/Makefile
 # Built only when NOT cross-compiling (HAVEN_HOST_BUILD or direct host cmake run).
 

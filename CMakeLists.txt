@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(haven VERSION 0.6.2 LANGUAGES C ASM)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Haven — Static Partition Hypervisor
+# Haven - Static Partition Hypervisor
 # Primary build system: CMake (replaces all Makefiles).
 #
 # Quick-start:
@@ -63,7 +63,7 @@ set(HAVEN_HOST_INCLUDES
     ${CMAKE_SOURCE_DIR}
 )
 
-# ── Core sources (portable — compiled for both ARM64 and host builds) ─────────
+# ── Core sources (portable - compiled for both ARM64 and host builds) ─────────
 set(HAVEN_CORE_SRCS
     src/core/mm/stage2.c
     src/core/irq/ownership.c
@@ -166,7 +166,7 @@ if(HAVEN_ARCH_ARM64)
         )
     endif()
 
-    # haven.bin — raw binary for flashing / QEMU -kernel
+    # haven.bin - raw binary for flashing / QEMU -kernel
     add_custom_command(TARGET haven POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -O binary
                 $<TARGET_FILE:haven>
@@ -174,7 +174,7 @@ if(HAVEN_ARCH_ARM64)
         COMMENT "objcopy → haven.bin"
     )
 
-    # ── Guest A — bare-metal EL1 stub at PA 0x80800000 ───────────────────────
+    # ── Guest A - bare-metal EL1 stub at PA 0x80800000 ───────────────────────
     set_source_files_properties(tests/demos/guest_a_entry.S PROPERTIES
         COMPILE_FLAGS
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
@@ -200,7 +200,7 @@ if(HAVEN_ARCH_ARM64)
         COMMENT "objcopy → guest_a.bin"
     )
 
-    # ── Guest B — RTOS-class EL1 stub at PA 0xA0800000 ───────────────────────
+    # ── Guest B - RTOS-class EL1 stub at PA 0xA0800000 ───────────────────────
     set_source_files_properties(tests/demos/guest_b_entry.S PROPERTIES
         COMPILE_FLAGS
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
@@ -243,7 +243,7 @@ if(HAVEN_ARCH_ARM64)
     endif()
 
 # ═════════════════════════════════════════════════════════════════════════════
-# Host build path — unit tests, integration tests, benchmarks
+# Host build path - unit tests, integration tests, benchmarks
 # ═════════════════════════════════════════════════════════════════════════════
 else()
 

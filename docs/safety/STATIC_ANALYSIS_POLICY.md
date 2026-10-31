@@ -1,6 +1,6 @@
 # Static Analysis Policy
 
-**Project:** Haven — Static Partition Hypervisor for AMP  
+**Project:** Haven - Static Partition Hypervisor for AMP  
 **Version:** 0.6.0  
 **Policy owner:** Haven project team  
 **Review cycle:** Per release tag  
@@ -23,25 +23,25 @@
 
 ### Primary tool: cppcheck
 
-| Property | Value |
-| -------- | ----- |
-| Version | >= 2.13 |
-| Invocation | `cppcheck --language=c --std=c11 --enable=all --error-exitcode=1 <paths>` |
-| MISRA integration | `--misra-c=misra-c:2012 --addon=misra.py` (if available) |
-| CI gate | `static-analysis.yml` job `cppcheck` |
-| Scope | `src/core/`, `arch/arm64/`, `drivers/iommu/`, `drivers/irqchip/` |
+| Property          | Value                                                                     |
+| ----------------- | ------------------------------------------------------------------------- |
+| Version           | >= 2.13                                                                   |
+| Invocation        | `cppcheck --language=c --std=c11 --enable=all --error-exitcode=1 <paths>` |
+| MISRA integration | `--misra-c=misra-c:2012 --addon=misra.py` (if available)                  |
+| CI gate           | `static-analysis.yml` job `cppcheck`                                      |
+| Scope             | `src/core/`, `arch/arm64/`, `drivers/iommu/`, `drivers/irqchip/`          |
 
 cppcheck is the primary gate because it is available in all CI environments without
 licensing cost and supports MISRA addon configuration.
 
 ### Secondary tool: Clang static analyser
 
-| Property | Value |
-| -------- | ----- |
-| Version | >= 17 (bundled with LLVM toolchain) |
+| Property   | Value                                                      |
+| ---------- | ---------------------------------------------------------- |
+| Version    | >= 17 (bundled with LLVM toolchain)                        |
 | Invocation | `clang --analyze -Xanalyzer -analyzer-output=text <paths>` |
-| CI gate | `static-analysis.yml` job `clang-analyze` |
-| Scope | Same as cppcheck |
+| CI gate    | `static-analysis.yml` job `clang-analyze`                  |
+| Scope      | Same as cppcheck                                           |
 
 Clang is run as a secondary gate. Its findings complement cppcheck with
 inter-procedural analysis and null-pointer dereference detection.
@@ -53,7 +53,7 @@ Run on demand at milestone boundaries:
 - CodeQL: triggered via `github/codeql-action` on version tags
 - Coverity: manual submission at major milestone sign-off
 
-These are **advisory** — findings do not block merges but must be triaged within
+These are **advisory** - findings do not block merges but must be triaged within
 30 days of the report.
 
 ---
@@ -62,28 +62,28 @@ These are **advisory** — findings do not block merges but must be triaged with
 
 ### In scope (analysed on every CI push)
 
-| Path | Rationale |
-| ---- | --------- |
-| `src/core/` | Partition lifecycle, policy evaluation |
-| `arch/arm64/cpu.c` | CPU setup at EL2 |
-| `arch/arm64/irq.c` | Interrupt controller management |
-| `arch/arm64/mm.c` | Stage-2 MMU |
-| `arch/arm64/timer.c` | Per-partition timer budget |
-| `drivers/iommu/smmu.c` | SMMU DMA policy |
-| `drivers/irqchip/gic.c` | GIC configuration |
+| Path                    | Rationale                              |
+| ----------------------- | -------------------------------------- |
+| `src/core/`             | Partition lifecycle, policy evaluation |
+| `arch/arm64/cpu.c`      | CPU setup at EL2                       |
+| `arch/arm64/irq.c`      | Interrupt controller management        |
+| `arch/arm64/mm.c`       | Stage-2 MMU                            |
+| `arch/arm64/timer.c`    | Per-partition timer budget             |
+| `drivers/iommu/smmu.c`  | SMMU DMA policy                        |
+| `drivers/irqchip/gic.c` | GIC configuration                      |
 
 ### Out of scope
 
-| Path | Rationale |
-| ---- | --------- |
-| `tests/` | Test code; relaxed coding standard |
-| `tools/` | Host tools; separate language/environment |
-| `drivers/linux/` | Linux kernel module; covered by kernel analysis |
-| `drivers/uart/` | Serial driver; low isolation impact |
-| `arch/arm64/boot.S` | Assembly |
-| `arch/arm64/context.S` | Assembly |
-| `arch/arm64/partition.S` | Assembly |
-| `arch/arm64/entry.S` | Assembly |
+| Path                     | Rationale                                       |
+| ------------------------ | ----------------------------------------------- |
+| `tests/`                 | Test code; relaxed coding standard              |
+| `tools/`                 | Host tools; separate language/environment       |
+| `drivers/linux/`         | Linux kernel module; covered by kernel analysis |
+| `drivers/uart/`          | Serial driver; low isolation impact             |
+| `arch/arm64/boot.S`      | Assembly                                        |
+| `arch/arm64/context.S`   | Assembly                                        |
+| `arch/arm64/partition.S` | Assembly                                        |
+| `arch/arm64/entry.S`     | Assembly                                        |
 
 Scope additions require a PR that updates this document and the CI workflow
 `static-analysis.yml` simultaneously.
@@ -92,14 +92,14 @@ Scope additions require a PR that updates this document and the CI workflow
 
 ## 4. Defect Classification
 
-| Class | Definition | CI action |
-| ----- | ---------- | --------- |
-| **Blocker** | Memory safety, null deref, buffer overflow, use-after-free, integer overflow in isolation-critical path | Build fails; PR cannot merge |
-| **Major** | Resource leak, uninitialized variable, incorrect type in protocol | Warning; reviewer must acknowledge |
-| **Minor** | Style, unreachable code, unused variable | Warning; no block |
-| **Advisory** | MISRA advisory rule | Logged; no CI action |
+| Class        | Definition                                                                                              | CI action                          |
+| ------------ | ------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| **Blocker**  | Memory safety, null deref, buffer overflow, use-after-free, integer overflow in isolation-critical path | Build fails; PR cannot merge       |
+| **Major**    | Resource leak, uninitialized variable, incorrect type in protocol                                       | Warning; reviewer must acknowledge |
+| **Minor**    | Style, unreachable code, unused variable                                                                | Warning; no block                  |
+| **Advisory** | MISRA advisory rule                                                                                     | Logged; no CI action               |
 
-Blocker-class defects in TCB scope are **hard gates** — they block merge even if the
+Blocker-class defects in TCB scope are **hard gates** - they block merge even if the
 defect is in a dead code path.
 
 ---
@@ -143,10 +143,10 @@ deviation removed) must be deleted within one milestone cycle.
 Known false positives are recorded here. Each entry has an ID, a description of the
 false positive, the tool version that introduced it, and the expected resolution.
 
-| ID | Tool | Check | File | Description | Resolution |
-| -- | ---- | ----- | ---- | ----------- | ---------- |
-| FP-001 | cppcheck | `missingReturn` | `arch/arm64/irq.c` | cppcheck does not model inline assembly `ret` at end of naked functions | Waiting for cppcheck >= 2.14 fix |
-| FP-002 | cppcheck | `unusedFunction` | `src/core/partition.c` | `hv_partition_get_state()` is only called from test code, which is excluded from scope | Suppress; function is part of the public API |
+| ID     | Tool          | Check                  | File                   | Description                                                                                                           | Resolution                                              |
+| ------ | ------------- | ---------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| FP-001 | cppcheck      | `missingReturn`        | `arch/arm64/irq.c`     | cppcheck does not model inline assembly `ret` at end of naked functions                                               | Waiting for cppcheck >= 2.14 fix                        |
+| FP-002 | cppcheck      | `unusedFunction`       | `src/core/partition.c` | `hv_partition_get_state()` is only called from test code, which is excluded from scope                                | Suppress; function is part of the public API            |
 | FP-003 | clang-analyze | `core.NullDereference` | `drivers/iommu/smmu.c` | Clang does not track that `smmu_find_stream_entry()` always returns non-null after `hv_partition_configure()` barrier | Suppress; guarded by partition initialization invariant |
 
 ---
@@ -155,13 +155,13 @@ false positive, the tool version that introduced it, and the expected resolution
 
 At each milestone sign-off, the following coverage targets must be met:
 
-| Metric | Target |
-| ------ | ------ |
-| TCB source lines analysed | 100% of in-scope files |
-| Blocker-class findings | 0 unresolved |
-| Major-class findings | 0 unresolved (or all acknowledged in PR) |
-| Suppression ratio | < 5% of total findings (suppressions/total) |
-| False-positive registry entries without resolution | < 3 open at any time |
+| Metric                                             | Target                                      |
+| -------------------------------------------------- | ------------------------------------------- |
+| TCB source lines analysed                          | 100% of in-scope files                      |
+| Blocker-class findings                             | 0 unresolved                                |
+| Major-class findings                               | 0 unresolved (or all acknowledged in PR)    |
+| Suppression ratio                                  | < 5% of total findings (suppressions/total) |
+| False-positive registry entries without resolution | < 3 open at any time                        |
 
 ---
 
@@ -224,6 +224,6 @@ A MISRA finding that does not have a corresponding DR entry in
 
 ## 10. Policy Revision Log
 
-| Date | Version | Change | Author |
-| ---- | ------- | ------ | ------ |
-| 2025-01 | 0.6.0 | Initial policy document | Haven team |
+| Date    | Version | Change                  | Author     |
+| ------- | ------- | ----------------------- | ---------- |
+| 2025-01 | 0.6.0   | Initial policy document | Haven team |

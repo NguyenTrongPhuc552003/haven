@@ -2,15 +2,15 @@
 
 M1: Repository and architecture baseline ✅
 - Deliver full structure, governance, and initial docs.
-- **Status:** Complete — repo structure, CMake build system, CI workflows, architecture docs.
+- **Status:** Complete - repo structure, CMake build system, CI workflows, architecture docs.
 
 M2: Minimal boot and partition bring-up ✅
 - Boot hypervisor and launch Linux plus RTOS domains.
-- **Status:** Complete — EL2 boot, two-partition static config, PSCI CPU_ON, ERET transitions.
+- **Status:** Complete - EL2 boot, two-partition static config, PSCI CPU_ON, ERET transitions.
 
 M3: Isolation enforcement ✅
 - Implement and validate memory/device separation.
-- **Status:** Complete — stage-2 page tables, GICv3 IRQ routing, SMMUv3 DMA policy,
+- **Status:** Complete - stage-2 page tables, GICv3 IRQ routing, SMMUv3 DMA policy,
   QEMU demo with deliberate cross-partition fault injection (F1–F8 matrix, 8/8 pass).
 
 M4: Temporal guarantees 🔄 In Progress

@@ -1,4 +1,4 @@
-# Doxyfile — Haven API documentation configuration
+# Doxyfile - Haven API documentation configuration
 #
 # Generates HTML API docs from the public headers and core source files.
 # Output lands in build/doxygen/ (excluded from source tree via .gitignore).
@@ -35,7 +35,7 @@ EXCLUDE_PATTERNS       = */build/* */tests/* *_test.* *_stub.*
 OUTPUT_DIRECTORY       = build/doxygen
 CREATE_SUBDIRS         = NO
 
-# HTML only — LaTeX/PDF intentionally disabled (web deployment target)
+# HTML only - LaTeX/PDF intentionally disabled (web deployment target)
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 GENERATE_MAN           = NO

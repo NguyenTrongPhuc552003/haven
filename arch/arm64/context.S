@@ -445,10 +445,10 @@ hv_arch_context_save:
  *
  * Symmetric restore for hv_arch_context_save.  Returns to the address
  * that was stored in ctx->pc (the LR at save time), so no explicit
- * branch is needed — the `ret` transfers control to the saved return site.
+ * branch is needed - the `ret` transfers control to the saved return site.
  *
  * On entry:  x0 = ctx pointer (const)
- * Clobbers:  x1 (scratch — must be caller-saved by the caller of restore)
+ * Clobbers:  x1 (scratch - must be caller-saved by the caller of restore)
  * ----------------------------------------------------------------------- */
 
         .global hv_arch_context_restore

@@ -41,10 +41,10 @@ Haven is a static partition hypervisor research artifact that runs at **EL2** on
 
 | Property               | Mechanism                                     | Status                       |
 | ---------------------- | --------------------------------------------- | ---------------------------- |
-| **Spatial isolation**  | Stage-2 page tables, SMMU stream policy       | Implemented — QEMU-validated |
-| **Temporal isolation** | Budget-based EL2 scheduler, overrun detection | Implemented — QEMU-validated |
-| **IRQ ownership**      | Deny-by-default interrupt routing table       | Implemented — QEMU-validated |
-| **DMA isolation**      | Per-partition SMMU context                    | Implemented — QEMU-validated |
+| **Spatial isolation**  | Stage-2 page tables, SMMU stream policy       | Implemented - QEMU-validated |
+| **Temporal isolation** | Budget-based EL2 scheduler, overrun detection | Implemented - QEMU-validated |
+| **IRQ ownership**      | Deny-by-default interrupt routing table       | Implemented - QEMU-validated |
+| **DMA isolation**      | Per-partition SMMU context                    | Implemented - QEMU-validated |
 | **Minimal TCB**        | No dynamic alloc, no FP, bounded loops        | By design                    |
 
 ---

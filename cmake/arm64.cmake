@@ -6,9 +6,9 @@ set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
 # Auto-detect cross-compiler.
 # Priority:
-#   1. aarch64-linux-gnu-      — Ubuntu/Debian gcc-aarch64-linux-gnu package (CI default)
-#   2. aarch64-unknown-linux-gnu- — custom Linaro / crosstool-ng toolchain
-#   3. aarch64-elf-            — bare-metal newlib toolchain
+#   1. aarch64-linux-gnu-      - Ubuntu/Debian gcc-aarch64-linux-gnu package (CI default)
+#   2. aarch64-unknown-linux-gnu- - custom Linaro / crosstool-ng toolchain
+#   3. aarch64-elf-            - bare-metal newlib toolchain
 find_program(_CROSS_GCC_PROBE_LINUXGNU  aarch64-linux-gnu-gcc)
 find_program(_CROSS_GCC_PROBE_UNKNOWN   aarch64-unknown-linux-gnu-gcc)
 find_program(_CROSS_GCC_PROBE_ELF       aarch64-elf-gcc)
@@ -38,7 +38,7 @@ set(CMAKE_SIZE         ${CROSS_PREFIX}size    CACHE FILEPATH "size")
 # Bare-metal: suppress CMake's default link test (would fail without libc).
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-# Sysroot isolation — do not search host paths.
+# Sysroot isolation - do not search host paths.
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

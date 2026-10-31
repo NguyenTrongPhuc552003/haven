@@ -33,7 +33,7 @@ Linux 6.6 host, host-test simulation, 100,000 iterations per benchmark
 > sub-nanosecond operations). `max_ns` outliers are OS scheduling noise on the test
 > host, not Haven latency. Hardware baselines on i.MX95 are pending board bring-up.
 
-### `build/benchmarks/isolation-latency.json` — Isolation hot-path
+### `build/benchmarks/isolation-latency.json` - Isolation hot-path
 
 100,000 iterations, 1,000 warmup, host simulation.
 
@@ -46,7 +46,7 @@ Linux 6.6 host, host-test simulation, 100,000 iterations per benchmark
 | `timer_check_deadline`         | 0        | 27        | 1,000    | < 100,000 | PASS    |
 | `iommu_check_group`            | 0        | 25        | 1,000    | < 100,000 | PASS    |
 
-### `build/benchmarks/stage2-fault.json` — Stage-2 containment boundary
+### `build/benchmarks/stage2-fault.json` - Stage-2 containment boundary
 
 100,000 iterations, 1,000 warmup.
 
@@ -57,7 +57,7 @@ Linux 6.6 host, host-test simulation, 100,000 iterations per benchmark
 | `stage2_contains_low_boundary`  | 0        | 35        | 16,000   | < 100,000 | PASS    |
 | `stage2_contains_high_boundary` | 0        | 45        | 47,000   | < 100,000 | PASS    |
 
-### `build/benchmarks/smmu-policy.json` — SMMU DMA policy enforcement
+### `build/benchmarks/smmu-policy.json` - SMMU DMA policy enforcement
 
 100,000 iterations, 1,000 warmup.
 
@@ -69,7 +69,7 @@ Linux 6.6 host, host-test simulation, 100,000 iterations per benchmark
 | `smmu_check_access_denied`        | 0        | 41        | 13,000   | < 100,000 | PASS    |
 | `smmu_allocate_streamid`          | 0        | 37        | 15,000   | < 100,000 | PASS    |
 
-### `build/benchmarks/temporal-isolation.json` — RTOS response under Linux load
+### `build/benchmarks/temporal-isolation.json` - RTOS response under Linux load
 
 10,000 iterations per cell; 3 RTOS periods × 5 load levels = 15 cells.
 Budget = 20% of period (200 µs / 1 ms, 1 ms / 5 ms, 2 ms / 10 ms).

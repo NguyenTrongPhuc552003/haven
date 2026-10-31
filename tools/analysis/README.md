@@ -53,7 +53,7 @@ smmu_check_hot                            35         42         58          126 
 Summary: PASS  (threshold 100000 ns / 100 µs)
 ```
 
-The `p99est` column is `3 × mean` and `p99.9est` is `5 × mean` — both are
+The `p99est` column is `3 × mean` and `p99.9est` is `5 × mean` - both are
 conservative estimates when raw sample histograms are unavailable.
 
 ---

@@ -3,16 +3,16 @@
 #
 # scripts/demo/conference-demo.sh
 #
-# Haven AMP Hypervisor — Self-Contained QEMU Conference Demo
+# Haven AMP Hypervisor - Self-Contained QEMU Conference Demo
 #
 # Demonstrates spatial and temporal isolation between two partitions on
 # the QEMU aarch64 virt machine with GICv3 + SMMUv3.
 #
 # Acts:
-#   Act 1 — Build verification (host-tests, arm64-qemu)
-#   Act 2 — Isolation unit test showcase
-#   Act 3 — QEMU two-partition smoke test
-#   Act 4 — Benchmark summary
+#   Act 1 - Build verification (host-tests, arm64-qemu)
+#   Act 2 - Isolation unit test showcase
+#   Act 3 - QEMU two-partition smoke test
+#   Act 4 - Benchmark summary
 #
 # Usage:
 #   ./scripts/demo/conference-demo.sh [--dry-run] [--skip-build] [--act N]
@@ -118,7 +118,7 @@ START_TIME=$(date +%s 2>/dev/null || echo 0)
 ###############################################################################
 # Header
 ###############################################################################
-printf '\n%b%b Haven AMP Hypervisor — QEMU Conference Demo %b\n' \
+printf '\n%b%b Haven AMP Hypervisor - QEMU Conference Demo %b\n' \
 	"$C_BOLD" "$C_CYAN" "$C_RESET"
 printf '%b  Repo:  %s%b\n' "$C_BOLD" "$REPO_ROOT" "$C_RESET"
 printf '%b  Mode:  %s%b\n' "$C_BOLD" \
@@ -126,10 +126,10 @@ printf '%b  Mode:  %s%b\n' "$C_BOLD" \
 printf '\n'
 
 ###############################################################################
-# Act 1 — Build Verification
+# Act 1 - Build Verification
 ###############################################################################
 if skip_act 1; then
-	banner "Act 1/4 — Build Verification"
+	banner "Act 1/4 - Build Verification"
 
 	if [ "$SKIP_BUILD" -eq 1 ]; then
 		warn "Skipping build (--skip-build)"
@@ -149,7 +149,7 @@ if skip_act 1; then
 			run_cmd cmake --build build --parallel
 			ok "ARM64 QEMU binary built: build/haven.elf"
 		else
-			warn "aarch64 cross-compiler not found — skipping ARM64 build"
+			warn "aarch64 cross-compiler not found - skipping ARM64 build"
 			warn "Install: brew install aarch64-elf-gcc  (macOS)"
 			warn "         apt install gcc-aarch64-linux-gnu  (Ubuntu)"
 		fi
@@ -157,14 +157,14 @@ if skip_act 1; then
 fi
 
 ###############################################################################
-# Act 2 — Isolation Unit Test Showcase
+# Act 2 - Isolation Unit Test Showcase
 ###############################################################################
 if skip_act 2; then
-	banner "Act 2/4 — Isolation Unit Tests"
+	banner "Act 2/4 - Isolation Unit Tests"
 
 	if [ ! -d "build-host" ] || [ ! -f "build-host/CMakeCache.txt" ]; then
 		if [ "$SKIP_BUILD" -eq 1 ] || [ "$DRY_RUN" -eq 1 ]; then
-			warn "build-host not found — skipping unit tests"
+			warn "build-host not found - skipping unit tests"
 		else
 			fail "build-host not found. Run Act 1 first or omit --skip-build."
 			exit 1
@@ -201,17 +201,17 @@ if skip_act 2; then
 fi
 
 ###############################################################################
-# Act 3 — QEMU Two-Partition Smoke Test
+# Act 3 - QEMU Two-Partition Smoke Test
 ###############################################################################
 if skip_act 3; then
-	banner "Act 3/4 — QEMU Two-Partition Smoke Test"
+	banner "Act 3/4 - QEMU Two-Partition Smoke Test"
 
 	if ! command -v qemu-system-aarch64 > /dev/null 2>&1; then
-		warn "qemu-system-aarch64 not found — skipping QEMU act"
+		warn "qemu-system-aarch64 not found - skipping QEMU act"
 		warn "Install: brew install qemu  (macOS)"
 		warn "         apt install qemu-system-aarch64  (Ubuntu)"
 	elif [ ! -f "build/haven.bin" ] && [ "$DRY_RUN" -eq 0 ]; then
-		warn "build/haven.bin not found — skipping QEMU act"
+		warn "build/haven.bin not found - skipping QEMU act"
 		warn "Run: cmake --preset arm64-qemu && cmake --build build"
 	else
 		printf '%b  Running QEMU smoke test (timeout: 30s)...%b\n' "$C_BOLD" "$C_RESET"
@@ -231,13 +231,13 @@ if skip_act 3; then
 fi
 
 ###############################################################################
-# Act 4 — Benchmark Summary
+# Act 4 - Benchmark Summary
 ###############################################################################
 if skip_act 4; then
-	banner "Act 4/4 — Isolation Check Latency Benchmarks"
+	banner "Act 4/4 - Isolation Check Latency Benchmarks"
 
 	if [ ! -d "build-host" ] || [ ! -f "build-host/CMakeCache.txt" ]; then
-		warn "build-host not found — skipping benchmarks"
+		warn "build-host not found - skipping benchmarks"
 	else
 		printf '%b  Running isolation latency benchmark (100,000 iterations)...%b\n' \
 			"$C_BOLD" "$C_RESET"
@@ -276,7 +276,7 @@ ELAPSED=$(( END_TIME - START_TIME ))
 
 printf '\n%b%b Demo complete in %ds %b\n' \
 	"$C_BOLD" "$C_GREEN" "$ELAPSED" "$C_RESET"
-printf '%b  Haven v%s — Static Partition Hypervisor for AMP on ARM64 %b\n' \
+printf '%b  Haven v%s - Static Partition Hypervisor for AMP on ARM64 %b\n' \
 	"$C_CYAN" "$(cat VERSION 2>/dev/null || echo "0.6.0")" "$C_RESET"
 printf '%b  https://github.com/NguyenTrongPhuc552003/haven %b\n\n' \
 	"$C_CYAN" "$C_RESET"

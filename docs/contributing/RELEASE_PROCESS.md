@@ -1,6 +1,6 @@
 # Haven Release Process
 
-**Project:** Haven — Static Partition Hypervisor for AMP  
+**Project:** Haven - Static Partition Hypervisor for AMP  
 **Applies to:** All releases from v0.6.0 onwards  
 **Audience:** Maintainers with push access to `main`  
 **Last updated:** 2025-01
@@ -23,12 +23,12 @@ A Haven release progresses through four stages:
 
 ## 1. Release Types
 
-| Type | Description | Branch strategy | Version bump |
-| ---- | ----------- | --------------- | ------------ |
-| **Patch** | Bug fixes, documentation updates only | `fix/<topic>` → `main` | `0.6.x` → `0.6.x+1` |
-| **Minor** | New features that do not break existing API or isolation guarantees | `feat/<topic>` → `main` | `0.6.x` → `0.7.0` |
-| **Major** | Breaking changes, TCB interface changes, or new platform targets | `feat/<topic>` → `main` with Isolation Guardian review | `0.x.0` → `1.0.0` |
-| **Thesis milestone** | Release tied to a thesis chapter claim | Milestone branches → `main` | As appropriate |
+| Type                 | Description                                                         | Branch strategy                                        | Version bump        |
+| -------------------- | ------------------------------------------------------------------- | ------------------------------------------------------ | ------------------- |
+| **Patch**            | Bug fixes, documentation updates only                               | `fix/<topic>` → `main`                                 | `0.6.x` → `0.6.x+1` |
+| **Minor**            | New features that do not break existing API or isolation guarantees | `feat/<topic>` → `main`                                | `0.6.x` → `0.7.0`   |
+| **Major**            | Breaking changes, TCB interface changes, or new platform targets    | `feat/<topic>` → `main` with Isolation Guardian review | `0.x.0` → `1.0.0`   |
+| **Thesis milestone** | Release tied to a thesis chapter claim                              | Milestone branches → `main`                            | As appropriate      |
 
 ---
 
@@ -97,7 +97,7 @@ project(haven
 Add a new section above the previous latest release:
 
 ```markdown
-## [0.7.0] — YYYY-MM-DD
+## [0.7.0] - YYYY-MM-DD
 
 ### Added
 - <summary of new features>
@@ -139,17 +139,17 @@ The script performs:
 5. Evidence pack written to `build/releases/<version>/` (skip artefacts with `--dry-run`)
 6. Optional git tag (requires `--tag`)
 
-If any step fails, the script exits non-zero. **Do not force-continue** past failures —
+If any step fails, the script exits non-zero. **Do not force-continue** past failures -
 diagnose and fix before re-running.
 
 ### Release script flags
 
-| Flag | Effect |
-| ---- | ------ |
-| `--tag` | Create and push a git tag after successful validation |
-| `--no-smoke` | Skip the QEMU smoke test (for headless CI runners or missing cross-compiler) |
-| `--dry-run` | Run all checks but do not write artefacts or create a tag |
-| `--dirty` | Allow uncommitted changes (development use only — never for production releases) |
+| Flag         | Effect                                                                           |
+| ------------ | -------------------------------------------------------------------------------- |
+| `--tag`      | Create and push a git tag after successful validation                            |
+| `--no-smoke` | Skip the QEMU smoke test (for headless CI runners or missing cross-compiler)     |
+| `--dry-run`  | Run all checks but do not write artefacts or create a tag                        |
+| `--dirty`    | Allow uncommitted changes (development use only - never for production releases) |
 
 ---
 
@@ -170,7 +170,7 @@ git push origin v0.7.0
 
 **Tag format:** `v<major>.<minor>.<patch>` (semver, prefixed with `v`).
 
-Tags are **permanent** — do not delete or move a tag that has been pushed to `origin`.
+Tags are **permanent** - do not delete or move a tag that has been pushed to `origin`.
 If a release tag is incorrect, create a new patch version and tag.
 
 ---
@@ -219,7 +219,7 @@ For critical fixes to a released version:
 
 If a release is found to be defective after tagging:
 
-1. **Do not** delete the tag — create a new patch release with the fix instead
+1. **Do not** delete the tag - create a new patch release with the fix instead
 2. Document the defect in CHANGELOG.md under a new `## [0.7.1]` section
 3. If the defect is in an isolation-critical path, trigger an Isolation Guardian review
 4. If thesis evidence was based on the defective version, record a known gap in
@@ -229,12 +229,12 @@ If a release is found to be defective after tagging:
 
 ## 9. Release History Quick Reference
 
-| Version | Date | Key changes | Tag |
-| ------- | ---- | ----------- | --- |
-| 0.1.0-dev | 2024-xx | Initial CI/CD, core contracts | v0.1.0-dev |
-| 0.4.0 | 2024-xx | SMMU coverage, EL2 exceptions, benchmarks | v0.4.0 |
-| 0.5.0 | 2024-xx | QEMU two-partition demo, IRQ injection | v0.5.0 |
-| 0.6.0 | 2024-xx | Secondary CPU, FreeRTOS context, static analysis gate | v0.6.0 |
-| 0.6.1 | 2025-xx | CMake migration, benchmark baseline, evidence CI | v0.6.1 |
+| Version   | Date    | Key changes                                           | Tag        |
+| --------- | ------- | ----------------------------------------------------- | ---------- |
+| 0.1.0-dev | 2024-xx | Initial CI/CD, core contracts                         | v0.1.0-dev |
+| 0.4.0     | 2024-xx | SMMU coverage, EL2 exceptions, benchmarks             | v0.4.0     |
+| 0.5.0     | 2024-xx | QEMU two-partition demo, IRQ injection                | v0.5.0     |
+| 0.6.0     | 2024-xx | Secondary CPU, FreeRTOS context, static analysis gate | v0.6.0     |
+| 0.6.1     | 2025-xx | CMake migration, benchmark baseline, evidence CI      | v0.6.1     |
 
 *Update this table at each release.*

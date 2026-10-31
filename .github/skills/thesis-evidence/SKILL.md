@@ -373,7 +373,7 @@ ls -la build/guest_b.bin     # Partition B RTOS stub
 
 Run this before closing M4 (Temporal Guarantees) or M5 (Thesis Evidence).
 
-### Step 1 — Build and run the full suite
+### Step 1 - Build and run the full suite
 
 ```bash
 # Host simulation benchmarks (fast, CI-reproducible)
@@ -388,7 +388,7 @@ ctest --test-dir build-host --output-on-failure
 #   temporal-isolation.json    ← 3 periods × 5 load levels = 15 cells
 ```
 
-### Step 2 — Analyse against thresholds
+### Step 2 - Analyse against thresholds
 
 ```bash
 python3 tools/analysis/latency_analyzer.py \
@@ -400,7 +400,7 @@ python3 tools/analysis/latency_analyzer.py \
 # Non-zero exit code = threshold breach = do not record as milestone evidence
 ```
 
-### Step 3 — Compare to baseline
+### Step 3 - Compare to baseline
 
 ```bash
 ./scripts/ci/bench-regression.sh
@@ -409,7 +409,7 @@ python3 tools/analysis/latency_analyzer.py \
 # Zero exit = regression-free; safe to record
 ```
 
-### Step 4 — Generate visualisation and report
+### Step 4 - Generate visualisation and report
 
 ```bash
 python3 tools/analysis/jitter_plot.py \
@@ -423,7 +423,7 @@ python3 tools/analysis/evidence_report.py \
     --output       build/evidence/report.html
 ```
 
-### Step 5 — Update documentation
+### Step 5 - Update documentation
 
 If mean values differ > 20% from `docs/methodology/BENCHMARK_BASELINE.md`,
 update that file with the new measured values and commit the change:
@@ -507,7 +507,7 @@ After all checks pass, commit a sign-off note to
 `docs/methodology/CHAPTER_TRACEABILITY.md` with:
 
 ```markdown
-## Milestone Sign-Off — M<N> — <date>
+## Milestone Sign-Off - M<N> - <date>
 
 - Git SHA: <sha>
 - CI run: <GitHub Actions URL>
@@ -944,7 +944,7 @@ comprehensive one before adding new features to either.
 ### Consolidation protocol
 
 1. **Identify unique features** in the secondary script not present in the primary.
-2. **Check for stale paths** in the secondary script — if paths no longer exist in the
+2. **Check for stale paths** in the secondary script - if paths no longer exist in the
    repo, the script is likely unmaintained:
    ```bash
    # Check every script path reference actually exists:

@@ -1,4 +1,4 @@
-# Haven host test suite — unit, integration, isolation, selftests, benchmarks
+# Haven host test suite - unit, integration, isolation, selftests, benchmarks
 # Processed by add_subdirectory(tests) from the root CMakeLists.txt (host build only).
 # Each target mirrors the exact source set from scripts/dev/test.sh.
 

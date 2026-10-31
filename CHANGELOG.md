@@ -20,73 +20,73 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 **Dev automation and hook hardening (PR #36)**
-- `scripts/dev/fix-emdash.sh` — scans all tracked text files and replaces em-dash characters
+- `scripts/dev/fix-emdash.sh` - scans all tracked text files and replaces em-dash characters
   (`U+2014`) with ASCII hyphens to prevent toolchain/terminal encoding issues.
-- `.githooks/pre-commit` — updated to call `fix-emdash.sh` and re-stage affected files before
+- `.githooks/pre-commit` - updated to call `fix-emdash.sh` and re-stage affected files before
   each commit; `scripts/release.sh` updated to absorb em-dash cleanup as step 0.
 
 **Safety and compliance documentation (PR #38)**
-- `docs/safety/MISRA_DEVIATION_RECORD.md` — formal record of approved MISRA-C:2012 deviations
+- `docs/safety/MISRA_DEVIATION_RECORD.md` - formal record of approved MISRA-C:2012 deviations
   with justification and sign-off fields for each rule deviation.
-- `docs/safety/STATIC_ANALYSIS_POLICY.md` — static analysis toolchain policy: required tools,
+- `docs/safety/STATIC_ANALYSIS_POLICY.md` - static analysis toolchain policy: required tools,
   CI gate thresholds, suppression annotation format, and review process.
 
 **Thesis process documentation (PR #39)**
-- `docs/contributing/RELEASE_PROCESS.md` — step-by-step release checklist covering version
+- `docs/contributing/RELEASE_PROCESS.md` - step-by-step release checklist covering version
   bumps, evidence packs, artifact signing, and submodule pointer updates.
-- `docs/thesis/REPRODUCIBILITY_APPENDIX.md` — documents the reproducible build environment
+- `docs/thesis/REPRODUCIBILITY_APPENDIX.md` - documents the reproducible build environment
   (Docker, CMake presets, toolchain pins) needed to reproduce thesis experiment results.
-- `docs/thesis/PAPER_OUTLINE.md` — draft paper structure and chapter-to-milestone traceability
+- `docs/thesis/PAPER_OUTLINE.md` - draft paper structure and chapter-to-milestone traceability
   mapping (M-P1 through M-P8).
 
 **Conference demo script (PR #40)**
-- `scripts/demo/conference-demo.sh` — four-act interactive demo script covering boot isolation,
+- `scripts/demo/conference-demo.sh` - four-act interactive demo script covering boot isolation,
   DMA policy, temporal scheduling, and fault injection; supports `--dry-run` mode for rehearsal.
 
 **ARM64 context save/restore and FreeRTOS HVC yield (PR #41)**
-- `arch/arm64/context.S` — strong-symbol implementations of `hv_arch_context_save()` and
+- `arch/arm64/context.S` - strong-symbol implementations of `hv_arch_context_save()` and
   `hv_arch_context_restore()` that save/restore x19–x29, SP, PC (from LR), and NZCV.
   Override the weak no-op stubs in `freertos_integration.c` on ARM64 targets (M-P5-1).
-- `include/haven/freertos_integration.h`, `src/guest/rtos/freertos_integration.c` — added
+- `include/haven/freertos_integration.h`, `src/guest/rtos/freertos_integration.c` - added
   `HV_HVC_BUDGET_TICK` constant and `hv_freertos_yield_budget_tick()` which issues
   `hvc #1` on ARM64 targets; no-op on host builds (M-P5-2).
-- `arch/arm64/cpu.c` — `hv_arch_psci_log_error()` decodes all PSCI 1.2 error codes
+- `arch/arm64/cpu.c` - `hv_arch_psci_log_error()` decodes all PSCI 1.2 error codes
   (NOT_SUPPORTED through INVALID_ADDRESS) to human-readable strings via `hv_printk` (M-P5-3).
-- `arch/arm64/boot.S` — `hv_arch_psci_cpu_on` now calls `hv_arch_psci_log_error` on
+- `arch/arm64/boot.S` - `hv_arch_psci_cpu_on` now calls `hv_arch_psci_log_error` on
   non-zero return from the PSCI `CPU_ON` HVC (M-P5-3).
 
 **SKILL.md enhancements (PR #37)**
 - Added sections 1–4 (skill overview, evidence taxonomy, pre-task setup checklist, evidence
   directory structure) and sections 11–12 (FreeRTOS integration patterns, PSCI error handling)
   to `.github/skills/thesis-evidence/SKILL.md`.
-- `docs/roadmap/DESCRIPTION.md` — appended Part 10 (Long-Term Maintenance: Phases 9–12)
+- `docs/roadmap/DESCRIPTION.md` - appended Part 10 (Long-Term Maintenance: Phases 9–12)
   covering CI hardening, documentation debt, community readiness, and thesis finalisation.
 
 ### Fixed
 
 **QEMU launch script (PR #42)**
-- `scripts/qemu/qemu-run.sh` — bash syntax error (`fi` on same line as `echo`) caused the
+- `scripts/qemu/qemu-run.sh` - bash syntax error (`fi` on same line as `echo`) caused the
   script to fail with a parse error on every invocation; fixed. Added macOS/Linux toolchain
   install hints when `haven.bin` is missing.
-- `tools/scripts/qemu-run.sh` — restored accidentally-deleted wrapper; corrected delegation
+- `tools/scripts/qemu-run.sh` - restored accidentally-deleted wrapper; corrected delegation
   path from `scripts/qemu-run.sh` (non-existent) to `scripts/qemu/qemu-run.sh`.
-- `src/guest/rtos/freertos_integration.c` — added missing trailing newline (EOF).
-- `.github/workflows/ci.yml` — added `qemu-smoke` job chained after `arm64-cross-compile`;
+- `src/guest/rtos/freertos_integration.c` - added missing trailing newline (EOF).
+- `.github/workflows/ci.yml` - added `qemu-smoke` job chained after `arm64-cross-compile`;
   downloads `haven-arm64` artifact, runs `qemu-smoke.sh`, uploads validation JSON.
 
 **Host test build (PR #43)**
-- `cmake/flags.cmake` — `HAVEN_HOST_CFLAGS` now suppresses `-Wunused-variable` and
+- `cmake/flags.cmake` - `HAVEN_HOST_CFLAGS` now suppresses `-Wunused-variable` and
   `-Wno-unused-but-set-variable` for host/test builds. 100 pre-existing errors across 9
   test files broke the entire `cmake-host-tests` CI job; production ARM64 flags unchanged.
 
 **Secondary CPU isolation tests and CI/docs hardening (PR #45)**
-- `tests/integration/test_secondary_cpu_isolation.c` — added T7 (`test_psci_error_path_rejection`):
+- `tests/integration/test_secondary_cpu_isolation.c` - added T7 (`test_psci_error_path_rejection`):
   verifies that `hv_irq_assign` with `target_cpu=999` is rejected and `hv_budget_set` with
   `partition_id=0` returns `HV_EINVAL`; and T8 (`test_freertos_budget_period_fidelity`):
   exercises budget period reset cycle for FreeRTOS scheduling fidelity coverage.
-- `docs/roadmap/DESCRIPTION.md` — added §10.5 (QEMU End-to-End CI Track) and §10.6
+- `docs/roadmap/DESCRIPTION.md` - added §10.5 (QEMU End-to-End CI Track) and §10.6
   (Host-Test Stability Policy) to Part 11 as binding operational policies.
-- `.github/skills/thesis-evidence/SKILL.md` — added §13 (Host-Test Build Contract),
+- `.github/skills/thesis-evidence/SKILL.md` - added §13 (Host-Test Build Contract),
   §14 (QEMU Smoke Validation protocol), and §15 (macOS Cross-Compile Setup notes).
 
 ### Changed
@@ -101,11 +101,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-**Full CMake migration — Makefiles retired (PRs #31–#34)**
-- `CMakeLists.txt` — primary build system migrated from Makefile to CMake ≥ 3.22 + Ninja;
+**Full CMake migration - Makefiles retired (PRs #31–#34)**
+- `CMakeLists.txt` - primary build system migrated from Makefile to CMake ≥ 3.22 + Ninja;
   `CMakePresets.json` provides four named presets: `arm64-qemu`, `arm64-imx95`, `arm64-imx8qm`,
   `host-tests`. Project version synced to `0.6.0`.
-- `cmake/arm64.cmake`, `cmake/host.cmake`, `cmake/flags.cmake` — cross-compile toolchain files
+- `cmake/arm64.cmake`, `cmake/host.cmake`, `cmake/flags.cmake` - cross-compile toolchain files
   and compiler flag sets extracted from old Makefile rules.
 - All GitHub Actions workflows updated: `make` removed from `apt-get install` in `ci.yml`,
   `nightly.yml`, `benchmark.yml`, `evidence-pack.yml`; build steps now call `cmake --preset …`.
@@ -116,7 +116,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Script called `./scripts/build.sh`, `./scripts/style-check.sh`, `./scripts/test.sh`, which
   no longer exist after the script directory reorganisation. Paths corrected to
   `./scripts/compile/build.sh`, `./scripts/dev/style-check.sh`, `./scripts/dev/test.sh`.
-- `scripts/compile/build-arm64.sh`, `tools/scripts/cross-compile.sh` — switched from
+- `scripts/compile/build-arm64.sh`, `tools/scripts/cross-compile.sh` - switched from
   `make` invocation to `cmake --preset arm64-qemu && cmake --build build`.
 
 ### Documentation

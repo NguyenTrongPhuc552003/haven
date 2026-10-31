@@ -2,7 +2,7 @@
 # Used for building unit tests on the development machine.
 # Usage: cmake -S . -B build-host -DCMAKE_TOOLCHAIN_FILE=cmake/host.cmake
 
-# Use the host system natively — CMake picks up cc/clang/gcc from PATH.
+# Use the host system natively - CMake picks up cc/clang/gcc from PATH.
 set(CMAKE_SYSTEM_NAME    ${CMAKE_HOST_SYSTEM_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 

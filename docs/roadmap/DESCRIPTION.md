@@ -1291,7 +1291,7 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | #37    | `docs/skill-roadmap-enhancement`       | SKILL.md §1-4 preamble + §11-12 hardware procedures; DESCRIPTION.md Phases 9-12                     | v0.6.2     |
 | #38    | `docs/safety-compliance`               | `MISRA_DEVIATION_RECORD.md` (M-P6-1); `STATIC_ANALYSIS_POLICY.md` (M-P6-2)                          | v0.6.2     |
 | #39    | `docs/thesis-process`                  | `RELEASE_PROCESS.md` (M-P7-1); `REPRODUCIBILITY_APPENDIX.md` (M-P7-2); `PAPER_OUTLINE.md` (M-P8-2)  | v0.6.2     |
-| #40    | `feat/conference-demo`                 | `scripts/demo/conference-demo.sh` — four-act QEMU demo with --dry-run mode (M-P8-1)                 | v0.6.2     |
+| #40    | `feat/conference-demo`                 | `scripts/demo/conference-demo.sh` - four-act QEMU demo with --dry-run mode (M-P8-1)                 | v0.6.2     |
 | #41    | `feat/context-hvc-integration`         | `hv_arch_context_save/restore` in context.S (M-P5-1); HVC yield path (M-P5-2); PSCI decode (M-P5-3) | v0.6.2     |
 | #42    | `fix/qemu-launch`                      | boot.S .boot.text linker fix; qemu-smoke.sh -serial capture; CI qemu-smoke job                      | v0.6.2     |
 | #43    | `fix/host-test-warnings`               | HAVEN_HOST_CFLAGS suppresses -Wunused-variable/-Wunused-but-set-variable                            | v0.6.2     |
@@ -1526,7 +1526,7 @@ arm64-cross-compile
    milestone is achieved.
 3. Timeout: 120 seconds. A run that exceeds this is treated as a fail.
 4. Artifact retention: 30 days for `qemu-validation-*.json`.
-5. The smoke test marker string `"Haven hypervisor starting"` is normative — do NOT
+5. The smoke test marker string `"Haven hypervisor starting"` is normative - do NOT
    change this string without updating `qemu-smoke.sh` and this document.
 6. A new boot marker may be added by:
    a. Adding `hv_printk("MARKER: <name>\n")` to `src/core/init.c` or a subsystem.
@@ -1547,14 +1547,14 @@ pending three consecutive passing CI runs on `main` after PRs #42-45 merge. The
 ### §10.6 Host-Test Stability Policy
 
 **Goal:** The `cmake-host-tests` CI job must always pass on `main`.
-A broken host-test build is a P0 defect — it blocks all subsequent CI analysis.
+A broken host-test build is a P0 defect - it blocks all subsequent CI analysis.
 
 **Rules:**
 1. `-Werror` is enforced on all host test builds via `HAVEN_COMMON_CFLAGS`.
 2. `HAVEN_HOST_CFLAGS` may suppress specific Apple Clang / GCC warnings that are
    false-positives in test patterns (e.g. assert-only usage). Any new suppression
    must be documented in `cmake/flags.cmake` with a comment explaining why.
-3. Test variables used ONLY inside `assert()` are valid — do NOT replace them with
+3. Test variables used ONLY inside `assert()` are valid - do NOT replace them with
    bare function calls, as this removes human-readable test structure.
 4. No test source file may introduce a new `-Werror` failure without a simultaneous
    `cmake/flags.cmake` suppression entry or a same-PR fix to the test file.
@@ -1590,9 +1590,9 @@ coordinated matrix run.
 
 | Platform           | Config preset  | Runner requirement | Priority       |
 | ------------------ | -------------- | ------------------ | -------------- |
-| QEMU arm64 virt    | `arm64-qemu`   | `ubuntu-latest`    | P0 — always on |
-| NXP i.MX95 Dev Kit | `arm64-imx95`  | Self-hosted (lab)  | P1 — gated     |
-| NXP i.MX8QM MEK    | `arm64-imx8qm` | Self-hosted (lab)  | P2 — optional  |
+| QEMU arm64 virt    | `arm64-qemu`   | `ubuntu-latest`    | P0 - always on |
+| NXP i.MX95 Dev Kit | `arm64-imx95`  | Self-hosted (lab)  | P1 - gated     |
+| NXP i.MX8QM MEK    | `arm64-imx8qm` | Self-hosted (lab)  | P2 - optional  |
 
 **Design rules:**
 1. QEMU jobs run on every PR (`ubuntu-latest`); hardware board jobs run nightly
@@ -1688,14 +1688,14 @@ minimal manual effort.
    opens a draft PR if a newer version is available.
 2. The PR description includes the old and new version strings plus a link to
    the upstream release notes.
-3. A human reviewer approves and merges — no auto-merge.
+3. A human reviewer approves and merges - no auto-merge.
 4. On merge, `REPRODUCIBILITY_APPENDIX.md` is updated in the same PR (the
    workflow patches the version strings using `sed`).
 
 **Constraints:**
 - Only minor/patch version upgrades are auto-proposed. Major version bumps
   require a manual RFC and an update to the thesis reproducibility appendix.
-- The workflow must be idempotent — re-running it on an already-up-to-date repo
+- The workflow must be idempotent - re-running it on an already-up-to-date repo
   must produce no diff.
 
 **Milestone gate:** M-CI-4 (toolchain-refresh.yml operational; first
@@ -1748,7 +1748,7 @@ latest test files, evidence artifacts, and CI job names.
    the appropriate chapter section within the same PR.
 2. When a test is deleted or renamed, the CHAPTER_TRACEABILITY row is updated
    in the same PR (no orphan rows).
-3. The script `scripts/dev/check-traceability.sh` is the canonical gate — it
+3. The script `scripts/dev/check-traceability.sh` is the canonical gate - it
    must exit 0 before any PR that adds/removes test files is merged.
 4. At each minor release, the `ch5/ch7` measured-results sections are updated
    with the latest benchmark output file references.
@@ -1782,7 +1782,7 @@ comments and publish them alongside the project website.
 **Constraints:**
 - The Doxygen job is advisory (`continue-on-error: true`) until all public
   API headers in `include/haven/` have doc comments.
-- LaTeX/PDF generation is explicitly disabled — HTML only for web deployment.
+- LaTeX/PDF generation is explicitly disabled - HTML only for web deployment.
 
 **Status (2026-06-03):** `Doxyfile` added at repo root and advisory `doxygen`
 CI job added to `ci.yml` (`continue-on-error: true`). Output uploads to
@@ -1821,5 +1821,5 @@ natively in GitHub Markdown preview.
 - [ ] Mermaid syntax validated (`npx @mermaid-js/mermaid-cli -i diagram.md`).
 - [ ] `docs/architecture/` committed in the same PR, not a follow-up.
 
-**Milestone gate:** None independently — this is a process rule enforced during
+**Milestone gate:** None independently - this is a process rule enforced during
 code review. First Mermaid diagram should appear by v0.7.0.
