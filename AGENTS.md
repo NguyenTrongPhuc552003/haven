@@ -14,14 +14,20 @@ This file defines specialized agent roles used during development.
 - Purpose: review memory, interrupt, and scheduling changes.
 
 2. Platform Bring-up Planner
-- Purpose: coordinate i.MX95 and secondary platform enablement work.
+- Purpose: coordinate enablement of the CIX boards listed in the workspace
+  `.claude/rules/boards.md`. Each stays feasibility-gated (`unknown` or
+  `BLOCKED`) until board evidence exists, and this role claims no board
+  support. i.MX95 material is historical.
 
 3. Thesis Evidence Curator
 - Purpose: keep chapter traceability and evaluation assets consistent.
 
 ## Invocation guidance
 
-1. Trigger agents by task intent, not by file type only.
-2. Use Isolation Guardian before merging core control-path changes.
-3. Use Platform Bring-up Planner for all board config additions.
-4. Use Thesis Evidence Curator at each roadmap milestone boundary.
+These roles are review passes, not Claude Code subagents. Definitions for
+another harness live in `.github/agents/`. Apply a role by task intent, not by
+file type only.
+
+1. Run an Isolation Guardian review before merging core control-path changes.
+2. Run a Platform Bring-up review for all board config additions.
+3. Run a Thesis Evidence review at each roadmap milestone boundary.
