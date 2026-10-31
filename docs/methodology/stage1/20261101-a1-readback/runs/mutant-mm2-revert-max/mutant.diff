@@ -1,0 +1,4 @@
+89c89
+< #define S2_XN_NEVER (2UL << S2_XN_SHIFT) /* 10: never executable */
+---
+> #define S2_XN_NEVER (3UL << S2_XN_SHIFT) /* 10: never executable */

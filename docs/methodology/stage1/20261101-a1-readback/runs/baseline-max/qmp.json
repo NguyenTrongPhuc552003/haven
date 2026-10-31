@@ -1,0 +1,29 @@
+[
+ {
+  "QMP": {
+   "version": {
+    "qemu": {
+     "micro": 3,
+     "minor": 1,
+     "major": 11
+    },
+    "package": ""
+   },
+   "capabilities": [
+    "oob"
+   ]
+  }
+ },
+ {
+  "return": {}
+ },
+ {
+  "return": {}
+ },
+ {
+  "return": {}
+ },
+ {
+  "return": {}
+ }
+]

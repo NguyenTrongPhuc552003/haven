@@ -1,0 +1,13 @@
+{
+  "source": "haven src/core/partition.c (part_a_regions, part_b_regions) and src/platform/qemu-virt/memory.h, branch stage1/evidence-and-bugfixes",
+  "translation": "MM1 proposal section 4: Normal = MemAttr 0xF, SH IS (3); Device = MemAttr 0x1 (nGnRE), SH NS (0); W -> S2AP RW (3) else RO (1); no X -> XN 0b10, X -> XN 0b00; AF = 1",
+  "partitions": {
+    "1": [
+      {"name": "A RAM", "ipa": "0x40000000", "pa": "0x80800000", "size": "0x20000000", "attrs": "RWX"},
+      {"name": "A UART", "ipa": "0x09000000", "pa": "0x09000000", "size": "0x1000", "attrs": "DEVICE_RW"}
+    ],
+    "2": [
+      {"name": "B RAM", "ipa": "0x60000000", "pa": "0xA0800000", "size": "0x04000000", "attrs": "RWX"}
+    ]
+  }
+}
