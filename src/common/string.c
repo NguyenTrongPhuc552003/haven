@@ -31,6 +31,15 @@ void *hv_memcpy(void *dst, const void *src, size_t n)
 	return dst;
 }
 
+#ifdef HAVEN_ARCH_ARM64
+/* GCC can emit a memcpy libcall for aggregate copies in freestanding code.
+ * The haven/string.h macro only redirects calls present in the C source. */
+void *memcpy(void *dst, const void *src, size_t n)
+{
+	return hv_memcpy(dst, src, n);
+}
+#endif
+
 /* -----------------------------------------------------------------------
  * hv_memmove - copy n bytes allowing src/dst overlap.
  * ----------------------------------------------------------------------- */
