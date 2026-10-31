@@ -29,6 +29,29 @@ string(TOUPPER  "${PLATFORM}" _plat_upper)
 string(REPLACE  "-" "_" _plat_sym "${_plat_upper}")
 set(HAVEN_PLATFORM_DEFINE "HAVEN_PLATFORM_${_plat_sym}")
 
+# PSCI boot profile (FINDINGS B1, owner decision E2, 2026-10-31).
+# Only qemu-virt has profiles; other platforms keep the historical HVC conduit,
+# which is unverified for them.
+#   qemu-direct : QEMU loads HAVEN directly at EL2. No PSCI provider exists, so
+#                 CPU_ON is declared unavailable and no HVC/SMC is executed.
+#   qemu-tfa    : TF-A BL1/BL2/BL31 provides PSCI at EL3; CPU_ON uses SMC.
+set(HAVEN_BOOT_PROFILE "qemu-direct" CACHE STRING
+    "qemu-virt PSCI boot profile: qemu-direct | qemu-tfa")
+set_property(CACHE HAVEN_BOOT_PROFILE PROPERTY STRINGS qemu-direct qemu-tfa)
+if(PLATFORM STREQUAL "qemu-virt")
+    if(HAVEN_BOOT_PROFILE STREQUAL "qemu-direct")
+        set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_NONE)
+    elseif(HAVEN_BOOT_PROFILE STREQUAL "qemu-tfa")
+        set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_SMC)
+    else()
+        message(FATAL_ERROR
+            "Unknown HAVEN_BOOT_PROFILE '${HAVEN_BOOT_PROFILE}' "
+            "(expected qemu-direct or qemu-tfa)")
+    endif()
+else()
+    set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_HVC)
+endif()
+
 # ── Include paths ─────────────────────────────────────────────────────────────
 set(HAVEN_ARM64_INCLUDES
     ${CMAKE_SOURCE_DIR}/include
@@ -121,7 +144,10 @@ if(HAVEN_ARCH_ARM64)
     target_compile_definitions(haven PRIVATE
         HAVEN_ARCH_ARM64
         ${HAVEN_PLATFORM_DEFINE}
+        ${HAVEN_PSCI_CONDUIT_DEFINE}
     )
+    message(STATUS "Haven PSCI conduit: ${HAVEN_PSCI_CONDUIT_DEFINE}"
+                   " (profile ${HAVEN_BOOT_PROFILE})")
     target_link_options(haven PRIVATE
         -T ${CMAKE_SOURCE_DIR}/linker.ld
         ${HAVEN_ARM64_LDFLAGS}

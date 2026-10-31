@@ -151,7 +151,12 @@ hv_arch_secondary_start:
  * C prototype:
  *   int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
  *
- * ARM64 PSCI 0.2 SMC64 calling convention (QEMU virt uses HVC conduit):
+ * ARM64 PSCI 0.2 SMC64 calling convention. The conduit comes from the build's
+ * PSCI boot profile (FINDINGS B1): HAVEN_PSCI_CONDUIT_SMC for qemu-tfa (EL3
+ * BL31 service), HAVEN_PSCI_CONDUIT_NONE for qemu-direct (no provider: return
+ * NOT_SUPPORTED without any firmware call), HAVEN_PSCI_CONDUIT_HVC for the
+ * other platforms (historical, unverified). An HVC issued at EL2 traps to EL2
+ * itself and cannot reach an EL3 service.
  *   Function ID : 0xC4000003  (PSCI_CPU_ON, SMC64)
  *   x0          = function ID
  *   x1          = target_cpu  (MPIDR encoding: Aff2:Aff1:Aff0)
@@ -173,8 +178,16 @@ hv_arch_psci_cpu_on:
         /* Load PSCI_CPU_ON (0xC4000003) using two 16-bit halves */
         mov     x0, #0x0003
         movk    x0, #0xC400, lsl #16
-        /* QEMU virt uses HVC as the PSCI conduit */
+#if defined(HAVEN_PSCI_CONDUIT_NONE)
+        /* No PSCI provider in this profile: report NOT_SUPPORTED (-1). */
+        mov     x0, #-1
+#elif defined(HAVEN_PSCI_CONDUIT_SMC)
+        smc     #0
+#elif defined(HAVEN_PSCI_CONDUIT_HVC)
         hvc     #0
+#else
+#error "No PSCI conduit selected: define one HAVEN_PSCI_CONDUIT_* (see CMakeLists.txt)"
+#endif
         /* x0 = PSCI return code (0 = SUCCESS, negative = error) */
         cbz     x0, .Lpsci_cpu_on_ok
         /* Non-zero: log the error code (x0 already holds it as int32_t arg) */

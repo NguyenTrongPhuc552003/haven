@@ -66,6 +66,17 @@ typedef hv_status_t (*hv_exc_handler_t)(hv_exc_context_t *ctx);
  *
  * @return HV_OK on success
  */
+/* What HAVEN does with a synchronous exception from a guest (EX2, owner
+ * decision E3, 2026-10-31). Pure function of ESR_EL2 so host tests can check
+ * it without the ARM64 handler. */
+typedef enum {
+	HV_S2F_NOT_S2 = 0, /* not a direct stage-2 abort: normal handling */
+	HV_S2F_SKIP = 1, /* data abort: log, skip the instruction, resume */
+	HV_S2F_STOP = 2, /* instruction abort: log, stop the partition */
+} hv_s2_fault_action_t;
+
+hv_s2_fault_action_t hv_s2_fault_action(hv_u64 esr);
+
 hv_status_t hv_el2_exceptions_init(void);
 
 /**

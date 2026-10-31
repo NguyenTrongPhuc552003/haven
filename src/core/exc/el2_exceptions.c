@@ -273,6 +273,29 @@ hv_u64 hv_el2_get_exception_count(hv_exc_type_t exc_type)
  * sp:  EL2 stack pointer at time of exception
  * ----------------------------------------------------------------------- */
 
+/* Classify a synchronous exception from a lower EL (EX2/E3).
+ * A direct stage-2 abort is EC 0x20/0x24 with S1PTW = 0 and FSC 0x04-0x0F.
+ * Data aborts are skipped (ELR += 4) as before. Instruction aborts stop the
+ * partition: ELR is the address that could not be fetched, so skipping to
+ * ELR + 4 would fault again on the next instruction of the same page. */
+hv_s2_fault_action_t hv_s2_fault_action(hv_u64 esr)
+{
+	hv_u32 ec = (hv_u32)((esr >> ESR_EC_SHIFT) & ESR_EC_MASK);
+	hv_u32 fsc = (hv_u32)(esr & ESR_FSC_MASK);
+
+	if (ec != ESR_EC_IABT_LOW && ec != ESR_EC_DABT_LOW) {
+		return HV_S2F_NOT_S2;
+	}
+	if ((esr & (hv_u64)ESR_ISS_S1PTW) != 0U) {
+		return HV_S2F_NOT_S2;
+	}
+	if (fsc < ESR_FSC_S2_FIRST || fsc > ESR_FSC_S2_LAST) {
+		return HV_S2F_NOT_S2;
+	}
+
+	return (ec == ESR_EC_IABT_LOW) ? HV_S2F_STOP : HV_S2F_SKIP;
+}
+
 void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 {
 	current_exc_context.esr = esr;
@@ -282,22 +305,18 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 
 #ifdef HAVEN_ARCH_ARM64
 	{
-		hv_u32 ec = (hv_u32)((esr >> ESR_EC_SHIFT) & ESR_EC_MASK);
-		hv_u32 fsc = (hv_u32)(esr & ESR_FSC_MASK);
+		hv_s2_fault_action_t action = hv_s2_fault_action(esr);
 
-		/* Stage-2 fault from a lower EL guest: log the violation and skip.
-		 * S1PTW=0 means this is a direct access (not a stage-1 PTW fault).
-		 * HPFAR_EL2 holds the faulting IPA (bits[47:4] → IPA[51:8]).
-		 * We advance the saved ELR in the stack frame by 4 so that
-		 * restore_minimal + ERET skips the faulting instruction. */
-		if ((ec == ESR_EC_IABT_LOW || ec == ESR_EC_DABT_LOW) &&
-		    !(esr & (hv_u64)ESR_ISS_S1PTW) && fsc >= ESR_FSC_S2_FIRST &&
-		    fsc <= ESR_FSC_S2_LAST) {
+		/* Direct stage-2 abort from a guest: log it, then either skip the
+		 * instruction (data abort) or stop the partition (instruction
+		 * abort). HPFAR_EL2 bits[47:4] hold IPA[51:8]; for a direct
+		 * permission fault the value may be UNKNOWN (FINDINGS EX1), so
+		 * judge permission faults by ESR and FAR. */
+		if (action != HV_S2F_NOT_S2) {
 			hv_u64 hpfar;
 			hv_u64 ipa;
 
 			__asm__ volatile("mrs %0, hpfar_el2" : "=r"(hpfar));
-			/* HPFAR_EL2 bits[47:4] hold IPA[51:8]; shift left 8 */
 			ipa = (hpfar & ~0xFULL) << 8;
 
 			if (hv_printk)
@@ -306,6 +325,20 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 					  (unsigned long)ipa,
 					  (unsigned long)far,
 					  (unsigned long)esr);
+
+			if (action == HV_S2F_STOP) {
+				/* Minimal stop: never return to the guest; park this
+				 * CPU at EL2 with exceptions still masked. Other CPUs
+				 * and partitions are not affected. */
+				if (hv_printk)
+					hv_printk(
+						"HAVEN: partition stopped after "
+						"stage-2 instruction abort; "
+						"CPU parked\n");
+				for (;;) {
+					__asm__ volatile("wfe");
+				}
+			}
 
 			/* Update saved ELR at frame+168 (see save_minimal layout) */
 			{

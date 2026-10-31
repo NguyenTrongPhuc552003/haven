@@ -308,6 +308,43 @@ static void test_el2_inject_exception(void)
 }
 
 /**
+ * EX2 / owner decision E3: classification of guest synchronous exceptions.
+ * Data aborts are skipped; instruction aborts stop the partition; anything
+ * that is not a direct stage-2 abort gets normal handling.
+ */
+static void test_s2_fault_action(void)
+{
+#define ESR(ec, iss) (((hv_u64)(ec) << 26) | (hv_u64)(iss))
+	/* Data abort from lower EL, permission fault level 3 / 2. */
+	assert(hv_s2_fault_action(ESR(0x24, 0x0F)) == HV_S2F_SKIP);
+	assert(hv_s2_fault_action(ESR(0x24, 0x0E)) == HV_S2F_SKIP);
+	/* Data abort, translation fault level 1. */
+	assert(hv_s2_fault_action(ESR(0x24, 0x05)) == HV_S2F_SKIP);
+	TEST_PASS("s2_fault_action: data aborts are skipped");
+
+	/* Instruction abort from lower EL: permission (XN) and translation. */
+	assert(hv_s2_fault_action(ESR(0x20, 0x0F)) == HV_S2F_STOP);
+	assert(hv_s2_fault_action(ESR(0x20, 0x0D)) == HV_S2F_STOP);
+	assert(hv_s2_fault_action(ESR(0x20, 0x07)) == HV_S2F_STOP);
+	TEST_PASS("s2_fault_action: instruction aborts stop the partition");
+
+	/* Stage-1 page-table-walk faults (S1PTW, ISS bit 7) are not direct. */
+	assert(hv_s2_fault_action(ESR(0x24, (1U << 7) | 0x0F)) ==
+	       HV_S2F_NOT_S2);
+	assert(hv_s2_fault_action(ESR(0x20, (1U << 7) | 0x0F)) ==
+	       HV_S2F_NOT_S2);
+	/* FSC outside 0x04-0x0F (address size 0x03, sync external 0x10). */
+	assert(hv_s2_fault_action(ESR(0x24, 0x03)) == HV_S2F_NOT_S2);
+	assert(hv_s2_fault_action(ESR(0x24, 0x10)) == HV_S2F_NOT_S2);
+	/* Other exception classes: HVC (0x16), same-EL aborts (0x21, 0x25). */
+	assert(hv_s2_fault_action(ESR(0x16, 0x00)) == HV_S2F_NOT_S2);
+	assert(hv_s2_fault_action(ESR(0x21, 0x0F)) == HV_S2F_NOT_S2);
+	assert(hv_s2_fault_action(ESR(0x25, 0x0F)) == HV_S2F_NOT_S2);
+	TEST_PASS("s2_fault_action: other exceptions get normal handling");
+#undef ESR
+}
+
+/**
  * Main test runner.
  */
 int main(void)
@@ -323,6 +360,7 @@ int main(void)
 	test_el2_set_exception_enabled();
 	test_el2_get_exception_count();
 	test_el2_inject_exception();
+	test_s2_fault_action();
 
 	printf("\n=== All EL2 exception tests passed ===\n\n");
 	return 0;
