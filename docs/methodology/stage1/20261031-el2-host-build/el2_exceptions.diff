@@ -1,0 +1,17 @@
+diff --git a/src/core/exc/el2_exceptions.c b/src/core/exc/el2_exceptions.c
+index 564532b..75bac42 100644
+--- a/src/core/exc/el2_exceptions.c
++++ b/src/core/exc/el2_exceptions.c
+@@ -365,6 +365,12 @@ void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+ 	(void)elr;
+ 	(void)sp;
+ #ifdef HAVEN_ARCH_ARM64
++	/* Preserve the fault context in the UART log before halting. */
++	if (hv_printk != NULL) {
++		hv_printk("EL2 FATAL: ESR=0x%lx FAR=0x%lx ELR=0x%lx\n",
++			  (unsigned long)esr, (unsigned long)far,
++			  (unsigned long)elr);
++	}
+ 	platform_uart_putchar('!');
+ 	platform_uart_putchar('E');
+ 	platform_uart_putchar('L');

@@ -1,0 +1,636 @@
+# Stage 0 baseline: inventory and feasibility
+
+**Status:** in progress  
+**Initial baseline:** 2026-10-18 21:50 +07  
+**Physical inventory update:** 2026-10-24  
+**Classification:** AUDIT / DOCUMENTATION  
+**Owner:** HAVEN for platform feasibility; ELMOS for host reproducibility; KDAL for interface fit  
+**Thesis relevance:** establishes what can be tested and what claims are currently unsupported before selecting a research question.
+
+This is a working evidence record under the workspace scope contract. It is
+not a new repository, approved research question, implementation plan, or board
+support declaration. `unknown` means no qualifying observation has been
+collected yet.
+
+## Physical inventory update (2026-10-24)
+
+The workspace owner reports that no Radxa Orion O6/O6N or Orange Pi 6/6 Plus
+physical SBCs are currently available, and that no boot logs exist. The owner
+also reports that the essential board documents and components were downloaded
+from official webpages. Third-party and community checkouts remain identified
+by their own upstream provenance. Original download URLs are not yet recorded
+alongside every local file, so preserve this as reported provenance until URLs
+are added to the source ledger.
+
+This blocks board boot, EL2-entry, interrupt, DMA/SMMU, and performance
+experiments for all four boards. It does not block continued source audits,
+host workflow work, QEMU checks, literature review, or research-question
+framing. Do not describe the physical targets as verified or probe-ready while
+hardware is unavailable.
+
+## Workspace baseline
+
+### Repositories
+
+| Repository | HEAD | Working tree at capture |
+| --- | --- | --- |
+| `elmos/` | `5ef5cd7fb974fca961e1af7f5a7f08ff47f70e95` | tracked source clean; rebuilt ignored `build/elmos` for this baseline |
+| `haven/` | `f775304ce9443dc9861ba1880e4208c7ae19b314` | one diagnostic-only change in `src/core/exc/el2_exceptions.c`; existing ignored build directory preserved |
+| `kdal/` | `1ab0dce6dedada4162325ba2101db63214ed896c` | clean |
+| `haven-thesis/` | `e4f89d250b43a659ca19f4bc3d5710d3e60353d8` | has a modified inherited PDF and untracked `main.pdf`; preserve these unrelated files |
+| `haven-wiki/` | `56cd8de7781ac13e94939f5efbc50dbd46461813` | clean |
+
+The workspace root itself is not a Git repository. The initial inventory did
+not modify source; a later HAVEN diagnostic-only change is recorded below.
+
+### Host and tools observed
+
+| Item | Observation |
+| --- | --- |
+| Host | Apple Silicon ARM64 Mac; Darwin 27.0.0 kernel |
+| macOS | 27.0.1, build 26A434 |
+| Go | 1.27.3, `darwin/arm64` on 2026-10-23; 1.27.2 was observed on 2026-10-18 |
+| QEMU | `qemu-system-aarch64` 11.1.2; `virt` machine alias is present |
+| C compiler | Apple clang 21.0.0 |
+| CMake | 4.4.4 |
+| Other available tools | `task`, `ninja`, `python3`, `aarch64-linux-gnu-gcc`, `aarch64-elf-gcc`, `make`, `git` |
+
+Availability is not a successful ELMOS workflow. Follow-up build and doctor
+results are recorded below. The host record is a point-in-time observation, not
+a supported-version policy.
+
+### Reference checkout revisions
+
+These are independent upstream checkouts under `data/`; they were clean when
+queried. Their revisions are recorded for source provenance and do not imply
+that their claims were verified on hardware.
+
+| Checkout | HEAD |
+| --- | --- |
+| `data/common/cix-bios/` | `7799770553c018cf4c6c6e34be4fca6245361583` |
+| `data/common/cix-gpu-kmd/` | `83fd82b869315c1880d34607d14988c2feb7789e` |
+| `data/common/cix-linux-main.wiki/` | `7d388a5d7d2f2ee13cb895da7b119b04344208f2` |
+| `data/common/cix-manifest.wiki/` | `0ce5932602a09437d4f17028e1e86b33c8ac6033` |
+| `data/common/linux-mainline.wiki/` | `274bab72653573820a90d06754d80e6e436a4db9` |
+| `data/common/sky1-linux-build/` | `eabd6f4142190dc24cad72845a29196550181fbb` |
+| `data/orange-pi-6/common/orangepi-build/` | `a95129bf30ea11886cc35f08ebb3e69695a26656` |
+| `data/radxa-orion-o6/common/linux/` | `8cbb4c41ec1472ce17b181ada8512d88894bd503` |
+
+## Current source findings
+
+### HAVEN
+
+- `haven/CMakeLists.txt` lists only `qemu-virt`, `imx95-devkit`, and
+  `imx8qm-mek` as target platforms. `haven/CMakePresets.json` exposes matching
+  QEMU, i.MX95, i.MX8QM, and host-test presets. There is no CIX or Orange Pi
+  platform implementation in `haven/src/platform/` at this revision.
+- `src/platform/qemu-virt/platform.c` supplies fixed QEMU UART, GIC, and SMMU
+  addresses and reports four CPUs. This is a QEMU binding, not a CIX hardware
+  map.
+- `include/haven/platform.h` exposes fixed base-address callbacks, timer
+  frequency, and CPU count. The CIX firmware handoff, memory map, interrupt
+  topology, requester IDs, and SMMU stream configuration are not yet bound by
+  a target platform implementation.
+- The existing architecture and evaluation documents still describe i.MX95
+  as the primary physical target. Treat those claims as historical for the four
+  named CIX boards until source and experiment evidence is reviewed.
+- `arch/arm64/cpu.c::hv_arch_cpu_init()` documents that it must run once per
+  CPU and configures the current CPU's EL2 state, including exception vectors.
+  It also sets HCR_EL2, VTCR_EL2, ICC_SRE_EL2, and ICH_HCR_EL2/ICH_VMCR_EL2.
+  `src/core/init.c::haven_init()` calls it for the primary CPU. The current
+  `partition_b_secondary_cpu_init()` path enables B's stage-2 map and ERETs
+  without calling that per-CPU initializer. A controlled QEMU comparison in a
+  temporary copy supports this as a secondary-core startup defect: installing
+  only vectors produced an EL2 fatal at B's entry; calling the full initializer
+  produced CPU 2's two expected stage-2 denials from B. The run does not isolate
+  which individual EL2 registers are necessary. A narrowed temporary setup
+  (vectors, `HCR_VM | HCR_RW`, `VTCR_HAVEN_DEFAULT`, and existing VTTBR
+  activation) produced the same stage-2 denials, so it is sufficient for this
+  QEMU guest-entry/denial path. `hv_arch_gic_el2_setup()` is also called from
+  `hv_el2_exceptions_init()` on the primary path, although its source comment
+  says it is called once per CPU. The secondary test did not exercise guest
+  interrupts; audit this GIC setup contract before claiming CPU 2 IRQ
+  readiness. See the [secondary-core QEMU evidence](haven/build/evidence/stage0-20261024-tfa-qemu-secondary/README.md).
+
+### KDAL
+
+- `kdal/src/backends/generic/platdev.c` currently has a no-op
+  `platdev_backend_enumerate()` with a comment that real hardware should walk
+  Device Tree nodes. The present generic backend does not yet provide the
+  claimed hardware discovery path.
+- KDAL's QEMU backend and interfaces can be evaluated as candidate software,
+  but the source does not make it a HAVEN-mediated device assignment boundary.
+  Do not connect it to real devices until HAVEN owns admission, MMIO/IRQ/DMA
+  assignment, and revocation rules.
+
+### ELMOS
+
+- The macOS host has the Go, Task, CMake, Ninja, and ARM64 QEMU tools available.
+- `elmos/Taskfile.yml` shows that `task dev:check` formats source, runs lint,
+  and tests; it modifies files and is not a read-only inventory command. No such
+  command was run.
+
+## Host and virtual baseline follow-up (2026-10-23–24)
+
+### ELMOS build and doctor check
+
+- `task build` first reported the existing binary up to date. `task --force
+  build` rebuilt the CLI from revision
+  `5ef5cd7fb974fca961e1af7f5a7f08ff47f70e95`; the binary reports build commit
+  `5ef5cd7` and Go 1.27.3.
+- `./build/elmos doctor` completed with “All checks passed!” for required
+  checks, including Homebrew packages, custom headers, and QEMU. Optional
+  debugger/compiler checks and `crosstool-ng` were missing. The doctor checks
+  for `aarch64-unknown-linux-gnu-gcc`, while this host has
+  `aarch64-linux-gnu-gcc` and `aarch64-elf-gcc`; HAVEN's cross-build selected
+  `aarch64-linux-gnu-gcc` successfully. This is an optional tool-name mismatch,
+  not a missing compiler for the observed build.
+- The doctor ran without `--fix`. No ELMOS tests, dependency setup, or header
+  downloads were run.
+
+### HAVEN ARM64 build and QEMU experiment
+
+- The standard `arm64-qemu` preset could not configure `haven/build`: its
+  pre-existing CMake cache refers to `/Users/trongphucnguyen/Documents/haven`,
+  while the current source is under `Documents/workspace/haven`. The existing
+  cache and old generated binaries were left untouched.
+- An isolated build in `/private/tmp/haven-stage0-qemu` completed all 32 Ninja
+  steps using CMake 4.4.4 and `aarch64-linux-gnu-gcc` 15.2.0. The linker warned
+  about RWX LOAD segments in all three ELF images and a discarded GNU build-id
+  note.
+- QEMU 11.1.2 ran `virt,virtualization=on,gic-version=3,iommu=smmuv3`, Cortex-A72,
+  4 CPUs, 2 GiB, loading the fresh hypervisor and partition images. It reached
+  the HAVEN banner, mapped both partitions, assigned the A IRQ, set budgets,
+  then entered the EL2 fatal handler. Neither guest marker appeared.
+- A diagnostic-only change in `src/core/exc/el2_exceptions.c` now prints ESR,
+  FAR, and ELR before the existing halt. A second QEMU run recorded
+  `ESR=0x5a000000`, `FAR=0`, `ELR=0x800000e8`. ESR EC is `0x16` (HVC instruction
+  exception); disassembly maps ELR to the instruction after `hvc #0` at
+  `0x800000e4` in `hv_arch_psci_cpu_on()` (`arch/arm64/boot.S`). The immediate
+  trigger is the PSCI CPU_ON HVC while HAVEN runs at EL2. Arm's guide says HVC
+  targets EL2 and exceptions cannot reduce privilege; an HVC issued at EL2 is
+  therefore taken at the current level. See the [Armv8-A ISA guide](https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/Learn%20the%20Architecture/Armv8-A%20Instruction%20Set%20Architecture.pdf),
+  section 12.
+- The replacement PSCI/secondary CPU contract remains unresolved. The current
+  direct QEMU loader run shows no higher-level PSCI service, and no physical
+  board firmware is available to check. TF-A's official QEMU virt guide
+  documents a possible EL3/BL31 PSCI boot chain and generated PSCI FDT node;
+  this is a candidate for a separate virtual baseline, not an observed property
+  of the present direct-loader run or any physical target. Do not replace HVC
+  with SMC or claim CPU_ON support until the QEMU and physical firmware
+  handoffs are established. See the [TF-A QEMU virt guide](https://trustedfirmware-a.readthedocs.io/en/latest/plat/qemu.html)
+  and [current TF-A porting guide](https://trustedfirmware-a.readthedocs.io/en/latest/porting-guide.html).
+- A separate experiment built official TF-A `v2.15.0` at commit
+  `da738d5eae93af342fdc4995dd3c05acb4c9d757` with QEMU's GICv3 driver and a
+  preloaded BL33 address of `0x80000000`. A first setup attempt omitted the two
+  guest image loader devices; its high-volume output is explicitly marked
+  invalid for guest evaluation. In a corrected run, a clean temporary HAVEN
+  copy changed the PSCI instruction from HVC to SMC; no tracked call-path change
+  was made. With TF-A BL1/BL2/BL31, QEMU booted HAVEN at EL2, PSCI CPU_ON for
+  CPU 2 returned success, and partition A printed its greeting, took its
+  deliberate cross-partition stage-2 fault at IPA `0x60000000`, then printed
+  its post-fault marker. This validates that narrow guest-A path under the
+  specified virtual setup. It does not establish CPU 2's execution of guest B,
+  DMA/SMMU isolation, or physical-board behavior. See the [initial TF-A setup
+  trial](haven/build/evidence/stage0-20261023-tfa-qemu/README.md) and the
+  [corrected TF-A QEMU run](haven/build/evidence/stage0-20261023-tfa-qemu-guest1/README.md).
+- On 2026-10-24, a separate temporary-build comparison explicitly probed CPU
+  2. A guest-B diagnostic load of A's IPA at B's entry was denied twice by
+  stage-2 after calling `hv_arch_cpu_init()` on CPU 2; the logged CPU, ELR, IPA,
+  FAR, and ESR identify the access path. A vectors-only control instead logged
+  an EL2 fatal at ELR `0x60000000`. The source change was not applied to the
+  workspace repository. The comparison supports incomplete per-core EL2 setup
+  as the cause but does not isolate a single register or verify physical
+  firmware. Full logs and image hashes are in the [secondary-core evidence
+  record](haven/build/evidence/stage0-20261024-tfa-qemu-secondary/README.md).
+- A subsequent temporary variant replaced the full initializer with exception
+  vectors, `HCR_VM | HCR_RW`, `VTCR_HAVEN_DEFAULT`, and the existing VTTBR
+  activation. It produced the same two CPU 2 denied accesses and A's
+  post-fault marker. This is the narrowest sufficient subset tested for this
+  stage-2 smoke path, not a complete secondary-core init contract: GIC virtual
+  interrupts, physical IRQ routing, timer state, cache state, and guest SMC
+  behavior were not exercised. No tracked CPU-init change was made.
+- TF-A's `fip` tool build was not needed for its documented semihosting flow.
+  The initial `all fip` attempt stopped because the system OpenSSL headers were
+  not available at TF-A's default `/usr` path. TF-A `all` then built BL1, BL2,
+  and BL31 successfully using GNU Make 4.4.1 and GNU sed; macOS default make
+  3.81 and BSD sed were incompatible with this source revision. No packages
+  were installed.
+- Raw UART/console logs and exact images are preserved in
+  `haven/build/evidence/stage0-20261023-qemu/` and
+  `haven/build/evidence/stage0-20261023-qemu-diag1/`. The source change is the
+  only tracked HAVEN modification.
+- No unit or integration suite was run. The direct-load QEMU baseline still
+  fails at its EL2 PSCI HVC. The TF-A-backed temporary experiments observed
+  guest A and guest B stage-2 denials after temporary PSCI and secondary-core
+  setup changes. These are narrow virtual observations, not physical-target
+  evidence or a tracked implementation fix.
+
+## Four-board feasibility matrix
+
+| Board | Local references and fact observed in those references | Board/firmware identity and physical observations | Initial status |
+| --- | --- | --- | --- |
+| Radxa Orion O6 | `data/radxa-orion-o6/base/radxa_orion_o6_v1.20_schematic.pdf` (V1.2) documents SKY1 interfaces, LPDDR5, PCIe x8, M.2 SSD, two PCIe 5G Ethernet paths, UART debug, and SPI ROM. BIOS archive: `orion-o6-bios-1.1.0-1.zip`. | No physical board is available and no boot logs exist. Installed firmware, EL2 entry, ACPI/DT, GIC, timer, SMMU, PCIe requester/stream IDs, and recovery method cannot be observed. | `blocked` for physical validation |
+| Radxa Orion O6N | `data/radxa-orion-o6/n/radxa_orion_o6n_schematic_v1.11.pdf` (V1.11) documents distinct O6N wiring, including USB-to-UFS and PCIe 2.5G Ethernet paths. BIOS archive: `orion-o6n-bios-1.2.4.zip`. | No physical board is available and no boot logs exist. Installed firmware, EL2 entry, ACPI/DT, GIC, timer, SMMU, PCIe requester/stream IDs, and recovery method cannot be observed. O6 mappings must not be reused. | `blocked` for physical validation |
+| Orange Pi 6 | `data/orange-pi-6/base/OPi_6-V11-SCH.pdf`; vendor manual describes CIX 12-core ARMv9, two M.2 NVMe slots, RTL8125 2.5G Ethernet, UART2 debug, TF/USB/NVMe boot. BIOS manual exposes ACPI/Device Tree selection. | No physical board is available and no boot logs exist. Installed BIOS, selected system table, EL2 entry, GIC, timer, SMMU, PCIe requester/stream IDs, and recovery method cannot be observed. | `blocked` for physical validation |
+| Orange Pi 6 Plus | `data/orange-pi-6/plus/OPi 6 PLUS V11 DSN 0612.pdf`; vendor manual describes two M.2 NVMe slots, RTL8126 5G Ethernet, UART2 debug, TF/USB/NVMe boot. BIOS manual exposes ACPI/Device Tree selection. | No physical board is available and no boot logs exist. Installed BIOS, selected system table, EL2 entry, GIC, timer, SMMU, PCIe requester/stream IDs, and recovery method cannot be observed. | `blocked` for physical validation |
+
+### SHA-256 for key local board references
+
+These hashes identify the files inspected in this baseline. They do not certify
+the documents' authority beyond their visible publisher/version or certify any
+hardware behavior.
+
+| File | SHA-256 |
+| --- | --- |
+| `radxa-orion-o6/base/radxa_orion_o6_v1.20_schematic.pdf` | `da6672932f38f3392c71ea98886564d2c4f578032bf042173a8448827f38565f` |
+| `radxa-orion-o6/n/radxa_orion_o6n_schematic_v1.11.pdf` | `1629f37d27ab4a48caf49c3f5d17de83c71135357502148099291ae35395f833` |
+| `orange-pi-6/base/OPi_6-V11-SCH.pdf` | `863a07d7d64f9ec629faf4a89fa241b572ff7b61eb354aaa500102311f7f86f1` |
+| `orange-pi-6/plus/OPi 6 PLUS V11 DSN 0612.pdf` | `d9beef086e47c1145dfb70741c025a5c1f2cb2af24d7d3ed3170128f2f4a94f6` |
+| `orange-pi-6/base/OPI6-BIOS-User Manual-V0.1.pdf` | `daec454cccd31ee9c6575f1049ede9b551a5b70edac912b9969093299ea4ffc6` |
+| `orange-pi-6/plus/opi-6plus-bios User Manual v1.4.pdf` | `1011dec4b9a348f93ec5cf50459b2b84fc052136c2a93dc17189b5838efeaafd` |
+| `radxa-orion-o6/base/orion-o6-bios-1.1.0-1.zip` | `838cdb3638855c54c1a73ee9813378bef23caed9ed55d3670899917e8df12cee` |
+| `radxa-orion-o6/n/orion-o6n-bios-1.2.4.zip` | `88a6ca340321995777072e8cd6109f62fbae52ebc7060beaedef72c081dd4dfd` |
+
+## Stage 0 work remaining
+
+1. **Physical inventory:** revisit only when a board becomes available. Record
+   its exact revision, current firmware, serial-console access, recovery
+   process, and boot media. Do not flash a board as an exploratory step.
+2. **ELMOS baseline:** read the local reproducibility guide and perform the
+   smallest requested/approved environment check; record exact commands and
+   outputs. Then verify whether ELMOS can build a pinned ARM64 test artifact.
+3. **HAVEN QEMU baseline:** the direct-load versus TF-A PSCI and secondary
+   stage-2 evidence has been reconciled into the candidate contract below.
+   The bounded GIC and CNTHP checks have since been completed and the contract
+   reviewed; see the 2026-10-25 addendum at the end of this file. Separate
+   HAVEN corrections and acceptance criteria remain before the temporary SMC,
+   CPU-init, IRQ, or timer changes can enter tracked source. Physical firmware
+   review remains necessary for board-specific conduit decisions.
+4. **Hardware binding audit:** map the selected board's firmware handoff,
+   memory, GIC, timer, and SMMU data against HAVEN's assumptions before writing
+   any CIX platform code.
+5. **KDAL fit:** define one concrete candidate device and the policy boundary
+   HAVEN would enforce. Keep KDAL out of any runtime path until that boundary is
+   specified and reviewed.
+
+## QEMU firmware handoff and per-core initialization contract (2026-10-25)
+
+**Classification:** AUDIT / DOCUMENTATION, informed by the previously recorded
+QEMU EXPERIMENTS. **Owner:** HAVEN. **Scope:** candidate contract for the two
+QEMU boot paths only. This is not a platform port or a physical-board contract.
+The 2026-10-25 review and probes below supersede the per-core, GIC and timer
+completeness assumptions in this initial candidate; see the final addendum.
+
+### Candidate contract for review
+
+1. **Entry precondition:** `_start` requires `CurrentEL == EL2`, establishes the
+   primary stack, clears BSS, and passes firmware-supplied `x0` as a DTB address
+   to `haven_init()`. The direct-loader experiment observed HAVEN running at EL2
+   up to its PSCI HVC exception. The TF-A BL1/BL2/BL31 experiment reached the
+   same EL2 entry and then ran HAVEN. The source currently does not validate or
+   record the secondary CPU's `CurrentEL` at its firmware entry; that must be
+   checked before claiming a general secondary handoff contract. The incoming
+   DTB is currently ignored by `haven_init()`; QEMU's fixed platform constants
+   are being used instead.
+2. **PSCI service ownership and conduit:** direct QEMU loading with
+   `virt,virtualization=on` has no observed EL3 PSCI runtime service for HAVEN.
+   `HVC` from EL2 traps back to EL2 and was observed to enter the fatal handler.
+   In the separate TF-A setup, BL31 runs at EL3 and provides runtime firmware
+   services; the temporary HVC-to-SMC change made CPU_ON return success. Thus
+   SMC is supported by this TF-A experiment only. Select the conduit from the
+   actual firmware handoff/contract; do not infer it from “QEMU virt” or copy
+   this SMC choice to physical firmware without observing its PSCI node/service.
+3. **CPU_ON call:** `arch/arm64/boot.S::hv_arch_psci_cpu_on()` intends the PSCI
+   64-bit `CPU_ON` function ID `0xC4000003`, with `x1=target MPIDR`,
+   `x2=secondary_entry` physical entry, and `x3=0` context. The existing caller
+   supplies logical ID `2` as the MPIDR, which is valid only for the assumed
+   single affinity level where Aff1/Aff2 are zero. The instruction immediate is
+   `#0`. The current tracked instruction is HVC; only temporary TF-A builds used
+   SMC. PSCI returns its signed status in `x0`. HAVEN treats zero as success;
+   nonzero is logged and partition B is marked inactive. A zero return means
+   the service accepted/started the operation, not that B has reached its
+   mailbox, completed EL2 init, or entered its guest. The log message saying
+   “CPU 2 woken” is therefore stronger than the available acknowledgement.
+4. **Secondary entry protocol:** the firmware entry is `secondary_entry`, which
+   reads MPIDR Aff0, selects the same Aff0-indexed stack/mailbox, waits for the
+   primary to publish `partition_b_secondary_cpu_init`, then branches there.
+   This assumes Aff0 is a unique, dense logical CPU index and ignores Aff1+;
+   `hv_arch_cpu_id()` uses a different Aff1/Aff0 mapping. The platform topology
+   must reconcile those mappings before scaling beyond the tested QEMU CPU 2.
+5. **Per-CPU initialization before guest ERET:** the production candidate is
+   **not** the minimal register subset from the stage-2 experiment. Call the
+   complete `hv_arch_cpu_init()` on every CPU before guest activity so that the
+   per-PE EL2 controls and vectors are initialized consistently: HCR_EL2,
+   VTCR_EL2, initial VTTBR_EL2, SCTLR_EL2, MDCR_EL2, CPTR_EL2, HSTR_EL2,
+   ICC_SRE_EL2, ICH_HCR_EL2, ICH_VMCR_EL2, and VBAR_EL2, with required
+   synchronization. Then perform/confirm per-CPU GIC redistributor and
+   interrupt-interface initialization, install that CPU's guest/partition
+   stage-2 VTTBR before ERET, establish timer ownership/state for the CPU, and
+   enter the guest with the intended EL1h mode and masked exception state.
+   This candidate calls for auditing/refactoring the existing init functions so
+   ownership and order are explicit; it does not authorize a tracked change.
+6. **Global versus per-CPU GIC work:** `gic_v3_init()` performs distributor
+   setup and loops across redistributor frames from CPU 0. `hv_arch_cpu_init()`
+   programs CPU-interface system-register controls on the executing PE.
+   `hv_arch_gic_el2_setup()` programs that PE's virtual interface. The latter is
+   invoked from `hv_el2_exceptions_init()` on CPU 0 only, despite its comment
+   saying once per CPU. GICD/GICR setup cannot substitute for per-PE ICC/ICH
+   state. The current `gic_v3_enable_irq()` and `disable_irq()` route every PPI
+   operation to redistributor 0, even though PPIs are per-CPU.
+7. **Timer:** `hv_arch_timer_init()` only enables and masks CNTHP on the CPU
+   where it executes (currently primary CPU 0). CNTHP is per PE and its
+   architected interrupt is PPI 26. The current source does not show an
+   end-to-end enable/acknowledge/EOI/handler path for PPI 26, nor a per-CPU
+   secondary timer initialization. Timer register programming, a timer IRQ
+   reaching EL2, timer ownership, and guest virtual timer delivery remain
+   unverified in these experiments.
+
+This contract is a candidate for review, not a claim that all listed state is
+architecturally mandatory in exactly these values on every implementation.
+Architectural correctness requires respecting the Arm exception level, system
+register, stage-2, GIC, timer, and PSCI interfaces and the firmware's declared
+handoff. The exact register values/features must be justified for each target.
+The narrower QEMU subset (vectors, `HCR_VM | HCR_RW`, `VTCR_HAVEN_DEFAULT`,
+and VTTBR activation) merely worked for the tested guest B entry and two denied
+loads; its experiment omitted timer and interrupt stimuli and does not show the
+other omitted state is unnecessary.
+
+### Evidence matrix
+
+| Claim | Source or experiment | Result | Limitation |
+| --- | --- | --- | --- |
+| Primary entry checks EL2 and forwards x0 as DTB PA | `haven/arch/arm64/boot.S::_start`; `haven/src/core/init.c::haven_init` | Source-level precondition and argument flow confirmed | No DTB parse; board firmware handoff not observed |
+| Direct QEMU path does not provide HAVEN a working EL2 PSCI conduit | `stage0-20261023-qemu-diag1`; direct-loader `HVC #0` fatal record | ESR EC `0x16`, ELR after HVC; no guest launched | Only that exact QEMU direct-loader configuration |
+| TF-A QEMU path provides PSCI via BL31/SMC for this test | `stage0-20261023-tfa-qemu-guest1` and official TF-A QEMU documentation | Temporary SMC CPU_ON returned success; guest A ran | Does not establish any target-board firmware conduit or contract |
+| CPU_ON arguments and error branch match source intent | `boot.S::hv_arch_psci_cpu_on`; `partition.c::partitions_launch`; TF-A result | ID and register assignment confirmed; nonzero logs and suppresses B release | Target MPIDR hard-coded as 2; no dynamic topology/service discovery; error cases not injected |
+| CPU 2 entered B and stage-2 denied A's IPA after full CPU init | `stage0-20261024-tfa-qemu-secondary` full-init variant | Two CPU 2 violation logs and continued guest markers | No GIC virtual IRQ, physical IRQ, timer, cache/SMC, or physical board evidence |
+| Minimal register subset works for the same stage-2 smoke path | Same evidence, `minimal-s2` variant | Same two denials and markers as full init | Sufficiency only for this workload/configuration; individual necessity unknown |
+| `hv_arch_cpu_init()` is required as a full production per-core contract | `cpu.c::hv_arch_cpu_init`; `init.c::haven_init`; `partition.c::partition_b_secondary_cpu_init` | Source comment says once per CPU; current secondary path omits it | Needs all-CPU refactor and acceptance tests; cannot infer every write is independently required |
+| Virtual GIC interface is initialized on every CPU | `el2_exceptions.c::hv_el2_exceptions_init`; `irq.c::hv_arch_gic_el2_setup` | Current call path initializes it on primary only | Guest IRQ path not experimentally tested; comment/call graph conflict |
+| Physical PPIs are correctly managed per CPU | `drivers/irqchip/gic_v3.c::gic_v3_enable_irq`, `disable_irq` | Source routes PPI to redistributor 0 unconditionally | Per-CPU correctness is contradicted by source structure; no PPI experiment |
+| CNTHP timer works on CPU 2 and is delivered/handled | `arch/arm64/timer.c`, `src/core/init.c`, GIC driver | Not exercised; only CPU 0 initialization call found | Timer PPI 26 and end-to-end handler/EOI path need separate validation |
+| Physical-board boot handoff, PSCI, GIC, timer are established | No hardware available | Not established | All four physical targets remain blocked for validation |
+
+### Remaining GIC and timer checks, priority order
+
+1. **P0 - per-CPU init call graph and safe ordering:** decide a single owner for
+   `hv_arch_cpu_init`, `hv_arch_gic_el2_setup`, redistributor wake/configuration,
+   and timer init. Confirm all are executed once on CPU 2 before guest ERET and
+   that global GIC distributor state remains primary-only. Audit CPU index versus
+   full MPIDR affinity mapping.
+2. **P1 - guest virtual interrupt, CPU 2:** in a bounded temporary QEMU test,
+   inject one known Group 1 virtual interrupt into a free ICH List Register on
+   CPU 2; prove guest B acknowledges the expected vINTID and returns through the
+   intended path. Record ICH_HCR/VMCR/LR state, guest ICC interface state, output,
+   and timeout. Add a negative/control run with per-CPU virtual-interface setup
+   omitted only if it can be done without hanging the runner.
+3. **P1 - physical interrupt routing:** use a safe QEMU-generated SPI or SGI
+   with known owner/target. Confirm CPU interface enable, HCR routing, EL2 vector,
+   acknowledge/EOI/deactivation and ownership denial. Keep SPI and PPI cases
+   distinct; correct PPI CPU selection before claiming PPI support.
+4. **P1 - generic timer PPI:** on CPU 2, read CNTFRQ/CNTPCT, program CNTHP_CVAL
+   to a short bounded future deadline, unmask it, enable PPI 26 on CPU 2's
+   redistributor, and record the EL2 interrupt, status, masking/re-arm behavior,
+   and EOI. Include a no-expiry control and a hard timeout.
+5. **P2 - virtual timer presented to guest:** verify CNTVOFF/CNTVCT and guest
+   timer controls/interrupt routing, including expected PPI mapping and whether
+   EL2 traps or virtualizes guest timer state. This is distinct from HAVEN's own
+   CNTHP deadline timer.
+6. **P2 - interrupt state across re-entry/partition transition:** verify LR
+   cleanup, pending/active state, masks, and timer cancellation/reprogramming
+   before each guest ERET, including CPU_ON failure and delayed secondary boot.
+
+### Minimal proposed tracked fix (review only; not applied)
+
+- Select PSCI conduit as a platform/firmware property. Make the existing direct
+  QEMU profile explicitly report “no PSCI CPU_ON service” or provide a matching
+  PSCI firmware path; make the TF-A QEMU profile use its declared SMC conduit.
+  Remove the unconditional HVC claim. Do not hard-code SMC globally or infer a
+  physical-board setting.
+- Add a common secondary EL2 initialization sequence after mailbox release and
+  before stage-2 activation/guest ERET. It must call the full CPU init, execute
+  the per-CPU GIC virtual-interface setup, initialize the per-CPU timer only
+  when its IRQ path is enabled, and use a documented full-MPIDR-to-logical-CPU
+  mapping. Keep distributor initialization primary-only.
+- Return and log the PSCI signed status without treating it as secondary
+  readiness; use a bounded secondary-ready acknowledgement before announcing
+  B active. Route nonzero errors to an explicit inactive/failed state.
+- Correct PPI enable/disable to take/use the target CPU's redistributor rather
+  than always CPU 0, as part of the interrupt-path fix.
+
+Acceptance criteria before this proposal is implemented: (a) direct-load test
+fails cleanly with an explicit unsupported-conduit result instead of a fatal
+HVC trap; (b) TF-A-backed profile reaches secondary-ready and guest B with the
+declared SMC conduit; (c) all EL2 CPU and virtual GIC per-core setup is observed
+before B ERET; (d) CPU 2 receives/handles the one injected virtual IRQ and the
+CNTHP PPI 26 test, with matching expected negative/control behavior; (e) PSCI
+nonzero return leaves B inactive and is logged; (f) existing partition stage-2
+denial remains intact; (g) isolated build and bounded QEMU runs record exact
+revision, config, source diff, images, hashes, logs, and termination status.
+Physical firmware conduit, EL2 entry, GIC, timer, and recovery-path criteria
+must be added per board before any board support claim. This package stops
+before implementation pending review, as required by the current Stage 0
+baseline.
+
+### Preservation and reproduction record
+
+All previously relied-on QEMU evidence currently exists beneath
+`haven/build/evidence/`, which `haven/.gitignore` ignores (`build*/`). The
+experiment READMEs, raw UART/console logs, and exact QEMU images are present in
+the workspace now but are not tracked by HAVEN. The TF-A source checkout
+(`/private/tmp/arm-trusted-firmware-v2.15.0`) and isolated build directories
+(`/private/tmp/haven-stage0-qemu` and the temporary TF-A build) are no longer
+present. Therefore the hashes in the existing READMEs identify the former
+artifacts, but the deleted temporary source/build cannot be re-hashed or used to
+replay without rebuilding. This baseline section is the durable recipe and
+interpretation; preserve/copy the evidence package to an approved durable
+location before relying on these results for thesis claims.
+
+Reproduction outline for the virtual handoff evidence (not run in this audit):
+
+1. Checkout HAVEN at `f775304ce9443dc9861ba1880e4208c7ae19b314`; preserve the
+   session's diagnostic-only `src/core/exc/el2_exceptions.c` diff, or account
+   for its removal when comparing output. Build in a fresh directory outside
+   `haven/build` with `cmake -S haven -B <fresh-build> -G Ninja
+   -DCMAKE_TOOLCHAIN_FILE=haven/cmake/arm64.cmake
+   -DPLATFORM=qemu-virt -DCMAKE_BUILD_TYPE=MinSizeRel`, then
+   `cmake --build <fresh-build> --parallel 4`.
+2. For direct loading, run QEMU 11.1.2 with `virt,virtualization=on`, Cortex-A72,
+   4 CPUs, 2 GiB, GICv3, SMMUv3, and the three raw image loaders at the addresses
+   listed in the direct-run READMEs; capture UART and QEMU process output. A
+   bounded fatal-handler timeout is a failure result, not a pass.
+3. For TF-A, retrieve official TF-A tag `v2.15.0` and verify commit
+   `da738d5eae93af342fdc4995dd3c05acb4c9d757`. Build with GNU Make and GNU sed:
+   `make PLAT=qemu QEMU_USE_GIC_DRIVER=QEMU_GICV3
+   PRELOADED_BL33_BASE=0x80000000 DEBUG=0 LOG_LEVEL=20
+   CROSS_COMPILE=aarch64-linux-gnu- all` (the prior `fip` target was
+   unnecessary for this experiment). Build a disposable HAVEN copy with only
+   `hvc #0` changed to `smc #0`; for the CPU 2 probe use the documented
+   full-init or narrowed-secondary variant and the exact diagnostic guest B
+   modification from the secondary evidence README. Load BL1 as QEMU BIOS,
+   BL2/BL31 and HAVEN/guest images using their recorded addresses; use
+   `virt,secure=on,virtualization=on,gic-version=3,iommu=smmuv3`, Cortex-A72,
+   4 CPUs, 2 GiB, native semihosting. Capture stdout/UART, time out at four
+   seconds as before, save the exit/timeout status, and hash all source diffs,
+   input images, firmware images, and logs. The prior READMEs specify the image
+   hashes and observations but do not preserve the full original QEMU command;
+   reconstruct and record that command verbatim on replay rather than claiming
+   bit-for-bit command reproduction from this outline.
+
+Official references reviewed: Arm [PSCI DEN0022E](https://documentation-service.arm.com/static/640f584656ea36189d4e94a4),
+which defines CPU_ON IDs/arguments, return codes, and permits HVC as a conduit
+where selected; Arm [GICv3/v4 software overview](https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/Learn%20the%20Architecture/GICv3_v4_overview.pdf),
+including per-PE routing, masks, vectors, and CPU-interface setup; Arm [Generic
+Timer guide](https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/Learn%20the%20Architecture/Generic%20Timer.pdf),
+which identifies the non-secure EL2 physical timer PPI as INTID 26; and TF-A
+[QEMU virt guide](https://trustedfirmware-a.readthedocs.io/en/latest/plat/qemu.html)
+and [porting guide](https://trustedfirmware-a.readthedocs.io/en/latest/porting-guide.html),
+which document its EL3 BL31 runtime-service role and QEMU boot options. The
+official documents describe interfaces and TF-A's implementation; they do not
+prove the local platform's behavior.
+
+### Inputs still needed
+
+The local reference set is sufficient to continue source and workflow audits.
+Physical validation will need, for each board intended for the first campaign:
+board revision/label, installed firmware version or image hash, boot mode,
+serial logs, ACPI table or Device Tree dump, kernel version/config, and output
+from relevant GIC/SMMU/IOMMU discovery. Attach or place those captures under
+`data/` and update the matrix with their provenance. If you do not yet have a
+board or a capture, leave the field `unknown`; we can continue the source audit
+without guessing.
+
+## Commands run for this baseline
+
+Commands included `git -C <repo> rev-parse HEAD`, `git -C <repo> status --short`,
+`uname -a`, `sw_vers`, tool version/help queries, targeted `rg`/`sed` inspection,
+`shasum -a 256`, `task --force build`, `./build/elmos doctor`, CMake configure
+and build in `/private/tmp/haven-stage0-qemu`, TF-A source/build commands in
+`/private/tmp`, isolated CMake builds, and bounded QEMU runs. `cmake --list-presets`
+first ran from the workspace root and failed because it has no
+`CMakePresets.json`; rerunning from `haven/` succeeded. No test suites,
+flashing, or physical experiments were run.
+
+## Stage 0 component-boundary and IRQ/timer addendum (2026-10-25)
+
+**Classification:** AUDIT / EXPERIMENT / DOCUMENTATION. **Owner:** HAVEN for
+the QEMU mechanism and evidence; ELMOS and KDAL were inspected read-only for
+their actual boundaries. Pinned revisions are unchanged. The workspace root is
+not a Git repository. HAVEN's pre-existing tracked diagnostic print remains
+its only tracked source change; ELMOS and KDAL remain clean. No physical board
+or board boot capture is available.
+
+- Preserved all 41 prior ignored QEMU evidence files in a verified archive,
+  including READMEs, firmware/guest images and logs, with individual hashes.
+  Preserved the new bounded run files, exact source patches, commands, image
+  hashes, logs, build records and failed variants in a second verified archive.
+  See the [evidence package and reproduction limits](haven/docs/methodology/stage0/20261025-boundaries/README.md).
+- Replayed the preserved TF-A/HAVEN images independently: TF-A and HAVEN
+  banners, guest A greeting, denied IPA `0x60000000`, and resumed marker
+  reappeared within the four-second QEMU bound. The reconstructed QEMU command
+  was recorded verbatim for this new replay; the original complete command was
+  not preserved. The deleted temporary TF-A source checkout cannot be
+  re-inspected, although its archived images were hashed.
+- In disposable builds, CPU 2 entered at EL2, received one virtual Group 1
+  interrupt (vINTID 60) through an actual guest IRQ vector, acknowledged and
+  EOI'd it, then resumed. Disabling `ICH_HCR.EN` kept the LR pending and guest
+  count at zero. `ICH_VTR_EL2` reported four LRs; the tracked injector scans
+  sixteen. This supports only the one-LR diagnostic path, not policy-mediated
+  interrupt isolation.
+- A software-pended physical SPI 40 was delivered once to CPU 2 through the
+  lower-EL IRQ vector and a **temporary registered** IAR/EOI callback. The
+  software ownership API rejected a conflicting assignment with `HV_EPERM`
+  and left IROUTER unchanged. This does not connect that owner table to guest
+  injection or prove a peripheral path. The tracked lower-EL IRQ handler lacks
+  a default IAR/EOI handler; the current-EL2 IRQ vector is fatal. Initial
+  physical CPU-interface state logged `ICC_IGRPEN1=0` before the probe set it.
+- With diagnostic CPU 2 PPI26 enablement, CNTHP delivered two 10 ms future
+  compares, the callback masked/rearmed/EOI'd them, and guest B resumed. Masked
+  expiry and a future deadline were quiet controls. Using the unchanged
+  `gic_v3_enable_irq(26)` enabled redistributor 0, left CPU 2 disabled and
+  produced no interrupt despite its expired, unmasked timer. This isolates the
+  PPI-selection defect to HAVEN, with no timing or budget guarantee.
+- Before the successful SPI run, an aggregate literal load in the diagnostic
+  fixture faulted on alignment. Moving static probe data shifted an existing
+  `hv_el2_exceptions_init` store onto an unaligned address and faulted sooner;
+  a disposable `-mstrict-align` build then failed to link a compiler-generated
+  `memcpy` absent from HAVEN's freestanding ABI. These first-failure records
+  expose an independent HAVEN memory/compiler contract risk and are preserved.
+  The final SPI probe used scalar volatile assignments to isolate IRQ delivery;
+  it did not repair that separate risk.
+- ELMOS's `qemu run` constructs a Linux `-kernel`/disk/network launch and has
+  no input for the measured TF-A/BL33 plus raw guest loaders. Its lower-level
+  `ShellExecutor.RunInDir` can run an explicit command, so the smallest next
+  integration experiment is an isolated ELMOS host-execution adapter that
+  repeats the independent manual launch with identical images, options,
+  capture and timeout. No ELMOS/HAVEN integration was claimed.
+- KDAL's observed runtime is a Linux kernel module with `/dev/kdal`, example
+  drivers and a QEMU software ring backend. Neither HAVEN nor its bare-metal
+  guests import or invoke it. The earlier note that KDAL generic discovery was
+  entirely absent was too broad: `generic/devicetree.c` has a scanner, but no
+  current lifecycle call site reaches it. Virtio transport helpers likewise
+  have no caller. No KDAL dependency or integration requirement was inferred.
+
+The [boundary readiness matrix and prioritized acceptance
+criteria](haven/docs/methodology/stage0/20261025-boundaries/BOUNDARIES.md)
+record exact producer/consumer inputs, outputs, first failing checkpoints,
+failure owners, regression checks and the one bounded next ELMOS experiment.
+The prior combined HAVEN fix is ready for a **scoped design review**, with
+separate PSCI/per-core, GIC/IRQ, timer/PPI and compiler/memory decisions. It is
+not ready to adopt as one production change: full `hv_arch_cpu_init()` still
+omits physical CPU-interface setup, LR/active-state cleanup and an explicit
+cache/MMU handoff, and no production IRQ service or unified ownership path is
+present. No temporary implementation change was ported into tracked HAVEN.
+
+## Stage 0 correction review addendum (2026-10-25)
+
+**Classification:** AUDIT / DOCUMENTATION, with bounded isolated compiler
+validation. **Owner:** HAVEN. The baseline was moved from the workspace root
+to this `stages/` directory during the review. Workspace `AGENTS.md` still
+names the old location; older relative links above retain their original
+workspace-root interpretation. No scope or stage transition follows from the
+move. Revisions are unchanged. Additional local HAVEN formatting changes in
+`arch/arm64/cpu.c` and `tests/integration/test_secondary_cpu_isolation.c`, and a
+script-path correction in `scripts/evidence/package-evidence.sh`, were found
+and preserved alongside the existing fatal-print diff. ELMOS/KDAL remain clean.
+
+- The [finding ledger](../haven/docs/methodology/stage0/20261025-corrections/FINDINGS.md)
+  splits the earlier combined findings into ten review units with contracts,
+  source symbols, exact evidence members, confidence, dependencies, minimal
+  corrections and positive/negative regression criteria. The read-only
+  Isolation Guardian reviewed the design and the final proposal.
+- Source tracing qualifies the prior PPI description: the unchanged API
+  explicitly uses redistributor0, and the CPU2 caller was diagnostic. No
+  production call currently enables PPI26; `hv_irq_assign` first uses SPI-only
+  routing. The missing capability is an explicit per-CPU private IRQ operation
+  plus timer/service binding. Both virtual LR loops also assume 16 LRs, while
+  only 4 were observed; an unimplemented-LR access fault was not captured.
+  Public injection's vector<32 restriction and ignored target partition mean
+  the private vINTID60 probe does not validate that API.
+- A new pristine-source strict-alignment build independently reproduced the
+  undefined compiler-generated `memcpy` in `hv_stage2_map_partition`, without
+  the SMC/CPU-init/IRQ fixtures. A nine-line ARM64-only wrapper proposal passed
+  default and strict build/link, object/symbol/recursion checks and native copy
+  semantics checks in an isolated source export. It has not been applied to
+  tracked implementation. No QEMU run occurred in this review; runtime layout
+  sensitivity and the effective EL2 memory handoff remain unresolved.
+- The [correction order and first proposal](../haven/docs/methodology/stage0/20261025-corrections/REVIEW.md)
+  put the demonstrated ABI export first, followed by alignment/memory evidence,
+  explicit firmware/conduit profiles, bounded secondary/per-CPU readiness,
+  separate LR/PPI leaves, physical IRQ service, ownership-mediated delivery,
+  and CPU-bound timer policy. Patch1 is ready for proposal review only; ARM64
+  runtime acceptance and the existing adoption review gate remain pending.
+- All 448 new validation files, including source export, exact commands,
+  configurations, logs, objects and images, are preserved outside ignored
+  output in the [review package](../haven/docs/methodology/stage0/20261025-corrections/README.md),
+  with individual hashes and a verified archive. The older evidence archives
+  retain their recorded hashes. No commit or remote backup was made.
+- The [minimum ELMOS launch contract](../haven/docs/methodology/stage0/20261025-corrections/ELMOS_LAUNCH_CONTRACT.md)
+  supersedes a generic execution-adapter proposal with structured QEMU firmware,
+  payload, working-file, capture and bounded-process requirements. It separates
+  those generic responsibilities from HAVEN's pinned TF-A scenario and needs
+  no arbitrary shell-command escape. ELMOS was not extended. KDAL integration
+  remains undefined and supplies no dependency for these HAVEN corrections.
+
+No physical board, DMA, real-time or end-to-end integration claim is added.

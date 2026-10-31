@@ -1,0 +1,34 @@
+{
+  "captured_utc": "2026-10-25T14:53:10.270775+00:00",
+  "classification": "AUDIT / DOCUMENTATION; isolated compiler validation of an unapplied proposal",
+  "baseline_path": "stages/STAGE0_BASELINE.md",
+  "root_git": false,
+  "repos": {
+    "haven": {
+      "revision": "f775304ce9443dc9861ba1880e4208c7ae19b314",
+      "status": " M arch/arm64/cpu.c\n M scripts/evidence/package-evidence.sh\n M src/core/exc/el2_exceptions.c\n M tests/integration/test_secondary_cpu_isolation.c\n?? docs/methodology/stage0/\n"
+    },
+    "elmos": {
+      "revision": "5ef5cd7fb974fca961e1af7f5a7f08ff47f70e95",
+      "status": ""
+    },
+    "kdal": {
+      "revision": "1ab0dce6dedada4162325ba2101db63214ed896c",
+      "status": ""
+    },
+    "haven-thesis": {
+      "revision": "e4f89d250b43a659ca19f4bc3d5710d3e60353d8",
+      "status": " M \"082025 BC DA 21207197 Robot nh\\341\\273\\207n Hexapod \\341\\273\\251ng d\\341\\273\\245ng trong do th\\303\\241m \\304\\221\\341\\273\\213a h\\303\\254nh.pdf\"\n?? main.pdf\n"
+    },
+    "haven-wiki": {
+      "revision": "56cd8de7781ac13e94939f5efbc50dbd46461813",
+      "status": ""
+    }
+  },
+  "input_sha256": {
+    "AGENTS.md": "84f8ae16dba192bacb7485aee3fed8d57c6a53fae233e90b12a528a5f8eee59f",
+    "haven/AGENTS.md": "69f9dba25f5948147a66fc2bfc00016d8470257b60780b07713d977d8caa45e2",
+    "elmos/AGENTS.md": "2344f2e724cd8168be5c75430b0b04ffaa0bfa0816bf695ce079eb4588c3e0b7",
+    "stages/STAGE0_BASELINE.md": "6908e05e9752304bc6bfed338d571a992c391d3b2e7f2c5f6980aa575cd9b050"
+  }
+}

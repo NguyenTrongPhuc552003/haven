@@ -1,0 +1,206 @@
+--- before/AGENTS.md
++++ after/AGENTS.md
+@@ -9,9 +9,19 @@
+    toolchains, kernel/rootfs workflows, QEMU, debugging, and experiment setup.
+ 2. **HAVEN** - the thesis core: ARM64 EL2 virtualization, isolation policy,
+    partition lifecycle, interrupt, timing, and DMA/IOMMU control.
+-3. **KDAL** - the device and accelerator abstraction candidate, evaluated only
+-   where it supports a HAVEN-mediated device-isolation or heterogeneous-compute
+-   research question.
++3. **KDAL** - the required device abstraction component, providing useful
++   device operations within a resource boundary admitted and enforced by HAVEN.
++   Its exact guest placement, backend, and device/accelerator scope require
++   design review and evidence.
++
++The final thesis artifact MUST integrate all three engineering components in
++one reproducible system: ELMOS prepares, builds, launches, tests, and captures
++evidence; HAVEN owns trusted isolation, partition lifecycle, and resource
++admission; KDAL supplies the device abstraction inside that admitted boundary.
++KDAL's inclusion is decided. Its runtime interface and the research question,
++hardware capabilities, architecture, and novelty remain decisions to justify.
++Earlier records describing KDAL as optional are historical scope statements,
++not current authorization to omit it.
+ 
+ Do not propose, create, split, clone, or depend on additional implementation
+ repositories for the thesis. New capabilities belong in one of the three
+@@ -129,24 +139,31 @@
+ 
+ ## Architectural roles and dependency direction
+ 
+-The intended dependency direction is deliberately narrow:
++The required roles and dependency directions are:
+ 
+ ```text
+-ELMOS (host tools, QEMU, build and evidence workflow)
+-        └── builds/tests/boots ──> HAVEN (EL2 core and policy enforcement)
+-                                      └── mediates ──> KDAL (candidate device/accelerator interface)
++ELMOS (host preparation, builds, QEMU launch, tests and evidence)
++        ├── builds/boots/tests ──> HAVEN (trusted EL2 admission and isolation)
++        └── builds/packages ────> Linux guest + KDAL (proposed initial placement)
++HAVEN ── admits/enforces resource envelope ──> guest containing KDAL
++Guest application ── /dev/kdal ──> KDAL ──> admitted backend resources
+ HAVEN/KDAL evidence ──> haven-thesis ──> haven-wiki at approved release close
+ ```
+ 
+-- ELMOS may automate building, booting, testing, debugging, and collecting
+-  evidence for HAVEN and approved KDAL experiments. It must not absorb HAVEN's
+-  isolation policy.
++- ELMOS owns reproducible preparation, build, packaging, boot, test, debugging,
++  and evidence workflows for the integrated HAVEN/KDAL system. It must not
++  absorb HAVEN's isolation policy.
+ - HAVEN owns trusted EL2 mechanisms and all admission/mediation decisions that
+   affect partition memory, CPUs, interrupts, clocks, DMA, or device ownership.
+ - KDAL is untrusted with respect to HAVEN's TCB unless a future approved design
+   and evidence demonstrate otherwise. Its integration must go through a
+   HAVEN-defined policy boundary; it may not bypass stage-2, interrupt, or DMA
+   ownership controls.
++- KDAL remains outside trusted EL2 in the proposed guest placement. Ordinary
++  KDAL operations on already admitted guest resources need not call EL2.
++  HAVEN enforces the resource envelope through memory, interrupt, and DMA
++  controls appropriate to the selected backend. Required integration does not
++  authorize a circular dependency, copying KDAL into EL2, or a new runtime ABI.
+ - Any direct ELMOS↔KDAL integration is tooling only. It must not establish a
+   runtime path that bypasses HAVEN.
+ 
+@@ -256,14 +273,17 @@
+ change milestones, or claim board support. Each stage needs an evidence package
+ and an explicit research decision before the next dependent stage starts.
+ The active Stage 0 inventory and baseline is recorded in
+-[`STAGE0_BASELINE.md`](STAGE0_BASELINE.md); update its unknowns with pinned,
++[`stages/STAGE0_BASELINE.md`](stages/STAGE0_BASELINE.md); update its unknowns with pinned,
+ reproducible observations as the audit proceeds.
++Use the [stage index](stages/README.md) for the current integration proposal,
++contracts, correction gates, and historical evidence. Design documentation is
++authorized; coordinated implementation and tracked adoption remain review gates.
+ 
+ | Stage                      | Owner and required work                                                                                                                                                                                                                                                                         | Exit evidence / decision                                                                                                                                                                                 |
+ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ | 0. Inventory and baseline  | ELMOS records macOS/toolchain/QEMU reproducibility; HAVEN audits its actual EL2, stage-2, GIC, timer, SMMU, and boot code; KDAL audits its API and trust boundary. Create four board records from the local references, note missing facts, and choose safe read-only or recovery-first probes. | Exact repo revisions, working-tree status, source/document conflicts, host/tool versions, source ledger, and a board feasibility matrix. No board support claim yet.                                     |
+-| 1. Research decision       | HAVEN formulates one bounded, falsifiable research question and threat model. Compare prior work and alternatives; choose the minimum required device, workload, and board roles. ELMOS defines repeatable measurement and KDAL is included only if it tests the question.                      | Approved problem statement, HAVEN boundary and TCB definition, acceptance thresholds, negative controls, QEMU-to-board comparison plan, and feasibility evidence for the selected boards.                |
+-| 2. Minimal implementation  | HAVEN implements the smallest approved mechanism or port. ELMOS supplies reproducible build, boot, and capture workflow. KDAL receives only an approved mediated interface if justified.                                                                                                        | Focused unit/policy checks, QEMU regression, code review, and per-board boot plus isolation checks for any claimed physical target. Cross-repository changes follow the integration approval rule above. |
++| 1. Research decision       | HAVEN formulates one bounded, falsifiable research question and threat model. Compare prior work and alternatives; choose the minimum device, workload, and board roles. Define a useful KDAL role within HAVEN's admitted boundary and ELMOS's repeatable preparation and measurement workflow; all three components are required. | Approved problem statement, HAVEN boundary and TCB definition, integrated vertical slice, acceptance thresholds, negative controls, QEMU-to-board comparison plan, and board feasibility evidence. |
++| 2. Minimal implementation  | HAVEN implements the smallest approved mechanism or port. ELMOS supplies reproducible preparation, build, packaging, launch, tests and capture. KDAL implements the approved device abstraction within admitted guest resources; add a runtime ABI only when justified and reviewed. | Focused unit/policy checks, integrated QEMU positive/negative regression, code review, and per-board boot plus isolation checks for any claimed physical target. Cross-repository changes follow the integration approval rule above. |
+ | 3. Evaluation and analysis | Run controlled workloads with pinned source, firmware, configuration, device, and toolchain. Include baseline, interference, denial tests, repeated trials, and failure logs.                                                                                                                   | Raw data, scripts, sample counts, timing method, uncertainty, validity limits, and a conclusion that distinguishes QEMU from each physical board.                                                        |
+ | 4. Thesis and release      | Migrate only supported HAVEN claims into `haven-thesis`; review traceability against code and experiments. Publish `haven-wiki` only at approved release close.                                                                                                                                 | Reviewed claim-to-evidence table, thesis chapters and bibliography, release scope, verified commands, known limitations, and reproducible evidence links.                                                |
+ 
+--- before/stages/STAGE0_BASELINE.md
++++ after/stages/STAGE0_BASELINE.md
+@@ -110,7 +110,7 @@
+   `hv_el2_exceptions_init()` on the primary path, although its source comment
+   says it is called once per CPU. The secondary test did not exercise guest
+   interrupts; audit this GIC setup contract before claiming CPU 2 IRQ
+-  readiness. See the [secondary-core QEMU evidence](haven/build/evidence/stage0-20261024-tfa-qemu-secondary/README.md).
++  readiness. See the [secondary-core QEMU evidence](../haven/build/evidence/stage0-20261024-tfa-qemu-secondary/README.md).
+ 
+ ### KDAL
+ 
+@@ -192,8 +192,8 @@
+   its post-fault marker. This validates that narrow guest-A path under the
+   specified virtual setup. It does not establish CPU 2's execution of guest B,
+   DMA/SMMU isolation, or physical-board behavior. See the [initial TF-A setup
+-  trial](haven/build/evidence/stage0-20261023-tfa-qemu/README.md) and the
+-  [corrected TF-A QEMU run](haven/build/evidence/stage0-20261023-tfa-qemu-guest1/README.md).
++  trial](../haven/build/evidence/stage0-20261023-tfa-qemu/README.md) and the
++  [corrected TF-A QEMU run](../haven/build/evidence/stage0-20261023-tfa-qemu-guest1/README.md).
+ - On 2026-10-24, a separate temporary-build comparison explicitly probed CPU
+   2. A guest-B diagnostic load of A's IPA at B's entry was denied twice by
+   stage-2 after calling `hv_arch_cpu_init()` on CPU 2; the logged CPU, ELR, IPA,
+@@ -202,7 +202,7 @@
+   workspace repository. The comparison supports incomplete per-core EL2 setup
+   as the cause but does not isolate a single register or verify physical
+   firmware. Full logs and image hashes are in the [secondary-core evidence
+-  record](haven/build/evidence/stage0-20261024-tfa-qemu-secondary/README.md).
++  record](../haven/build/evidence/stage0-20261024-tfa-qemu-secondary/README.md).
+ - A subsequent temporary variant replaced the full initializer with exception
+   vectors, `HCR_VM | HCR_RW`, `VTCR_HAVEN_DEFAULT`, and the existing VTTBR
+   activation. It produced the same two CPU 2 denied accesses and A's
+@@ -525,7 +525,7 @@
+   including READMEs, firmware/guest images and logs, with individual hashes.
+   Preserved the new bounded run files, exact source patches, commands, image
+   hashes, logs, build records and failed variants in a second verified archive.
+-  See the [evidence package and reproduction limits](haven/docs/methodology/stage0/20261025-boundaries/README.md).
++  See the [evidence package and reproduction limits](../haven/docs/methodology/stage0/20261025-boundaries/README.md).
+ - Replayed the preserved TF-A/HAVEN images independently: TF-A and HAVEN
+   banners, guest A greeting, denied IPA `0x60000000`, and resumed marker
+   reappeared within the four-second QEMU bound. The reconstructed QEMU command
+@@ -573,7 +573,7 @@
+   have no caller. No KDAL dependency or integration requirement was inferred.
+ 
+ The [boundary readiness matrix and prioritized acceptance
+-criteria](haven/docs/methodology/stage0/20261025-boundaries/BOUNDARIES.md)
++criteria](../haven/docs/methodology/stage0/20261025-boundaries/BOUNDARIES.md)
+ record exact producer/consumer inputs, outputs, first failing checkpoints,
+ failure owners, regression checks and the one bounded next ELMOS experiment.
+ The prior combined HAVEN fix is ready for a **scoped design review**, with
+@@ -634,3 +634,63 @@
+   remains undefined and supplies no dependency for these HAVEN corrections.
+ 
+ No physical board, DMA, real-time or end-to-end integration claim is added.
++
++## Required integrated artifact and isolated runtime addendum (2026-10-25)
++
++**Scope decision from the user:** ELMOS, HAVEN and KDAL are all required in the
++final thesis artifact. Optional-KDAL wording above is historical. Workspace
++instructions now state their required responsibilities while retaining the
++research/architecture and coordinated implementation gates. The moved baseline
++reference and affected navigation links have been repaired. This is not an
++approval to advance thesis stages or adopt runtime interfaces.
++
++The [integrated design package](../haven/docs/methodology/stage0/20261025-integration-design/README.md)
++proposes one CPU0 Linux guest with KDAL outside trusted EL2, ELMOS orchestration,
++and HAVEN admission. It includes observed/proposed architecture, seven boundary
++contracts, an end-to-end acceptance scenario, finding-specific prerequisites,
++M0–M5 and a concrete first coordinated artifact/preflight proposal. All remain
++review proposals; no coordinated implementation was applied.
++
++New observations:
++
++- KDAL's `kdal_attach_driver` invokes probe before assigning `device->driver`;
++  the static UART device has no association and `uart_probe` dereferences it.
++  Registry registration does not populate it first. This is a source-order
++  defect, not a recorded module-load failure. A separate KDAL lifecycle fix
++  and independent Linux functional baseline are required before integration.
++  The UAPI reports0.1.0; initial clients are AArch64 only because `compat_ioctl`
++  is absent. Invalid selection is name validation, not HAVEN authorization.
++- The local Linux6.6.80 source candidate exists outside the implementation
++  repositories, but has no `.config`, built Image, Module.symvers or generated
++  release header. No matching module exists in the inspected shared-module
++  directory. HAVEN still has no demonstrated Linux boot, guest DT/initramfs,
++  virtual GIC frontend or complete guest timer path. Bare-metal ERET and an LR
++  injection do not establish these capabilities. Source/config hashes and
++  missing inputs are recorded in the new package.
++- Authorized isolated runtime checks executed the unchanged memcpy proposal's
++  semantics fixture at EL2 with both default and diagnostic strict flags;
++  both passed and retained A's denial/resume marker. The exact preserved
++  aligned failure image reproduced, and the matched aligned source plus ABI
++  still faulted under default flags (ESR0x96000061, ELR0x800038ac, shifted
++  FAR0x8000701c). Its strict build passed the former checkpoint and existing
++  diagnostic SPI probe. These are five expected verdicts, including two
++  failure controls; no strict compiler flag or probe code was adopted.
++- External GDB hardware-breakpoint captures observe primary entry
++  SCTLR_EL2=0x30c50830 and primary post-init/fault0x30c51834, HCR0→0x80080039,
++  with TTBR0_EL2/TCR_EL2/MAIR_EL2 all0. Stage-1 M stays0 and A stays0 while
++  C/I are set by HAVEN. CPU2 before diagnostic init retains the entry state.
++  A1 is narrowed but remains open; A2 has new on-target evidence while its
++  tracked adoption remains gated. Full register/command/image/patch evidence
++  and the initial sandbox socket failure are preserved in the verified1,360-
++  file runtime archive outside ignored build directories.
++- For the minimum UP Linux slice, CPU2 startup and multicore CNTHP policy can
++  defer only after an explicit primary-only profile skips those paths. Guest
++  CNTV/PPI27 and bounded virtual interrupt delivery remain Linux prerequisites.
++  Physical GICD passthrough and generic skipped-fault handling are not accepted
++  shortcuts. The actual HAVEN negative is an excluded-page store with external
++  fault/canary evidence; a KDAL invalid-name errno is a separate API control.
++
++Revisions and existing implementation diffs are preserved. ELMOS and KDAL were
++inspected read-only. No Linux/KDAL integrated run, physical device, DMA or
++real-time behavior has been established. The next decision is review of CP1
++and its scoped prerequisites, not whether KDAL is included.
+--- before/data/README.md
++++ after/data/README.md
+@@ -84,4 +84,4 @@
+ qualify a board as supported.
+ 
+ The current workspace audit, host record, source revisions, and initial
+-four-board matrix are in [`../STAGE0_BASELINE.md`](../STAGE0_BASELINE.md).
++four-board matrix are in [`../stages/STAGE0_BASELINE.md`](../stages/STAGE0_BASELINE.md).

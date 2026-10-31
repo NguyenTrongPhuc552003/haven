@@ -1,0 +1,20 @@
+# Thesis stages and current decisions
+
+All three engineering components-ELMOS, HAVEN and KDAL-are required in the
+final artifact. The runtime placement below is proposed and awaits review.
+Stage 0 remains active; documentation and diagnostic experiments do not approve
+runtime interfaces or production adoption.
+
+| Read first | Purpose |
+| --- | --- |
+| [Workspace instructions](../AGENTS.md) | Current scope, dependency authority, evidence and review rules |
+| [Stage 0 baseline](STAGE0_BASELINE.md) | Observations, exact revisions and remaining feasibility gaps |
+| [Current integrated design](../haven/docs/methodology/stage0/20261025-integration-design/README.md) | Required three-component artifact, proposed Linux/KDAL slice, contracts, milestones and first coordinated proposal |
+| [Finding ledger](../haven/docs/methodology/stage0/20261025-corrections/FINDINGS.md) | Separate compiler, startup, IRQ and timer findings; use the new runtime addendum for subsequent evidence |
+| [Correction review](../haven/docs/methodology/stage0/20261025-corrections/REVIEW.md) | Unapplied memcpy proposal and adoption gate |
+| [Preserved boundary evidence](../haven/docs/methodology/stage0/20261025-boundaries/README.md) | Archived experiments and reproduction limits |
+
+Earlier evidence packages preserve the scope and observations at their capture
+date. Their statements that KDAL was optional, or that no integrated design was
+defined, do not supersede the user's subsequent required-integration decision.
+They still accurately record that no integrated runtime was observed then.

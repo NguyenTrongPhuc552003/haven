@@ -1,0 +1,42 @@
+{
+  "result": "PASS",
+  "source": "/Users/trongphucnguyen/Documents/workspace/haven",
+  "builds": {
+    "default": {
+      "build": "PASS",
+      "standard_export": "memcpy only",
+      "unresolved_symbols": [],
+      "memory_helper_recursion": false,
+      "images": {
+        "guest_a.bin": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea",
+        "haven.bin": "5ef8b5d694b12298749b65f3d4833ff5d26221b6e1473373c9e0ba5346161509",
+        "guest_b.bin": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+      }
+    },
+    "strict": {
+      "build": "PASS",
+      "standard_export": "memcpy only",
+      "unresolved_symbols": [],
+      "memory_helper_recursion": false,
+      "images": {
+        "guest_a.bin": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea",
+        "haven.bin": "67e3414216c0e727c71e16d94e97a963b1b0def1d2b3693f3286bca9a27b0d91",
+        "guest_b.bin": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+      }
+    }
+  },
+  "helper_source_sha256": "1c2b8958aaf0eb30672ba47ff09f260ffaebc8c5e3ee593a5bc64a4c314bde1d",
+  "semantics": "Reuse unchanged helper/GCC15.2 default+strict target and native execution evidence from Stage0",
+  "not_run": [
+    "QEMU",
+    "Linux/vGIC",
+    "KDAL module",
+    "physical boards"
+  ],
+  "open_risk": "A1 alignment/boot/initialization remains independent and unresolved",
+  "semantic_evidence_source_match": {
+    "runtime/target-abi-default-source/src/common/string.c": true,
+    "runtime/target-abi-strict-source/src/common/string.c": true
+  },
+  "preexisting_diff_preserved": true
+}

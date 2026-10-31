@@ -1,0 +1,34 @@
+{
+  "captured_utc": "2026-10-25T16:10:34.381886+00:00",
+  "classification": "AUDIT / RESEARCH / DOCUMENTATION",
+  "stage_transition": false,
+  "repos": {
+    "haven": {
+      "revision": "f775304ce9443dc9861ba1880e4208c7ae19b314",
+      "status": " M arch/arm64/cpu.c\n M scripts/evidence/package-evidence.sh\n M src/core/exc/el2_exceptions.c\n M tests/integration/test_secondary_cpu_isolation.c\n?? docs/methodology/stage0/\n"
+    },
+    "elmos": {
+      "revision": "5ef5cd7fb974fca961e1af7f5a7f08ff47f70e95",
+      "status": ""
+    },
+    "kdal": {
+      "revision": "1ab0dce6dedada4162325ba2101db63214ed896c",
+      "status": ""
+    },
+    "haven-thesis": {
+      "revision": "e4f89d250b43a659ca19f4bc3d5710d3e60353d8",
+      "status": " M \"082025 BC DA 21207197 Robot nh\\341\\273\\207n Hexapod \\341\\273\\251ng d\\341\\273\\245ng trong do th\\303\\241m \\304\\221\\341\\273\\213a h\\303\\254nh.pdf\"\n?? main.pdf\n"
+    },
+    "haven-wiki": {
+      "revision": "56cd8de7781ac13e94939f5efbc50dbd46461813",
+      "status": ""
+    }
+  },
+  "document_inputs": {
+    "AGENTS.md": "2762fd1c367b370be31cbbedad88ac2f269e7721d38baf0c38509953823272d3",
+    "stages/README.md": "6e9e11627e58add8ff20177c916ce20dfd6c3309b5e1b68e8ea1cc64134a052f",
+    "stages/STAGE0_BASELINE.md": "cc5ca8712cf5c5a3d4b04aaa7417bee893e0951f0be8767a32d3449c4a666280",
+    "haven/docs/methodology/stage0/20261025-integration-design/ROADMAP.md": "072710bd89314f5f652ff057bc69879f49187087070553e928b036d433cead09",
+    "haven/docs/methodology/stage0/20261025-integration-design/README.md": "1510680f4232553871b4f2373b70dd6f816ea1614670003a420166f614232ce2"
+  }
+}

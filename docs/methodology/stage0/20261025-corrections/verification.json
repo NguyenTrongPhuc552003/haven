@@ -1,0 +1,35 @@
+{
+  "checks": {
+    "prior_haven_diff_preserved": true,
+    "proposal_not_applied": true,
+    "elmos_status_preserved": true,
+    "elmos_revision_preserved": true,
+    "kdal_status_preserved": true,
+    "kdal_revision_preserved": true,
+    "haven-thesis_status_preserved": true,
+    "haven-thesis_revision_preserved": true,
+    "haven-wiki_status_preserved": true,
+    "haven-wiki_revision_preserved": true,
+    "baseline_changed_only_by_append": true,
+    "legacy-evidence.tar.gz_preserved": true,
+    "experiment-evidence.tar.gz_preserved": true,
+    "validation_archive_hash": true,
+    "validation_archive_member_hashes": true,
+    "runner_syntax": true,
+    "0001-arm64-export-memcpy.patch_matches_archive": true,
+    "memcpy_fixture.c_matches_archive": true,
+    "validate_proposal.py_matches_archive": true,
+    "proposal_applies_to_current_tree": true,
+    "tracked_diff_whitespace": true
+  },
+  "all_pass": true,
+  "notes": [
+    "No QEMU run; proposal runtime acceptance pending",
+    "Baseline moved during audit; old root AGENTS link is stale",
+    "Prior three added local diffs preserved without inferred authorship"
+  ],
+  "haven_status": " M arch/arm64/cpu.c\n M scripts/evidence/package-evidence.sh\n M src/core/exc/el2_exceptions.c\n M tests/integration/test_secondary_cpu_isolation.c\n?? docs/methodology/stage0/\n",
+  "proposal_sha256": "d9c1b5189e7d3c15a89febf0ea30c56a4f8e7e394703544dbcf1e240b562dce2",
+  "markdown_link_targets_exist": true,
+  "broken_links": []
+}

@@ -1,0 +1,28 @@
+{
+  "root": "/Users/trongphucnguyen/kdal-qemu/kernel/linux-6.6.80",
+  "git_directory": false,
+  "files": {
+    "Makefile": {
+      "exists": true,
+      "bytes": 67452,
+      "sha256": "4b5bd5302ec2b68189a4ba89bc96712c644e392ddfe09461f39d41f293105fc1"
+    },
+    "Documentation/arch/arm64/booting.rst": {
+      "exists": true,
+      "bytes": 16496,
+      "sha256": "62fac4a52837763d7496a7c0beaecad02479526cc69a40daec0ee3671a42fe31"
+    },
+    ".config": {
+      "exists": false
+    },
+    "Module.symvers": {
+      "exists": false
+    },
+    "include/generated/utsrelease.h": {
+      "exists": false
+    },
+    "arch/arm64/boot/Image": {
+      "exists": false
+    }
+  }
+}

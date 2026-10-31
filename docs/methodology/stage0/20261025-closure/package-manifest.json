@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "path": "A1_A2_DECISION.md",
+      "bytes": 14250,
+      "sha256": "a7c9816a7c453908e992d2fb215f8038eb766740cdf6bca9c3f01215ece8fcdb"
+    },
+    {
+      "path": "AGENTS.md.before",
+      "bytes": 22560,
+      "sha256": "2762fd1c367b370be31cbbedad88ac2f269e7721d38baf0c38509953823272d3"
+    },
+    {
+      "path": "EXIT_CHECKLIST.md",
+      "bytes": 12959,
+      "sha256": "58ff04af60adf0f281232eeb3894c53d3f614dbeab6ebc571085bb15f4c93856"
+    },
+    {
+      "path": "NEXT_DECISION.md",
+      "bytes": 11470,
+      "sha256": "cf254200b2c1d7cfb14534718a157534733dae6b26372a348c783e8562869331"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7559,
+      "sha256": "5a5c559cbee5bdb46a8187570d5eb4eb4de88b5299e152afd169c468bb29f7c6"
+    },
+    {
+      "path": "documentation-changes.patch",
+      "bytes": 15660,
+      "sha256": "256ffd6f2beb61baea0ce73e8a1a371bb79aa50109fc99188f0584a31a5775f6"
+    },
+    {
+      "path": "haven_docs_methodology_stage0_20261025-integration-design_README.md.before",
+      "bytes": 6454,
+      "sha256": "1510680f4232553871b4f2373b70dd6f816ea1614670003a420166f614232ce2"
+    },
+    {
+      "path": "haven_docs_methodology_stage0_20261025-integration-design_ROADMAP.md.before",
+      "bytes": 11069,
+      "sha256": "072710bd89314f5f652ff057bc69879f49187087070553e928b036d433cead09"
+    },
+    {
+      "path": "repository-state.json",
+      "bytes": 1636,
+      "sha256": "a5e9ba0935a92aa1cfdafd89c2bde3abc7218ac9ae7071ae6b1dc7c31093c560"
+    },
+    {
+      "path": "review-sources.json",
+      "bytes": 2752,
+      "sha256": "378871f6ac5f67508f96016f124ed92fa2ea64b7ece7a8d8fe163db9cc50a5ec"
+    },
+    {
+      "path": "session-start-haven.patch",
+      "bytes": 3713,
+      "sha256": "7e1a561f1b940b22ef895732fd886f8afdb2eb0703f25d8714c2fc0e31e8cf63"
+    },
+    {
+      "path": "stages_README.md.before",
+      "bytes": 1580,
+      "sha256": "6e9e11627e58add8ff20177c916ce20dfd6c3309b5e1b68e8ea1cc64134a052f"
+    },
+    {
+      "path": "stages_STAGE0_BASELINE.md.before",
+      "bytes": 48961,
+      "sha256": "cc5ca8712cf5c5a3d4b04aaa7417bee893e0951f0be8767a32d3449c4a666280"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 1533,
+      "sha256": "5349c9eb0fadd3bfe5b4dab6ad1932754f33dc0ef61030ac6e514b8a8af26de2"
+    }
+  ]
+}

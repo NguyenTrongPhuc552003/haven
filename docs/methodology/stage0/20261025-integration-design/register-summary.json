@@ -1,0 +1,177 @@
+{
+  "control-aligned": [
+    {
+      "checkpoint": "PRIMARY_ENTRY",
+      "registers": {
+        "pc": "0x80000000",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c50830",
+        "HCR_EL2": "0x0",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    },
+    {
+      "checkpoint": "PRIMARY_POST_INIT_OR_FATAL",
+      "registers": {
+        "pc": "0x80003cdc",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x96000061",
+        "SCTLR_EL2": "0x30c51834",
+        "HCR_EL2": "0x80080039",
+        "ELR_EL2": "0x800038ac",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x80006fdc"
+      }
+    }
+  ],
+  "aligned-abi-default": [
+    {
+      "checkpoint": "PRIMARY_ENTRY",
+      "registers": {
+        "pc": "0x80000000",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c50830",
+        "HCR_EL2": "0x0",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    },
+    {
+      "checkpoint": "PRIMARY_POST_INIT_OR_FATAL",
+      "registers": {
+        "pc": "0x80003cdc",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x96000061",
+        "SCTLR_EL2": "0x30c51834",
+        "HCR_EL2": "0x80080039",
+        "ELR_EL2": "0x800038ac",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x8000701c"
+      }
+    }
+  ],
+  "aligned-abi-strict": [
+    {
+      "checkpoint": "PRIMARY_ENTRY",
+      "registers": {
+        "pc": "0x80000000",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c50830",
+        "HCR_EL2": "0x0",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    },
+    {
+      "checkpoint": "PRIMARY_POST_INIT_OR_FATAL",
+      "registers": {
+        "pc": "0x80003d78",
+        "cpsr": "0x600003c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c51834",
+        "HCR_EL2": "0x80080039",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    },
+    {
+      "checkpoint": "SECONDARY_BEFORE_CPU_INIT",
+      "registers": {
+        "pc": "0x80001378",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c50830",
+        "HCR_EL2": "0x0",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    }
+  ],
+  "target-abi-default": [
+    {
+      "checkpoint": "PRIMARY_ENTRY",
+      "registers": {
+        "pc": "0x80000000",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c50830",
+        "HCR_EL2": "0x0",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    },
+    {
+      "checkpoint": "PRIMARY_POST_INIT_OR_FATAL",
+      "registers": {
+        "pc": "0x80003b64",
+        "cpsr": "0x600003c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c51834",
+        "HCR_EL2": "0x80080039",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    }
+  ],
+  "target-abi-strict": [
+    {
+      "checkpoint": "PRIMARY_ENTRY",
+      "registers": {
+        "pc": "0x80000000",
+        "cpsr": "0x3c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c50830",
+        "HCR_EL2": "0x0",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    },
+    {
+      "checkpoint": "PRIMARY_POST_INIT_OR_FATAL",
+      "registers": {
+        "pc": "0x80003b74",
+        "cpsr": "0x600003c9",
+        "TTBR0_EL2": "0x0",
+        "TCR_EL2": "0x0",
+        "ESR_EL2": "0x0",
+        "SCTLR_EL2": "0x30c51834",
+        "HCR_EL2": "0x80080039",
+        "ELR_EL2": "0x0",
+        "MAIR_EL2": "0x0",
+        "FAR_EL2": "0x0"
+      }
+    }
+  ]
+}

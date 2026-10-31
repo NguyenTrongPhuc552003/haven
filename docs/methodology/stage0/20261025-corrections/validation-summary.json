@@ -1,0 +1,281 @@
+{
+  "result": "PASS",
+  "claims": [
+    "baseline strict build fails specifically on memcpy",
+    "unapplied proposal builds default and strict",
+    "no unresolved image symbols",
+    "no memory libcall recursion in inspected ARM64 objects",
+    "host export guard and byte semantics pass"
+  ],
+  "not_run": [
+    "QEMU",
+    "physical boards",
+    "runtime alignment regression",
+    "PSCI/IRQ/timer regression"
+  ],
+  "files": [
+    {
+      "path": "apply-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "apply.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "baseline-strict/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "baseline-strict/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "baseline-strict/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "baseline-strict/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "build-baseline-strict.log",
+      "bytes": 5853,
+      "sha256": "d29ccf32135f516347089ae9075f9ed657a3c462f887955e591a07032deb81e5"
+    },
+    {
+      "path": "build-proposal-default.log",
+      "bytes": 3857,
+      "sha256": "ea79d71f00e57e6ec23d84537a4e66cba3e14a795855d5974470d34f4b1ebf3e"
+    },
+    {
+      "path": "build-proposal-strict.log",
+      "bytes": 3856,
+      "sha256": "939746981bf483d81902e8f6faadb81af7db6cfbce82c76e5a031e52b98c4909"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 10686,
+      "sha256": "e5e7132229520dffaa0f97aa68b51f9e0ee3bc8b4dc483f93906577535701b00"
+    },
+    {
+      "path": "compile-host-abi.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "compile-host-guard.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "configure-baseline-strict.log",
+      "bytes": 524,
+      "sha256": "44d93df4ed8ae395e4fd99870d7f03e16b42f13a620242291983519c17ea424b"
+    },
+    {
+      "path": "configure-proposal-default.log",
+      "bytes": 525,
+      "sha256": "d494bff7b86a1a8653fe8a98d38375ac25ec316441beeadad2ee9bfec79a24ff"
+    },
+    {
+      "path": "configure-proposal-strict.log",
+      "bytes": 524,
+      "sha256": "2afd3e3494781b806adfb5087f96aa2c5e6efbe424854d855ca57b3db02f2f22"
+    },
+    {
+      "path": "disassembly-proposal-default.log",
+      "bytes": 6671,
+      "sha256": "839d84254a65768278781978f668f86fa9cf3010cf331841bb98ed0c7e9f33c3"
+    },
+    {
+      "path": "disassembly-proposal-strict.log",
+      "bytes": 6670,
+      "sha256": "4758505e707b31fdee39064b454253b232bf96691ee2b1e574bab3c8f49b5cba"
+    },
+    {
+      "path": "host-abi.o",
+      "bytes": 2912,
+      "sha256": "a9b68ce02964fedd6ee5df17ba2fd96c07aaff8404bd424ce118933c7a558ea4"
+    },
+    {
+      "path": "host-guard.o",
+      "bytes": 2696,
+      "sha256": "3d74e3c5247ac22ae6ed2604325067834b91194c190b96606b8ba470fe88bee9"
+    },
+    {
+      "path": "host.log",
+      "bytes": 145,
+      "sha256": "44dc12bb0d9ebf7f3617d39438be02689178e955802bc04b385c6d37a0339174"
+    },
+    {
+      "path": "inputs.json",
+      "bytes": 498,
+      "sha256": "604e22937b27d02db3b9ae62cf8d4b598e26767e10ad9f00f17003c8f0c97c8a"
+    },
+    {
+      "path": "link-host-fixture.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "memcpy-fixture",
+      "bytes": 33984,
+      "sha256": "b4749e3e2067787f83e30796f21d2f62ca7d52e645890436d598e62f4e98282c"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "proposal-default/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "proposal-default/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "proposal-default/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "proposal-default/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "proposal-default/haven.bin",
+      "bytes": 27224,
+      "sha256": "ab3ce9e2c56f446058e36f0f12fa5dc67273672d99bfab2f18b6f31261a15d62"
+    },
+    {
+      "path": "proposal-default/haven.elf",
+      "bytes": 106024,
+      "sha256": "d3279fbd6d84e4208a5d8d19a99ebf3c99e3b5f7a83ceb66dfd772e6cbf4129a"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "proposal-strict/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "proposal-strict/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "proposal-strict/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "proposal-strict/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "proposal-strict/haven.bin",
+      "bytes": 27224,
+      "sha256": "127d169986b572d4f050c3716dccae83e32bd17c56ad69c8b95dcb4c23255ea4"
+    },
+    {
+      "path": "proposal-strict/haven.elf",
+      "bytes": 106024,
+      "sha256": "2340abeb48f9bee6525d6c8fd744f462d997730efb4cc771633e460277600f89"
+    },
+    {
+      "path": "run-host-fixture.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "symbols-host-abi.log",
+      "bytes": 380,
+      "sha256": "1f346d5935725a57f9e148e065151c7979136e2f392e4bc3cc5b3c28c7aedbe6"
+    },
+    {
+      "path": "symbols-host-guard.log",
+      "bytes": 353,
+      "sha256": "21224cda0e5c75a80b227e7776043bbd8459cc448bf8b75418e081118f7b3250"
+    },
+    {
+      "path": "symbols-proposal-default.log",
+      "bytes": 320,
+      "sha256": "b1bf989535d3885e0d30b33f7132b4c86e7b07d2aa610c9049f5ec7aca4731fe"
+    },
+    {
+      "path": "symbols-proposal-strict.log",
+      "bytes": 320,
+      "sha256": "b1bf989535d3885e0d30b33f7132b4c86e7b07d2aa610c9049f5ec7aca4731fe"
+    },
+    {
+      "path": "undefined-image-proposal-default.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-image-proposal-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-object-proposal-default.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-object-proposal-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "version-aarch64-linux-gnu-gcc.log",
+      "bytes": 237,
+      "sha256": "d3a24e44b1518651a9025569849981f335f1cde7be938e928111b2c563d0428f"
+    },
+    {
+      "path": "version-clang.log",
+      "bytes": 158,
+      "sha256": "a856ec74c559401131ad608625ef252fb2db6c78bc0c480c1c4c782ee4896db1"
+    },
+    {
+      "path": "version-cmake.log",
+      "bytes": 90,
+      "sha256": "4d92ce18ddf9889d463ac875608423312823ad89e7fd5178b02a21ea26a2bd3d"
+    },
+    {
+      "path": "version-ninja.log",
+      "bytes": 7,
+      "sha256": "810ab97f4b3fccb9adf1db7959945b479635931ccc4a0243c34a41b739eae25a"
+    },
+    {
+      "path": "version-python3.log",
+      "bytes": 14,
+      "sha256": "36eccae64c73138a6ce898fb4100d385bf3618b6f07bf251cdfe60cccdd43a41"
+    }
+  ],
+  "evidence_archive_sha256": "555d163cb99dde29165aa5c1421efc2d270ed692f80a17350105138b690d9853",
+  "evidence_files": 448,
+  "all_archive_members_verified": true
+}

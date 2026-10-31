@@ -1,0 +1,73 @@
+{
+  "review_date": "2026-10-25",
+  "new_experiments": [],
+  "primary_sources": [
+    {
+      "title": "Armv8-A memory model v1.0",
+      "document": "ARM062-948681440-3279",
+      "url": "https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/Learn%20the%20Architecture/Armv8-A%20memory%20model%20guide.pdf?revision=58b1dd0a-3800-4218-b21a-f95a0332034c",
+      "sections": [
+        "3.2 printed page10 MMU disabled",
+        "12.1 printed page25 alignment",
+        "13 printed page26 incompatible aliases"
+      ],
+      "retrieval": "Official PDF read through web tool; no mirrored source relied on"
+    },
+    {
+      "title": "Memory management v1.0",
+      "document": "101811_0100_00",
+      "url": "https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/Learn%20the%20Architecture/LearnTheArchitecture-MemoryManagement-101811_0100_00_en.pdf?revision=1fdc3375-d81c-4457-b786-04fb98557de0",
+      "sections": [
+        "5 translation regimes",
+        "7.2 register controls",
+        "8 TLB maintenance"
+      ],
+      "retrieval": "Official PDF read through web tool"
+    },
+    {
+      "title": "GCC15.2 AArch64 options",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/AArch64-Options.html",
+      "sections": [
+        "mstrict-align"
+      ],
+      "retrieval": "Official versioned HTML read through web tool"
+    },
+    {
+      "title": "GCC15.2 standards",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/Standards.html",
+      "sections": [
+        "freestanding runtime memory functions"
+      ],
+      "retrieval": "Official versioned HTML read through web tool"
+    }
+  ],
+  "focused_local_sources": {
+    "haven/cmake/flags.cmake": {
+      "sha256": "7a740643d0d1e3114e26f71baa1fc40e2825d40c34ae5cd60850419df01cd65d"
+    },
+    "haven/arch/arm64/cpu.c": {
+      "sha256": "5ca0f628b790264b472c69dd6c35774f329baa49c76e9c54fcc0901469a19b39"
+    },
+    "haven/src/common/spinlock.c": {
+      "sha256": "3fde4b3deecf16e1519d8fbabe77ac2ff5606aaad37c62454136c98555e82892"
+    },
+    "haven/src/core/init.c": {
+      "sha256": "baa587e3d24741bd2304663aa33f77917e454557259259eba1d8cc6086ea2449"
+    },
+    "haven/drivers/iommu/smmu_v3.c": {
+      "sha256": "c936c5cafdf9348138768618a26dc536821b4b01c771456fcf3677e2202c06b5"
+    },
+    "haven/src/common/string.c": {
+      "sha256": "54e7b59b686a6ad7d3f86e0f6c70f076505e76075a77df6c12e55efb696edad3"
+    }
+  },
+  "focused_queries": [
+    "rg -n hv_spin_(lock|trylock|unlock) haven/src haven/arch haven/include haven/drivers",
+    "targeted reads of cpu.c/flags.cmake and init.c/smmu_v3.c for strict bootstrap phase bounds"
+  ],
+  "reused_evidence": [
+    "20261025-boundaries",
+    "20261025-corrections",
+    "20261025-integration-design"
+  ]
+}

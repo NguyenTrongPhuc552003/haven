@@ -1,0 +1,28 @@
+{
+  "status": "DRAFT - authored by Claude; NOT independent until owner review or owner holdout",
+  "model_notice": "All addresses, IRQ numbers and registers are fictional host-test data, not an observed device.",
+  "envelope_E": {
+    "resource": "model-P", "ipa": "0x10000", "pa": "0x90000", "size": "0x1000",
+    "owner": 1, "cpu": 0, "access": "RW", "width_bits": 32,
+    "permitted_offsets": ["0x20"], "confinement_granule": "0x1000", "dma": false, "irq": null
+  },
+  "envelope_variants": {
+    "E_ro": {"base": "envelope_E", "access": "RO", "used_by": ["F6"]},
+    "E_sub": {"base": "envelope_E", "forbidden_offsets": ["0x40"], "used_by": ["F8"]},
+    "E_irq": {"base": "envelope_E", "irq": {"id": 40, "owner": 1, "target_cpu": 0}, "used_by": ["F9"]}
+  },
+  "cases": [
+    {"id": "V1",  "scoring": "control",     "expected": "ACCEPT", "input": "ring demand: guest RAM only, no G/H resources"},
+    {"id": "V2",  "scoring": "control",     "expected": "ACCEPT", "input": "D/G/H all match E exactly, read/write32 at P+0x20"},
+    {"id": "F1",  "scoring": "control",     "expected": "REJECT", "input": "G ipa 0xFFFFFFFFFFFFF000 size 0x2000 (base+size overflow)"},
+    {"id": "F2",  "scoring": "control",     "expected": "REJECT", "input": "partition 2 already holds pa 0x90000; G owner 1 requests it"},
+    {"id": "F3",  "scoring": "control",     "expected": "REJECT", "input": "G owner 2 on unowned P; E owner is 1"},
+    {"id": "F4",  "scoring": "control",     "expected": "REJECT", "input": "artifact version and hash do not match record"},
+    {"id": "F5",  "scoring": "candidate",   "expected": "REJECT", "input": "G ipa 0x10000 -> pa 0xA0000; each range valid, association differs from E"},
+    {"id": "F6",  "scoring": "candidate",   "expected": "REJECT", "input": "E_ro; effective binding H permits writes"},
+    {"id": "F7",  "scoring": "non-scoring", "expected": "N/A",    "input": "no source-backed immutable identity semantics; no lifecycle epoch invented"},
+    {"id": "F8",  "scoring": "candidate",   "expected": "REJECT", "input": "E_sub; D needs 0x20..0x24, page G also exposes forbidden 0x40"},
+    {"id": "F9",  "scoring": "candidate",   "expected": "REJECT", "input": "E_irq; prospective IRQ 40 assigned target_cpu 1; model only, never a ring IRQ"},
+    {"id": "F10", "scoring": "candidate",   "expected": "REJECT", "input": "D/G/H all agree on page Q 0x20000 outside E"}
+  ]
+}

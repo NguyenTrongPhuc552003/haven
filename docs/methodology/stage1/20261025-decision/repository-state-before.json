@@ -1,0 +1,35 @@
+{
+  "captured_utc": "2026-10-25T16:29:45.219310+00:00",
+  "authorized": [
+    "Stage0 close with recorded risks; Stage1 active",
+    "EP-A2 exact memcpy-only patch and focused final-tree acceptance",
+    "Stage1 research candidates and checkpoint inventory"
+  ],
+  "repos": {
+    "haven": {
+      "revision": "f775304ce9443dc9861ba1880e4208c7ae19b314",
+      "status": " M arch/arm64/cpu.c\n M scripts/evidence/package-evidence.sh\n M src/core/exc/el2_exceptions.c\n M tests/integration/test_secondary_cpu_isolation.c\n?? docs/methodology/stage0/\n"
+    },
+    "elmos": {
+      "revision": "5ef5cd7fb974fca961e1af7f5a7f08ff47f70e95",
+      "status": ""
+    },
+    "kdal": {
+      "revision": "1ab0dce6dedada4162325ba2101db63214ed896c",
+      "status": ""
+    },
+    "haven-thesis": {
+      "revision": "e4f89d250b43a659ca19f4bc3d5710d3e60353d8",
+      "status": " M \"082025 BC DA 21207197 Robot nh\\341\\273\\207n Hexapod \\341\\273\\251ng d\\341\\273\\245ng trong do th\\303\\241m \\304\\221\\341\\273\\213a h\\303\\254nh.pdf\"\n?? main.pdf\n"
+    },
+    "haven-wiki": {
+      "revision": "56cd8de7781ac13e94939f5efbc50dbd46461813",
+      "status": ""
+    }
+  },
+  "before_documents": {
+    "AGENTS.md": "dd5d5d142652cee56b10a43e76eb3f0f26b4e501111afc2d8b7f0fe52f08d80a",
+    "stages/README.md": "24529ce989cd0df82ea1eae1730343fadb8eded797924ecd97a21aeb992ad5de",
+    "stages/STAGE0_BASELINE.md": "e14ca670c5d9b05966871858a036453d92bdc4e643f0d04500a8826ed8fff6e0"
+  }
+}

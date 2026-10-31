@@ -1,0 +1,87 @@
+# Hardware and platform reference collection
+
+This directory holds vendor documents, board design files, firmware packages,
+and locally checked out upstream software related to the thesis targets. It is
+a **reference collection** for Stage 0 investigation. It is not an implementation
+repository, a source of approved architecture, or evidence that HAVEN boots or
+isolates a device on a board.
+
+## Start here
+
+- [Radxa Orion O6 and O6N](radxa-orion-o6/README.md): board-specific design
+  references and the shared Linux source checkout.
+- [Orange Pi 6 and 6 Plus](orange-pi-6/README.md): board manuals, schematics,
+  BIOS files, and the vendor build bundle.
+- [Shared CIX/SKY1 references](common/README.md): firmware, kernel, graphics,
+  and platform documentation that can apply across multiple boards.
+
+## Directory map
+
+| Path                                            | Contents and role                                                                                                                            |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `radxa-orion-o6/base/`                          | Orion O6 board-level schematic, component maps, mechanical files, and BIOS archive.                                                          |
+| `radxa-orion-o6/n/`                             | Orion O6N schematic, component map, mechanical files, and BIOS archive. Treat O6N as its own board variant.                                  |
+| `radxa-orion-o6/common/linux/`                  | A Git checkout of Radxa's Linux source/build tree; consult its own README and record its revision before using it.                           |
+| `orange-pi-6/base/`                             | Orange Pi 6 schematic, BIOS and Linux manuals, Windows installation manual, and BIOS/driver bundle.                                          |
+| `orange-pi-6/plus/`                             | Orange Pi 6 Plus schematic, BIOS/Linux/Android/OpenHarmony/Windows manuals, and supporting model package. `Back up/` contains older manuals. |
+| `orange-pi-6/common/`                           | Shared Orange Pi 6 family assets, toolchain archive, media, and the `orangepi-build` Git checkout.                                           |
+| `common/cix-bios/`                              | CIX P1 UEFI source checkout and its upstream README/submodules.                                                                              |
+| `common/cix-gpu-kmd/`                           | CIX GPU kernel module source checkout and upstream README.                                                                                   |
+| `common/cix-linux-main.wiki/`                   | CIX mainline Linux notes, including an Orion O6 setup guide and video acceleration notes.                                                    |
+| `common/cix-manifest.wiki/`                     | CIX Linux build and image workflow notes; includes English and Chinese pages.                                                                |
+| `common/linux-mainline.wiki/`                   | General Linux mainline wiki material. Check page scope before applying it to a specific board.                                               |
+| `common/sky1-linux-build/`                      | Sky1 kernel packaging scripts and upstream README.                                                                                           |
+| `common/CIX-Multimedia-Open-Source-Support.pdf` | CIX multimedia support reference document.                                                                                                   |
+
+## Evidence and provenance rules
+
+Keep claims tied to a source and state their status:
+
+1. **Reference fact:** what a specific manual or schematic states. Record file,
+   document version, page or sheet, and the exact board variant it covers.
+2. **Source observation:** what a checked-out source tree or config contains.
+   Record its Git remote, commit, and relevant path/symbol. A driver or config
+   option does not establish that the hardware works.
+3. **Hardware observation:** what was measured on a named physical board. Record
+   board revision, firmware image/version/hash, boot configuration, toolchain,
+   commands, logs, and any attached device.
+4. **HAVEN result:** what the pinned HAVEN build did under a reproducible test.
+   Record the isolation property tested, positive and negative cases, and raw
+   evidence. QEMU and physical-board results are separate evidence.
+
+Prefer revisioned board schematics and current manuals for board-specific
+descriptions. Treat firmware archives as candidates until identified and tested
+on a board. Treat community wiki reports and vendor build trees as leads. Older
+files under `Back up/` are historical references. If references disagree,
+preserve the disagreement and resolve it with exact hardware evidence.
+
+For every claimed HAVEN target, establish the board revision, firmware and boot
+path, EL2 entry, ACPI or Device Tree handoff, memory map, GIC and timer setup,
+PCIe requester identifiers, and SMMU/IOMMU mappings. Do not infer an isolatable
+DMA path from an SMMU-enabled kernel configuration.
+
+## Git checkouts and upstream material
+
+Some subdirectories are independent Git checkouts and may contain nested
+submodules. Their revisions can change independently of this workspace. Before
+using one as evidence, run `git -C <path> remote -v`, `git -C <path> rev-parse
+HEAD`, and `git -C <path> status --short`; record the outputs in the experiment
+or audit notes. Read the checkout's own README when present. This collection
+does not claim a single synchronized upstream snapshot.
+
+Do not edit upstream README files to add workspace commentary. Put collection
+context in these index files, and keep any necessary local patches explicit and
+reviewable. Check licenses before copying code or redistributing files.
+
+## Stage 0 use
+
+Create one board record for each of O6, O6N, Orange Pi 6, and Orange Pi 6 Plus.
+For each, link the exact local references, record known facts and unresolved
+questions, then classify readiness as `unknown`, `blocked`, `probe-ready`, or
+`verified`. Status can differ by evidence type: these four boards are currently
+`blocked` for physical validation because no SBCs or boot logs are available;
+source and document audits can continue. Files in this directory alone do not
+qualify a board as supported.
+
+The current workspace audit, host record, source revisions, and initial
+four-board matrix are in [`../STAGE0_BASELINE.md`](../STAGE0_BASELINE.md).

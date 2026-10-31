@@ -1,0 +1,167 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index f9939df..1030084 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -14,14 +14,20 @@ This file defines specialized agent roles used during development.
+ - Purpose: review memory, interrupt, and scheduling changes.
+ 
+ 2. Platform Bring-up Planner
+-- Purpose: coordinate i.MX95 and secondary platform enablement work.
++- Purpose: coordinate enablement of the CIX boards listed in the workspace
++  `.claude/rules/boards.md`. Each stays feasibility-gated (`unknown` or
++  `BLOCKED`) until board evidence exists, and this role claims no board
++  support. i.MX95 material is historical.
+ 
+ 3. Thesis Evidence Curator
+ - Purpose: keep chapter traceability and evaluation assets consistent.
+ 
+ ## Invocation guidance
+ 
+-1. Trigger agents by task intent, not by file type only.
+-2. Use Isolation Guardian before merging core control-path changes.
+-3. Use Platform Bring-up Planner for all board config additions.
+-4. Use Thesis Evidence Curator at each roadmap milestone boundary.
++These roles are review passes, not Claude Code subagents. Definitions for
++another harness live in `.github/agents/`. Apply a role by task intent, not by
++file type only.
++
++1. Run an Isolation Guardian review before merging core control-path changes.
++2. Run a Platform Bring-up review for all board config additions.
++3. Run a Thesis Evidence review at each roadmap milestone boundary.
+diff --git a/arch/arm64/cpu.c b/arch/arm64/cpu.c
+index 479ad8b..032c860 100644
+--- a/arch/arm64/cpu.c
++++ b/arch/arm64/cpu.c
+@@ -137,21 +137,43 @@ extern void hv_printk(const char *fmt, ...);
+ 
+ void hv_arch_psci_log_error(int32_t err)
+ {
+-        const char *msg;
+-
+-        switch (err) {
+-        case  0:  msg = "SUCCESS";            break; /* never reached */
+-        case -1:  msg = "NOT_SUPPORTED";      break;
+-        case -2:  msg = "INVALID_PARAMETERS"; break;
+-        case -3:  msg = "DENIED";             break;
+-        case -4:  msg = "ALREADY_ON";         break;
+-        case -5:  msg = "ON_PENDING";         break;
+-        case -6:  msg = "INTERNAL_FAILURE";   break;
+-        case -7:  msg = "NOT_PRESENT";        break;
+-        case -8:  msg = "DISABLED";           break;
+-        case -9:  msg = "INVALID_ADDRESS";    break;
+-        default:  msg = "UNKNOWN";            break;
+-        }
+-
+-        hv_printk("HAVEN: PSCI CPU_ON error %d (%s)\n", (int)err, msg);
++	const char *msg;
++
++	switch (err) {
++	case 0:
++		msg = "SUCCESS";
++		break; /* never reached */
++	case -1:
++		msg = "NOT_SUPPORTED";
++		break;
++	case -2:
++		msg = "INVALID_PARAMETERS";
++		break;
++	case -3:
++		msg = "DENIED";
++		break;
++	case -4:
++		msg = "ALREADY_ON";
++		break;
++	case -5:
++		msg = "ON_PENDING";
++		break;
++	case -6:
++		msg = "INTERNAL_FAILURE";
++		break;
++	case -7:
++		msg = "NOT_PRESENT";
++		break;
++	case -8:
++		msg = "DISABLED";
++		break;
++	case -9:
++		msg = "INVALID_ADDRESS";
++		break;
++	default:
++		msg = "UNKNOWN";
++		break;
++	}
++
++	hv_printk("HAVEN: PSCI CPU_ON error %d (%s)\n", (int)err, msg);
+ }
+\ No newline at end of file
+diff --git a/scripts/evidence/package-evidence.sh b/scripts/evidence/package-evidence.sh
+index 6933847..89c35cb 100755
+--- a/scripts/evidence/package-evidence.sh
++++ b/scripts/evidence/package-evidence.sh
+@@ -21,8 +21,8 @@ while [ $# -gt 0 ]; do
+   shift
+ done
+ 
+-./scripts/ci-preflight.sh
+-./scripts/ci-metadata.sh
++./scripts/ci/ci-preflight.sh
++./scripts/ci/ci-metadata.sh
+ 
+ mkdir -p build/evidence
+ mkdir -p build/evidence/imx95/logs
+diff --git a/src/common/string.c b/src/common/string.c
+index 015e3b1..2e1c683 100644
+--- a/src/common/string.c
++++ b/src/common/string.c
+@@ -31,6 +31,15 @@ void *hv_memcpy(void *dst, const void *src, size_t n)
+ 	return dst;
+ }
+ 
++#ifdef HAVEN_ARCH_ARM64
++/* GCC can emit a memcpy libcall for aggregate copies in freestanding code.
++ * The haven/string.h macro only redirects calls present in the C source. */
++void *memcpy(void *dst, const void *src, size_t n)
++{
++	return hv_memcpy(dst, src, n);
++}
++#endif
++
+ /* -----------------------------------------------------------------------
+  * hv_memmove - copy n bytes allowing src/dst overlap.
+  * ----------------------------------------------------------------------- */
+diff --git a/src/core/exc/el2_exceptions.c b/src/core/exc/el2_exceptions.c
+index 564532b..75bac42 100644
+--- a/src/core/exc/el2_exceptions.c
++++ b/src/core/exc/el2_exceptions.c
+@@ -365,6 +365,12 @@ void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+ 	(void)elr;
+ 	(void)sp;
+ #ifdef HAVEN_ARCH_ARM64
++	/* Preserve the fault context in the UART log before halting. */
++	if (hv_printk != NULL) {
++		hv_printk("EL2 FATAL: ESR=0x%lx FAR=0x%lx ELR=0x%lx\n",
++			  (unsigned long)esr, (unsigned long)far,
++			  (unsigned long)elr);
++	}
+ 	platform_uart_putchar('!');
+ 	platform_uart_putchar('E');
+ 	platform_uart_putchar('L');
+diff --git a/tests/integration/test_secondary_cpu_isolation.c b/tests/integration/test_secondary_cpu_isolation.c
+index fc8a7dd..c3e59e1 100644
+--- a/tests/integration/test_secondary_cpu_isolation.c
++++ b/tests/integration/test_secondary_cpu_isolation.c
+@@ -358,10 +358,12 @@ static void test_psci_error_path_rejection(void)
+ 	struct hv_irq_route invalid_cpu_route = {
+ 		.irq_id = 50U,
+ 		.owner_partition_id = PARTITION_A_ID,
+-		.target_cpu = 999U, /* out-of-range CPU → maps to PSCI INVALID_PARAMETERS */
++		.target_cpu =
++			999U, /* out-of-range CPU → maps to PSCI INVALID_PARAMETERS */
+ 	};
+ 	struct hv_budget reserved_partition_budget = {
+-		.partition_id = 0U, /* partition 0 is reserved → maps to PSCI DENIED */
++		.partition_id =
++			0U, /* partition 0 is reserved → maps to PSCI DENIED */
+ 		.period_ns = 1000000ULL,
+ 		.budget_ns = 500000ULL,
+ 	};

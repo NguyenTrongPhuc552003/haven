@@ -1,0 +1,2249 @@
+{
+  "archive": "validation-evidence.tar.gz",
+  "sha256": "555d163cb99dde29165aa5c1421efc2d270ed692f80a17350105138b690d9853",
+  "file_count": 448,
+  "raw_directory": "haven/build/evidence/stage0-20261025-corrections",
+  "all_members_verified": true,
+  "files": [
+    {
+      "path": "0001-arm64-export-memcpy.patch",
+      "bytes": 562,
+      "sha256": "d9c1b5189e7d3c15a89febf0ea30c56a4f8e7e394703544dbcf1e240b562dce2"
+    },
+    {
+      "path": "apply-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "apply.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "baseline-strict/.ninja_deps",
+      "bytes": 7452,
+      "sha256": "f9304944bb7606e2e7e2a8320b97b73d688a359d653c8ed74deb7d1e55fe2364"
+    },
+    {
+      "path": "baseline-strict/.ninja_log",
+      "bytes": 2791,
+      "sha256": "bbbdf67c31a291d4fbbe1355717211facfb42879c57798f712c069ba1ef67967"
+    },
+    {
+      "path": "baseline-strict/CMakeCache.txt",
+      "bytes": 15868,
+      "sha256": "35dd0064e9c2c20b5bcb19cfb2321b6cf68b2b67562185ef1c473ea165d5a795"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CMakeASMCompiler.cmake",
+      "bytes": 1429,
+      "sha256": "a5c93470da7e2a864d436ee162325e0dbc0493880259924d4bb4e204d5b3f63a"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CMakeCCompiler.cmake",
+      "bytes": 3604,
+      "sha256": "455d949959f5465f8ec9f1d51bd47a75fa1b3718edde867b333db2543b23a7cc"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CMakeSystem.cmake",
+      "bytes": 427,
+      "sha256": "85e14882dde2a02393b0f52e8412c9b9877efc5b2daac563f8c82bf214077933"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CompilerIdC/CMakeCCompilerId.c",
+      "bytes": 29029,
+      "sha256": "6ccdb729a0b1d02ba3d9b57e617d311fbac288d9c0d32416c048ef044157f041"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/4.4.4/CompilerIdC/a.out",
+      "bytes": 74824,
+      "sha256": "bbc313d7c5ab8747dc2eed545d702706ded311355183ae983315b90b00530bd4"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 146027,
+      "sha256": "65f8aba18fce9e8baabca352d1d69720b3846dda5239b711ac60f805ea0c9df0"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/InstallScripts.json",
+      "bytes": 134,
+      "sha256": "58cab313cc53cd9cc2500f1479b09467e51b804084844158af3201aa8a908f61"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/TargetDirectories.txt",
+      "bytes": 827,
+      "sha256": "f5623ffda83982698d8ad8ad545eacb4892ecfa0c3db703d337e36c17f6964b5"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/cmake.check_cache",
+      "bytes": 85,
+      "sha256": "a26189e394421da57f45706a07713c5720acd200a41711b0c0c590c3c63371c4"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj",
+      "bytes": 1584,
+      "sha256": "cdecaaa3d0c61f7501c99802e03ead6d02aed0fa31b4e0e2b650a6c296463e3b"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj",
+      "bytes": 1280,
+      "sha256": "5d6c5741dbb9bc4de141dd458ce931cd043e389b7cb9bd35ac1b5088b9ee6260"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/boot.S.obj",
+      "bytes": 2168,
+      "sha256": "78b7a9fa44fc0418d561ac38ba7ff283d80ae3d9b441dcf531b301758b04eb2b"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/context.S.obj",
+      "bytes": 2008,
+      "sha256": "c365562526bc1017759eb45b544130d5f91eca81b918b5cbefc8e7c6c582c452"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/cpu.c.obj",
+      "bytes": 3064,
+      "sha256": "c585f860a00de8c721fe35b2bb9d60c371d1de3693ad0c5bbd261cc2b2cfd816"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/entry.S.obj",
+      "bytes": 4656,
+      "sha256": "52aba2c441c60dbb257b6cccb97b8985b045b9c2124996faf9277a07f881acfa"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/irq.c.obj",
+      "bytes": 2560,
+      "sha256": "0e2816742a26099ef031ee1e5dfe5ff8584dc422b4f59a30427b263fe1bdd2ff"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/mm.c.obj",
+      "bytes": 3352,
+      "sha256": "dbd3a2fb286887d2b3f8899d92b92514040b59ad7e41ad2bca5913832a26ff4b"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/partition.S.obj",
+      "bytes": 768,
+      "sha256": "f459486ae172d5172c4c1a5df044f8c21d2e7682f80eaea829d8795cde82bf56"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/arch/arm64/timer.c.obj",
+      "bytes": 2176,
+      "sha256": "f772d33b24c167d97d7d4c83836af32cfcc2fb794722f5d059c49e6575497ea9"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj",
+      "bytes": 3240,
+      "sha256": "97c88a7eb87ec58228a5c0add7c7af1b8f861ac2b32538cdeebba0016d5bc541"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj",
+      "bytes": 3320,
+      "sha256": "1eba0c318fdf66f14a66546b3fcc9fa07ee66af6d27533f91c10c0784a233282"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/drivers/uart/pl011.c.obj",
+      "bytes": 1648,
+      "sha256": "b921df7713f8c905f7fe60806e49f40dca7505c4e16e4ddd126b191b3b0cb5f4"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/common/panic.c.obj",
+      "bytes": 1768,
+      "sha256": "400bfabebf7fc616c3facdbd6a357edef6372e9b3c7ce48e41ac9c1967f5f833"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/common/printk.c.obj",
+      "bytes": 3216,
+      "sha256": "aea5a71ed1541d3550d25421185c722a5701bfad8f65f5df65eed1d51b84df83"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/common/spinlock.c.obj",
+      "bytes": 1480,
+      "sha256": "c048c19e0b57e8eaf86881acaaee0cf43a6574827be75a0ad9fda5609e964e70"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/common/string.c.obj",
+      "bytes": 2800,
+      "sha256": "9027e2e3617218da1f95b5e688b0595d212d2f800551a95e9ede425ed064560e"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/dma/smmu.c.obj",
+      "bytes": 3992,
+      "sha256": "702d8f01e34433b10834ad73b4d87f498432785a75e83977622f27b030022924"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj",
+      "bytes": 6000,
+      "sha256": "f99bba0e720a68957a3e1a30ece4459714013401ff120cb591e44507dbf14874"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/init.c.obj",
+      "bytes": 3584,
+      "sha256": "26e9767a1d632c067be1378324576422164d234e6ad2a55230f02587f99e7eef"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj",
+      "bytes": 2208,
+      "sha256": "3ebdf478fe6bab1f160aa3570f8ea1347925aa00466464b2c9e3a4f9c4628a1d"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/irq/ownership.c.obj",
+      "bytes": 2736,
+      "sha256": "b59fa91f938afc99e1807378231a8f6dc87a41c00889d5888a96e610d460d026"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/mm/stage2.c.obj",
+      "bytes": 3624,
+      "sha256": "0bc95299568e143701b2f79a5fa6a3d22435ec3a58850ae1f1370928f0536759"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/partition.c.obj",
+      "bytes": 5232,
+      "sha256": "634db82d8237a137a17b18b259398d052510ac5ed196406e0cd4aa643a036d4b"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/sched/budget.c.obj",
+      "bytes": 3176,
+      "sha256": "5d93e73e4b6f27edf70ed8c219b60c69307375e224583c30611f972925a809a1"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/core/time/timer.c.obj",
+      "bytes": 3008,
+      "sha256": "7c5e617574c7fc1b146922f473f5e7187118b57ec27e8375521396cd7f36adc1"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj",
+      "bytes": 4904,
+      "sha256": "56d2a0412bb8cfecf4b5c6c47056edd49dde3ee7e92cdbe69cd916bedcdf3c9d"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj",
+      "bytes": 7008,
+      "sha256": "f2f1c56f1424deca751398d330c7eec250b76fd9264aee2448856534ccba67e4"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj",
+      "bytes": 2736,
+      "sha256": "11f86dd6e085de87a3071d59769958368792998d228db19d9535f34a4fce68f7"
+    },
+    {
+      "path": "baseline-strict/CMakeFiles/rules.ninja",
+      "bytes": 3913,
+      "sha256": "923245ab30c826fdd2ca1a6211155d1fb239033bad0654c02b4f60dac86ae934"
+    },
+    {
+      "path": "baseline-strict/build.ninja",
+      "bytes": 50977,
+      "sha256": "ec8a6e4018d1b748cd5a41c59644f5cd91930747d247eb900be4c553ddfb10cb"
+    },
+    {
+      "path": "baseline-strict/cmake_install.cmake",
+      "bytes": 2043,
+      "sha256": "8bc023dc38131b039ce902454c90555a32847ec8a276a5d56301f78e72347efc"
+    },
+    {
+      "path": "baseline-strict/compile_commands.json",
+      "bytes": 24928,
+      "sha256": "f6e2b534554aa319760effadfa005938ff17b583593c27409b4efbf743bb8d8b"
+    },
+    {
+      "path": "baseline-strict/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "baseline-strict/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "baseline-strict/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "baseline-strict/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "build-baseline-strict.log",
+      "bytes": 5853,
+      "sha256": "d29ccf32135f516347089ae9075f9ed657a3c462f887955e591a07032deb81e5"
+    },
+    {
+      "path": "build-proposal-default.log",
+      "bytes": 3857,
+      "sha256": "ea79d71f00e57e6ec23d84537a4e66cba3e14a795855d5974470d34f4b1ebf3e"
+    },
+    {
+      "path": "build-proposal-strict.log",
+      "bytes": 3856,
+      "sha256": "939746981bf483d81902e8f6faadb81af7db6cfbce82c76e5a031e52b98c4909"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 10686,
+      "sha256": "e5e7132229520dffaa0f97aa68b51f9e0ee3bc8b4dc483f93906577535701b00"
+    },
+    {
+      "path": "compile-host-abi.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "compile-host-guard.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "configure-baseline-strict.log",
+      "bytes": 524,
+      "sha256": "44d93df4ed8ae395e4fd99870d7f03e16b42f13a620242291983519c17ea424b"
+    },
+    {
+      "path": "configure-proposal-default.log",
+      "bytes": 525,
+      "sha256": "d494bff7b86a1a8653fe8a98d38375ac25ec316441beeadad2ee9bfec79a24ff"
+    },
+    {
+      "path": "configure-proposal-strict.log",
+      "bytes": 524,
+      "sha256": "2afd3e3494781b806adfb5087f96aa2c5e6efbe424854d855ca57b3db02f2f22"
+    },
+    {
+      "path": "disassembly-proposal-default.log",
+      "bytes": 6671,
+      "sha256": "839d84254a65768278781978f668f86fa9cf3010cf331841bb98ed0c7e9f33c3"
+    },
+    {
+      "path": "disassembly-proposal-strict.log",
+      "bytes": 6670,
+      "sha256": "4758505e707b31fdee39064b454253b232bf96691ee2b1e574bab3c8f49b5cba"
+    },
+    {
+      "path": "execution.json",
+      "bytes": 505,
+      "sha256": "926eaf15c8f73ecaaa037ffc971ab9278b2417083273db40e1b6197f635ddb70"
+    },
+    {
+      "path": "host-abi.o",
+      "bytes": 2912,
+      "sha256": "a9b68ce02964fedd6ee5df17ba2fd96c07aaff8404bd424ce118933c7a558ea4"
+    },
+    {
+      "path": "host-guard.o",
+      "bytes": 2696,
+      "sha256": "3d74e3c5247ac22ae6ed2604325067834b91194c190b96606b8ba470fe88bee9"
+    },
+    {
+      "path": "host.log",
+      "bytes": 145,
+      "sha256": "44dc12bb0d9ebf7f3617d39438be02689178e955802bc04b385c6d37a0339174"
+    },
+    {
+      "path": "inputs.json",
+      "bytes": 498,
+      "sha256": "604e22937b27d02db3b9ae62cf8d4b598e26767e10ad9f00f17003c8f0c97c8a"
+    },
+    {
+      "path": "link-host-fixture.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "memcpy-fixture",
+      "bytes": 33984,
+      "sha256": "b4749e3e2067787f83e30796f21d2f62ca7d52e645890436d598e62f4e98282c"
+    },
+    {
+      "path": "memcpy_fixture.c",
+      "bytes": 934,
+      "sha256": "cba063526a5e8d6a647cb26e698ce30cbe49e8658b0978a74d50324429a045c4"
+    },
+    {
+      "path": "proposal-default/.ninja_deps",
+      "bytes": 7452,
+      "sha256": "3c94f25315a477184264640db2768ac2db00e026a76f70b4610a47d42838d821"
+    },
+    {
+      "path": "proposal-default/.ninja_log",
+      "bytes": 2849,
+      "sha256": "3913f942a594703be8ac61d55fd4fa49383acd50a0e5aaf3bef6112d5cadeb7a"
+    },
+    {
+      "path": "proposal-default/CMakeCache.txt",
+      "bytes": 15858,
+      "sha256": "314776388f42eed31dbaf245500b2fb2352bc2ea283ed8d3577499bd9823d935"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CMakeASMCompiler.cmake",
+      "bytes": 1429,
+      "sha256": "a5c93470da7e2a864d436ee162325e0dbc0493880259924d4bb4e204d5b3f63a"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CMakeCCompiler.cmake",
+      "bytes": 3604,
+      "sha256": "455d949959f5465f8ec9f1d51bd47a75fa1b3718edde867b333db2543b23a7cc"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CMakeSystem.cmake",
+      "bytes": 427,
+      "sha256": "85e14882dde2a02393b0f52e8412c9b9877efc5b2daac563f8c82bf214077933"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CompilerIdC/CMakeCCompilerId.c",
+      "bytes": 29029,
+      "sha256": "6ccdb729a0b1d02ba3d9b57e617d311fbac288d9c0d32416c048ef044157f041"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/4.4.4/CompilerIdC/a.out",
+      "bytes": 74824,
+      "sha256": "bbc313d7c5ab8747dc2eed545d702706ded311355183ae983315b90b00530bd4"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 145836,
+      "sha256": "b67edb627201db58563225521cefc1862a06c03f4738fae735029f148eef2b4b"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/InstallScripts.json",
+      "bytes": 135,
+      "sha256": "86aa82bfb0496bf332f6761b3e2ab0dafb54abb68dd8b157063d6bb9fc819a3a"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/TargetDirectories.txt",
+      "bytes": 837,
+      "sha256": "cd821ab6fdfd7a151eebff8a97195b0c34e0bc54ec6f1d16d611dbfb58115fbd"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/cmake.check_cache",
+      "bytes": 85,
+      "sha256": "a26189e394421da57f45706a07713c5720acd200a41711b0c0c590c3c63371c4"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj",
+      "bytes": 1584,
+      "sha256": "cdecaaa3d0c61f7501c99802e03ead6d02aed0fa31b4e0e2b650a6c296463e3b"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj",
+      "bytes": 1280,
+      "sha256": "5d6c5741dbb9bc4de141dd458ce931cd043e389b7cb9bd35ac1b5088b9ee6260"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/boot.S.obj",
+      "bytes": 2168,
+      "sha256": "78b7a9fa44fc0418d561ac38ba7ff283d80ae3d9b441dcf531b301758b04eb2b"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/context.S.obj",
+      "bytes": 2008,
+      "sha256": "c365562526bc1017759eb45b544130d5f91eca81b918b5cbefc8e7c6c582c452"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/cpu.c.obj",
+      "bytes": 3064,
+      "sha256": "c585f860a00de8c721fe35b2bb9d60c371d1de3693ad0c5bbd261cc2b2cfd816"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/entry.S.obj",
+      "bytes": 4656,
+      "sha256": "52aba2c441c60dbb257b6cccb97b8985b045b9c2124996faf9277a07f881acfa"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/irq.c.obj",
+      "bytes": 2560,
+      "sha256": "0e2816742a26099ef031ee1e5dfe5ff8584dc422b4f59a30427b263fe1bdd2ff"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/mm.c.obj",
+      "bytes": 3352,
+      "sha256": "dbd3a2fb286887d2b3f8899d92b92514040b59ad7e41ad2bca5913832a26ff4b"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/partition.S.obj",
+      "bytes": 768,
+      "sha256": "f459486ae172d5172c4c1a5df044f8c21d2e7682f80eaea829d8795cde82bf56"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/arch/arm64/timer.c.obj",
+      "bytes": 2176,
+      "sha256": "f772d33b24c167d97d7d4c83836af32cfcc2fb794722f5d059c49e6575497ea9"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj",
+      "bytes": 3240,
+      "sha256": "97c88a7eb87ec58228a5c0add7c7af1b8f861ac2b32538cdeebba0016d5bc541"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj",
+      "bytes": 3320,
+      "sha256": "1eba0c318fdf66f14a66546b3fcc9fa07ee66af6d27533f91c10c0784a233282"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/drivers/uart/pl011.c.obj",
+      "bytes": 1648,
+      "sha256": "b921df7713f8c905f7fe60806e49f40dca7505c4e16e4ddd126b191b3b0cb5f4"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/common/panic.c.obj",
+      "bytes": 1768,
+      "sha256": "400bfabebf7fc616c3facdbd6a357edef6372e9b3c7ce48e41ac9c1967f5f833"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/common/printk.c.obj",
+      "bytes": 3216,
+      "sha256": "aea5a71ed1541d3550d25421185c722a5701bfad8f65f5df65eed1d51b84df83"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/common/spinlock.c.obj",
+      "bytes": 1480,
+      "sha256": "c048c19e0b57e8eaf86881acaaee0cf43a6574827be75a0ad9fda5609e964e70"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/common/string.c.obj",
+      "bytes": 2896,
+      "sha256": "4560b09b1d4beaf184360416bbcfae16e21349436bef926c6c06de4fa131e2a2"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/dma/smmu.c.obj",
+      "bytes": 3992,
+      "sha256": "702d8f01e34433b10834ad73b4d87f498432785a75e83977622f27b030022924"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj",
+      "bytes": 6000,
+      "sha256": "e64b738241358306f429ed23099de86723a93fd903306d86dec54870cf5129cc"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/init.c.obj",
+      "bytes": 3584,
+      "sha256": "ff1e7120f6e7a050e8b6244de4ef9ec316dcaac25e029cb35838dc18279e5d06"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj",
+      "bytes": 2208,
+      "sha256": "1d1fa5cc1ca2e6f03bd81232b210e310ef8c6edbb22b8f59b036680f9e8b9131"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/irq/ownership.c.obj",
+      "bytes": 2736,
+      "sha256": "b59fa91f938afc99e1807378231a8f6dc87a41c00889d5888a96e610d460d026"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/mm/stage2.c.obj",
+      "bytes": 3552,
+      "sha256": "167c623d00410ec9841bd1836f918a0e41fb21beb0f50474aaeed164d4725158"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/partition.c.obj",
+      "bytes": 5232,
+      "sha256": "634db82d8237a137a17b18b259398d052510ac5ed196406e0cd4aa643a036d4b"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/sched/budget.c.obj",
+      "bytes": 3176,
+      "sha256": "5d93e73e4b6f27edf70ed8c219b60c69307375e224583c30611f972925a809a1"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/core/time/timer.c.obj",
+      "bytes": 3008,
+      "sha256": "7c5e617574c7fc1b146922f473f5e7187118b57ec27e8375521396cd7f36adc1"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj",
+      "bytes": 4904,
+      "sha256": "06b83fa6e4dcb49e543ce4c7f64f43c02e80bdff9c7641494da8a83e10bb975b"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj",
+      "bytes": 7008,
+      "sha256": "f2f1c56f1424deca751398d330c7eec250b76fd9264aee2448856534ccba67e4"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj",
+      "bytes": 2736,
+      "sha256": "11f86dd6e085de87a3071d59769958368792998d228db19d9535f34a4fce68f7"
+    },
+    {
+      "path": "proposal-default/CMakeFiles/rules.ninja",
+      "bytes": 3914,
+      "sha256": "aa71ee9858f03e7ed865b825f3722969263bd96f2312bc813aea9b4762df50b6"
+    },
+    {
+      "path": "proposal-default/build.ninja",
+      "bytes": 50637,
+      "sha256": "1e734065faf196e8333bdd2881fab41abc21ee65e283b87dc2f5dfcd0b98c16c"
+    },
+    {
+      "path": "proposal-default/cmake_install.cmake",
+      "bytes": 2045,
+      "sha256": "882aa5060984b16a0f7fa3efaa32deb9ecd76d625c65e4f22b4542c8445cf4f9"
+    },
+    {
+      "path": "proposal-default/compile_commands.json",
+      "bytes": 24641,
+      "sha256": "f25a399a1058641de38959374ae31fec560ad55c371466595249d0a63c02c515"
+    },
+    {
+      "path": "proposal-default/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "proposal-default/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "proposal-default/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "proposal-default/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "proposal-default/haven.bin",
+      "bytes": 27224,
+      "sha256": "ab3ce9e2c56f446058e36f0f12fa5dc67273672d99bfab2f18b6f31261a15d62"
+    },
+    {
+      "path": "proposal-default/haven.elf",
+      "bytes": 106024,
+      "sha256": "d3279fbd6d84e4208a5d8d19a99ebf3c99e3b5f7a83ceb66dfd772e6cbf4129a"
+    },
+    {
+      "path": "proposal-strict/.ninja_deps",
+      "bytes": 7452,
+      "sha256": "484c1af65b91242583f694428454c79af7bb073c749ae51e1f6079e5cece031f"
+    },
+    {
+      "path": "proposal-strict/.ninja_log",
+      "bytes": 2846,
+      "sha256": "6436a729cc24de2229f543ad089a41415395333fc2f2f6c774c1c8d756d91499"
+    },
+    {
+      "path": "proposal-strict/CMakeCache.txt",
+      "bytes": 15868,
+      "sha256": "7ac8ee32f841bd4ba652deda36b1c0a83b79970a6ac34975adcd5c42c07bca98"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CMakeASMCompiler.cmake",
+      "bytes": 1429,
+      "sha256": "a5c93470da7e2a864d436ee162325e0dbc0493880259924d4bb4e204d5b3f63a"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CMakeCCompiler.cmake",
+      "bytes": 3604,
+      "sha256": "455d949959f5465f8ec9f1d51bd47a75fa1b3718edde867b333db2543b23a7cc"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CMakeSystem.cmake",
+      "bytes": 427,
+      "sha256": "85e14882dde2a02393b0f52e8412c9b9877efc5b2daac563f8c82bf214077933"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CompilerIdC/CMakeCCompilerId.c",
+      "bytes": 29029,
+      "sha256": "6ccdb729a0b1d02ba3d9b57e617d311fbac288d9c0d32416c048ef044157f041"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/4.4.4/CompilerIdC/a.out",
+      "bytes": 74824,
+      "sha256": "bbc313d7c5ab8747dc2eed545d702706ded311355183ae983315b90b00530bd4"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 146027,
+      "sha256": "f6ad9ede457ccdf07e3854353f9e572345f1db1e1a85a722c2ebee74cf56228a"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/InstallScripts.json",
+      "bytes": 134,
+      "sha256": "af26daa2c2d8102a6ed3904272ba6482a032a6fa16343c52436ab90640429527"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/TargetDirectories.txt",
+      "bytes": 827,
+      "sha256": "cde4b72119812a7a0d3a5958a2948136410364a4e4a12a11682bc94bda7e058b"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/cmake.check_cache",
+      "bytes": 85,
+      "sha256": "a26189e394421da57f45706a07713c5720acd200a41711b0c0c590c3c63371c4"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj",
+      "bytes": 1584,
+      "sha256": "cdecaaa3d0c61f7501c99802e03ead6d02aed0fa31b4e0e2b650a6c296463e3b"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj",
+      "bytes": 1280,
+      "sha256": "5d6c5741dbb9bc4de141dd458ce931cd043e389b7cb9bd35ac1b5088b9ee6260"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/boot.S.obj",
+      "bytes": 2168,
+      "sha256": "78b7a9fa44fc0418d561ac38ba7ff283d80ae3d9b441dcf531b301758b04eb2b"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/context.S.obj",
+      "bytes": 2008,
+      "sha256": "c365562526bc1017759eb45b544130d5f91eca81b918b5cbefc8e7c6c582c452"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/cpu.c.obj",
+      "bytes": 3064,
+      "sha256": "c585f860a00de8c721fe35b2bb9d60c371d1de3693ad0c5bbd261cc2b2cfd816"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/entry.S.obj",
+      "bytes": 4656,
+      "sha256": "52aba2c441c60dbb257b6cccb97b8985b045b9c2124996faf9277a07f881acfa"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/irq.c.obj",
+      "bytes": 2560,
+      "sha256": "0e2816742a26099ef031ee1e5dfe5ff8584dc422b4f59a30427b263fe1bdd2ff"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/mm.c.obj",
+      "bytes": 3352,
+      "sha256": "dbd3a2fb286887d2b3f8899d92b92514040b59ad7e41ad2bca5913832a26ff4b"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/partition.S.obj",
+      "bytes": 768,
+      "sha256": "f459486ae172d5172c4c1a5df044f8c21d2e7682f80eaea829d8795cde82bf56"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/arch/arm64/timer.c.obj",
+      "bytes": 2176,
+      "sha256": "f772d33b24c167d97d7d4c83836af32cfcc2fb794722f5d059c49e6575497ea9"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj",
+      "bytes": 3240,
+      "sha256": "97c88a7eb87ec58228a5c0add7c7af1b8f861ac2b32538cdeebba0016d5bc541"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj",
+      "bytes": 3320,
+      "sha256": "1eba0c318fdf66f14a66546b3fcc9fa07ee66af6d27533f91c10c0784a233282"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/drivers/uart/pl011.c.obj",
+      "bytes": 1648,
+      "sha256": "b921df7713f8c905f7fe60806e49f40dca7505c4e16e4ddd126b191b3b0cb5f4"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/common/panic.c.obj",
+      "bytes": 1768,
+      "sha256": "400bfabebf7fc616c3facdbd6a357edef6372e9b3c7ce48e41ac9c1967f5f833"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/common/printk.c.obj",
+      "bytes": 3216,
+      "sha256": "aea5a71ed1541d3550d25421185c722a5701bfad8f65f5df65eed1d51b84df83"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/common/spinlock.c.obj",
+      "bytes": 1480,
+      "sha256": "c048c19e0b57e8eaf86881acaaee0cf43a6574827be75a0ad9fda5609e964e70"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/common/string.c.obj",
+      "bytes": 2896,
+      "sha256": "4560b09b1d4beaf184360416bbcfae16e21349436bef926c6c06de4fa131e2a2"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/dma/smmu.c.obj",
+      "bytes": 3992,
+      "sha256": "702d8f01e34433b10834ad73b4d87f498432785a75e83977622f27b030022924"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj",
+      "bytes": 6000,
+      "sha256": "f99bba0e720a68957a3e1a30ece4459714013401ff120cb591e44507dbf14874"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/init.c.obj",
+      "bytes": 3584,
+      "sha256": "ff1e7120f6e7a050e8b6244de4ef9ec316dcaac25e029cb35838dc18279e5d06"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj",
+      "bytes": 2208,
+      "sha256": "3ebdf478fe6bab1f160aa3570f8ea1347925aa00466464b2c9e3a4f9c4628a1d"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/irq/ownership.c.obj",
+      "bytes": 2736,
+      "sha256": "b59fa91f938afc99e1807378231a8f6dc87a41c00889d5888a96e610d460d026"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/mm/stage2.c.obj",
+      "bytes": 3624,
+      "sha256": "0bc95299568e143701b2f79a5fa6a3d22435ec3a58850ae1f1370928f0536759"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/partition.c.obj",
+      "bytes": 5232,
+      "sha256": "634db82d8237a137a17b18b259398d052510ac5ed196406e0cd4aa643a036d4b"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/sched/budget.c.obj",
+      "bytes": 3176,
+      "sha256": "5d93e73e4b6f27edf70ed8c219b60c69307375e224583c30611f972925a809a1"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/core/time/timer.c.obj",
+      "bytes": 3008,
+      "sha256": "7c5e617574c7fc1b146922f473f5e7187118b57ec27e8375521396cd7f36adc1"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj",
+      "bytes": 4904,
+      "sha256": "56d2a0412bb8cfecf4b5c6c47056edd49dde3ee7e92cdbe69cd916bedcdf3c9d"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj",
+      "bytes": 7008,
+      "sha256": "f2f1c56f1424deca751398d330c7eec250b76fd9264aee2448856534ccba67e4"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj",
+      "bytes": 2736,
+      "sha256": "11f86dd6e085de87a3071d59769958368792998d228db19d9535f34a4fce68f7"
+    },
+    {
+      "path": "proposal-strict/CMakeFiles/rules.ninja",
+      "bytes": 3913,
+      "sha256": "4f8e322d27f7e4b097a1052c4b5acb5c906f33e700f959700ca36f2e2fa3c92f"
+    },
+    {
+      "path": "proposal-strict/build.ninja",
+      "bytes": 50977,
+      "sha256": "7ccebd4c0c9b49ef5c086dde2a386c62514fd50d56fdcdad884ae63b9fb66aa0"
+    },
+    {
+      "path": "proposal-strict/cmake_install.cmake",
+      "bytes": 2043,
+      "sha256": "fff1394469b0b0a627852199959d23690e1cdea9a3c340abd735d214db061a12"
+    },
+    {
+      "path": "proposal-strict/compile_commands.json",
+      "bytes": 24928,
+      "sha256": "7235aba1978c6d0e711cdf841327dc9dd0d372b99f8e840fcdad168a10151be2"
+    },
+    {
+      "path": "proposal-strict/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "proposal-strict/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "proposal-strict/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "proposal-strict/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "proposal-strict/haven.bin",
+      "bytes": 27224,
+      "sha256": "127d169986b572d4f050c3716dccae83e32bd17c56ad69c8b95dcb4c23255ea4"
+    },
+    {
+      "path": "proposal-strict/haven.elf",
+      "bytes": 106024,
+      "sha256": "2340abeb48f9bee6525d6c8fd744f462d997730efb4cc771633e460277600f89"
+    },
+    {
+      "path": "run-host-fixture.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "source/.clang-format",
+      "bytes": 5799,
+      "sha256": "37ba36ec2a41a2d545f5bf92f5cbae5c91cbdfa2e6096acf003ca3cd541576a2"
+    },
+    {
+      "path": "source/.editorconfig",
+      "bytes": 222,
+      "sha256": "2a0ae829e433ebcc4e695f6731a18485a4fd859e7381e3c946c2626ab3601a82"
+    },
+    {
+      "path": "source/.githooks/commit-msg",
+      "bytes": 343,
+      "sha256": "3c9159f8365bc1dd530b8af6a56c86947cbf3628340bd946f84def9d7fb3f924"
+    },
+    {
+      "path": "source/.githooks/pre-commit",
+      "bytes": 419,
+      "sha256": "3d831a8a7df514ae660156a56ff7010459b62d0058faeed0c621e1452ddea9b3"
+    },
+    {
+      "path": "source/.githooks/pre-push",
+      "bytes": 167,
+      "sha256": "b5865aa3f99346011c4de3916d9bdde37b5f321f14d6f512531df6f461e87b4e"
+    },
+    {
+      "path": "source/.github/CODEOWNERS",
+      "bytes": 337,
+      "sha256": "e3f13f3dacadc7f3661a7c848d724de15bf91f986618773f99d6f73717cceda9"
+    },
+    {
+      "path": "source/.github/ISSUE_TEMPLATE/bug_report.md",
+      "bytes": 242,
+      "sha256": "ae98e7a0763350fa37c6325cf30ad244134208f10c3da405bfbb0118aee3eac5"
+    },
+    {
+      "path": "source/.github/ISSUE_TEMPLATE/feature_request.md",
+      "bytes": 215,
+      "sha256": "5c8ac25ae8168c94b6ca48306c6381d9f36118ccbb5639ad439f2a9830a6c2da"
+    },
+    {
+      "path": "source/.github/agents/isolation-guardian.agent.md",
+      "bytes": 713,
+      "sha256": "025d56b4196e35e284e259920bf691dd4e8d25d7a5a1d3a0a50af48422a43bdb"
+    },
+    {
+      "path": "source/.github/agents/platform-bringup.agent.md",
+      "bytes": 750,
+      "sha256": "e90184db0ecbeb2c935fa17045b0710ace6efd7464fe847b0def64280d7c003e"
+    },
+    {
+      "path": "source/.github/copilot-instructions.md",
+      "bytes": 1406,
+      "sha256": "acaefec94b446b29e5e9f92e2e3c0988a7bf2a5771525330b8e1fa95c960a7c6"
+    },
+    {
+      "path": "source/.github/pull_request_template.md",
+      "bytes": 222,
+      "sha256": "514dfb7599dc6627f02cb02831f26722bc50ac5b1f5f740971c0a26c56d64a83"
+    },
+    {
+      "path": "source/.github/skills/thesis-evidence/SKILL.md",
+      "bytes": 36050,
+      "sha256": "a59cde5951d11986c433a5c639cb57ecd8f49b5738f762265693ba03a71ecfb6"
+    },
+    {
+      "path": "source/.github/workflows/benchmark.yml",
+      "bytes": 823,
+      "sha256": "9816859e9ebc5c1bf1b33eb172f77b4b4cca75eb3e32a43982f21a932f8cba6e"
+    },
+    {
+      "path": "source/.github/workflows/ci.yml",
+      "bytes": 6540,
+      "sha256": "a09b603942f361bfd0ecf8fee060a3d39c42a377b5538232958b5d32263acb8e"
+    },
+    {
+      "path": "source/.github/workflows/cross-os.yml",
+      "bytes": 1259,
+      "sha256": "e30621d9e718d7464e500a2eac976b6c8644a16fdcf161e96d42439be146128d"
+    },
+    {
+      "path": "source/.github/workflows/evidence-pack.yml",
+      "bytes": 1255,
+      "sha256": "b17330481079135bbdce8d868a7b3ae12210435f4543af4666465de1deb62b73"
+    },
+    {
+      "path": "source/.github/workflows/nightly.yml",
+      "bytes": 5849,
+      "sha256": "f70c581096d00e4e36da53f55e647465f62923d7f45cd46a9fda987c5b430a81"
+    },
+    {
+      "path": "source/.github/workflows/static-analysis.yml",
+      "bytes": 2638,
+      "sha256": "fe0ff7a48d1459d9abb1da265df3cf9ea17ad311f27d0668f69a345f28248b40"
+    },
+    {
+      "path": "source/.github/workflows/vercel.yml",
+      "bytes": 2092,
+      "sha256": "a2a83055f732df91071b76a4af4d5c569b2a8a00da722145f27846ba521aa921"
+    },
+    {
+      "path": "source/.gitignore",
+      "bytes": 342,
+      "sha256": "a62c1d88921fc2401a750abbcd017d4cb01afdf5bd3b113c44de93688d8dff5c"
+    },
+    {
+      "path": "source/.gitmodules",
+      "bytes": 216,
+      "sha256": "ed13fa49d9f04d716e8d55934f80cb85f7fbd927cc986696e96489142e318f5f"
+    },
+    {
+      "path": "source/AGENTS.md",
+      "bytes": 886,
+      "sha256": "69f9dba25f5948147a66fc2bfc00016d8470257b60780b07713d977d8caa45e2"
+    },
+    {
+      "path": "source/CHANGELOG.md",
+      "bytes": 22410,
+      "sha256": "edc4f1794293b938eb6a39c724e0c9ca7ae74c1f979383591f7c20274a779819"
+    },
+    {
+      "path": "source/CMakeLists.txt",
+      "bytes": 11200,
+      "sha256": "8ae24406c3da5bbb769a4b167519bdb0675c1b90ee1441ad62e31d72dd4fb866"
+    },
+    {
+      "path": "source/CMakePresets.json",
+      "bytes": 2959,
+      "sha256": "e5d57e1c12c04388625e11d28e8e2f35da3d1f39c6d842d39f8dd4395c06b394"
+    },
+    {
+      "path": "source/CODE_OF_CONDUCT.md",
+      "bytes": 488,
+      "sha256": "9fe5b2b1adfda86e824683f56aef721246d9e589008904e25c7a99fba3ea129d"
+    },
+    {
+      "path": "source/CODING_STYLE.md",
+      "bytes": 478,
+      "sha256": "9f390311834aa8f09da31b29445e81452eb755d83759a3bd6c9b0f20d064e248"
+    },
+    {
+      "path": "source/CONTRIBUTING.md",
+      "bytes": 956,
+      "sha256": "a8ab7de909efafe6d8df24668febc1c289f2fcc0437af68ba4b13cb264063546"
+    },
+    {
+      "path": "source/Dockerfile",
+      "bytes": 1352,
+      "sha256": "4cbb1e2fec679cbe4a59a47d6deac2f70ffe7a6c50b5677604ac34cbf7f32f8b"
+    },
+    {
+      "path": "source/Doxyfile",
+      "bytes": 3085,
+      "sha256": "6965201a3a3e33cf3f5615c74dcdbbbd35b6e9a431e850dc749bd9da0e7f186a"
+    },
+    {
+      "path": "source/LICENSE",
+      "bytes": 9156,
+      "sha256": "da922b2bcda2abb7baebe9ef1bbb4142cff52d14001e9686867733ccb29610cc"
+    },
+    {
+      "path": "source/MAINTAINERS",
+      "bytes": 183,
+      "sha256": "7dcb174fb33e69e767cc09c0f15c69c8b795616e180f4a0721d1d209d70dbc50"
+    },
+    {
+      "path": "source/README.md",
+      "bytes": 9986,
+      "sha256": "439b9542080d36519bacb4b6f59aa1a0bb8f163f4c34c5075b25212f3d05a5d7"
+    },
+    {
+      "path": "source/SECURITY.md",
+      "bytes": 404,
+      "sha256": "3efdb4a991a8577d0d1c191b573ace15d23761e3bc095be27d7da82b1e17c2f1"
+    },
+    {
+      "path": "source/VERSION",
+      "bytes": 6,
+      "sha256": "a466ef209f5c3aee5ff0c702e2e9d5cced4783d2a655e8ab66330f21a5557b3f"
+    },
+    {
+      "path": "source/arch/arm64/boot.S",
+      "bytes": 7633,
+      "sha256": "ad1ce88e4dea65bdb57f38a6017a118d12321241c74b526305b8298e89e3b322"
+    },
+    {
+      "path": "source/arch/arm64/context.S",
+      "bytes": 17652,
+      "sha256": "2b87ba57f2bcd7738b251ddb02b47a2498edcd5a93e64c89ef318023e137c100"
+    },
+    {
+      "path": "source/arch/arm64/cpu.c",
+      "bytes": 5704,
+      "sha256": "57a9eab5e5fb04a671525a7341b16a60e9290621445276385d488fdf9b7b1e61"
+    },
+    {
+      "path": "source/arch/arm64/entry.S",
+      "bytes": 7857,
+      "sha256": "68a93b5d2d50319dd29412ad944ee1f7f69f6e011eca84c114d61a2ba646862f"
+    },
+    {
+      "path": "source/arch/arm64/include/asm/gic.h",
+      "bytes": 10123,
+      "sha256": "2f0f83e5eec072d02db380c1584345487ceecc2b3b2eb14ae02c1133d6d3a45e"
+    },
+    {
+      "path": "source/arch/arm64/include/asm/page.h",
+      "bytes": 6433,
+      "sha256": "0bad3bd2d7765f9941b6e8cd459fd6ba952ba2dd5d25855d7b1c06d7430e22d9"
+    },
+    {
+      "path": "source/arch/arm64/include/asm/smmu.h",
+      "bytes": 12054,
+      "sha256": "d0716a9d509e34e641490d267250a0595d4eb15d22019f14395c2a55cb0b2563"
+    },
+    {
+      "path": "source/arch/arm64/include/asm/sysregs.h",
+      "bytes": 15504,
+      "sha256": "178325d1d30aa85817cf9479e752551e6b205e9c92be7535700ca4078b10b1c0"
+    },
+    {
+      "path": "source/arch/arm64/irq.c",
+      "bytes": 7863,
+      "sha256": "01be3b40984d6b89f4a4548fbb22e3c138ed67ddde100139aadff1689b369d46"
+    },
+    {
+      "path": "source/arch/arm64/mm.c",
+      "bytes": 10316,
+      "sha256": "1e25c5504ef200e5597d2b1cab0c4d6f46fdeb8d163006e496643b4cba25ce81"
+    },
+    {
+      "path": "source/arch/arm64/partition.S",
+      "bytes": 2318,
+      "sha256": "bc6eb8d78fe8b8a297fcdbfd998a072dfcce557643d017814b6fcca9ed6cad17"
+    },
+    {
+      "path": "source/arch/arm64/timer.c",
+      "bytes": 4861,
+      "sha256": "0b864d519e51745f964dd6e8db66c89a2f151466deec87246c818ed7e6422be7"
+    },
+    {
+      "path": "source/cmake/arm64.cmake",
+      "bytes": 2011,
+      "sha256": "fcbae4d8c88e931c0b2507b7303d79bd3be331a80192794ede27abb8954ee76c"
+    },
+    {
+      "path": "source/cmake/flags.cmake",
+      "bytes": 2161,
+      "sha256": "7a740643d0d1e3114e26f71baa1fc40e2825d40c34ae5cd60850419df01cd65d"
+    },
+    {
+      "path": "source/cmake/host.cmake",
+      "bytes": 564,
+      "sha256": "8f8f6a79ff63af1a6c2f35b5639496618c2ee3454804bc63cbbe93b13e42cb37"
+    },
+    {
+      "path": "source/configs/README.md",
+      "bytes": 92,
+      "sha256": "d641da41c81f51edaf07c8dfadb9a524307a3de57c0ebff236414bac1372c485"
+    },
+    {
+      "path": "source/configs/arm64/imx8qm-mek.yaml",
+      "bytes": 772,
+      "sha256": "31dbee1b2c23854bcd12450362b753bd1d38168f9670e37775d0c472702cdd76"
+    },
+    {
+      "path": "source/configs/arm64/imx95-devkit.yaml",
+      "bytes": 1090,
+      "sha256": "5f3c8a8338449d7da1d91693f23e79179daad30ab35b4406acda46e169aba807"
+    },
+    {
+      "path": "source/configs/arm64/qemu-virt.yaml",
+      "bytes": 450,
+      "sha256": "28bbd7d0656e60bc42f0d3c961b5e227693a1722c2a726cf75b0719b034628d2"
+    },
+    {
+      "path": "source/configs/riscv/README.md",
+      "bytes": 3319,
+      "sha256": "a8c77f413582680f7d57d54cde51080025d8def43919b9185d2f3f5ef6080ec2"
+    },
+    {
+      "path": "source/configs/riscv/qemu-riscv64.yaml",
+      "bytes": 471,
+      "sha256": "561ff2fe9a7f46437d22fbae89ed5911729e456912d6dcd07fb0f754db87baf6"
+    },
+    {
+      "path": "source/configs/x86/README.md",
+      "bytes": 3250,
+      "sha256": "eba113e82d8d1bdaa0165ddfa79fedd2d50ee7f99a4b9b154c5138d0d2047a43"
+    },
+    {
+      "path": "source/configs/x86/qemu-x86_64.yaml",
+      "bytes": 462,
+      "sha256": "0c2a85b26afebef460941f484a36af384866dd5b9ec0c726947825c2bd595b62"
+    },
+    {
+      "path": "source/docs/api/API_PLACEHOLDER.md",
+      "bytes": 179,
+      "sha256": "0c9e02d2cff49f9a3789dd9af2408109c404ffd48f6c2c8c9edf3e207a15a943"
+    },
+    {
+      "path": "source/docs/architecture/ISOLATION_MODEL.md",
+      "bytes": 9159,
+      "sha256": "cb5b1e5293cb58c1072a21a64de069a1214d88dede3fd0ec57f815171bb5bae6"
+    },
+    {
+      "path": "source/docs/architecture/NAMING_RATIONALE.md",
+      "bytes": 1237,
+      "sha256": "94ff8f4bcbbb3930eeb25655d8b7a00a47b372708b13b9a57241c971104ad0bb"
+    },
+    {
+      "path": "source/docs/architecture/OVERVIEW.md",
+      "bytes": 10363,
+      "sha256": "bc76ae335328395bd82d7a6e001c5a4a37abfff46eef119167de3cb884327824"
+    },
+    {
+      "path": "source/docs/architecture/REPOSITORY_STRUCTURE.md",
+      "bytes": 2012,
+      "sha256": "43afe37a62d02f68cda55f9f78b06486886f81d67f1994ab8fed6e93303f3a0a"
+    },
+    {
+      "path": "source/docs/architecture/THESIS_DEEP_DIVE.md",
+      "bytes": 8340,
+      "sha256": "3ffaa92a8ea5dd0490211c716c17eef07de7c4f576289eec122791c7aa24a623"
+    },
+    {
+      "path": "source/docs/contributing/DEVELOPMENT_GUIDE.md",
+      "bytes": 4869,
+      "sha256": "f962f672963cc0a1bf40d3e80c743ebc9e294bb80f22f8ddf7d09b1a29674aa5"
+    },
+    {
+      "path": "source/docs/contributing/RELEASE_PROCESS.md",
+      "bytes": 7306,
+      "sha256": "49387c8856360fc5e4ae61fa6275d45a66cd637377e5bcccb766b4de272bd5b7"
+    },
+    {
+      "path": "source/docs/contributing/REVIEW_CHECKLIST.md",
+      "bytes": 3414,
+      "sha256": "1f2aa8f5b326a1e8100a6c415ec5128c7485bb89caadfec5d2ed375de9d58948"
+    },
+    {
+      "path": "source/docs/contributing/TESTING_GUIDE.md",
+      "bytes": 4466,
+      "sha256": "324790c29b1cefde3bc60f7f9255a92391238bfe5ff362fd02d07011f635af72"
+    },
+    {
+      "path": "source/docs/methodology/AI_WORKFLOW_PLAYBOOK.md",
+      "bytes": 1766,
+      "sha256": "04ced62ca6319d817186e56d13b9e021aed085821e8cdd8e574f77a8fc5c2657"
+    },
+    {
+      "path": "source/docs/methodology/BENCHMARK_BASELINE.md",
+      "bytes": 10806,
+      "sha256": "c4107bab19c22c06f018e54b5e80c19f9b0bd0c787b88e34b300d15b43bc6796"
+    },
+    {
+      "path": "source/docs/methodology/BRANCH_PROTECTION_POLICY.md",
+      "bytes": 1023,
+      "sha256": "d0e7c0d2e6a48ffd86a2b1b4cc22ace6a8a154e6d0634308abe4da0cd471af84"
+    },
+    {
+      "path": "source/docs/methodology/CHAPTER_TRACEABILITY.md",
+      "bytes": 21129,
+      "sha256": "c394049c61be43d77f1dc71977ffb7bd8f605499e17865377fc01926e2e5dcda"
+    },
+    {
+      "path": "source/docs/methodology/CI_STRATEGY.md",
+      "bytes": 1077,
+      "sha256": "b3f81b6afedd8d49acd309b04f3768ed3e2ff12c306e0787588ed9c4a6416016"
+    },
+    {
+      "path": "source/docs/methodology/CI_TROUBLESHOOTING.md",
+      "bytes": 1004,
+      "sha256": "d3eee104271e937a2ccda349214ecaefa72b70bd06ae317da38e71d5c0cecdc5"
+    },
+    {
+      "path": "source/docs/methodology/EVALUATION_PLAN.md",
+      "bytes": 2800,
+      "sha256": "eb5a78e36b6b7b4a123866816c68e7ac303c9178694f4e9d827d7c3573e16e0b"
+    },
+    {
+      "path": "source/docs/methodology/GITHUB_PROTECTION_SETUP.md",
+      "bytes": 905,
+      "sha256": "4f3e09afbe009eac1c9af9c02b6ddf742979ab95a6bc4db9de1a792c4ed8cf65"
+    },
+    {
+      "path": "source/docs/methodology/IMX95_EVIDENCE_TEMPLATE.md",
+      "bytes": 1064,
+      "sha256": "61df6d60a79dbcfe79881c36d9b7d9afd688b3e5145e102c7b5723c4e269ee5b"
+    },
+    {
+      "path": "source/docs/methodology/PHYSICAL_BOARD_VALIDATION.md",
+      "bytes": 1042,
+      "sha256": "e8341068c8f2044c11bf6c16ea8641d64c7bd000a2fec65ba7650ddc76cd8258"
+    },
+    {
+      "path": "source/docs/methodology/VERCEL_DEPLOYMENT.md",
+      "bytes": 3035,
+      "sha256": "1c4610752628de0b2aedc91613d190231562d69e73553e44ae3a67a3c238ed6f"
+    },
+    {
+      "path": "source/docs/methodology/VIRTUAL_PLATFORM_VALIDATION.md",
+      "bytes": 1337,
+      "sha256": "20c14df0ba25706ba18414c0523855f7705c9c820eb05b52ec8ed83d94e7f393"
+    },
+    {
+      "path": "source/docs/porting/CROSS_OS_VIRTUALIZATION_RUNBOOK.md",
+      "bytes": 1165,
+      "sha256": "d02d6df8e8cd83db6184705d151e7b2ef3cb9ed190715fb5dd888f8635763c5e"
+    },
+    {
+      "path": "source/docs/porting/IMX95_EVIDENCE_CAPTURE.md",
+      "bytes": 6460,
+      "sha256": "7f5702fad002a7d20b810867b66ef0756d00040a595883cc9954025c18f85e95"
+    },
+    {
+      "path": "source/docs/porting/IMX95_HARDWARE_SETUP.md",
+      "bytes": 4042,
+      "sha256": "959be4e7bab6f465c66c2855e75d761fd164eaae0afa03f6d50cf34e72aa3da7"
+    },
+    {
+      "path": "source/docs/porting/IMX95_VALIDATION_RUNBOOK.md",
+      "bytes": 6456,
+      "sha256": "9ed1449c8b9f681bccfa189e54ac49baf201d933f499a436265c913c48f66713"
+    },
+    {
+      "path": "source/docs/porting/PORTING_GUIDE.md",
+      "bytes": 251,
+      "sha256": "5a4897dc9241e82fbd8b0f6242452a4e104de1caea00570b78f15456acfa475c"
+    },
+    {
+      "path": "source/docs/roadmap/DESCRIPTION.md",
+      "bytes": 93032,
+      "sha256": "4fb5cda2dab835dff68a32924b907a1031859be165abfddf78da284c89238aa9"
+    },
+    {
+      "path": "source/docs/roadmap/MILESTONES.md",
+      "bytes": 1216,
+      "sha256": "6d70c58c44d16b67a1a00aab3cbdf264117cd898cbf99b0a4b0ba498a2f6538b"
+    },
+    {
+      "path": "source/docs/roadmap/ONE_YEAR_RELEASE_PLAN.md",
+      "bytes": 7715,
+      "sha256": "7008be6323e525da6b8c7976853e3b04be7b7c2a7d332efa3c6fe8b7bc82d0b0"
+    },
+    {
+      "path": "source/docs/roadmap/releases/R1_MONTH_1_3.md",
+      "bytes": 625,
+      "sha256": "4a5b0357b4e7fc0b99b7b864ea491c137cba2eff975ffecedbb9ca9510105ef7"
+    },
+    {
+      "path": "source/docs/roadmap/releases/R2_MONTH_4_6.md",
+      "bytes": 1462,
+      "sha256": "724a203b356627e984466e01680ff1ae4afa7f79841f85f87c1382b29d58f48f"
+    },
+    {
+      "path": "source/docs/roadmap/releases/R3_MONTH_7_9.md",
+      "bytes": 1543,
+      "sha256": "4ef42dde9b783d95f3a5ac0a8ebba665c22e913bf95d97aef9ff8ebf5d73ec9f"
+    },
+    {
+      "path": "source/docs/roadmap/releases/R4_MONTH_10_12.md",
+      "bytes": 719,
+      "sha256": "6f70dabdb4fef383b12803248091277ef2dabc5502c89c103dd20363af04615b"
+    },
+    {
+      "path": "source/docs/roadmap/releases/README.md",
+      "bytes": 158,
+      "sha256": "084da599d90201f8285fdc4e65cbed646dcf67058985d64d0afa4413258cbc89"
+    },
+    {
+      "path": "source/docs/safety/ASSUMPTIONS.md",
+      "bytes": 2521,
+      "sha256": "db4953addba4a12faed303972dcd237ea771bbcd6faced02fded257444bd93fe"
+    },
+    {
+      "path": "source/docs/safety/MISRA_DEVIATION_RECORD.md",
+      "bytes": 8804,
+      "sha256": "0b330b638a99089add30724079dbdce84088ca2ba13300202d5166d76d51bf8a"
+    },
+    {
+      "path": "source/docs/safety/STATIC_ANALYSIS_POLICY.md",
+      "bytes": 7691,
+      "sha256": "c83dbcad7004b697df736772df17b50ff1d74c3f90dbf5fe97c36e6b8fb736f9"
+    },
+    {
+      "path": "source/docs/safety/THREAT_MODEL.md",
+      "bytes": 4860,
+      "sha256": "4fb19ed2f43b0b324216b70362510c6f8bc81b2f322290b64135e63e82871869"
+    },
+    {
+      "path": "source/drivers/guest-tools/CMakeLists.txt",
+      "bytes": 395,
+      "sha256": "cfbd37cc9c1de8b57e1150fcbaed6eef9e6f44ebdd57d96c06c3dd2d52bec8ad"
+    },
+    {
+      "path": "source/drivers/guest-tools/haven_ioctl.h",
+      "bytes": 408,
+      "sha256": "1c26ebc41e293c319c91036a8705f63a837b55062b2cd4b13e586262746d25b1"
+    },
+    {
+      "path": "source/drivers/guest-tools/haven_tool.c",
+      "bytes": 4337,
+      "sha256": "18b2137776f1b407078cac176b0eb0a157b38fc214b08f4cd716ffed62578c6d"
+    },
+    {
+      "path": "source/drivers/iommu/smmu_v3.c",
+      "bytes": 10733,
+      "sha256": "c936c5cafdf9348138768618a26dc536821b4b01c771456fcf3677e2202c06b5"
+    },
+    {
+      "path": "source/drivers/iommu/smmu_v3.h",
+      "bytes": 1394,
+      "sha256": "1fdeb623f55a520eec4c75cd9b658138c0c5fd46b55d0b7360ebb43b5fc63aac"
+    },
+    {
+      "path": "source/drivers/irqchip/gic_v3.c",
+      "bytes": 6650,
+      "sha256": "4818b0aea6d8111ddc6f0d3c358c72382fd061a3c4044f76aff7c27f17ff432b"
+    },
+    {
+      "path": "source/drivers/irqchip/gic_v3.h",
+      "bytes": 1600,
+      "sha256": "2bb8062218e6f27ba34c97f6735143809df189e4ba09e9dc9808c8bbcbc8ae3a"
+    },
+    {
+      "path": "source/drivers/linux/Kbuild",
+      "bytes": 24,
+      "sha256": "78118464c20ac7ec8d973b673ae4a02d0cc9ad90ed459c68003818238d78bcf2"
+    },
+    {
+      "path": "source/drivers/linux/README.md",
+      "bytes": 4752,
+      "sha256": "71ffdf54cf7cfad951517cd497aadd8fe5e8b8b375e506da5321a09543393491"
+    },
+    {
+      "path": "source/drivers/linux/haven_driver.c",
+      "bytes": 4137,
+      "sha256": "fcee359ff74dde4debf2da5e2d30b01f3eba376ad839d490a8ea90cc09886c19"
+    },
+    {
+      "path": "source/drivers/uart/imx_uart.c",
+      "bytes": 2832,
+      "sha256": "bf9c40a96a358e89c845b6a6ba07ce1d89f830ec58c91a46edabbc7f82d3f0ce"
+    },
+    {
+      "path": "source/drivers/uart/pl011.c",
+      "bytes": 3357,
+      "sha256": "3c640cfea39141c2ee5ed0230897f7a007619e1d25b34e90be14cf746fdadfed"
+    },
+    {
+      "path": "source/drivers/uart/uart.h",
+      "bytes": 311,
+      "sha256": "3e97d966b88c73f10c4fb8351faa03abbfdc53d342f0e052bc44bfce2ab7e512"
+    },
+    {
+      "path": "source/include/README.md",
+      "bytes": 98,
+      "sha256": "060203b9fce26041bc834bfc7bfd170a9d8b2c1f5963972933628134c2f61ed1"
+    },
+    {
+      "path": "source/include/haven/budget_sched.h",
+      "bytes": 1041,
+      "sha256": "c8f8db89d75b9813865f16749d7f0ff9e407d68511e940181d63e3b658487e67"
+    },
+    {
+      "path": "source/include/haven/cpu_context.h",
+      "bytes": 963,
+      "sha256": "49778ffc5b847ceceff705091fe11bcf1d4e1baf3b31396f26853cb29e6826be"
+    },
+    {
+      "path": "source/include/haven/el2_exceptions.h",
+      "bytes": 5497,
+      "sha256": "d995baf7ee49af00a306e6324a4557250e52459e2409e2b7b91a85ac07a8da04"
+    },
+    {
+      "path": "source/include/haven/freertos_integration.h",
+      "bytes": 10605,
+      "sha256": "55dc09e4152f6edc4f635cd09d237077b6dda0bbe643ceafdff149dc2f0c4ccf"
+    },
+    {
+      "path": "source/include/haven/guest_uart.h",
+      "bytes": 6294,
+      "sha256": "a296797088015d71a9630bff74b3bf8f1d41bd2a22265ad125237338e9d02148"
+    },
+    {
+      "path": "source/include/haven/iommu.h",
+      "bytes": 3243,
+      "sha256": "a5a8d20741f2bcd1f12de1e75432eef1f39bba94aa26ccfc9a97f6cb36d3dd90"
+    },
+    {
+      "path": "source/include/haven/irq_ownership.h",
+      "bytes": 414,
+      "sha256": "aa161f9df8b68b94517f4b442c9b5ec3927878f2587f3925df1519974ebae446"
+    },
+    {
+      "path": "source/include/haven/platform.h",
+      "bytes": 1546,
+      "sha256": "1c450734c16683563ae6bf34cce99c1acfee0a67e06b938a1d736a358b9243aa"
+    },
+    {
+      "path": "source/include/haven/smmu.h",
+      "bytes": 5760,
+      "sha256": "b4edf3b911ad7b0f26bdc87dda164c50b3572eeeaef87b04fdbe83bf27b5a7fa"
+    },
+    {
+      "path": "source/include/haven/stage2.h",
+      "bytes": 549,
+      "sha256": "777d3ed5398702e72d5d56e9d401566de4605429622b8e0f891f920a3ebcd999"
+    },
+    {
+      "path": "source/include/haven/string.h",
+      "bytes": 1152,
+      "sha256": "c0b112339f7331f3f6fd292d54ed55dbe6c841beb793e2d59b31cf50b83c7e98"
+    },
+    {
+      "path": "source/include/haven/timer.h",
+      "bytes": 4052,
+      "sha256": "8e09d58155548b2df3782e33efeab896ba331288daec658717517597a94f1082"
+    },
+    {
+      "path": "source/include/haven/types.h",
+      "bytes": 333,
+      "sha256": "fff55583d9ed7ff231ba96a4d594ef1a8619fea42bacf443ceb3296112327e0f"
+    },
+    {
+      "path": "source/linker-guest-b.ld",
+      "bytes": 840,
+      "sha256": "c2a13602a4fe651b830afc31a52c35b2925fbf4aca555d3d32639f3836831a1b"
+    },
+    {
+      "path": "source/linker-guest.ld",
+      "bytes": 687,
+      "sha256": "6946c7c51090b900c56503be8e6ce507a44fd691e5a79ced6cae8713fcd05ac7"
+    },
+    {
+      "path": "source/linker.ld",
+      "bytes": 3884,
+      "sha256": "e6514f38d0dfd85ea2d681ba6e2833139800af9c3b45c258a1d098436b8acbe8"
+    },
+    {
+      "path": "source/scripts/ci/bench-regression.sh",
+      "bytes": 5840,
+      "sha256": "31e3839c45f9e3aa7a6bdea7618e54c057a13555e177217ad76f78284fff54c6"
+    },
+    {
+      "path": "source/scripts/ci/bench-update-baseline.sh",
+      "bytes": 2517,
+      "sha256": "5c984e2a6602aee39e0f3aa38cff262a372961c0fa9f4207228b991286b618dd"
+    },
+    {
+      "path": "source/scripts/ci/check-traceability.sh",
+      "bytes": 7304,
+      "sha256": "c5e7216dbb1a546f456912d6b337c757880dd398dfa0f5a72a5058993180f6c7"
+    },
+    {
+      "path": "source/scripts/ci/ci-metadata.sh",
+      "bytes": 327,
+      "sha256": "ddf676b64be8a0397d634107c240e8b21352d87e2f150c802bcc51f8fe0b981e"
+    },
+    {
+      "path": "source/scripts/ci/ci-preflight.sh",
+      "bytes": 201,
+      "sha256": "40efef5a05a485e0123ee6b2385233e745336be2dbf7a0c656b30e2b4bb0293b"
+    },
+    {
+      "path": "source/scripts/ci/ci-validate.sh",
+      "bytes": 4678,
+      "sha256": "11278b70f1450c3fbb6d939746be66b1ac7cd4a33c36f5eb29011ac10fe88f08"
+    },
+    {
+      "path": "source/scripts/ci/static-analysis.sh",
+      "bytes": 3266,
+      "sha256": "acd6ba22d5922a4fac5de35aa8cd1b5fbf2a18ef9545298cec47803e369ff6fa"
+    },
+    {
+      "path": "source/scripts/compile/build-arm64.sh",
+      "bytes": 988,
+      "sha256": "33dee4d2b915a8f3d7b291a2ff75eb6e75de7def0e4cf4d208ae18f9df3ca751"
+    },
+    {
+      "path": "source/scripts/compile/build.sh",
+      "bytes": 1192,
+      "sha256": "59c57fbaf9b1d6541880fa3844ee35c170118f279012e297704ba9293df75187"
+    },
+    {
+      "path": "source/scripts/compile/check-configs.py",
+      "bytes": 2170,
+      "sha256": "870dcbcba0883f95420a886af9b2611cf3847b661cded5de8924c4f18ff0a62d"
+    },
+    {
+      "path": "source/scripts/compile/check-configs.sh",
+      "bytes": 68,
+      "sha256": "9f29e285916da94401333003f9e6c61b7bf8846775eb5d6dca2343d3eb1ebb8b"
+    },
+    {
+      "path": "source/scripts/demo/conference-demo.sh",
+      "bytes": 9596,
+      "sha256": "41787e0f5203a1393b6f6160dfe2bce2d15047fd5b600e7a065db24ba4b8563f"
+    },
+    {
+      "path": "source/scripts/dev/fix-emdash.sh",
+      "bytes": 2157,
+      "sha256": "f67ca6d55ba360eedf581616fa28c46a56cf71979d9edef60b341374581a12c7"
+    },
+    {
+      "path": "source/scripts/dev/format.sh",
+      "bytes": 3846,
+      "sha256": "6c068260bc3b87d8b1b584d7e5e8eb3f3336d14eabb8453ebd81c61884bbc812"
+    },
+    {
+      "path": "source/scripts/dev/setup-hooks.sh",
+      "bytes": 110,
+      "sha256": "6bc744c550bce3b431df4f9c0676ed703c2b17bdf01bf61e325a1a476d70fd4e"
+    },
+    {
+      "path": "source/scripts/dev/style-check.sh",
+      "bytes": 500,
+      "sha256": "9f009019deb8b04e5e630a6e7986af35fdc0b80f9d6bdfdcfb2defbeacc041f9"
+    },
+    {
+      "path": "source/scripts/dev/test.sh",
+      "bytes": 6665,
+      "sha256": "d52d05a2f3dd331e30155363968159c4b57f166a814ad075503a7f3277ff36ac"
+    },
+    {
+      "path": "source/scripts/evidence/benchmark-baseline.py",
+      "bytes": 1444,
+      "sha256": "e6b8a736c5b40f78b8b8538a70a76c2a66b28c1577d73d290c1b3d7f0845b50a"
+    },
+    {
+      "path": "source/scripts/evidence/compare-evidence.py",
+      "bytes": 3880,
+      "sha256": "53e4745bb4373121ec84badc14d12bc1d2c780764370c857339329fe6b54eaac"
+    },
+    {
+      "path": "source/scripts/evidence/compare-metadata.py",
+      "bytes": 1258,
+      "sha256": "3b88b9ac9838c377993422e405f312c8187423bd2cf6df0057a151f20e4dc646"
+    },
+    {
+      "path": "source/scripts/evidence/package-evidence.sh",
+      "bytes": 7238,
+      "sha256": "741f378aba26d453712bf36b7d897b4f26510f996846faa7b089b92187cd893f"
+    },
+    {
+      "path": "source/scripts/qemu/qemu-run.sh",
+      "bytes": 2812,
+      "sha256": "24040739b193cca480f0101785fa22d0340d0ce58857fc5f8416e4e23776d523"
+    },
+    {
+      "path": "source/scripts/qemu/qemu-smoke.sh",
+      "bytes": 5346,
+      "sha256": "d224e5b103f8c1ecd77513472c55f2f31b2d7cd5f8322edd4c130883732d5722"
+    },
+    {
+      "path": "source/scripts/release.sh",
+      "bytes": 8032,
+      "sha256": "69b5e1785c981b8a1d8d226f2bd9e19071ad64fe249d039d37b8ee7d4ac3f7b6"
+    },
+    {
+      "path": "source/src/common/panic.c",
+      "bytes": 933,
+      "sha256": "9b24474707e7915a318003d07f7884fd0ba08b287b84b2cb2b494d55edde2997"
+    },
+    {
+      "path": "source/src/common/printk.c",
+      "bytes": 3031,
+      "sha256": "8d480cd48ada9b988530fbfeb85895499aa0a0e2994d88d8412668db697e1952"
+    },
+    {
+      "path": "source/src/common/spinlock.c",
+      "bytes": 2393,
+      "sha256": "3fde4b3deecf16e1519d8fbabe77ac2ff5606aaad37c62454136c98555e82892"
+    },
+    {
+      "path": "source/src/common/string.c",
+      "bytes": 4669,
+      "sha256": "1c2b8958aaf0eb30672ba47ff09f260ffaebc8c5e3ee593a5bc64a4c314bde1d"
+    },
+    {
+      "path": "source/src/core/README.md",
+      "bytes": 278,
+      "sha256": "90045abe7f897f811cf9c74e5d3a593cc9d34995f2bb5e29512698e1ab524dc8"
+    },
+    {
+      "path": "source/src/core/dma/smmu.c",
+      "bytes": 7847,
+      "sha256": "eb440a375291b90880ff572f650e9a70d7032db8c87fde32f32f6806c74d0ac4"
+    },
+    {
+      "path": "source/src/core/exc/el2_exceptions.c",
+      "bytes": 10480,
+      "sha256": "f868fc9bbd3537be218a30027eca4768b241289a4541d910705405d34493369b"
+    },
+    {
+      "path": "source/src/core/init.c",
+      "bytes": 5286,
+      "sha256": "baa587e3d24741bd2304663aa33f77917e454557259259eba1d8cc6086ea2449"
+    },
+    {
+      "path": "source/src/core/iommu/iommu_policy.c",
+      "bytes": 2067,
+      "sha256": "c1edf30a0739b3ac496de9e6570fccb1e2a5d3d50c5debf0aa894da0dba2fde2"
+    },
+    {
+      "path": "source/src/core/irq/ownership.c",
+      "bytes": 2550,
+      "sha256": "af239e22f01df5372bf1a8f0746b47153ed14819e32ebda91a2a5f6b7d0d673e"
+    },
+    {
+      "path": "source/src/core/mm/stage2.c",
+      "bytes": 6015,
+      "sha256": "1437e51a88f1e476d6066b6e18293913a666ca93e79ab103ae329bbe52da26a6"
+    },
+    {
+      "path": "source/src/core/partition.c",
+      "bytes": 9885,
+      "sha256": "1d2f3a9aa0b61028a6c73e59c16fd33ee7d24d151b901df31b42460cdb2c68f2"
+    },
+    {
+      "path": "source/src/core/sched/budget.c",
+      "bytes": 4521,
+      "sha256": "8791cdca8fb16358d3062c3a59f318703bfb6cc73d142475c8a7513390dec0e1"
+    },
+    {
+      "path": "source/src/core/time/timer.c",
+      "bytes": 3770,
+      "sha256": "5143ff7b0c3897a008471d83bc07aaf99c3302233845015251ae37bf27b3ac7c"
+    },
+    {
+      "path": "source/src/guest/drivers/uart.c",
+      "bytes": 6156,
+      "sha256": "a2899b55e6764954e7a6b0127e5273f3f2f589dd32113a843ed4249031310da6"
+    },
+    {
+      "path": "source/src/guest/rtos/freertos_integration.c",
+      "bytes": 13147,
+      "sha256": "3274abf4266bf2515c56bb767caf826cd35e0328156b01e8603a4e77159ff1da"
+    },
+    {
+      "path": "source/src/platform/imx8qm-mek/platform.c",
+      "bytes": 3259,
+      "sha256": "5fd701dae440c1a8eea6f5bbdbd7635b381e1ad6da101d51e48ecd05054f7646"
+    },
+    {
+      "path": "source/src/platform/imx95-devkit/memory.h",
+      "bytes": 4587,
+      "sha256": "def4c65a978f5ebcdb70116274dc9a5f432c11ba88de13db92c5331f27135d1c"
+    },
+    {
+      "path": "source/src/platform/imx95-devkit/platform.c",
+      "bytes": 3084,
+      "sha256": "8cd85ac907cc532f1622a5900e4fc8135b4e90c8b46b3961281fb7d290648756"
+    },
+    {
+      "path": "source/src/platform/platform.h",
+      "bytes": 1546,
+      "sha256": "1c450734c16683563ae6bf34cce99c1acfee0a67e06b938a1d736a358b9243aa"
+    },
+    {
+      "path": "source/src/platform/qemu-virt/memory.h",
+      "bytes": 1532,
+      "sha256": "62fb926eef87fb64a689b654641c92ecd4a78648f7dd2f105c74041cd1a9e4be"
+    },
+    {
+      "path": "source/src/platform/qemu-virt/platform.c",
+      "bytes": 2815,
+      "sha256": "61659d3c568c608cfa904cff2197c1892ee2533962f73521e83f13069b51eeb0"
+    },
+    {
+      "path": "source/tests/CMakeLists.txt",
+      "bytes": 5909,
+      "sha256": "f1f5bad1ca6936e25da67eb54171a191667cf29fdd5b1dc501d101dfb476fffc"
+    },
+    {
+      "path": "source/tests/benchmarks/bench_isolation_latency.c",
+      "bytes": 10021,
+      "sha256": "32f9ff7d0512024e980939f21119ba54c33dbb58cb9d7712f8890ac1246c9343"
+    },
+    {
+      "path": "source/tests/benchmarks/bench_smmu_policy.c",
+      "bytes": 9330,
+      "sha256": "91598fc9f33abfdca85216657303ba33070373e317f354555370b817dc3b826e"
+    },
+    {
+      "path": "source/tests/benchmarks/bench_stage2_fault.c",
+      "bytes": 7364,
+      "sha256": "4b13332126af23d5fc5719d51c91b4c22de148333ac5414f7ad8a6d42b4f202f"
+    },
+    {
+      "path": "source/tests/benchmarks/bench_temporal_isolation.c",
+      "bytes": 8811,
+      "sha256": "5325564b38da18b6a58622afb789d9a3b463ef3ef73c08d3d5196e479c5bb6e0"
+    },
+    {
+      "path": "source/tests/benchmarks/latency-baseline.json",
+      "bytes": 2497,
+      "sha256": "fb0dbd604a19970281ab124ee8c1eb3e2987d3530f044c4777c74e9d130a2761"
+    },
+    {
+      "path": "source/tests/common/printk_stub.c",
+      "bytes": 371,
+      "sha256": "d910ff3eaa0adba89e1e717fa79d81bf4e1e9e9e5b54b15f14c72fc64f532c0a"
+    },
+    {
+      "path": "source/tests/demos/demo_two_partition.c",
+      "bytes": 8577,
+      "sha256": "d5e1331b0dfdc99c0508dba16773ceeb945e28d442945b06f243c2512d2e03b3"
+    },
+    {
+      "path": "source/tests/demos/guest_a_entry.S",
+      "bytes": 3178,
+      "sha256": "b1f232ed85c6d5d5e0fd91eddbbcd0fb748748c400e2175c2f824e90e54322b7"
+    },
+    {
+      "path": "source/tests/demos/guest_b_entry.S",
+      "bytes": 3722,
+      "sha256": "0c0808e0c8e9f2d066ef2ebc036a687fbc868004ccb6ecd08af2ce2e5c8509a0"
+    },
+    {
+      "path": "source/tests/integration/README.md",
+      "bytes": 162,
+      "sha256": "c7b881eb07b762bd5053f919647cde2ce1e4cc0a9dece51a3c755f581e9604d8"
+    },
+    {
+      "path": "source/tests/integration/test_fault_injection.c",
+      "bytes": 12992,
+      "sha256": "e350afc8d1151517573b8703aa45a3a41f3e1d7d5f53f5b73bd866adf47379d5"
+    },
+    {
+      "path": "source/tests/integration/test_isolation_flow.c",
+      "bytes": 4795,
+      "sha256": "cb904e6e9c60f6954163400ed6ac3565f4f1a4ee11b52c28faec4b9789410c4f"
+    },
+    {
+      "path": "source/tests/integration/test_isolation_negative.c",
+      "bytes": 6306,
+      "sha256": "a596cb264bb618a715dcb890e322a833898008f22d539a59e7b117dc63882ba1"
+    },
+    {
+      "path": "source/tests/integration/test_secondary_cpu_isolation.c",
+      "bytes": 15150,
+      "sha256": "507a9b1fca902bf9dab8288352b006a1a9719646b5b56bd7dcd9a823f1c625f5"
+    },
+    {
+      "path": "source/tests/integration/test_smmu_hardware.c",
+      "bytes": 16375,
+      "sha256": "fa5f2326465faca226bc4815c5004af3f93177d4b8e22a770d3df6840c61194f"
+    },
+    {
+      "path": "source/tests/isolation/README.md",
+      "bytes": 186,
+      "sha256": "dda97c83154a72f5efb4cf5aa01c565f58bd598673cfb35388349f56fbe1c482"
+    },
+    {
+      "path": "source/tests/isolation/test_spatial_isolation.c",
+      "bytes": 7455,
+      "sha256": "395be2318395db6ee9be67d7fef43f51d77b7b65d4626c77d13c69094bcd49fb"
+    },
+    {
+      "path": "source/tests/isolation/test_temporal_isolation.c",
+      "bytes": 8714,
+      "sha256": "fa77ff5e5794bc510934d6aa916962eb31da4a29aeb7ff7b496e274748845673"
+    },
+    {
+      "path": "source/tests/selftests/test_hypervisor_invariants.c",
+      "bytes": 8999,
+      "sha256": "d6a9e144dc7958233fd0fcada9c81b11fa91ddae3ab4dc02cbbe7b6bc17925b9"
+    },
+    {
+      "path": "source/tests/unit/README.md",
+      "bytes": 110,
+      "sha256": "b34041a5ddee688fb59af0233b1090abcc4ea521e6f2cbadd42f55725eeb9a67"
+    },
+    {
+      "path": "source/tests/unit/test_core_stubs.c",
+      "bytes": 5779,
+      "sha256": "6e30cf5def5dbecec24dca607721c82b2453c40ce077e400d2d13e20755db813"
+    },
+    {
+      "path": "source/tests/unit/test_el2_exceptions.c",
+      "bytes": 9202,
+      "sha256": "0b22f82a0a96ec6d7120a713a0a5a2fc58384d088239e4f7f4dcb7f2e40826b2"
+    },
+    {
+      "path": "source/tests/unit/test_freertos_integration.c",
+      "bytes": 16101,
+      "sha256": "8bff71f0f9c7df7bbd89b2d11fb8e29f41a1b9adeff209a606d35b61ca76d164"
+    },
+    {
+      "path": "source/tests/unit/test_guest_uart.c",
+      "bytes": 9489,
+      "sha256": "e88adf1be726df2d327dc9ba3cc8b1bed9896b29c393e0b22b170aafd52227b5"
+    },
+    {
+      "path": "source/tests/unit/test_iommu_policy.c",
+      "bytes": 5076,
+      "sha256": "f1ac7ad1bd45054e6013c3b7dae5e1e1d95b53b7c77f9cca56ca68e287fabfda"
+    },
+    {
+      "path": "source/tests/unit/test_smmu_dma.c",
+      "bytes": 11597,
+      "sha256": "f16185b75f6a1d9803dc8fbd6db7ff2964e3e1b7093331bd39e98c32a9601da3"
+    },
+    {
+      "path": "source/tests/unit/test_timer.c",
+      "bytes": 6071,
+      "sha256": "f904d2085c046cab32e8551b20d85924557db8881f6959d2ce9d8632cd5bbeeb"
+    },
+    {
+      "path": "source/tools/analysis/README.md",
+      "bytes": 5543,
+      "sha256": "24ebc3413c62597e58b81ea07b9b4a14bef908a17ce4992a6eab08fc801f6724"
+    },
+    {
+      "path": "source/tools/analysis/evidence_report.py",
+      "bytes": 7193,
+      "sha256": "238f5b9ffb98d57982c8d094df83e5d87cead95ead106928a5fa21924644fe51"
+    },
+    {
+      "path": "source/tools/analysis/jitter_plot.py",
+      "bytes": 4971,
+      "sha256": "2dc1ddb48339bf8f9861a3ddc0ad62e9bb3297ce6ca5c4646c6f589bcb220dcb"
+    },
+    {
+      "path": "source/tools/analysis/latency_analyzer.py",
+      "bytes": 4903,
+      "sha256": "a6ec46a6155661f4fd4d4e7a347524699ff3881cc81ba36e7cd876953604a36a"
+    },
+    {
+      "path": "source/tools/config-gen/README.md",
+      "bytes": 116,
+      "sha256": "5ee9098fa2b2790e56a738ab64487bcee0655538fb8887ab2d8edb8fa5afa024"
+    },
+    {
+      "path": "source/tools/scripts/README.md",
+      "bytes": 3516,
+      "sha256": "8de4535a35a88350b28362ee33c30bc510335f7eddd9f70f9a8d2a47e46c89ac"
+    },
+    {
+      "path": "source/tools/scripts/cross-compile.sh",
+      "bytes": 3065,
+      "sha256": "6ce62b44e69f5bb98b6de7f03f08ca186f7c9a9653ee0ce26c57d3cae01e5e1d"
+    },
+    {
+      "path": "source/tools/scripts/qemu-run.sh",
+      "bytes": 172,
+      "sha256": "f3808a1848ab2ad54c22005d7e589d56f8cd5791d0d9f9220f1f309f7cfe8d6a"
+    },
+    {
+      "path": "source/tools/scripts/tcb-loc.sh",
+      "bytes": 3906,
+      "sha256": "78ce2b64aba154f5cb321a5e72788df115a554b48d066ba46147dcf61b7999d0"
+    },
+    {
+      "path": "source/vercel.json",
+      "bytes": 221,
+      "sha256": "e53cc7116d38b2b0c5b7f9cdf26aa102255836dfa500ae2da3d55ac0f2258536"
+    },
+    {
+      "path": "source/verification/Makefile",
+      "bytes": 4698,
+      "sha256": "b869f3bc44cccb9bb60ef6e1f6963736127cbcfe0388901774e5a791dddd512e"
+    },
+    {
+      "path": "source/verification/README.md",
+      "bytes": 2650,
+      "sha256": "dde2fb4fca0eccb17a6c793185ac088eb065fe2a1fa87db1736b47cfbd3295b8"
+    },
+    {
+      "path": "source/verification/coq/BudgetScheduler.v",
+      "bytes": 9104,
+      "sha256": "91156fe66fd44eed14ddd401b523a1bf95b2bee202bc8159ae793b09afe4e925"
+    },
+    {
+      "path": "source/verification/coq/IsolationModel.v",
+      "bytes": 8147,
+      "sha256": "7babf92f5f218c7508e8d43e7b87c03138d7c3b2443a0d8fdd0febf14eed90de"
+    },
+    {
+      "path": "source/verification/coq/README.md",
+      "bytes": 4398,
+      "sha256": "ed748691bc2363c060224fa56ba1ad48589bbe17c094a607d47617a5d17e65ea"
+    },
+    {
+      "path": "source/verification/coq/Stage2Policy.v",
+      "bytes": 15693,
+      "sha256": "eacaf3d20065d21d72e0f20062ac57d8a1bda2b555b45c6ea0278e8f4a3076e1"
+    },
+    {
+      "path": "source/verification/isabelle/HavenIsolation.thy",
+      "bytes": 11734,
+      "sha256": "52b69e93087cbcc4e7b665902711c276ae55678402dccb25c7c1ec3a3cc54895"
+    },
+    {
+      "path": "source/verification/isabelle/README.md",
+      "bytes": 3631,
+      "sha256": "2735745bb0369352fc3d3c776b9c291bda63868ddafa1d6323fa320103473b87"
+    },
+    {
+      "path": "source/verification/isabelle/ROOT",
+      "bytes": 61,
+      "sha256": "0b6445d688cd6fa36584d6844e3e2eef459733b5040f89a0435d54b1b1b83b87"
+    },
+    {
+      "path": "source/website/.gitignore",
+      "bytes": 54,
+      "sha256": "b7aed9bb4758ae99d721585e187e5f8290fb03eecc88021c0595fc436aa6b283"
+    },
+    {
+      "path": "source/website/astro.config.mjs",
+      "bytes": 3218,
+      "sha256": "44e868d13e9083b09ad1958beeb58ef3ecc01fef5e3e1efbd4162327fb74a06a"
+    },
+    {
+      "path": "source/website/package-lock.json",
+      "bytes": 373126,
+      "sha256": "77d331baf4a4b8bbf0dd791a5477fde3ee590aefbb2ba0a12910adca929210f2"
+    },
+    {
+      "path": "source/website/package.json",
+      "bytes": 525,
+      "sha256": "c7ff0c1918bcbd6bed9e6e967cdd5401e518e9cd57a4a12acb341a376cf7ba1f"
+    },
+    {
+      "path": "source/website/src/assets/logo-dark.svg",
+      "bytes": 355,
+      "sha256": "cdb2e7c988bea3aa4309e55c00e6b4d06586a8a281e04c5a3d90868b0ee2cc94"
+    },
+    {
+      "path": "source/website/src/assets/logo-light.svg",
+      "bytes": 355,
+      "sha256": "a25f5769dcc7b7471db051873edd1938bc554f691d310a23ba41c66979ac5a4b"
+    },
+    {
+      "path": "source/website/src/components/Head.astro",
+      "bytes": 231,
+      "sha256": "b940227091feda07fe7f87bf2a22c80be843b64f184084ef616549459066583e"
+    },
+    {
+      "path": "source/website/src/content/docs/architecture/budget-scheduler.mdx",
+      "bytes": 3961,
+      "sha256": "c224baa587120666fc11fe8c0c4c812eab94d4849bd0ea077f867acbc345213b"
+    },
+    {
+      "path": "source/website/src/content/docs/architecture/irq-ownership.mdx",
+      "bytes": 3475,
+      "sha256": "40e346db670d490fdd1a54ec09145f705fbd8dd2a5030f83fc604d7326937252"
+    },
+    {
+      "path": "source/website/src/content/docs/architecture/isolation-model.mdx",
+      "bytes": 4605,
+      "sha256": "d9a18cfe36e07d2f404dc754afd87ea3cb51a51e629387e19c9f0e657fd707d5"
+    },
+    {
+      "path": "source/website/src/content/docs/architecture/overview.mdx",
+      "bytes": 5324,
+      "sha256": "be183408131e8458201da3bea2c870fcf89716e1757bcbbe601bfd49acee10f2"
+    },
+    {
+      "path": "source/website/src/content/docs/architecture/smmu-dma.mdx",
+      "bytes": 3537,
+      "sha256": "2adaff7cc4a7401e82a2b3eb9233234a66225b7cbf24eac9a95386464916b931"
+    },
+    {
+      "path": "source/website/src/content/docs/architecture/stage2-mmu.mdx",
+      "bytes": 4184,
+      "sha256": "436722737517060867912c218f3263a334455ddeef11bfe445289d560a0f7e1a"
+    },
+    {
+      "path": "source/website/src/content/docs/getting-started/introduction.mdx",
+      "bytes": 5358,
+      "sha256": "8855de15ec39d52e9867bfa4a9ce577722b045db56499ae4eb54c3c2021650b1"
+    },
+    {
+      "path": "source/website/src/content/docs/getting-started/quickstart.mdx",
+      "bytes": 3474,
+      "sha256": "4250b9a59d985bd18a812ab0a91cdd9616ad88ec882336435c0d86ecf84b6935"
+    },
+    {
+      "path": "source/website/src/content/docs/getting-started/structure.mdx",
+      "bytes": 4431,
+      "sha256": "e87b810db952eaf37072cc22f2a605dd51f9783eaec17e1ecb5b63181eb7b3fb"
+    },
+    {
+      "path": "source/website/src/content/docs/index.mdx",
+      "bytes": 4078,
+      "sha256": "6692dc446d0640e2b70a2ec8470372a6c83475863dd49209fde82b19d17ce065"
+    },
+    {
+      "path": "source/website/src/content/docs/platform/imx95.mdx",
+      "bytes": 3559,
+      "sha256": "2f706f05623b20b86fdc9150e75698ab2712ec8f16c0acee98d1fa037040823b"
+    },
+    {
+      "path": "source/website/src/content/docs/platform/porting.mdx",
+      "bytes": 2982,
+      "sha256": "fefee0d06ca3d425e3dda908a772dedf380e6bda9f276d18ac5cfc88bdbe312e"
+    },
+    {
+      "path": "source/website/src/content/docs/platform/qemu-arm64.mdx",
+      "bytes": 2978,
+      "sha256": "0d15920e9b3465217e10a4ecce24a1ddc8472d4e195ab057d95f6578fa415846"
+    },
+    {
+      "path": "source/website/src/content/docs/reference/api.mdx",
+      "bytes": 3907,
+      "sha256": "ad1ef6122507efecfa919c97415147405c1af4687a2e90a99e49d878857c16c7"
+    },
+    {
+      "path": "source/website/src/content/docs/reference/changelog.mdx",
+      "bytes": 8093,
+      "sha256": "a1400d711f7966dcc7b8c940ab3375d6273e05e06f57f2c1ea258495ffbcc392"
+    },
+    {
+      "path": "source/website/src/content/docs/reference/contributing.mdx",
+      "bytes": 2087,
+      "sha256": "c6bc9693ca57744487b27ffbbf85d936dc3cb1a9da596e568d7ead5c6dd40120"
+    },
+    {
+      "path": "source/website/src/content/docs/reference/faq.mdx",
+      "bytes": 2723,
+      "sha256": "f6b6eabee18ebc0932adc263cdaef8d963aab6f5cc3d078ac933d1c93f6c5675"
+    },
+    {
+      "path": "source/website/src/content/docs/reference/security.mdx",
+      "bytes": 2166,
+      "sha256": "b735086e2ad7e25890353d3adb7a45d29bbb5b4163cccc4a4a3aa4d60430e422"
+    },
+    {
+      "path": "source/website/src/content/docs/thesis/background.mdx",
+      "bytes": 6784,
+      "sha256": "dafc9f12af0a602946ca82bdfb2f086a32e548945b5565ec38aeec0d961c06cd"
+    },
+    {
+      "path": "source/website/src/content/docs/thesis/evaluation.mdx",
+      "bytes": 5119,
+      "sha256": "f74aee70494d6cc40818467b1c4cf71423f63d4e753812a35056bc57811d0525"
+    },
+    {
+      "path": "source/website/src/content/docs/thesis/evidence.mdx",
+      "bytes": 2889,
+      "sha256": "6d532d7b98ef2b3772819ddb3151092a1dca5f46bfc5063d60100fa58fc196e8"
+    },
+    {
+      "path": "source/website/src/content/docs/thesis/milestones.mdx",
+      "bytes": 6048,
+      "sha256": "abc7903a453691e9d2103a9d81960d856a0dcb1152eb9915e144d2e8b1618ed6"
+    },
+    {
+      "path": "source/website/src/content/docs/thesis/traceability.mdx",
+      "bytes": 4820,
+      "sha256": "3aa0c6934240bbc2a4d7debc81001e17f854fb7370109389e2b4f4c12a207a52"
+    },
+    {
+      "path": "source/website/src/content.config.ts",
+      "bytes": 281,
+      "sha256": "ed13274704d93ac61a3166ba0e32f2f7bba26e8507dd30365f0b9977a195b9a4"
+    },
+    {
+      "path": "source/website/src/env.d.ts",
+      "bytes": 85,
+      "sha256": "5a498a2ff3c0abb338aff60209dfe32fb591fc5ad359182c5a14910f4c2fff8f"
+    },
+    {
+      "path": "source/website/src/styles/custom.css",
+      "bytes": 533,
+      "sha256": "4bdcfae97374ab83a945ff988a2354b488c1f2237bcb725ef5b65d6345be6c5d"
+    },
+    {
+      "path": "source/website/tsconfig.json",
+      "bytes": 43,
+      "sha256": "7c208b665967b3cb84b70a715c1dae87ad930f68f099489feaca28a7de62e642"
+    },
+    {
+      "path": "source/website/vercel.json",
+      "bytes": 189,
+      "sha256": "839b2154da33a1cbf1b7711214c59a8ede9a028cd8227575f5ab1663171a298a"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 8783,
+      "sha256": "1c3bb92ad40a23d81c68d20b9c29efe9334f10a58055e7e315b3e38aeef0c03a"
+    },
+    {
+      "path": "symbols-host-abi.log",
+      "bytes": 380,
+      "sha256": "1f346d5935725a57f9e148e065151c7979136e2f392e4bc3cc5b3c28c7aedbe6"
+    },
+    {
+      "path": "symbols-host-guard.log",
+      "bytes": 353,
+      "sha256": "21224cda0e5c75a80b227e7776043bbd8459cc448bf8b75418e081118f7b3250"
+    },
+    {
+      "path": "symbols-proposal-default.log",
+      "bytes": 320,
+      "sha256": "b1bf989535d3885e0d30b33f7132b4c86e7b07d2aa610c9049f5ec7aca4731fe"
+    },
+    {
+      "path": "symbols-proposal-strict.log",
+      "bytes": 320,
+      "sha256": "b1bf989535d3885e0d30b33f7132b4c86e7b07d2aa610c9049f5ec7aca4731fe"
+    },
+    {
+      "path": "undefined-image-proposal-default.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-image-proposal-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-object-proposal-default.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-object-proposal-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validate_proposal.py",
+      "bytes": 5918,
+      "sha256": "e824053dd4e1f94f835fa8be327b0c1bc72c78ef635d74fb338a3076381b64db"
+    },
+    {
+      "path": "version-aarch64-linux-gnu-gcc.log",
+      "bytes": 237,
+      "sha256": "d3a24e44b1518651a9025569849981f335f1cde7be938e928111b2c563d0428f"
+    },
+    {
+      "path": "version-clang.log",
+      "bytes": 158,
+      "sha256": "a856ec74c559401131ad608625ef252fb2db6c78bc0c480c1c4c782ee4896db1"
+    },
+    {
+      "path": "version-cmake.log",
+      "bytes": 90,
+      "sha256": "4d92ce18ddf9889d463ac875608423312823ad89e7fd5178b02a21ea26a2bd3d"
+    },
+    {
+      "path": "version-ninja.log",
+      "bytes": 7,
+      "sha256": "810ab97f4b3fccb9adf1db7959945b479635931ccc4a0243c34a41b739eae25a"
+    },
+    {
+      "path": "version-python3.log",
+      "bytes": 14,
+      "sha256": "36eccae64c73138a6ce898fb4100d385bf3618b6f07bf251cdfe60cccdd43a41"
+    }
+  ]
+}

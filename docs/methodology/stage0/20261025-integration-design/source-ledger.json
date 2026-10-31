@@ -1,0 +1,41 @@
+{
+  "kdal/src/core/kdal.c": {
+    "sha256": "1c94b20d26eeec150559cf4cf53494503bb3025de9677c2055ba69ba8dc1e93e"
+  },
+  "kdal/src/core/chardev.c": {
+    "sha256": "51e8ed9c288b15e4a436c4ef715a8c969436039733372ab1f115ca0739a25d19"
+  },
+  "kdal/src/core/registry.c": {
+    "sha256": "4a3fe32b7d463640f657d7c63610f06f6262011bc4f3a570b8967064595ff193"
+  },
+  "kdal/src/drivers/example/uartdriver.c": {
+    "sha256": "b7e669558d323146ced92f82209fe5a3ec80217657a9bbe46c529f511b291ac9"
+  },
+  "kdal/src/backends/qemu/qemubackend.c": {
+    "sha256": "c1badcee275b16aa7da92348bfa77079f606795cc8048e4abfb5f922e38238e1"
+  },
+  "kdal/include/kdal/ioctl.h": {
+    "sha256": "500e4327ef573cecdcae3045b006e23adc10259e50e6d69c0a501a8904bbb929"
+  },
+  "kdal/include/kdal/core/version.h": {
+    "sha256": "080d59d974bc1a31a70ab91aecca212efbb2ca4fc77a43b733214762dbff96c5"
+  },
+  "kdal/Makefile": {
+    "sha256": "595f992c3a060a43c52fd07bd44e12d7e9db90717345274529b1581331041595"
+  },
+  "kdal/scripts/env/kernel.sh": {
+    "sha256": "f18605307f55b62a22d4ce1dfa5549394ee4d1e63a3c38cb05b10ae1c72b9627"
+  },
+  "haven/src/core/partition.c": {
+    "sha256": "1d2f3a9aa0b61028a6c73e59c16fd33ee7d24d151b901df31b42460cdb2c68f2"
+  },
+  "haven/arch/arm64/partition.S": {
+    "sha256": "bc6eb8d78fe8b8a297fcdbfd998a072dfcce557643d017814b6fcca9ed6cad17"
+  },
+  "haven/src/core/exc/el2_exceptions.c": {
+    "sha256": "c65de5e36291e861619463256c8444696a6ebda92618244ff20ba32fd82f1124"
+  },
+  "elmos/core/domain/emulator/qemu.go": {
+    "sha256": "e085eb38e9cbeab7791ea96f55b585d3eccc73f4ef7b31a88aa002082eac6f73"
+  }
+}

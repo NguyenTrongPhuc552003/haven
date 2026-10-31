@@ -1,0 +1,211 @@
+{
+  "original_root": "haven/build/evidence",
+  "preserved_at_utc": "2026-10-25T07:20:53.631271+00:00",
+  "files": [
+    {
+      "path": "stage0-20261023-qemu/README.md",
+      "bytes": 3594,
+      "sha256": "29c4b0f6d69527343699636e4edfbef171b453bd9d07817c09ef0e7b28753572"
+    },
+    {
+      "path": "stage0-20261023-qemu/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "stage0-20261023-qemu/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "stage0-20261023-qemu/haven.bin",
+      "bytes": 27160,
+      "sha256": "a226395517a5691825c4a1beab898ce532c5512cfab59a65186be3253ded0ed9"
+    },
+    {
+      "path": "stage0-20261023-qemu/qemu-console.log",
+      "bytes": 81,
+      "sha256": "4410cd900ad41eab0d32899f075e91df42e630727203d581058f1499510e904b"
+    },
+    {
+      "path": "stage0-20261023-qemu/qemu-uart.log",
+      "bytes": 447,
+      "sha256": "cc96ef257b8c9b7d6bb310207fc76c84180fb78316f15417411530254f50b0f7"
+    },
+    {
+      "path": "stage0-20261023-qemu-diag1/README.md",
+      "bytes": 3964,
+      "sha256": "55fa03889d5734f0e387113a3e850bd2986bc67479cae6563db9733847864228"
+    },
+    {
+      "path": "stage0-20261023-qemu-diag1/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "stage0-20261023-qemu-diag1/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "stage0-20261023-qemu-diag1/haven.bin",
+      "bytes": 27224,
+      "sha256": "1c4765004c4ece860ee55a285b33d80483078e0541c35bb0a54a6175c8dff7a2"
+    },
+    {
+      "path": "stage0-20261023-qemu-diag1/qemu-console-diag1.log",
+      "bytes": 81,
+      "sha256": "d94085412ee2346f82a5b927f8a65db9f67cc35f6f2ae1b3c51325100c3d194c"
+    },
+    {
+      "path": "stage0-20261023-qemu-diag1/qemu-uart-diag1.log",
+      "bytes": 496,
+      "sha256": "145ec8a499f7f270387d2ec9fa15b1599da4c2397b580678df27e3e64a8c5d5d"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/README.md",
+      "bytes": 3633,
+      "sha256": "7cc658293aa4c56806a9acf7c423e66d6251cb9d8eef7f7b84c7288cccf009c4"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/bl1.bin",
+      "bytes": 22832,
+      "sha256": "36e92729ffd0d3e7499dd0648d273f3cfa0bab51b07b8cce52c56465870c4ec7"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/bl2.bin",
+      "bytes": 25072,
+      "sha256": "92b70dc998bf2b8cc2290c523b2d31b84926ae23ae554ce8c8252d0661046d1d"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/bl31.bin",
+      "bytes": 49255,
+      "sha256": "588a7e29bad277db457721cbf91f87358356418c0717d7178844f64c38e92076"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/haven.bin",
+      "bytes": 27224,
+      "sha256": "e900ec8d3a51884306abd3a6b69025d1901f400487ba1bb5de9cf1e1ccca8a54"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu/qemu-uart.log",
+      "bytes": 3836517,
+      "sha256": "71c7e4e6aca15522a8d3d110ff25653255a238b146ac76c2fe49f90dc57450f4"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/README.md",
+      "bytes": 3800,
+      "sha256": "59bff5652823588a86e3518e7eca19dfdeed94954ca72877713b01882fb5745c"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/bl1.bin",
+      "bytes": 22832,
+      "sha256": "36e92729ffd0d3e7499dd0648d273f3cfa0bab51b07b8cce52c56465870c4ec7"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/bl2.bin",
+      "bytes": 25072,
+      "sha256": "92b70dc998bf2b8cc2290c523b2d31b84926ae23ae554ce8c8252d0661046d1d"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/bl31.bin",
+      "bytes": 49255,
+      "sha256": "588a7e29bad277db457721cbf91f87358356418c0717d7178844f64c38e92076"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/haven.bin",
+      "bytes": 27224,
+      "sha256": "da49b8ae191202c03fa94ddb664843e83fd8985999d9f5172d816fbd1f4526d8"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/qemu-console.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stage0-20261023-tfa-qemu-guest1/qemu-uart.log",
+      "bytes": 1041,
+      "sha256": "7cdbf9d872af368b547351a44d5362168671056d3444b304a3fcb49f369f1bb5"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/README.md",
+      "bytes": 5038,
+      "sha256": "0bb80af5b890685fe8921b3707f38ceb96ff0906798f31af01612c4b7ca406d7"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/full-cpu-init/guest_b-diagnostic.bin",
+      "bytes": 88,
+      "sha256": "d55ccddc7eb563f6a6fb37d5e39277e76881dcc0d219f3f6df0075cf8747d1a1"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/full-cpu-init/haven.bin",
+      "bytes": 27288,
+      "sha256": "21df45c566a081604b72037511bb58f72d93557cbb0e6faf35f6380fc208bcb3"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/full-cpu-init/qemu-console.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/full-cpu-init/qemu-uart.log",
+      "bytes": 1144,
+      "sha256": "11d4b408854df67422165301885045fec98605a08e4309081408d4caae31e374"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/minimal-s2/guest_b-diagnostic.bin",
+      "bytes": 88,
+      "sha256": "d55ccddc7eb563f6a6fb37d5e39277e76881dcc0d219f3f6df0075cf8747d1a1"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/minimal-s2/haven.bin",
+      "bytes": 27288,
+      "sha256": "9f6e4118f7b780795a70d5631b9d9399777c74e9e6f6c1365f532f3e38bf73be"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/minimal-s2/qemu-console.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/minimal-s2/qemu-uart.log",
+      "bytes": 1144,
+      "sha256": "11d4b408854df67422165301885045fec98605a08e4309081408d4caae31e374"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/vector-only/guest_b-diagnostic.bin",
+      "bytes": 88,
+      "sha256": "d55ccddc7eb563f6a6fb37d5e39277e76881dcc0d219f3f6df0075cf8747d1a1"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/vector-only/haven.bin",
+      "bytes": 27288,
+      "sha256": "fef199c72574930b62608e6ae7f365b0c1a01b8b1579cefae118071c1d9abb5e"
+    },
+    {
+      "path": "stage0-20261024-tfa-qemu-secondary/vector-only/qemu-uart.log",
+      "bytes": 1018,
+      "sha256": "36072954f461ca9ac6a1cdae808b01c113ca208cbed2f50cb18bcf76c9e6dfd7"
+    }
+  ]
+}

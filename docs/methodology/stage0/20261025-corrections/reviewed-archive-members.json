@@ -1,0 +1,101 @@
+[
+  {
+    "archive": "../20261025-boundaries/experiment-evidence.tar.gz",
+    "member": "physical-spi/source.patch",
+    "sha256": "e55db6784fa7f42a34373a2b529f8d52cefcf2ad59a3b3c2461fb61ebeb932f5",
+    "diff_headers": [
+      "@@ -71,6 +71,7 @@",
+      "@@ -174,7 +174,7 @@",
+      "@@ -157,6 +157,8 @@",
+      "@@ -275,6 +275,7 @@",
+      "@@ -360,11 +361,14 @@",
+      "@@ -1,92 +1,52 @@",
+      "@@ -0,0 +1,99 @@"
+    ]
+  },
+  {
+    "archive": "../20261025-boundaries/experiment-evidence.tar.gz",
+    "member": "physical-spi-aligned/source.patch",
+    "sha256": "f4895dbd04585cbff41f7cc63268cd35fea770325d70ce18ffec1aabf651891d",
+    "diff_headers": [
+      "@@ -71,6 +71,7 @@",
+      "@@ -174,7 +174,7 @@",
+      "@@ -157,6 +157,8 @@",
+      "@@ -275,6 +275,7 @@",
+      "@@ -360,11 +361,14 @@",
+      "@@ -1,92 +1,52 @@",
+      "@@ -0,0 +1,102 @@"
+    ]
+  },
+  {
+    "archive": "../20261025-boundaries/experiment-evidence.tar.gz",
+    "member": "physical-spi-scalar/source.patch",
+    "sha256": "f469e3503cf3b25197b708a39d29440f41ef1416034a44897415a6458d0771de",
+    "diff_headers": [
+      "@@ -71,6 +71,7 @@",
+      "@@ -174,7 +174,7 @@",
+      "@@ -157,6 +157,8 @@",
+      "@@ -275,6 +275,7 @@",
+      "@@ -360,11 +361,14 @@",
+      "@@ -1,92 +1,52 @@",
+      "@@ -0,0 +1,102 @@"
+    ]
+  },
+  {
+    "archive": "../20261025-boundaries/experiment-evidence.tar.gz",
+    "member": "virtual/source.patch",
+    "sha256": "164dea67f579d1977295051e414eb1835a7747c040aa7f51f32373c289c267b9",
+    "diff_headers": [
+      "@@ -71,6 +71,7 @@",
+      "@@ -174,7 +174,7 @@",
+      "@@ -157,6 +157,8 @@",
+      "@@ -275,6 +275,7 @@",
+      "@@ -360,11 +361,14 @@",
+      "@@ -1,92 +1,52 @@",
+      "@@ -0,0 +1,99 @@"
+    ]
+  },
+  {
+    "archive": "../20261025-boundaries/experiment-evidence.tar.gz",
+    "member": "timer-original-ppi-detail/source.patch",
+    "sha256": "73c44f2aace0dd04fe8d4677b15ec48c8af1cf45676fbe4d18cc0acfe514f2b7",
+    "diff_headers": [
+      "@@ -71,6 +71,7 @@",
+      "@@ -174,7 +174,7 @@",
+      "@@ -157,6 +157,8 @@",
+      "@@ -275,6 +275,7 @@",
+      "@@ -360,11 +361,14 @@",
+      "@@ -1,92 +1,52 @@",
+      "@@ -0,0 +1,102 @@"
+    ]
+  },
+  {
+    "archive": "../20261025-boundaries/experiment-evidence.tar.gz",
+    "member": "build-records/build-physical-spi-strict/source.patch",
+    "sha256": "f4895dbd04585cbff41f7cc63268cd35fea770325d70ce18ffec1aabf651891d",
+    "diff_headers": [
+      "@@ -71,6 +71,7 @@",
+      "@@ -174,7 +174,7 @@",
+      "@@ -157,6 +157,8 @@",
+      "@@ -275,6 +275,7 @@",
+      "@@ -360,11 +361,14 @@",
+      "@@ -1,92 +1,52 @@",
+      "@@ -0,0 +1,102 @@"
+    ]
+  },
+  {
+    "archive": "../20261025-boundaries/legacy-evidence.tar.gz",
+    "member": "stage0-20261023-qemu-diag1/README.md",
+    "sha256": "55fa03889d5734f0e387113a3e850bd2986bc67479cae6563db9733847864228"
+  },
+  {
+    "archive": "../20261025-boundaries/legacy-evidence.tar.gz",
+    "member": "stage0-20261023-tfa-qemu-guest1/README.md",
+    "sha256": "59bff5652823588a86e3518e7eca19dfdeed94954ca72877713b01882fb5745c"
+  },
+  {
+    "archive": "../20261025-boundaries/legacy-evidence.tar.gz",
+    "member": "stage0-20261024-tfa-qemu-secondary/README.md",
+    "sha256": "0bb80af5b890685fe8921b3707f38ceb96ff0906798f31af01612c4b7ca406d7"
+  }
+]

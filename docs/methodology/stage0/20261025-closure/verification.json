@@ -1,0 +1,37 @@
+{
+  "checks": {
+    "preexisting_haven_diff_preserved": true,
+    "haven_revision_preserved": true,
+    "elmos_revision_preserved": true,
+    "elmos_working_tree_preserved": true,
+    "kdal_revision_preserved": true,
+    "kdal_working_tree_preserved": true,
+    "haven-thesis_revision_preserved": true,
+    "haven-thesis_working_tree_preserved": true,
+    "haven-wiki_revision_preserved": true,
+    "haven-wiki_working_tree_preserved": true,
+    "A2_unapplied": true,
+    "A2_identity_unchanged": true,
+    "all_evidence_archives_unchanged": true,
+    "all_document_before_snapshots_verified": true,
+    "baseline_append_only": true,
+    "stage_not_transitioned": true,
+    "prior_package_changes_limited_to_authorized_planning": true,
+    "planning_before_versions_match_historical_manifest": true,
+    "tracked_diff_check": true,
+    "modified_and_new_markdown_links_resolve": true
+  },
+  "all_pass": true,
+  "broken_links": [],
+  "historical_planning_metadata_changes": [
+    "README.md",
+    "ROADMAP.md"
+  ],
+  "new_experiments": [],
+  "production_patch_applied": false,
+  "committed_or_published": false,
+  "stage_transition_declared": false,
+  "recommendation": "close with recorded risks, pending explicit user decision",
+  "source_review": "Isolation Guardian completed; external-walker publication boundary incorporated",
+  "haven_status": " M arch/arm64/cpu.c\n M scripts/evidence/package-evidence.sh\n M src/core/exc/el2_exceptions.c\n M tests/integration/test_secondary_cpu_isolation.c\n?? docs/methodology/stage0/\n"
+}

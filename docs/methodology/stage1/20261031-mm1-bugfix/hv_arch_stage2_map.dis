@@ -1,0 +1,94 @@
+0000000080001414 <hv_arch_stage2_map>:
+    80001414:	aa0103e5 	mov	x5, x1
+    80001418:	51000401 	sub	w1, w0, #0x1
+    8000141c:	7103f83f 	cmp	w1, #0xfe
+    80001420:	54000948 	b.hi	80001548 <hv_arch_stage2_map+0x134>  // b.pmore
+    80001424:	f0000021 	adrp	x1, 80008000 <pt_pool_next>
+    80001428:	91000021 	add	x1, x1, #0x0
+    8000142c:	91002021 	add	x1, x1, #0x8
+    80001430:	f8605829 	ldr	x9, [x1, w0, uxtw #3]
+    80001434:	b40008a9 	cbz	x9, 80001548 <hv_arch_stage2_map+0x134>
+    80001438:	aa030040 	orr	x0, x2, x3
+    8000143c:	aa0203e6 	mov	x6, x2
+    80001440:	aa050000 	orr	x0, x0, x5
+    80001444:	f2402c1f 	tst	x0, #0xfff
+    80001448:	54000801 	b.ne	80001548 <hv_arch_stage2_map+0x134>  // b.any
+    8000144c:	f27d009f 	tst	x4, #0x8
+    80001450:	d2806780 	mov	x0, #0x33c                 	// #828
+    80001454:	d2800087 	mov	x7, #0x4                   	// #4
+    80001458:	9a8010e7 	csel	x7, x7, x0, ne  // ne = any
+    8000145c:	f27f009f 	tst	x4, #0x2
+    80001460:	d2801800 	mov	x0, #0xc0                  	// #192
+    80001464:	d2800801 	mov	x1, #0x40                  	// #64
+    80001468:	9a811000 	csel	x0, x0, x1, ne  // ne = any
+    8000146c:	8b0300a3 	add	x3, x5, x3
+    80001470:	aa0000e7 	orr	x7, x7, x0
+    80001474:	37100044 	tbnz	w4, #2, 8000147c <hv_arch_stage2_map+0x68>
+    80001478:	b24a00e7 	orr	x7, x7, #0x40000000000000
+    8000147c:	d280806a 	mov	x10, #0x403                 	// #1027
+    80001480:	b24053eb 	mov	x11, #0x1fffff              	// #2097151
+    80001484:	d280802c 	mov	x12, #0x401                 	// #1025
+    80001488:	eb0300bf 	cmp	x5, x3
+    8000148c:	54000623 	b.cc	80001550 <hv_arch_stage2_map+0x13c>  // b.lo, b.ul, b.last
+    80001490:	d5033f9f 	dsb	sy
+    80001494:	52800000 	mov	w0, #0x0                   	// #0
+    80001498:	d65f03c0 	ret
+    8000149c:	b2400400 	orr	x0, x0, #0x3
+    800014a0:	f8247920 	str	x0, [x9, x4, lsl #3]
+    800014a4:	f8647924 	ldr	x4, [x9, x4, lsl #3]
+    800014a8:	2a0803e8 	mov	w8, w8
+    800014ac:	aa0600a1 	orr	x1, x5, x6
+    800014b0:	92748c84 	and	x4, x4, #0xfffffffff000
+    800014b4:	f8687880 	ldr	x0, [x4, x8, lsl #3]
+    800014b8:	92400400 	and	x0, x0, #0x3
+    800014bc:	f240503f 	tst	x1, #0x1fffff
+    800014c0:	54000221 	b.ne	80001504 <hv_arch_stage2_map+0xf0>  // b.any
+    800014c4:	cb050061 	sub	x1, x3, x5
+    800014c8:	eb0b003f 	cmp	x1, x11
+    800014cc:	540001c9 	b.ls	80001504 <hv_arch_stage2_map+0xf0>  // b.plast
+    800014d0:	f1000c1f 	cmp	x0, #0x3
+    800014d4:	54000180 	b.eq	80001504 <hv_arch_stage2_map+0xf0>  // b.none
+    800014d8:	926ba8c0 	and	x0, x6, #0xffffffffffe00000
+    800014dc:	914800a5 	add	x5, x5, #0x200, lsl #12
+    800014e0:	aa070000 	orr	x0, x0, x7
+    800014e4:	914800c6 	add	x6, x6, #0x200, lsl #12
+    800014e8:	aa0c0000 	orr	x0, x0, x12
+    800014ec:	f8287880 	str	x0, [x4, x8, lsl #3]
+    800014f0:	eb0300bf 	cmp	x5, x3
+    800014f4:	54000323 	b.cc	80001558 <hv_arch_stage2_map+0x144>  // b.lo, b.ul, b.last
+    800014f8:	d5033f9f 	dsb	sy
+    800014fc:	52800000 	mov	w0, #0x0                   	// #0
+    80001500:	1400001f 	b	8000157c <hv_arch_stage2_map+0x168>
+    80001504:	530c50ad 	ubfx	w13, w5, #12, #9
+    80001508:	f1000c1f 	cmp	x0, #0x3
+    8000150c:	540000a0 	b.eq	80001520 <hv_arch_stage2_map+0x10c>  // b.none
+    80001510:	97ffff98 	bl	80001370 <pt_alloc>
+    80001514:	b4000320 	cbz	x0, 80001578 <hv_arch_stage2_map+0x164>
+    80001518:	b2400400 	orr	x0, x0, #0x3
+    8000151c:	f8287880 	str	x0, [x4, x8, lsl #3]
+    80001520:	f8687881 	ldr	x1, [x4, x8, lsl #3]
+    80001524:	2a0d03ed 	mov	w13, w13
+    80001528:	9274ccc0 	and	x0, x6, #0xfffffffffffff000
+    8000152c:	914004a5 	add	x5, x5, #0x1, lsl #12
+    80001530:	92748c21 	and	x1, x1, #0xfffffffff000
+    80001534:	aa070000 	orr	x0, x0, x7
+    80001538:	aa0a0000 	orr	x0, x0, x10
+    8000153c:	914004c6 	add	x6, x6, #0x1, lsl #12
+    80001540:	f82d7820 	str	x0, [x1, x13, lsl #3]
+    80001544:	17ffffeb 	b	800014f0 <hv_arch_stage2_map+0xdc>
+    80001548:	128002a0 	mov	w0, #0xffffffea            	// #-22
+    8000154c:	d65f03c0 	ret
+    80001550:	a9bf7bfd 	stp	x29, x30, [sp, #-16]!
+    80001554:	910003fd 	mov	x29, sp
+    80001558:	d35e98a4 	ubfx	x4, x5, #30, #9
+    8000155c:	531574a8 	ubfx	w8, w5, #21, #9
+    80001560:	f8647920 	ldr	x0, [x9, x4, lsl #3]
+    80001564:	92400400 	and	x0, x0, #0x3
+    80001568:	f1000c1f 	cmp	x0, #0x3
+    8000156c:	54fff9c0 	b.eq	800014a4 <hv_arch_stage2_map+0x90>  // b.none
+    80001570:	97ffff80 	bl	80001370 <pt_alloc>
+    80001574:	b5fff940 	cbnz	x0, 8000149c <hv_arch_stage2_map+0x88>
+    80001578:	12800160 	mov	w0, #0xfffffff4            	// #-12
+    8000157c:	a8c17bfd 	ldp	x29, x30, [sp], #16
+    80001580:	d65f03c0 	ret
+

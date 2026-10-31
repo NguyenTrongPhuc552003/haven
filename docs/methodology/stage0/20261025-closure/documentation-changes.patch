@@ -1,0 +1,231 @@
+--- before/AGENTS.md
++++ after/AGENTS.md
+@@ -234,6 +234,13 @@
+ a change to thesis scope or milestone, deletion of material code/data, or
+ publication/release activity.
+ 
++Approval applies to a concrete scope: affected repositories/files/interfaces,
++intended behavior, validation and execution bounds. Continue work already
++authorized within that scope without asking for the same approval again.
++Request a new decision only for a material scope change or an explicit separate
++adoption/merge/release gate. Preserve repository-local review constraints and
++the user's current stop conditions.
++
+ ## Cross-repository changes
+ 
+ Do not modify multiple repositories merely because they are present. Before a
+@@ -265,6 +272,16 @@
+ results, documentation as implemented behavior, or a policy proof as proof of
+ the hardware binding. Keep each of ELMOS, HAVEN, and KDAL independently
+ buildable where feasible, and prefer small, reversible changes.
++
++Reuse completed source audits and evidence. Repeat work only when relevant
++source/configuration/tool inputs changed, results conflict, or a named missing
++test is needed for the current decision. State the reason before repeating an
++experiment; do not restart an inventory merely because a new prompt arrives.
++
++Keep stable scope, ownership and working rules in AGENTS.md. Record evolving
++findings, experiment results, risks and planning decisions in the linked stage
++baseline, evidence packages and finding ledger; do not grow this file into an
++experiment log.
+ 
+ ## Current stage and release discipline
+ 
+@@ -279,6 +296,45 @@
+ contracts, correction gates, and historical evidence. Design documentation is
+ authorized; coordinated implementation and tracked adoption remain review gates.
+ 
++### Stage 0 exit criteria
++
++Stage 0 establishes a decision-ready preparation and feasibility baseline.
++Its closure package must contain:
++
++1. Exact repository revisions, local-change inventories, source authority and
++   documented source/document conflicts for the three required components.
++2. A pinned host/tool baseline and reproducible commands for the minimum
++   observed build/virtual experiments, including failures and limitations.
++3. Observed versus proposed component responsibilities, dependency directions,
++   trust/admission boundaries and a justified candidate integrated scenario.
++4. A known-defect/uncertainty ledger with evidence, owners, consequences,
++   bounded next actions and separate adoption gates.
++5. Four separate board records with provenance, possession status, unknowns
++   and explicit feasibility status. Unavailable hardware remains BLOCKED.
++6. Locally recoverable evidence, input identities and reproduction recipes,
++   with missing provenance and backup limitations disclosed.
++7. An exit checklist identifying closure blockers versus accepted/deferred
++   engineering risks, and a concrete reviewable next-stage/engineering scope.
++
++Closing Stage 0 does not require fixing every defect, booting Linux/vGIC,
++completing integration, acquiring boards, physical validation or evaluation.
++Blocked physical work and bounded engineering risks may be carried forward
++explicitly. Closure and a stage transition require an explicit review decision;
++a closure recommendation alone does not change the current stage.
++
++### Thesis stages versus implementation milestones
++
++The thesis stages below are research and evidence decision gates.
++M0–M5 in the linked implementation roadmap are engineering work packages that
++can span those stages. They are not additional Stage 0 exit requirements.
++In particular M1 Linux/vGIC, M3 integration, M4 physical validation and M5
++evaluation are later delivery work. Completing M0 is not required for Stage 0
++closure either: its identified risks and next correction must be reviewable.
++Stage 1 formulates and approves the research question/architecture before
++dependent features; separately approved small baseline bugfixes retain their
++own scope. Neither milestone completion nor a Stage 0 closure decision grants
++blanket approval for the rest of the roadmap.
++
+ | Stage                      | Owner and required work                                                                                                                                                                                                                                                                         | Exit evidence / decision                                                                                                                                                                                 |
+ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ | 0. Inventory and baseline  | ELMOS records macOS/toolchain/QEMU reproducibility; HAVEN audits its actual EL2, stage-2, GIC, timer, SMMU, and boot code; KDAL audits its API and trust boundary. Create four board records from the local references, note missing facts, and choose safe read-only or recovery-first probes. | Exact repo revisions, working-tree status, source/document conflicts, host/tool versions, source ledger, and a board feasibility matrix. No board support claim yet.                                     |
+--- before/stages/README.md
++++ after/stages/README.md
+@@ -5,10 +5,18 @@
+ Stage 0 remains active; documentation and diagnostic experiments do not approve
+ runtime interfaces or production adoption.
+ 
++The thesis stages are preparation (0), research decision (1), approved minimal
++implementation (2), evaluation (3), and thesis/release (4). M0–M5 are separate
++engineering work packages that can span those stages. Linux/vGIC, integrated
++runs, physical validation and evaluation are not required to close Stage 0.
++Known failures and unavailable boards can be recorded risks rather than closure
++blockers; the exit checklist makes that distinction explicit.
++
+ | Read first | Purpose |
+ | --- | --- |
+ | [Workspace instructions](../AGENTS.md) | Current scope, dependency authority, evidence and review rules |
+ | [Stage 0 baseline](STAGE0_BASELINE.md) | Observations, exact revisions and remaining feasibility gaps |
++| [Stage 0 closure review](../haven/docs/methodology/stage0/20261025-closure/README.md) | Current closure checklist/recommendation, A1/A2 decisions, CP1 deferral and next bounded implementation proposal; no transition declared |
+ | [Current integrated design](../haven/docs/methodology/stage0/20261025-integration-design/README.md) | Required three-component artifact, proposed Linux/KDAL slice, contracts, milestones and first coordinated proposal |
+ | [Finding ledger](../haven/docs/methodology/stage0/20261025-corrections/FINDINGS.md) | Separate compiler, startup, IRQ and timer findings; use the new runtime addendum for subsequent evidence |
+ | [Correction review](../haven/docs/methodology/stage0/20261025-corrections/REVIEW.md) | Unapplied memcpy proposal and adoption gate |
+@@ -18,3 +26,10 @@
+ date. Their statements that KDAL was optional, or that no integrated design was
+ defined, do not supersede the user's subsequent required-integration decision.
+ They still accurately record that no integrated runtime was observed then.
++
++The integration roadmap's earlier statement that M0–M5 refined “Stage 0
++integration work” is superseded by the separation above and its updated stage
++mapping. Its original CP1 implementation-first sequence is superseded by the
++closure review's recommendation to defer coordinated schema/CLI code until a
++concrete artifact/architecture boundary needs it. Historical evidence and
++proposal details remain available; those recommendations are not approvals.
+--- before/stages/STAGE0_BASELINE.md
++++ after/stages/STAGE0_BASELINE.md
+@@ -694,3 +694,40 @@
+ inspected read-only. No Linux/KDAL integrated run, physical device, DMA or
+ real-time behavior has been established. The next decision is review of CP1
+ and its scoped prerequisites, not whether KDAL is included.
++
++## Stage 0 closure review proposal (2026-10-25)
++
++**Status remains in progress; no transition declared.** The
++[closure package](../haven/docs/methodology/stage0/20261025-closure/README.md)
++recommends closing preparation with recorded risks, subject to explicit review.
++Its exit checklist distinguishes missing preparation evidence from later
++engineering/hardware delivery. M0–M5 are implementation work packages spanning
++thesis stages; M1 Linux/vGIC, M3 integration, M4 physical validation, M5
++evaluation and completion of M0 do not gate Stage0 closure. Earlier “Stage0
++work remaining” wording is historical backlog rather than new exit criteria.
++
++No audits or mechanism experiments were restarted. The existing register,
++fault/disassembly and strict/default evidence was reviewed against Arm's
++memory-model rules and GCC15.2 documentation. For the captured traditional
++EL2 regime, stage-1-disabled Device data accesses explain the unaligned faults
++despite A=0. The recommended next A1 contract is a restricted strict-access
++bootstrap ending before external table publication, secondary release, guest
++execution or unreviewed sharing;
++it is not an implemented profile. Normal-memory translation/cache setup is a
++separate possible extension. The existing spinlock exclusive helpers have
++definitions but no caller in the inspected implementation; strict compilation
++does not certify them or SMP/cache-alias semantics.
++
++A2's existing build/symbol/native/ARM64 evidence supports recommending its
++unchanged nine-line memcpy patch for independent adoption review, with final-
++tree focused checks and the separate A1 risk recorded. No patch is applied.
++Coordinated CP1 schema/CLI implementation is recommended deferred: current
++inventories/manual recipes already retire the immediate wrong-input/failure-
++ownership risk, while runtime consumers/architecture remain unsettled.
++
++The next concrete engineering proposal is HAVEN-only EP-A2; Stage1 research
++question/threat-model/architecture formulation is a separate next thesis
++decision. All three repositories remain required. Effort ranges, dependencies
++and hardware assumptions are in the closure backlog. Four physical targets
++remain BLOCKED; local-only backup/provenance limitations remain recorded risks.
++Explicit closure/adoption decisions are pending, not inferred from this review.
+--- before/haven/docs/methodology/stage0/20261025-integration-design/ROADMAP.md
++++ after/haven/docs/methodology/stage0/20261025-integration-design/ROADMAP.md
+@@ -1,10 +1,30 @@
+ # Bounded implementation roadmap and first coordinated proposal
+ 
+-Status: proposed for explicit implementation review. M0–M5 refine the current
+-Stage 0 integration work into evidence milestones; they do not replace the
+-workspace's thesis stages or approve Stage1's research decision. All three
+-components are required in the final artifact. Completion of an independent
+-prerequisite is not integration completion.
++Status: proposed engineering roadmap; no implementation or stage transition
++approved. M0–M5 are delivery work packages that can span thesis stages. They
++are not Stage 0 exit requirements. The earlier wording that they refined
++“Stage 0 integration work” is superseded by this clarification. All three
++components remain required in the final artifact.
++
++The current [closure review](../20261025-closure/README.md) recommends closing
++preparation with recorded risks and separately reviewing a small A2 correction.
++M1 Linux/vGIC, M3 integration, M4 physical validation, M5 evaluation, and even
++completion of M0 are not prerequisites for that closure. Existing milestone
++exit criteria below apply when delivering that engineering milestone.
++
++## Mapping to thesis stages
++
++| Thesis stage | Decision / evidence needed | Relation to engineering work |
++| --- | --- | --- |
++| 0 - Preparation/feasibility | Inventories, reproducible observations, proposed boundaries, known risks, board constraints and concrete next scope | M0 risks/approaches and M1–M5 dependencies are identified; implementations need not be finished |
++| 1 - Research decision | Approved bounded question, threat model, alternatives, architecture and evaluation approach | Decide which M1/M2/M3 capabilities and eventual M4/M5 evidence are necessary; separately reviewed small M0/KDAL bugfixes may retire known defects |
++| 2 - Minimal implementation | Implement only the approved mechanism/slice | Deliver relevant M0–M3 work; M4 bring-up only when feasible and approved |
++| 3 - Evaluation | Controlled measurements of the chosen mechanism | M5, using M3 and M4 where claims require them |
++| 4 - Thesis/release | Reviewed traceability and approved release/publication | Consume supported milestone results; no milestone label authorizes publication |
++
++The physical branch can remain BLOCKED without preventing Stage 0 closure.
++Actual research claims requiring it remain blocked until hardware evidence
++exists. No implementation milestone is a substitute for the Stage 1 decision.
+ 
+ ## Milestones
+ 
+@@ -42,7 +62,21 @@
+ behavior require scoped feature designs beyond the original bug ledger.
+ They cannot be labelled completed by the old one-LR or bare-metal tests.
+ 
+-## First concrete coordinated change proposal: CP1
++## Current CP1 recommendation - defer coordinated implementation
++
++The artifact/hash/input checklist and failure ownership are useful now and
++already exist in the integration package. They retire the risk of confusing
++tooling failures with HAVEN/KDAL failures without new coordinated code.
++Versioned profile generators, stable schemas, new CLI configuration and
++component report APIs can wait until the research/architecture decision and
++the independent Linux/KDAL artifact path make their consumers concrete.
++
++The [closure backlog and next proposal](../20261025-closure/NEXT_DECISION.md)
++supersede the implementation-first sequencing of original CP1 below. Retain
++CP1 as a design candidate. Reopen only the smallest proven manual workflow
++that needs automation; Linux/vGIC implementation is never a preflight task.
++
++## Original CP1 proposal - retained for review history, implementation deferred
+ 
+ **Title:** versioned guest artifact contract and typed integration preflight.
+ **Purpose:** make the three repositories agree on reproducible inputs and
+--- before/haven/docs/methodology/stage0/20261025-integration-design/README.md
++++ after/haven/docs/methodology/stage0/20261025-integration-design/README.md
+@@ -5,6 +5,13 @@
+ The user authorized this scope update and integrated design, while preserving
+ the coordinated implementation and tracked adoption gates. This package stops
+ at those gates with a concrete proposal.
++
++**Subsequent planning clarification:** the [Stage 0 closure review](../20261025-closure/README.md)
++separates thesis stages from M0–M5 and recommends deferring coordinated CP1
++implementation. The original design remains a candidate; the updated roadmap
++and closure recommendation supersede its implementation-first sequencing.
++Runtime evidence and architecture observations below retain their original
++scope. No stage transition or implementation approval is implied.
+ 
+ ## Deliverables and authority
+ 

@@ -1,0 +1,51 @@
+{
+  "status": "PROPOSED_NOT_IMPLEMENTED",
+  "scenario": "linux-kdal-ring-isolation-v1",
+  "manifest_version": "elmos-run-manifest/1",
+  "admission_profile_version": "haven-guest-profile/1",
+  "owners": {
+    "orchestration": "ELMOS",
+    "admission_and_profile": "HAVEN",
+    "device_abstraction_and_uapi": "KDAL"
+  },
+  "source_revisions": {
+    "elmos": "5ef5cd7fb974fca961e1af7f5a7f08ff47f70e95",
+    "haven": "f775304ce9443dc9861ba1880e4208c7ae19b314",
+    "kdal": "1ab0dce6dedada4162325ba2101db63214ed896c"
+  },
+  "guest": {
+    "execution": "AArch64 EL1 Linux UP",
+    "physical_cpu": 0,
+    "secondary_cpu_start": false,
+    "kernel_version_candidate": "6.6.80",
+    "kernel_image_sha256": null,
+    "kernel_config_sha256": null,
+    "kdal_module_sha256": null,
+    "kdal_uapi_reported_version": "0.1.0",
+    "dtb_sha256": null,
+    "admission_profile_sha256": null,
+    "entry_ipa_from_image_header": null,
+    "dtb_ipa_in_admitted_ram": null,
+    "interrupt_frontend": "bounded virtual GICv3; not implemented",
+    "guest_timer": "CNTV/PPI27; not validated",
+    "backend": "qemu-virt software ring",
+    "device": "uart0",
+    "dma": "none for software backend"
+  },
+  "launch_kind": "typed-qemu-firmware",
+  "arbitrary_commands_or_extra_args": false,
+  "test": {
+    "payload_bytes": 32,
+    "api_negative": "invalid SELECT_DEV returns ENODEV; not authorization",
+    "isolation_negative": "known EL1 store to excluded scratch IPA; EL2 fault and external unchanged-canary oracle",
+    "allowed_control": "separate fresh VM admits only the scratch page; canary must change",
+    "recovery": "terminate/reap and recreate VM"
+  },
+  "preflight_result_today": "BLOCKED",
+  "blockers": [
+    "review and resolve/bound A1 memory contract; A2 adoption pending",
+    "HAVEN single-partition Linux handoff and virtual GIC/timer support absent",
+    "KDAL K1 source-order defect requires independent correction review",
+    "matched built kernel/module/initramfs/DTB and verified source lock absent"
+  ]
+}

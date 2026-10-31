@@ -1,0 +1,731 @@
+diff --git a/arch/arm64/include/asm/page.h b/arch/arm64/include/asm/page.h
+index f44618d..219a62f 100644
+--- a/arch/arm64/include/asm/page.h
++++ b/arch/arm64/include/asm/page.h
+@@ -76,14 +76,18 @@
+  * Stage-2 block/page upper attributes (bits [63:51] and [54:52])
+  * ----------------------------------------------------------------------- */
+ 
+-/* XN[1:0] - Execute Never (bits [54:53]) */
+-#define S2_XN_EL1_SHIFT 53
+-#define S2_XN_EL0_SHIFT 54
+-#define S2_XN_NONE (0UL) /* Execute allowed */
+-#define S2_XNX (1UL << S2_XN_EL1_SHIFT) /* EL1 execute never */
+-#define S2_UXN (1UL << S2_XN_EL0_SHIFT) /* EL0 execute never */
+-#define S2_PXN S2_XNX
+-#define S2_XN_ALL (S2_XNX | S2_UXN) /* All execute never */
++/* XN[1:0] - stage-2 execute-never field, bits [54:53] (MM2).
++ * Without FEAT_XNX only bit 54 is defined (1 = execute-never) and bit 53 is
++ * ignored. With FEAT_XNX the field encodes 00: EL1 and EL0 may execute,
++ * 01: EL0 only, 10: neither, 11: EL1 only. 0b10 is the one value that means
++ * "never execute" on both kinds of CPU. The previous S2_XN_ALL (0b11) left
++ * mappings executable at EL1 on CPUs with FEAT_XNX. Source for the encoding:
++ * QEMU's ARMv8.2-TTS2UXN implementation; confirm against the Arm ARM. */
++#define S2_XN_SHIFT 53
++#define S2_XN_MASK (3UL << S2_XN_SHIFT)
++#define S2_XN_EXEC (0UL << S2_XN_SHIFT) /* 00: executable at EL1 and EL0 */
++#define S2_XN_NEVER (2UL << S2_XN_SHIFT) /* 10: never executable */
++#define S2_XN_ALL S2_XN_NEVER /* kept for existing users; now 0b10 */
+ 
+ /* Contiguous hint (bit 52) */
+ #define S2_CONT (1UL << 52)
+diff --git a/arch/arm64/include/asm/s2_attrs.h b/arch/arm64/include/asm/s2_attrs.h
+new file mode 100644
+index 0000000..363b523
+--- /dev/null
++++ b/arch/arm64/include/asm/s2_attrs.h
+@@ -0,0 +1,37 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++/* Translate portable HV_MEM_* bits into ARM64 stage-2 descriptor attributes.
++ *
++ * Kept as a pure function in its own header so host tests can check the
++ * translation without compiling the rest of arch/arm64/mm.c (MM1/MM2).
++ * Precondition: attrs passed hv_stage2_attrs_valid(), so HV_MEM_R is set and
++ * HV_MEM_DEVICE never comes with HV_MEM_X. */
++
++#ifndef HAVEN_ASM_S2_ATTRS_H
++#define HAVEN_ASM_S2_ATTRS_H
++
++#include <stdint.h>
++
++#include "haven/stage2.h"
++#include "page.h"
++
++static inline uint64_t hv_s2_hw_attrs(uint64_t attrs)
++{
++	uint64_t hw;
++
++	if ((attrs & HV_MEM_DEVICE) != 0U) {
++		hw = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS);
++	} else {
++		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);
++	}
++
++	hw |= ((attrs & HV_MEM_W) != 0U) ? (uint64_t)S2AP_RW
++					   : (uint64_t)S2AP_RO;
++
++	if ((attrs & HV_MEM_X) == 0U) {
++		hw |= (uint64_t)S2_XN_NEVER;
++	}
++
++	return hw;
++}
++
++#endif
+diff --git a/arch/arm64/mm.c b/arch/arm64/mm.c
+index cc3bea9..9b7cc61 100644
+--- a/arch/arm64/mm.c
++++ b/arch/arm64/mm.c
+@@ -14,6 +14,7 @@
+  */
+ 
+ #include <asm/page.h>
++#include <asm/s2_attrs.h>
+ #include <asm/sysregs.h>
+ #include <haven/types.h>
+ #include <stddef.h>
+@@ -89,7 +90,9 @@ hv_status_t hv_arch_stage2_init_partition(uint32_t partition_id)
+  * ipa:   guest-visible base address (must be HV_PAGE_SIZE aligned)
+  * pa:    host physical base address (must be HV_PAGE_SIZE aligned)
+  * size:  mapping size in bytes (must be HV_PAGE_SIZE multiple)
+- * flags: S2AP_* | S2_MEMATTR_* | S2_SH_* from page.h
++ * flags: portable HV_MEM_* bits (include/haven/stage2.h), already checked
++ *        by hv_stage2_attrs_valid() in the core; translated by
++ *        hv_s2_hw_attrs() (asm/s2_attrs.h)
+  *
+  * Uses 4KB pages for all sizes (simple and safe; 2MB blocks are an
+  * optimization that can be added later without changing the policy layer).
+@@ -112,18 +115,9 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
+ 	uint64_t cur_pa = pa;
+ 	uint64_t end_ipa = ipa + size;
+ 
+-	/* Translate flags to hardware S2AP+MemAttr once (same for all pages). */
+-	uint64_t hw_attrs;
+-	if (flags == 1U) {
+-		/* Device MMIO: nGnRE, non-executable, non-cacheable */
+-		hw_attrs = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS |
+-				      S2AP_RW) |
+-			   S2_XN_ALL;
+-	} else {
+-		/* Normal DRAM: WB cacheable, inner-shareable, RW */
+-		hw_attrs =
+-			(uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS | S2AP_RW);
+-	}
++	/* Translate portable bits to S2AP, MemAttr, SH and XN once
++	 * (same for all pages in the region). */
++	uint64_t hw_attrs = hv_s2_hw_attrs(flags);
+ 
+ 	while (cur_ipa < end_ipa) {
+ 		uint32_t l1_idx = s2_l1_index(cur_ipa);
+diff --git a/include/haven/stage2.h b/include/haven/stage2.h
+index 0ad379f..1f0f330 100644
+--- a/include/haven/stage2.h
++++ b/include/haven/stage2.h
+@@ -3,11 +3,24 @@
+ 
+ #include "types.h"
+ 
++/* Portable stage-2 permission and memory-type bits for hv_mem_region.attrs.
++ * The arch layer translates them into descriptor bits. Every valid value
++ * includes HV_MEM_R; attrs == 0 is invalid, so a caller that forgets to state
++ * permissions fails at map time instead of receiving an RWX mapping (MM1). */
++#define HV_MEM_R (1ULL << 0) /* readable */
++#define HV_MEM_W (1ULL << 1) /* writable (requires HV_MEM_R) */
++#define HV_MEM_X (1ULL << 2) /* executable (never with HV_MEM_DEVICE) */
++#define HV_MEM_DEVICE (1ULL << 3) /* Device nGnRE; clear = Normal WB */
++#define HV_MEM_VALID_MASK (HV_MEM_R | HV_MEM_W | HV_MEM_X | HV_MEM_DEVICE)
++
++#define HV_MEM_RWX (HV_MEM_R | HV_MEM_W | HV_MEM_X) /* guest RAM */
++#define HV_MEM_DEVICE_RW (HV_MEM_DEVICE | HV_MEM_R | HV_MEM_W) /* MMIO */
++
+ struct hv_mem_region {
+ 	hv_u64 ipa_base;
+ 	hv_u64 pa_base;
+ 	hv_u64 size;
+-	hv_u64 attrs;
++	hv_u64 attrs; /* HV_MEM_* bits */
+ };
+ 
+ struct hv_partition_mem {
+@@ -16,6 +29,7 @@ struct hv_partition_mem {
+ 	hv_u32 region_count;
+ };
+ 
++hv_u8 hv_stage2_attrs_valid(hv_u64 attrs);
+ hv_status_t hv_stage2_init(void);
+ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg);
+ hv_status_t hv_stage2_unmap_partition(hv_u32 partition_id);
+diff --git a/scripts/dev/test.sh b/scripts/dev/test.sh
+index e63de79..447acc5 100755
+--- a/scripts/dev/test.sh
++++ b/scripts/dev/test.sh
+@@ -24,6 +24,13 @@ mkdir -p build/tests
+ 
+ ./build/tests/test_smmu_dma
+ 
++"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -I. \
++	tests/unit/test_stage2_attrs.c \
++	src/core/mm/stage2.c \
++	-o build/tests/test_stage2_attrs
++
++./build/tests/test_stage2_attrs
++
+ "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+ 	tests/unit/test_el2_exceptions.c \
+ 	src/core/exc/el2_exceptions.c \
+diff --git a/src/core/mm/stage2.c b/src/core/mm/stage2.c
+index a6bf30d..61744d8 100644
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -66,6 +66,27 @@ static hv_u8 hv_range_contains(hv_u64 base, hv_u64 size, hv_u64 inner_base,
+ 	return 1U;
+ }
+ 
++/* Return 1 when attrs is a valid HV_MEM_* combination (MM1):
++ *   - no bits outside HV_MEM_VALID_MASK;
++ *   - HV_MEM_R present (this also rejects 0, write-only and execute-only);
++ *   - never HV_MEM_DEVICE together with HV_MEM_X. */
++hv_u8 hv_stage2_attrs_valid(hv_u64 attrs)
++{
++	if ((attrs & ~HV_MEM_VALID_MASK) != 0U) {
++		return 0U;
++	}
++
++	if ((attrs & HV_MEM_R) == 0U) {
++		return 0U;
++	}
++
++	if ((attrs & HV_MEM_DEVICE) != 0U && (attrs & HV_MEM_X) != 0U) {
++		return 0U;
++	}
++
++	return 1U;
++}
++
+ hv_status_t hv_stage2_init(void)
+ {
+ 	hv_u32 i;
+@@ -107,6 +128,10 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
+ 			return HV_EINVAL;
+ 		}
+ 
++		if (hv_stage2_attrs_valid(region->attrs) == 0U) {
++			return HV_EINVAL;
++		}
++
+ 		if (hv_is_page_aligned(region->ipa_base) == 0U ||
+ 		    hv_is_page_aligned(region->pa_base) == 0U ||
+ 		    hv_is_page_aligned(region->size) == 0U) {
+diff --git a/src/core/partition.c b/src/core/partition.c
+index f7f95f8..c136a68 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -53,7 +53,7 @@ static const struct hv_mem_region part_a_regions[] = {
+ 		.ipa_base = PART_A_IPA_BASE,
+ 		.pa_base = PART_A_PA_BASE,
+ 		.size = PART_A_SIZE,
+-		.attrs = 0, /* normal cacheable, full access */
++		.attrs = HV_MEM_RWX, /* Normal WB, read/write/execute */
+ 	},
+ 	/* PL011 UART0 MMIO - identity-mapped so the guest stub can print.
+ 	 * The device is owned by partition A; partition B has no UART mapping,
+@@ -62,7 +62,7 @@ static const struct hv_mem_region part_a_regions[] = {
+ 		.ipa_base = QEMU_UART_BASE,
+ 		.pa_base = QEMU_UART_BASE,
+ 		.size = 0x1000UL, /* 4 KB MMIO page */
+-		.attrs = 1, /* device memory (nGnRE) */
++		.attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */
+ 	},
+ };
+ 
+@@ -71,7 +71,7 @@ static const struct hv_mem_region part_b_regions[] = {
+ 		.ipa_base = PART_B_IPA_BASE,
+ 		.pa_base = PART_B_PA_BASE,
+ 		.size = PART_B_SIZE,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	},
+ };
+ 
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 1921af2..110ea3e 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -43,6 +43,10 @@ haven_test(test_smmu_dma
+     SRCS ${_T}/unit/test_smmu_dma.c
+          ${CORE_STAGE2} ${CORE_SMMU}
+ )
++haven_test(test_stage2_attrs
++    SRCS ${_T}/unit/test_stage2_attrs.c
++         ${CORE_STAGE2}
++)
+ haven_test(test_el2_exceptions
+     SRCS ${_T}/unit/test_el2_exceptions.c
+          ${CORE_EL2}
+diff --git a/tests/benchmarks/bench_isolation_latency.c b/tests/benchmarks/bench_isolation_latency.c
+index a0f29f8..563e008 100644
+--- a/tests/benchmarks/bench_isolation_latency.c
++++ b/tests/benchmarks/bench_isolation_latency.c
+@@ -139,7 +139,7 @@ static void b1_setup(void)
+ 		.ipa_base = 0x40000000,
+ 		.pa_base = 0x40000000,
+ 		.size = 0x04000000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	static struct hv_partition_mem cfg = {
+ 		.partition_id = 1,
+@@ -200,7 +200,7 @@ static void b4_setup(void)
+ 		.ipa_base = 0x50000000,
+ 		.pa_base = 0x50000000,
+ 		.size = 0x02000000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	static struct hv_partition_mem p4_cfg = {
+ 		.partition_id = 4,
+diff --git a/tests/benchmarks/bench_smmu_policy.c b/tests/benchmarks/bench_smmu_policy.c
+index 70fe5a8..c6d45cd 100644
+--- a/tests/benchmarks/bench_smmu_policy.c
++++ b/tests/benchmarks/bench_smmu_policy.c
+@@ -87,7 +87,7 @@ static void bench_setup(void)
+ 		.ipa_base = DMA_PHYS_BASE,
+ 		.pa_base = DMA_PHYS_BASE,
+ 		.size = DMA_WINDOW_SZ,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	static struct hv_partition_mem cfg = {
+ 		.partition_id = BENCH_PARTITION_ID,
+diff --git a/tests/benchmarks/bench_stage2_fault.c b/tests/benchmarks/bench_stage2_fault.c
+index 279270a..31c58bd 100644
+--- a/tests/benchmarks/bench_stage2_fault.c
++++ b/tests/benchmarks/bench_stage2_fault.c
+@@ -76,7 +76,7 @@ static void bench_setup(void)
+ 		.ipa_base = WINDOW_BASE,
+ 		.pa_base = WINDOW_BASE,
+ 		.size = WINDOW_SIZE,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	static struct hv_partition_mem cfg = {
+ 		.partition_id = BENCH_PARTITION_ID,
+diff --git a/tests/demos/demo_two_partition.c b/tests/demos/demo_two_partition.c
+index 71e2b4b..f66d330 100644
+--- a/tests/demos/demo_two_partition.c
++++ b/tests/demos/demo_two_partition.c
+@@ -40,7 +40,7 @@ static struct hv_mem_region p1_region = {
+ 	.ipa_base = 0x40000000,
+ 	.pa_base = 0x40000000,
+ 	.size = 0x08000000,
+-	.attrs = 0,
++	.attrs = HV_MEM_RWX,
+ };
+ static struct hv_partition_mem p1_cfg = {
+ 	.partition_id = 1,
+@@ -67,7 +67,7 @@ static struct hv_mem_region p2_region = {
+ 	.ipa_base = 0x50000000,
+ 	.pa_base = 0x50000000,
+ 	.size = 0x00400000,
+-	.attrs = 0,
++	.attrs = HV_MEM_RWX,
+ };
+ static struct hv_partition_mem p2_cfg = {
+ 	.partition_id = 2,
+diff --git a/tests/integration/test_fault_injection.c b/tests/integration/test_fault_injection.c
+index d5e5ed8..f4efe96 100644
+--- a/tests/integration/test_fault_injection.c
++++ b/tests/integration/test_fault_injection.c
+@@ -66,7 +66,7 @@ static struct hv_mem_region p1_reg = {
+ 	.ipa_base = 0x40000000,
+ 	.pa_base = 0x40000000,
+ 	.size = 0x04000000,
+-	.attrs = 0,
++	.attrs = HV_MEM_RWX,
+ };
+ static struct hv_partition_mem p1_mem = {.partition_id = 1,
+ 					 .regions = &p1_reg,
+@@ -76,7 +76,7 @@ static struct hv_mem_region p2_reg = {
+ 	.ipa_base = 0x50000000,
+ 	.pa_base = 0x50000000,
+ 	.size = 0x01000000,
+-	.attrs = 0,
++	.attrs = HV_MEM_RWX,
+ };
+ static struct hv_partition_mem p2_mem = {.partition_id = 2,
+ 					 .regions = &p2_reg,
+@@ -141,7 +141,7 @@ static void fault_f1_stage2_escape(void)
+ 		.ipa_base = 0x60000000,
+ 		.pa_base = 0x40000000, /* P1 PA */
+ 		.size = 0x1000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	static struct hv_partition_mem escape_cfg = {
+ 		.partition_id = 2,
+@@ -286,7 +286,7 @@ static void fault_f8_compound(void)
+ 		.ipa_base = 0x60000000,
+ 		.pa_base = 0x41000000,
+ 		.size = 0x1000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	static struct hv_partition_mem esc_cfg = {
+ 		.partition_id = 2, .regions = &esc_reg, .region_count = 1};
+diff --git a/tests/integration/test_isolation_flow.c b/tests/integration/test_isolation_flow.c
+index 15e6185..89c4a19 100644
+--- a/tests/integration/test_isolation_flow.c
++++ b/tests/integration/test_isolation_flow.c
+@@ -32,7 +32,7 @@ static void run_isolation_flow(void)
+ 		.ipa_base = 0x40000000,
+ 		.pa_base = 0x40000000,
+ 		.size = 0x02000000, /* 32 MiB, 4K-aligned */
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 
+ 	struct hv_partition_mem partition = {
+diff --git a/tests/integration/test_isolation_negative.c b/tests/integration/test_isolation_negative.c
+index 212bcf0..9ca9db7 100644
+--- a/tests/integration/test_isolation_negative.c
++++ b/tests/integration/test_isolation_negative.c
+@@ -13,31 +13,31 @@ static void run_negative_isolation_flow(void)
+ 		.ipa_base = 0x60000000,
+ 		.pa_base = 0x60000000,
+ 		.size = 0,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_mem_region valid_region = {
+ 		.ipa_base = 0x61000000,
+ 		.pa_base = 0x61000000,
+ 		.size = 0x1000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_mem_region dma_region = {
+ 		.ipa_base = 0x70000000,
+ 		.pa_base = 0x70000000,
+ 		.size = 0x10000000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_mem_region misaligned_region = {
+ 		.ipa_base = 0x62000800,
+ 		.pa_base = 0x62000000,
+ 		.size = 0x1000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_mem_region conflicting_pa_region = {
+ 		.ipa_base = 0x62000000,
+ 		.pa_base = 0x61000000,
+ 		.size = 0x1000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_partition_mem zero_size_cfg = {
+ 		.partition_id = 7,
+diff --git a/tests/integration/test_secondary_cpu_isolation.c b/tests/integration/test_secondary_cpu_isolation.c
+index c3e59e1..0f6d5c1 100644
+--- a/tests/integration/test_secondary_cpu_isolation.c
++++ b/tests/integration/test_secondary_cpu_isolation.c
+@@ -59,14 +59,14 @@ static void test_both_partitions_stage2_map(void)
+ 			.ipa_base = PART_A_IPA_BASE,
+ 			.pa_base = PART_A_PA_BASE,
+ 			.size = PART_A_SIZE,
+-			.attrs = 0,
++			.attrs = HV_MEM_RWX,
+ 		},
+ 		{
+ 			/* PL011 UART - owned exclusively by Partition A */
+ 			.ipa_base = QEMU_UART_BASE,
+ 			.pa_base = QEMU_UART_BASE,
+ 			.size = 0x1000UL,
+-			.attrs = 1,
++			.attrs = HV_MEM_DEVICE_RW,
+ 		},
+ 	};
+ 	struct hv_partition_mem a_mem = {
+@@ -80,7 +80,7 @@ static void test_both_partitions_stage2_map(void)
+ 			.ipa_base = PART_B_IPA_BASE,
+ 			.pa_base = PART_B_PA_BASE,
+ 			.size = PART_B_SIZE,
+-			.attrs = 0,
++			.attrs = HV_MEM_RWX,
+ 		},
+ 	};
+ 	struct hv_partition_mem b_mem = {
+@@ -127,7 +127,7 @@ static void test_partition_b_no_uart(void)
+ 			.ipa_base = PART_B_IPA_BASE,
+ 			.pa_base = PART_B_PA_BASE,
+ 			.size = PART_B_SIZE,
+-			.attrs = 0,
++			.attrs = HV_MEM_RWX,
+ 		},
+ 	};
+ 	struct hv_partition_mem b_mem = {
+@@ -266,17 +266,17 @@ static void test_full_secondary_launch_sequence(void)
+ 		{.ipa_base = PART_A_IPA_BASE,
+ 		 .pa_base = PART_A_PA_BASE,
+ 		 .size = PART_A_SIZE,
+-		 .attrs = 0},
++		 .attrs = HV_MEM_RWX},
+ 		{.ipa_base = QEMU_UART_BASE,
+ 		 .pa_base = QEMU_UART_BASE,
+ 		 .size = 0x1000UL,
+-		 .attrs = 1},
++		 .attrs = HV_MEM_DEVICE_RW},
+ 	};
+ 	struct hv_mem_region b_r[] = {
+ 		{.ipa_base = PART_B_IPA_BASE,
+ 		 .pa_base = PART_B_PA_BASE,
+ 		 .size = PART_B_SIZE,
+-		 .attrs = 0},
++		 .attrs = HV_MEM_RWX},
+ 	};
+ 	struct hv_partition_mem a_mem = {.partition_id = PARTITION_A_ID,
+ 					 .regions = a_r,
+diff --git a/tests/integration/test_smmu_hardware.c b/tests/integration/test_smmu_hardware.c
+index 355442d..e71b51e 100644
+--- a/tests/integration/test_smmu_hardware.c
++++ b/tests/integration/test_smmu_hardware.c
+@@ -427,7 +427,7 @@ int main(void)
+ 		.ipa_base = PA_A_BASE,
+ 		.pa_base = PA_A_BASE,
+ 		.size = PA_A_SIZE,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_partition_mem part_a_cfg = {
+ 		.partition_id = PART_A,
+@@ -439,7 +439,7 @@ int main(void)
+ 		.ipa_base = PA_B_BASE,
+ 		.pa_base = PA_B_BASE,
+ 		.size = PA_B_SIZE,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_partition_mem part_b_cfg = {
+ 		.partition_id = PART_B,
+diff --git a/tests/isolation/test_spatial_isolation.c b/tests/isolation/test_spatial_isolation.c
+index 4851101..7ffff56 100644
+--- a/tests/isolation/test_spatial_isolation.c
++++ b/tests/isolation/test_spatial_isolation.c
+@@ -40,14 +40,14 @@ static struct hv_mem_region region_p1 = {
+ 	.ipa_base = 0x10000000,
+ 	.pa_base = 0x10000000,
+ 	.size = 0x01000000,
+-	.attrs = 0,
++	.attrs = HV_MEM_RWX,
+ };
+ 
+ static struct hv_mem_region region_p2 = {
+ 	.ipa_base = 0x20000000,
+ 	.pa_base = 0x20000000,
+ 	.size = 0x01000000,
+-	.attrs = 0,
++	.attrs = HV_MEM_RWX,
+ };
+ 
+ static struct hv_partition_mem cfg_p1 = {
+@@ -80,7 +80,7 @@ static void test_stage2_cross_partition_boundary(void)
+ 		.ipa_base = 0x30000000, /* different IPA */
+ 		.pa_base = 0x10000000, /* but P1's PA - conflict */
+ 		.size = 0x1000,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_partition_mem cfg_escape = {
+ 		.partition_id = 3,
+diff --git a/tests/selftests/test_hypervisor_invariants.c b/tests/selftests/test_hypervisor_invariants.c
+index 01bb8c5..be432bd 100644
+--- a/tests/selftests/test_hypervisor_invariants.c
++++ b/tests/selftests/test_hypervisor_invariants.c
+@@ -209,7 +209,7 @@ static void selftest_reinit_idempotency(void)
+ 	struct hv_mem_region r = {.ipa_base = 0x10000000,
+ 				  .pa_base = 0x10000000,
+ 				  .size = 0x1000,
+-				  .attrs = 0};
++				  .attrs = HV_MEM_RWX};
+ 	struct hv_partition_mem pm = {
+ 		.partition_id = 1, .regions = &r, .region_count = 1};
+ 	struct hv_irq_route route = {
+diff --git a/tests/unit/test_core_stubs.c b/tests/unit/test_core_stubs.c
+index 3f22bc0..4f28bf1 100644
+--- a/tests/unit/test_core_stubs.c
++++ b/tests/unit/test_core_stubs.c
+@@ -9,36 +9,36 @@ static void test_stage2_contract(void)
+ 	struct hv_mem_region regions[1] = {{.ipa_base = 0x1000,
+ 					    .pa_base = 0x2000,
+ 					    .size = 0x1000,
+-					    .attrs = 0}};
++					    .attrs = HV_MEM_RWX}};
+ 	struct hv_mem_region misaligned_ipa_region[1] = {{.ipa_base = 0x1800,
+ 							  .pa_base = 0x3000,
+ 							  .size = 0x1000,
+-							  .attrs = 0}};
++							  .attrs = HV_MEM_RWX}};
+ 	struct hv_mem_region misaligned_pa_region[1] = {{.ipa_base = 0x2000,
+ 							 .pa_base = 0x2800,
+ 							 .size = 0x1000,
+-							 .attrs = 0}};
++							 .attrs = HV_MEM_RWX}};
+ 	struct hv_mem_region misaligned_size_region[1] = {{.ipa_base = 0x3000,
+ 							   .pa_base = 0x4000,
+ 							   .size = 0x1800,
+-							   .attrs = 0}};
++							   .attrs = HV_MEM_RWX}};
+ 	struct hv_mem_region second_partition_regions[1] = {{.ipa_base = 0x1000,
+ 							     .pa_base = 0x2000,
+ 							     .size = 0x1000,
+-							     .attrs = 0}};
++							     .attrs = HV_MEM_RWX}};
+ 	struct hv_mem_region non_overlapping_partition_regions[1] = {
+ 		{.ipa_base = 0x4000,
+ 		 .pa_base = 0x5000,
+ 		 .size = 0x1000,
+-		 .attrs = 0}};
++		 .attrs = HV_MEM_RWX}};
+ 	struct hv_mem_region overlap_regions[2] = {{.ipa_base = 0x3000,
+ 						    .pa_base = 0x5000,
+ 						    .size = 0x2000,
+-						    .attrs = 0},
++						    .attrs = HV_MEM_RWX},
+ 						   {.ipa_base = 0x3800,
+ 						    .pa_base = 0x8000,
+ 						    .size = 0x1000,
+-						    .attrs = 0}};
++						    .attrs = HV_MEM_RWX}};
+ 	struct hv_partition_mem cfg = {
+ 		.partition_id = 1, .regions = regions, .region_count = 1};
+ 	struct hv_partition_mem second_partition_overlap_cfg = {
+diff --git a/tests/unit/test_smmu_dma.c b/tests/unit/test_smmu_dma.c
+index 39081b8..1124739 100644
+--- a/tests/unit/test_smmu_dma.c
++++ b/tests/unit/test_smmu_dma.c
+@@ -40,7 +40,7 @@ static void setup_partition_memory(hv_u32 partition, hv_u64 pa_base,
+ 		.ipa_base = pa_base,
+ 		.pa_base = pa_base,
+ 		.size = size,
+-		.attrs = 0,
++		.attrs = HV_MEM_RWX,
+ 	};
+ 	struct hv_partition_mem cfg = {
+ 		.partition_id = partition,
+diff --git a/tests/unit/test_stage2_attrs.c b/tests/unit/test_stage2_attrs.c
+new file mode 100644
+index 0000000..c0a8250
+--- /dev/null
++++ b/tests/unit/test_stage2_attrs.c
+@@ -0,0 +1,110 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++/* MM1/MM2: portable stage-2 permission bits.
++ *
++ * Checks (host, L1 evidence only - no hardware binding is exercised):
++ *   1. hv_stage2_attrs_valid() accepts exactly the six approved combinations
++ *      and rejects 0, unknown bits, write/execute without read, and
++ *      device+execute.
++ *   2. hv_stage2_map_partition() rejects an invalid attrs with HV_EINVAL and
++ *      leaves no partition state behind.
++ *   3. hv_s2_hw_attrs() produces the descriptor bits in the MM1 proposal,
++ *      including XN[1:0] = 0b10 (never 0b11) for non-executable mappings. */
++
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++
++#include "arch/arm64/include/asm/s2_attrs.h"
++#include "haven/stage2.h"
++
++#define XN_FIELD(hw) (((hw) >> 53) & 3U)
++
++static void test_validator(void)
++{
++	const hv_u64 valid[] = {
++		HV_MEM_R,
++		HV_MEM_R | HV_MEM_W,
++		HV_MEM_R | HV_MEM_X,
++		HV_MEM_RWX,
++		HV_MEM_DEVICE | HV_MEM_R,
++		HV_MEM_DEVICE_RW,
++	};
++	const hv_u64 invalid[] = {
++		0U,
++		HV_MEM_W,
++		HV_MEM_X,
++		HV_MEM_W | HV_MEM_X,
++		HV_MEM_DEVICE,
++		HV_MEM_DEVICE | HV_MEM_R | HV_MEM_X,
++		HV_MEM_DEVICE | HV_MEM_RWX,
++		HV_MEM_R | (1ULL << 4),
++		HV_MEM_RWX | (1ULL << 63),
++	};
++	unsigned i;
++
++	for (i = 0U; i < sizeof(valid) / sizeof(valid[0]); ++i) {
++		assert(hv_stage2_attrs_valid(valid[i]) == 1U);
++	}
++	for (i = 0U; i < sizeof(invalid) / sizeof(invalid[0]); ++i) {
++		assert(hv_stage2_attrs_valid(invalid[i]) == 0U);
++	}
++}
++
++static void test_map_rejects_without_state_change(void)
++{
++	struct hv_mem_region bad[1] = {{.ipa_base = 0x1000,
++				       .pa_base = 0x2000,
++				       .size = 0x1000,
++				       .attrs = 0U}};
++	struct hv_mem_region good[1] = {{.ipa_base = 0x1000,
++					.pa_base = 0x2000,
++					.size = 0x1000,
++					.attrs = HV_MEM_R}};
++	struct hv_partition_mem cfg_bad = {.partition_id = 7U,
++					   .regions = bad,
++					   .region_count = 1U};
++	struct hv_partition_mem cfg_good = {.partition_id = 7U,
++					    .regions = good,
++					    .region_count = 1U};
++
++	assert(hv_stage2_init() == HV_OK);
++	assert(hv_stage2_map_partition(&cfg_bad) == HV_EINVAL);
++	/* No state left behind: the partition is not mapped... */
++	assert(hv_stage2_unmap_partition(7U) == HV_EPERM);
++	/* ...and the same partition can still be mapped validly. */
++	assert(hv_stage2_map_partition(&cfg_good) == HV_OK);
++	assert(hv_stage2_unmap_partition(7U) == HV_OK);
++}
++
++static void test_translation(void)
++{
++	const uint64_t normal = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);
++	const uint64_t device = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS);
++
++	assert(hv_s2_hw_attrs(HV_MEM_R) ==
++	       (normal | S2AP_RO | S2_XN_NEVER));
++	assert(hv_s2_hw_attrs(HV_MEM_R | HV_MEM_W) ==
++	       (normal | S2AP_RW | S2_XN_NEVER));
++	assert(hv_s2_hw_attrs(HV_MEM_R | HV_MEM_X) == (normal | S2AP_RO));
++	assert(hv_s2_hw_attrs(HV_MEM_RWX) == (normal | S2AP_RW));
++	assert(hv_s2_hw_attrs(HV_MEM_DEVICE | HV_MEM_R) ==
++	       (device | S2AP_RO | S2_XN_NEVER));
++	assert(hv_s2_hw_attrs(HV_MEM_DEVICE_RW) ==
++	       (device | S2AP_RW | S2_XN_NEVER));
++
++	/* MM2: execute-never is XN[1:0] = 0b10, which is non-executable with or
++	 * without FEAT_XNX; 0b11 would be executable at EL1 under FEAT_XNX. */
++	assert(XN_FIELD(hv_s2_hw_attrs(HV_MEM_R)) == 2U);
++	assert(XN_FIELD(hv_s2_hw_attrs(HV_MEM_DEVICE_RW)) == 2U);
++	assert(XN_FIELD(hv_s2_hw_attrs(HV_MEM_RWX)) == 0U);
++	assert(XN_FIELD(S2_XN_ALL) == 2U);
++}
++
++int main(void)
++{
++	test_validator();
++	test_map_rejects_without_state_change();
++	test_translation();
++	printf("test_stage2_attrs: all checks passed\n");
++	return 0;
++}

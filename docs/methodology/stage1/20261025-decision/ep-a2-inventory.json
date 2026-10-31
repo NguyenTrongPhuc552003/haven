@@ -1,0 +1,654 @@
+{
+  "archive": "ep-a2-evidence.tar.gz",
+  "sha256": "77eaa882a421546e936e864ccc8e88dce4a8efef13d2652f1ddf95a1330ead87",
+  "file_count": 129,
+  "all_members_verified": true,
+  "raw_path": "haven/build/evidence/stage1-20261025-epa2",
+  "files": [
+    {
+      "path": "accept_epa2.py",
+      "bytes": 3820,
+      "sha256": "84e0f6a016934d16ee7f78e684c8ed55b922a936b61208f63aa29abf88d75801"
+    },
+    {
+      "path": "build-default.log",
+      "bytes": 3843,
+      "sha256": "47648646567492ec9cf1a190522e4174ce1b41e18736aaab9cc556e3f353caee"
+    },
+    {
+      "path": "build-strict.log",
+      "bytes": 3842,
+      "sha256": "05126604038c8ab2cfba5e0eeec09f5919c5af71acc7c4faf55e2140cf3cbf7f"
+    },
+    {
+      "path": "call-graph-default.log",
+      "bytes": 6657,
+      "sha256": "7ca02994a4a91723b19eeb64ad80954a765af200a561334c0e260e5f8b06c26d"
+    },
+    {
+      "path": "call-graph-strict.log",
+      "bytes": 6656,
+      "sha256": "67232c7f177d4fcca3c719de22d520b8922b9d54df2f10cd4259e5d8f48be22a"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 6355,
+      "sha256": "3a274aba85cf9424f345f109bf99681465ca5afca9895390fab1ebf749136d70"
+    },
+    {
+      "path": "complete-source-diff.log",
+      "bytes": 4434,
+      "sha256": "203edcae48d237a2e4aa727b58e9d004d8915cfc01d4d8707577368a3eafdec7"
+    },
+    {
+      "path": "configure-default.log",
+      "bytes": 511,
+      "sha256": "c910262cb9ccfccb2729891e522aedc1a0e9c6658229fe37bdb6cbdc43909f90"
+    },
+    {
+      "path": "configure-strict.log",
+      "bytes": 510,
+      "sha256": "a4bcd7ee912f3aab0ffb6d7c153570a711757811dfcddbfa13a7015bb9901485"
+    },
+    {
+      "path": "default/.ninja_deps",
+      "bytes": 7452,
+      "sha256": "39414ec461d87d11880e9bd574fca304521903309ebc3453e8981d37e12e787f"
+    },
+    {
+      "path": "default/.ninja_log",
+      "bytes": 2848,
+      "sha256": "b5732e6d89f4499173f461241d4e09d621513155ac22e854afbf2c4ad59470c1"
+    },
+    {
+      "path": "default/CMakeCache.txt",
+      "bytes": 15802,
+      "sha256": "2a75f593399a7a005d6e7421ff04d32af67bf97bc3e1bb89528a9776d6036086"
+    },
+    {
+      "path": "default/CMakeFiles/4.4.4/CMakeASMCompiler.cmake",
+      "bytes": 1429,
+      "sha256": "a5c93470da7e2a864d436ee162325e0dbc0493880259924d4bb4e204d5b3f63a"
+    },
+    {
+      "path": "default/CMakeFiles/4.4.4/CMakeCCompiler.cmake",
+      "bytes": 3604,
+      "sha256": "455d949959f5465f8ec9f1d51bd47a75fa1b3718edde867b333db2543b23a7cc"
+    },
+    {
+      "path": "default/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "default/CMakeFiles/4.4.4/CMakeSystem.cmake",
+      "bytes": 427,
+      "sha256": "f0ef2cfaa56b9316370a8582b54f54f152710f132efae2cfccfdfefe6fc6e310"
+    },
+    {
+      "path": "default/CMakeFiles/4.4.4/CompilerIdC/CMakeCCompilerId.c",
+      "bytes": 29029,
+      "sha256": "6ccdb729a0b1d02ba3d9b57e617d311fbac288d9c0d32416c048ef044157f041"
+    },
+    {
+      "path": "default/CMakeFiles/4.4.4/CompilerIdC/a.out",
+      "bytes": 74824,
+      "sha256": "bbc313d7c5ab8747dc2eed545d702706ded311355183ae983315b90b00530bd4"
+    },
+    {
+      "path": "default/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 145766,
+      "sha256": "f51017fbbc68ba9a25c01c3444d0f0fde14afc79329f9c64665d6a9b3d94eb65"
+    },
+    {
+      "path": "default/CMakeFiles/InstallScripts.json",
+      "bytes": 121,
+      "sha256": "91cfcd3b8331231b59cdfed78d040f252a87d0cb4161e97279ce185125900bd6"
+    },
+    {
+      "path": "default/CMakeFiles/TargetDirectories.txt",
+      "bytes": 697,
+      "sha256": "6848e429af07c640a6bd66b0d905c4a73cb2101e4fab7f315e5eedfe45a41666"
+    },
+    {
+      "path": "default/CMakeFiles/cmake.check_cache",
+      "bytes": 85,
+      "sha256": "a26189e394421da57f45706a07713c5720acd200a41711b0c0c590c3c63371c4"
+    },
+    {
+      "path": "default/CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj",
+      "bytes": 1584,
+      "sha256": "cdecaaa3d0c61f7501c99802e03ead6d02aed0fa31b4e0e2b650a6c296463e3b"
+    },
+    {
+      "path": "default/CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj",
+      "bytes": 1280,
+      "sha256": "5d6c5741dbb9bc4de141dd458ce931cd043e389b7cb9bd35ac1b5088b9ee6260"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/boot.S.obj",
+      "bytes": 2168,
+      "sha256": "78b7a9fa44fc0418d561ac38ba7ff283d80ae3d9b441dcf531b301758b04eb2b"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/context.S.obj",
+      "bytes": 2008,
+      "sha256": "c365562526bc1017759eb45b544130d5f91eca81b918b5cbefc8e7c6c582c452"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/cpu.c.obj",
+      "bytes": 3064,
+      "sha256": "c585f860a00de8c721fe35b2bb9d60c371d1de3693ad0c5bbd261cc2b2cfd816"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/entry.S.obj",
+      "bytes": 4656,
+      "sha256": "52aba2c441c60dbb257b6cccb97b8985b045b9c2124996faf9277a07f881acfa"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/irq.c.obj",
+      "bytes": 2560,
+      "sha256": "0e2816742a26099ef031ee1e5dfe5ff8584dc422b4f59a30427b263fe1bdd2ff"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/mm.c.obj",
+      "bytes": 3352,
+      "sha256": "dbd3a2fb286887d2b3f8899d92b92514040b59ad7e41ad2bca5913832a26ff4b"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/partition.S.obj",
+      "bytes": 768,
+      "sha256": "f459486ae172d5172c4c1a5df044f8c21d2e7682f80eaea829d8795cde82bf56"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/arch/arm64/timer.c.obj",
+      "bytes": 2176,
+      "sha256": "f772d33b24c167d97d7d4c83836af32cfcc2fb794722f5d059c49e6575497ea9"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj",
+      "bytes": 3240,
+      "sha256": "97c88a7eb87ec58228a5c0add7c7af1b8f861ac2b32538cdeebba0016d5bc541"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj",
+      "bytes": 3320,
+      "sha256": "1eba0c318fdf66f14a66546b3fcc9fa07ee66af6d27533f91c10c0784a233282"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/drivers/uart/pl011.c.obj",
+      "bytes": 1648,
+      "sha256": "b921df7713f8c905f7fe60806e49f40dca7505c4e16e4ddd126b191b3b0cb5f4"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/common/panic.c.obj",
+      "bytes": 1768,
+      "sha256": "400bfabebf7fc616c3facdbd6a357edef6372e9b3c7ce48e41ac9c1967f5f833"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/common/printk.c.obj",
+      "bytes": 3216,
+      "sha256": "aea5a71ed1541d3550d25421185c722a5701bfad8f65f5df65eed1d51b84df83"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/common/spinlock.c.obj",
+      "bytes": 1480,
+      "sha256": "c048c19e0b57e8eaf86881acaaee0cf43a6574827be75a0ad9fda5609e964e70"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/common/string.c.obj",
+      "bytes": 2896,
+      "sha256": "4560b09b1d4beaf184360416bbcfae16e21349436bef926c6c06de4fa131e2a2"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/dma/smmu.c.obj",
+      "bytes": 3992,
+      "sha256": "702d8f01e34433b10834ad73b4d87f498432785a75e83977622f27b030022924"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj",
+      "bytes": 6192,
+      "sha256": "0b1cf2a5cb9e9ee3b66a04d9b0ae7b4fdda9b416d06ca193630c48b57914a859"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/init.c.obj",
+      "bytes": 3584,
+      "sha256": "e396d0368848844b7e0629f3612f2fddd67939e59a56d2d60bfcc892f9d26f12"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj",
+      "bytes": 2208,
+      "sha256": "1d1fa5cc1ca2e6f03bd81232b210e310ef8c6edbb22b8f59b036680f9e8b9131"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/irq/ownership.c.obj",
+      "bytes": 2736,
+      "sha256": "b59fa91f938afc99e1807378231a8f6dc87a41c00889d5888a96e610d460d026"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/mm/stage2.c.obj",
+      "bytes": 3552,
+      "sha256": "167c623d00410ec9841bd1836f918a0e41fb21beb0f50474aaeed164d4725158"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/partition.c.obj",
+      "bytes": 5232,
+      "sha256": "634db82d8237a137a17b18b259398d052510ac5ed196406e0cd4aa643a036d4b"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/sched/budget.c.obj",
+      "bytes": 3176,
+      "sha256": "5d93e73e4b6f27edf70ed8c219b60c69307375e224583c30611f972925a809a1"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/core/time/timer.c.obj",
+      "bytes": 3008,
+      "sha256": "7c5e617574c7fc1b146922f473f5e7187118b57ec27e8375521396cd7f36adc1"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj",
+      "bytes": 4904,
+      "sha256": "06b83fa6e4dcb49e543ce4c7f64f43c02e80bdff9c7641494da8a83e10bb975b"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj",
+      "bytes": 7008,
+      "sha256": "f2f1c56f1424deca751398d330c7eec250b76fd9264aee2448856534ccba67e4"
+    },
+    {
+      "path": "default/CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj",
+      "bytes": 2736,
+      "sha256": "11f86dd6e085de87a3071d59769958368792998d228db19d9535f34a4fce68f7"
+    },
+    {
+      "path": "default/CMakeFiles/rules.ninja",
+      "bytes": 3900,
+      "sha256": "3825fda35ce49629fb0c184643d68f7816e7c3dba49a14880dcb8584b5bc843d"
+    },
+    {
+      "path": "default/build.ninja",
+      "bytes": 50357,
+      "sha256": "656b2b922b48b11248ee8e5b057f1f1fe064eb0f0b30152c4bd79aa7556eecf1"
+    },
+    {
+      "path": "default/cmake_install.cmake",
+      "bytes": 2017,
+      "sha256": "8c33038f10dc1f4adad7643a9174c8ae264c8a641e9af3d1f32c341d9ef8de5f"
+    },
+    {
+      "path": "default/compile_commands.json",
+      "bytes": 23829,
+      "sha256": "48b29d30bbbfcf1d0d1dee31d0d4cf0aa10a0a60483c9e5c7b9570bc9fec5d50"
+    },
+    {
+      "path": "default/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "default/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "default/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "default/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "default/haven.bin",
+      "bytes": 27224,
+      "sha256": "5ef8b5d694b12298749b65f3d4833ff5d26221b6e1473373c9e0ba5346161509"
+    },
+    {
+      "path": "default/haven.elf",
+      "bytes": 106024,
+      "sha256": "b83a0e090ca3f65466ef1bcb1b5808b434791e4a6eedb1747a02ba36d5484997"
+    },
+    {
+      "path": "epa2-source-diff.log",
+      "bytes": 721,
+      "sha256": "29eacf75d590ca16e4509cb2285b5bf2bbf745626892a7ca49b835d9a252ec74"
+    },
+    {
+      "path": "execution.json",
+      "bytes": 364,
+      "sha256": "0d19152991b8828e35ec89b5a9675adf1f08e9cadfe7c4f411154bdaa9dfa8fb"
+    },
+    {
+      "path": "source-revision.log",
+      "bytes": 41,
+      "sha256": "e59153755f73813acc5b8640f2286f316ce56ccd21c23bb41169150602b13ef6"
+    },
+    {
+      "path": "src/common/string.c",
+      "bytes": 4669,
+      "sha256": "1c2b8958aaf0eb30672ba47ff09f260ffaebc8c5e3ee593a5bc64a4c314bde1d"
+    },
+    {
+      "path": "strict/.ninja_deps",
+      "bytes": 7452,
+      "sha256": "92083039953d0af44ef4399d163864852f25e9571b20773306c82c3300d9e313"
+    },
+    {
+      "path": "strict/.ninja_log",
+      "bytes": 2844,
+      "sha256": "47cd48f0f42525e293768b17b8f6d811f769385b369725bf39bbbaf60f3ee74c"
+    },
+    {
+      "path": "strict/CMakeCache.txt",
+      "bytes": 15812,
+      "sha256": "1fc6eb14aa2edbf3394b107eca3cbb61838827d859123af582864ccf2c72ea2c"
+    },
+    {
+      "path": "strict/CMakeFiles/4.4.4/CMakeASMCompiler.cmake",
+      "bytes": 1429,
+      "sha256": "a5c93470da7e2a864d436ee162325e0dbc0493880259924d4bb4e204d5b3f63a"
+    },
+    {
+      "path": "strict/CMakeFiles/4.4.4/CMakeCCompiler.cmake",
+      "bytes": 3604,
+      "sha256": "455d949959f5465f8ec9f1d51bd47a75fa1b3718edde867b333db2543b23a7cc"
+    },
+    {
+      "path": "strict/CMakeFiles/4.4.4/CMakeDetermineCompilerABI_C.bin",
+      "bytes": 2624,
+      "sha256": "0564be1aae51f68f66d90f27a822f1db1702f31eef4b3d7bf306acc84cbc31d0"
+    },
+    {
+      "path": "strict/CMakeFiles/4.4.4/CMakeSystem.cmake",
+      "bytes": 427,
+      "sha256": "f0ef2cfaa56b9316370a8582b54f54f152710f132efae2cfccfdfefe6fc6e310"
+    },
+    {
+      "path": "strict/CMakeFiles/4.4.4/CompilerIdC/CMakeCCompilerId.c",
+      "bytes": 29029,
+      "sha256": "6ccdb729a0b1d02ba3d9b57e617d311fbac288d9c0d32416c048ef044157f041"
+    },
+    {
+      "path": "strict/CMakeFiles/4.4.4/CompilerIdC/a.out",
+      "bytes": 74824,
+      "sha256": "bbc313d7c5ab8747dc2eed545d702706ded311355183ae983315b90b00530bd4"
+    },
+    {
+      "path": "strict/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 145957,
+      "sha256": "a5c2e5c0264e3211d1887b10d7d69541ec485597be43ce4995c4fb5291c63dca"
+    },
+    {
+      "path": "strict/CMakeFiles/InstallScripts.json",
+      "bytes": 120,
+      "sha256": "c4bea960b1a6fed92d05155e6008dedb3ceafba418b8eb93e8e8c4f3055922e9"
+    },
+    {
+      "path": "strict/CMakeFiles/TargetDirectories.txt",
+      "bytes": 687,
+      "sha256": "fa4ac4a6c6c6f255f0fda0251d57308cf61a5b067f4949e0cce52d4f808d4e49"
+    },
+    {
+      "path": "strict/CMakeFiles/cmake.check_cache",
+      "bytes": 85,
+      "sha256": "a26189e394421da57f45706a07713c5720acd200a41711b0c0c590c3c63371c4"
+    },
+    {
+      "path": "strict/CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj",
+      "bytes": 1584,
+      "sha256": "cdecaaa3d0c61f7501c99802e03ead6d02aed0fa31b4e0e2b650a6c296463e3b"
+    },
+    {
+      "path": "strict/CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj",
+      "bytes": 1280,
+      "sha256": "5d6c5741dbb9bc4de141dd458ce931cd043e389b7cb9bd35ac1b5088b9ee6260"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/boot.S.obj",
+      "bytes": 2168,
+      "sha256": "78b7a9fa44fc0418d561ac38ba7ff283d80ae3d9b441dcf531b301758b04eb2b"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/context.S.obj",
+      "bytes": 2008,
+      "sha256": "c365562526bc1017759eb45b544130d5f91eca81b918b5cbefc8e7c6c582c452"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/cpu.c.obj",
+      "bytes": 3064,
+      "sha256": "c585f860a00de8c721fe35b2bb9d60c371d1de3693ad0c5bbd261cc2b2cfd816"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/entry.S.obj",
+      "bytes": 4656,
+      "sha256": "52aba2c441c60dbb257b6cccb97b8985b045b9c2124996faf9277a07f881acfa"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/irq.c.obj",
+      "bytes": 2560,
+      "sha256": "0e2816742a26099ef031ee1e5dfe5ff8584dc422b4f59a30427b263fe1bdd2ff"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/mm.c.obj",
+      "bytes": 3352,
+      "sha256": "dbd3a2fb286887d2b3f8899d92b92514040b59ad7e41ad2bca5913832a26ff4b"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/partition.S.obj",
+      "bytes": 768,
+      "sha256": "f459486ae172d5172c4c1a5df044f8c21d2e7682f80eaea829d8795cde82bf56"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/arch/arm64/timer.c.obj",
+      "bytes": 2176,
+      "sha256": "f772d33b24c167d97d7d4c83836af32cfcc2fb794722f5d059c49e6575497ea9"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj",
+      "bytes": 3240,
+      "sha256": "97c88a7eb87ec58228a5c0add7c7af1b8f861ac2b32538cdeebba0016d5bc541"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj",
+      "bytes": 3320,
+      "sha256": "1eba0c318fdf66f14a66546b3fcc9fa07ee66af6d27533f91c10c0784a233282"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/drivers/uart/pl011.c.obj",
+      "bytes": 1648,
+      "sha256": "b921df7713f8c905f7fe60806e49f40dca7505c4e16e4ddd126b191b3b0cb5f4"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/common/panic.c.obj",
+      "bytes": 1768,
+      "sha256": "400bfabebf7fc616c3facdbd6a357edef6372e9b3c7ce48e41ac9c1967f5f833"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/common/printk.c.obj",
+      "bytes": 3216,
+      "sha256": "aea5a71ed1541d3550d25421185c722a5701bfad8f65f5df65eed1d51b84df83"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/common/spinlock.c.obj",
+      "bytes": 1480,
+      "sha256": "c048c19e0b57e8eaf86881acaaee0cf43a6574827be75a0ad9fda5609e964e70"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/common/string.c.obj",
+      "bytes": 2896,
+      "sha256": "4560b09b1d4beaf184360416bbcfae16e21349436bef926c6c06de4fa131e2a2"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/dma/smmu.c.obj",
+      "bytes": 3992,
+      "sha256": "702d8f01e34433b10834ad73b4d87f498432785a75e83977622f27b030022924"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj",
+      "bytes": 6200,
+      "sha256": "942ebfacdd0c851aefb1d8ef383476a69f48344bc9d57235af0fd99ee5fc8270"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/init.c.obj",
+      "bytes": 3584,
+      "sha256": "e396d0368848844b7e0629f3612f2fddd67939e59a56d2d60bfcc892f9d26f12"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj",
+      "bytes": 2208,
+      "sha256": "3ebdf478fe6bab1f160aa3570f8ea1347925aa00466464b2c9e3a4f9c4628a1d"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/irq/ownership.c.obj",
+      "bytes": 2736,
+      "sha256": "b59fa91f938afc99e1807378231a8f6dc87a41c00889d5888a96e610d460d026"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/mm/stage2.c.obj",
+      "bytes": 3624,
+      "sha256": "0bc95299568e143701b2f79a5fa6a3d22435ec3a58850ae1f1370928f0536759"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/partition.c.obj",
+      "bytes": 5232,
+      "sha256": "634db82d8237a137a17b18b259398d052510ac5ed196406e0cd4aa643a036d4b"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/sched/budget.c.obj",
+      "bytes": 3176,
+      "sha256": "5d93e73e4b6f27edf70ed8c219b60c69307375e224583c30611f972925a809a1"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/core/time/timer.c.obj",
+      "bytes": 3008,
+      "sha256": "7c5e617574c7fc1b146922f473f5e7187118b57ec27e8375521396cd7f36adc1"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj",
+      "bytes": 4904,
+      "sha256": "56d2a0412bb8cfecf4b5c6c47056edd49dde3ee7e92cdbe69cd916bedcdf3c9d"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj",
+      "bytes": 7008,
+      "sha256": "f2f1c56f1424deca751398d330c7eec250b76fd9264aee2448856534ccba67e4"
+    },
+    {
+      "path": "strict/CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj",
+      "bytes": 2736,
+      "sha256": "11f86dd6e085de87a3071d59769958368792998d228db19d9535f34a4fce68f7"
+    },
+    {
+      "path": "strict/CMakeFiles/rules.ninja",
+      "bytes": 3899,
+      "sha256": "eb2d76c92f8e4b5c10bd523182ec2b5a7bfeb1d7e97c94f30b180e27adcdc434"
+    },
+    {
+      "path": "strict/build.ninja",
+      "bytes": 50697,
+      "sha256": "2e4c0baa475bffacd59cbdac22d6d73b7cb7b44ca4d07ef636066131835d2368"
+    },
+    {
+      "path": "strict/cmake_install.cmake",
+      "bytes": 2015,
+      "sha256": "87eb62f4a78fc055f8596ff03f158b2f9ec51ba433ae537eb5994a1297099f1a"
+    },
+    {
+      "path": "strict/compile_commands.json",
+      "bytes": 24116,
+      "sha256": "240a9cbfb4ab98556b0e9d52bb71bb48988a900f429f8b3c18ff7e15a2f103f9"
+    },
+    {
+      "path": "strict/guest_a.bin",
+      "bytes": 169,
+      "sha256": "00d4c4dd4cb94e6bba6b89c9c0b0bc4c962c45bcd39eba5b268ae722b9b2eeea"
+    },
+    {
+      "path": "strict/guest_a.elf",
+      "bytes": 66672,
+      "sha256": "fc30d4f86f4cc8f54be7cc724d7c6027c652d362051e4e33559af1125183a2f5"
+    },
+    {
+      "path": "strict/guest_b.bin",
+      "bytes": 76,
+      "sha256": "616671c42e10a6571169f6c96a15cb9581dade662909955c13f0945185c6fafb"
+    },
+    {
+      "path": "strict/guest_b.elf",
+      "bytes": 66424,
+      "sha256": "e158e3f63905de4d56b32118e5ca9d7619ddf13d25227e6ffaf696f627173908"
+    },
+    {
+      "path": "strict/haven.bin",
+      "bytes": 27288,
+      "sha256": "67e3414216c0e727c71e16d94e97a963b1b0def1d2b3693f3286bca9a27b0d91"
+    },
+    {
+      "path": "strict/haven.elf",
+      "bytes": 106088,
+      "sha256": "c3be3e420b78cd70319d859756a55493e949db2b5c3772b086607b29b406ff5e"
+    },
+    {
+      "path": "summary-with-reuse.json",
+      "bytes": 1611,
+      "sha256": "e5778ab9857d3c5baaa40aa0690bd72b895ac56a128e51a1fe16a91b58124f7e"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 1398,
+      "sha256": "551e2cf268f88d916298ba7aa759d5668322adefdfd43c89acf59bfd238fa514"
+    },
+    {
+      "path": "symbols-default.log",
+      "bytes": 320,
+      "sha256": "b1bf989535d3885e0d30b33f7132b4c86e7b07d2aa610c9049f5ec7aca4731fe"
+    },
+    {
+      "path": "symbols-strict.log",
+      "bytes": 320,
+      "sha256": "b1bf989535d3885e0d30b33f7132b4c86e7b07d2aa610c9049f5ec7aca4731fe"
+    },
+    {
+      "path": "tracked-diff-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-image-default.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-image-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-object-default.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "undefined-object-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "version-aarch64-linux-gnu-gcc.log",
+      "bytes": 237,
+      "sha256": "d3a24e44b1518651a9025569849981f335f1cde7be938e928111b2c563d0428f"
+    },
+    {
+      "path": "version-cmake.log",
+      "bytes": 90,
+      "sha256": "4d92ce18ddf9889d463ac875608423312823ad89e7fd5178b02a21ea26a2bd3d"
+    },
+    {
+      "path": "version-ninja.log",
+      "bytes": 7,
+      "sha256": "810ab97f4b3fccb9adf1db7959945b479635931ccc4a0243c34a41b739eae25a"
+    }
+  ]
+}
