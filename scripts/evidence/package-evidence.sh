@@ -21,8 +21,8 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-./scripts/ci-preflight.sh
-./scripts/ci-metadata.sh
+./scripts/ci/ci-preflight.sh
+./scripts/ci/ci-metadata.sh
 
 mkdir -p build/evidence
 mkdir -p build/evidence/imx95/logs

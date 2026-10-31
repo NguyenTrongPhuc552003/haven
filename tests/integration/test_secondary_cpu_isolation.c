@@ -358,10 +358,12 @@ static void test_psci_error_path_rejection(void)
 	struct hv_irq_route invalid_cpu_route = {
 		.irq_id = 50U,
 		.owner_partition_id = PARTITION_A_ID,
-		.target_cpu = 999U, /* out-of-range CPU → maps to PSCI INVALID_PARAMETERS */
+		.target_cpu =
+			999U, /* out-of-range CPU → maps to PSCI INVALID_PARAMETERS */
 	};
 	struct hv_budget reserved_partition_budget = {
-		.partition_id = 0U, /* partition 0 is reserved → maps to PSCI DENIED */
+		.partition_id =
+			0U, /* partition 0 is reserved → maps to PSCI DENIED */
 		.period_ns = 1000000ULL,
 		.budget_ns = 500000ULL,
 	};

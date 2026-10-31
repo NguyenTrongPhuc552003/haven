@@ -137,21 +137,43 @@ extern void hv_printk(const char *fmt, ...);
 
 void hv_arch_psci_log_error(int32_t err)
 {
-        const char *msg;
+	const char *msg;
 
-        switch (err) {
-        case  0:  msg = "SUCCESS";            break; /* never reached */
-        case -1:  msg = "NOT_SUPPORTED";      break;
-        case -2:  msg = "INVALID_PARAMETERS"; break;
-        case -3:  msg = "DENIED";             break;
-        case -4:  msg = "ALREADY_ON";         break;
-        case -5:  msg = "ON_PENDING";         break;
-        case -6:  msg = "INTERNAL_FAILURE";   break;
-        case -7:  msg = "NOT_PRESENT";        break;
-        case -8:  msg = "DISABLED";           break;
-        case -9:  msg = "INVALID_ADDRESS";    break;
-        default:  msg = "UNKNOWN";            break;
-        }
+	switch (err) {
+	case 0:
+		msg = "SUCCESS";
+		break; /* never reached */
+	case -1:
+		msg = "NOT_SUPPORTED";
+		break;
+	case -2:
+		msg = "INVALID_PARAMETERS";
+		break;
+	case -3:
+		msg = "DENIED";
+		break;
+	case -4:
+		msg = "ALREADY_ON";
+		break;
+	case -5:
+		msg = "ON_PENDING";
+		break;
+	case -6:
+		msg = "INTERNAL_FAILURE";
+		break;
+	case -7:
+		msg = "NOT_PRESENT";
+		break;
+	case -8:
+		msg = "DISABLED";
+		break;
+	case -9:
+		msg = "INVALID_ADDRESS";
+		break;
+	default:
+		msg = "UNKNOWN";
+		break;
+	}
 
-        hv_printk("HAVEN: PSCI CPU_ON error %d (%s)\n", (int)err, msg);
+	hv_printk("HAVEN: PSCI CPU_ON error %d (%s)\n", (int)err, msg);
 }

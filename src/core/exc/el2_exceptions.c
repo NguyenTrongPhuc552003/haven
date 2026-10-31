@@ -360,11 +360,14 @@ void hv_handle_serror(hv_u64 esr, hv_u64 far, hv_u64 sp)
 void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
 						  hv_u64 elr, hv_u64 sp)
 {
-	(void)esr;
-	(void)far;
-	(void)elr;
 	(void)sp;
 #ifdef HAVEN_ARCH_ARM64
+	/* Preserve the fault context in the UART log before halting. */
+	if (hv_printk != NULL) {
+		hv_printk("EL2 FATAL: ESR=0x%lx FAR=0x%lx ELR=0x%lx\n",
+			  (unsigned long)esr, (unsigned long)far,
+			  (unsigned long)elr);
+	}
 	platform_uart_putchar('!');
 	platform_uart_putchar('E');
 	platform_uart_putchar('L');
