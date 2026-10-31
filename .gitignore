@@ -13,6 +13,8 @@ out/
 
 # Logs
 *.log
+# Evidence logs under docs/methodology are cited by records and must be kept
+!docs/methodology/**/*.log
 
 # Python
 __pycache__/
