@@ -360,6 +360,9 @@ void hv_handle_serror(hv_u64 esr, hv_u64 far, hv_u64 sp)
 void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
 						  hv_u64 elr, hv_u64 sp)
 {
+	(void)esr;
+	(void)far;
+	(void)elr;
 	(void)sp;
 #ifdef HAVEN_ARCH_ARM64
 	/* Preserve the fault context in the UART log before halting. */
