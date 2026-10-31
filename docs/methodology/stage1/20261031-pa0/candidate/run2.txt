@@ -1,0 +1,12 @@
+V1 ACCEPT checkpoint=none
+V2 ACCEPT checkpoint=none
+F1 REJECT checkpoint=structural:range-overflow
+F2 ACCEPT checkpoint=none
+F3 REJECT checkpoint=R2:owner
+F4 REJECT checkpoint=structural:version
+F5 REJECT checkpoint=R2:association
+F6 REJECT checkpoint=R4:effective-access
+F8 REJECT checkpoint=R3:granularity
+F9 REJECT checkpoint=R2:irq-route
+F10 REJECT checkpoint=R2:outside-envelope
+F7 N/A checkpoint=non-scoring

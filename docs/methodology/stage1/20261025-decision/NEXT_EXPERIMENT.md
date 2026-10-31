@@ -1,7 +1,8 @@
 # Proposed next experiment P-A0: reject a weak consistency question early
 
-**Status: approved by the workspace owner 2026-10-31; steps 1-3 executed; paused
-at the independence gate pending the owner's sealed held-out cases. No verdict.
+**Status: approved by the workspace owner 2026-10-31; steps 1-7 executed;
+completed 2026-11-01 with verdict REJECT/REFRAME (candidate A as framed) and
+stop-as-inconclusive on the device question; owner decides at G1.
 See the [P-A0 evidence package](../20261031-pa0/README.md).** Owner: HAVEN research decision; ELMOS
 evidence/orchestration and KDAL operation requirements are necessary inputs.
 This is a1–2-person-day, host/model feasibility study, not CP1 implementation,

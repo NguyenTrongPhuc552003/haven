@@ -1,7 +1,8 @@
 # P-A0 evidence package: candidate A rejection pilot
 
-**Status: PAUSED at the independence gate. Steps 1-3 done; steps 4-7 not run.**
-No candidate checker exists. No verdict has been reached. Classification:
+**Status: COMPLETE (steps 1-7). Verdict under the frozen rules: candidate A as
+framed is REJECT/REFRAME; stop as inconclusive on the device question.** The
+final decision is the owner's at gate G1. See "Steps 4-7" below. Classification:
 EXPERIMENT (host/model only). Owner: HAVEN. Protocol:
 [NEXT_EXPERIMENT.md](../20261025-decision/NEXT_EXPERIMENT.md).
 
@@ -79,10 +80,65 @@ These escapes are not a distinguishing result. Candidate A has not been run.
 - `hv_stage2_map_partition` runs with `HAVEN_ARCH_ARM64` off, so `mm.c` was not
   executed.
 
-## Gate
+## Gate (resolved 2026-11-01)
 
-The workspace owner decided on 2026-10-31 to keep P-A0 paused here and supply
-sealed held-out cases. Do not read or create anything under a `held-out/` folder,
-and do not start step 4 until the owner releases those cases.
+Independent oracle review: on 2026-11-01 the workspace owner reviewed the 12
+frozen expected verdicts (see `OWNER_REVIEW.md`) and approved all of them
+unchanged, in conversation. Part 2 of the sheet (missing fault classes,
+duplicate cases) was not answered, so independence rests on the owner's
+verdict review, not on an owner-authored held-out case. No `held-out/` folder
+was created or read. The freeze still verifies (`freeze/SHA256SUMS`).
 
-A changed freeze means rerunning step 3.
+## Steps 4-7 (2026-11-01, experimental observation, host/model only)
+
+**Inputs.** Candidate checker `candidate/checker.c` (no expected verdicts in
+it); inputs copied verbatim from `baseline/harness.c` plus E and its variants
+from `freeze/cases.json`; H (effective binding) is a modelled input equal to G
+except F6. Scoring by `candidate/compare.py`, the only reader of `expected`.
+Toolchain in `candidate/toolchain.txt`; haven at `candidate/haven-revision.txt`.
+The candidate method is the frozen baseline plus relations R1-R4 (fits,
+within, granule, enforces).
+
+**Repeatability.** Two candidate runs byte-identical (`candidate/run1.txt`,
+`run2.txt`). The frozen baseline re-run on the current branch (MM1 applied;
+its `attrs = 1` now means `HV_MEM_R`) gives output identical to the recorded
+`baseline/run1.txt` (`candidate/baseline-current-branch.txt`).
+
+**Scores** (`candidate/score.md`): oracle agreement baseline 5/11, candidate
+11/11; no false rejection of valid controls. Candidate-only detections among
+candidate cases, classified by the relation that fired:
+
+| Case | Relation | Class | Counts toward acceptance? |
+| - | - | - | - |
+| F5 | R2 association | field comparison against E | No: "every effect is schema/range checking" |
+| F9 | R2 IRQ route | field comparison against E | No: same |
+| F10 | R2 outside envelope | field comparison against E | No: same |
+| F6 | R4 effective access | effective binding | No: rediscovers known defect MM1 |
+| F8 | R3 granularity | non-structural relation | Not as framed: its benefit depends on the invented model resource P (a fictional forbidden register), and no credible safe non-DMA device and authoritative map exist (protocol input 3) |
+
+F3 (control) was also caught only by the candidate (R2 owner), confirming
+finding 3; as a control it does not count toward the distinction.
+
+**Verdict under the frozen rules.**
+- Acceptance is not met: the only non-structural escape (F8) lacks an
+  independently justified resource requirement and a credible enforcement
+  probe on a real resource.
+- Reject/reframe conditions met for candidate A as framed: the remaining
+  effects are field comparisons against E or a known bug, and F8's benefit
+  depends on invented device behaviour.
+- Stop as inconclusive on the device question: no trustworthy resource map of
+  a real resource-bearing backend was available.
+- P1-P6 recheck for F8 not done; Jailhouse sub-page MMIO handling must be
+  checked before any granularity claim.
+
+**What the pilot does establish.** A frozen fault taxonomy, a scoring harness,
+and the observation that HAVEN's current policy misses owner, association,
+IRQ-route and envelope errors (5/11). These are useful engineering facts, not a
+research distinction.
+
+**Missing input to revise the question.** A real, authoritative resource map
+whose agreement cannot be reached by comparing fields against E: either
+enforcement read-back on QEMU (H observed, not modelled), or a vendor platform
+description checked against hardware (for example the reported CIX P1
+IORT/SMMU mismatch). Recorded for the G1 decision; nothing proceeds into
+Linux/vGIC by default.
