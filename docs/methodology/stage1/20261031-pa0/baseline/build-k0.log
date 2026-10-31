@@ -1,0 +1,184 @@
+ninja: Entering directory `build-host'
+[1/116] Building C object tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o
+FAILED: [code=1] tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o 
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                          ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                                      ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+  361 |                                                   hv_u64 elr, hv_u64 sp)
+      |                                                          ^
+3 errors generated.
+[2/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/irq/ownership.c.o
+[3/116] Building C object tests/CMakeFiles/test_iommu_policy.dir/__/src/core/iommu/iommu_policy.c.o
+[4/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/mm/stage2.c.o
+[5/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/common/printk_stub.c.o
+[6/116] Building C object tests/CMakeFiles/test_guest_uart.dir/unit/test_guest_uart.c.o
+[7/116] Building C object tests/CMakeFiles/test_iommu_policy.dir/unit/test_iommu_policy.c.o
+[8/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/sched/budget.c.o
+[9/116] Building C object tests/CMakeFiles/test_guest_uart.dir/__/src/guest/drivers/uart.c.o
+[10/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/dma/smmu.c.o
+[11/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/integration/test_isolation_flow.c.o
+[12/116] Building C object tests/CMakeFiles/test_freertos_integration.dir/__/src/guest/rtos/freertos_integration.c.o
+[13/116] Building C object tests/CMakeFiles/test_freertos_integration.dir/common/printk_stub.c.o
+[14/116] Building C object tests/CMakeFiles/test_freertos_integration.dir/unit/test_freertos_integration.c.o
+[15/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/iommu/iommu_policy.c.o
+[16/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/common/printk_stub.c.o
+[17/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o
+FAILED: [code=1] tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o 
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                          ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                                      ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+  361 |                                                   hv_u64 elr, hv_u64 sp)
+      |                                                          ^
+3 errors generated.
+[18/116] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/time/timer.c.o
+[19/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/sched/budget.c.o
+[20/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/mm/stage2.c.o
+[21/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/dma/smmu.c.o
+[22/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/integration/test_isolation_negative.c.o
+[23/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o
+FAILED: [code=1] tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o 
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                          ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                                      ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+  361 |                                                   hv_u64 elr, hv_u64 sp)
+      |                                                          ^
+3 errors generated.
+[24/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/irq/ownership.c.o
+[25/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/time/timer.c.o
+[26/116] Building C object tests/CMakeFiles/test_fault_injection.dir/common/printk_stub.c.o
+[27/116] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/iommu/iommu_policy.c.o
+[28/116] Building C object tests/CMakeFiles/test_fault_injection.dir/integration/test_fault_injection.c.o
+[29/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/irq/ownership.c.o
+[30/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/mm/stage2.c.o
+[31/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/sched/budget.c.o
+[32/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o
+FAILED: [code=1] tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o 
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                          ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                                      ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+  361 |                                                   hv_u64 elr, hv_u64 sp)
+      |                                                          ^
+3 errors generated.
+[33/116] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/__/src/core/mm/stage2.c.o
+[34/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/dma/smmu.c.o
+[35/116] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/common/printk_stub.c.o
+[36/116] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/__/src/core/irq/ownership.c.o
+[37/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/iommu/iommu_policy.c.o
+[38/116] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/time/timer.c.o
+[39/116] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/integration/test_secondary_cpu_isolation.c.o
+[40/116] Building C object tests/CMakeFiles/test_smmu_hardware.dir/__/src/core/mm/stage2.c.o
+[41/116] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/__/src/core/sched/budget.c.o
+[42/116] Building C object tests/CMakeFiles/test_smmu_hardware.dir/integration/test_smmu_hardware.c.o
+[43/116] Building C object tests/CMakeFiles/test_smmu_hardware.dir/__/src/core/dma/smmu.c.o
+[44/116] Building C object tests/CMakeFiles/test_temporal_isolation.dir/common/printk_stub.c.o
+[45/116] Building C object tests/CMakeFiles/test_spatial_isolation.dir/__/src/core/mm/stage2.c.o
+[46/116] Building C object tests/CMakeFiles/test_smmu_hardware.dir/__/src/core/iommu/iommu_policy.c.o
+[47/116] Building C object tests/CMakeFiles/test_spatial_isolation.dir/isolation/test_spatial_isolation.c.o
+[48/116] Building C object tests/CMakeFiles/test_temporal_isolation.dir/__/src/core/sched/budget.c.o
+[49/116] Building C object tests/CMakeFiles/test_spatial_isolation.dir/__/src/core/dma/smmu.c.o
+[50/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/common/printk_stub.c.o
+[51/116] Building C object tests/CMakeFiles/test_spatial_isolation.dir/__/src/core/iommu/iommu_policy.c.o
+[52/116] Building C object tests/CMakeFiles/test_temporal_isolation.dir/isolation/test_temporal_isolation.c.o
+[53/116] Building C object tests/CMakeFiles/test_temporal_isolation.dir/__/src/core/irq/ownership.c.o
+[54/116] Building C object tests/CMakeFiles/test_temporal_isolation.dir/__/src/core/time/timer.c.o
+[55/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/selftests/test_hypervisor_invariants.c.o
+[56/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/irq/ownership.c.o
+[57/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/mm/stage2.c.o
+[58/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/sched/budget.c.o
+[59/116] Building C object tests/CMakeFiles/demo_two_partition.dir/common/printk_stub.c.o
+[60/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/iommu/iommu_policy.c.o
+[61/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o
+FAILED: [code=1] tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o 
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                          ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                                      ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+  361 |                                                   hv_u64 elr, hv_u64 sp)
+      |                                                          ^
+3 errors generated.
+[62/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/time/timer.c.o
+[63/116] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/dma/smmu.c.o
+[64/116] Building C object tests/CMakeFiles/demo_two_partition.dir/demos/demo_two_partition.c.o
+[65/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/irq/ownership.c.o
+[66/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/time/timer.c.o
+[67/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/sched/budget.c.o
+[68/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/dma/smmu.c.o
+[69/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/mm/stage2.c.o
+[70/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/common/printk_stub.c.o
+[71/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/iommu/iommu_policy.c.o
+[72/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/mm/stage2.c.o
+[73/116] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o
+FAILED: [code=1] tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o 
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                          ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+  360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
+      |                                                                      ^
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+  361 |                                                   hv_u64 elr, hv_u64 sp)
+      |                                                          ^
+3 errors generated.
+[74/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/irq/ownership.c.o
+[75/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/sched/budget.c.o
+[76/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/benchmarks/bench_isolation_latency.c.o
+[77/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/dma/smmu.c.o
+[78/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/time/timer.c.o
+[79/116] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/iommu/iommu_policy.c.o
+[80/116] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/__/src/core/sched/budget.c.o
+[81/116] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/common/printk_stub.c.o
+[82/116] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/__/src/core/time/timer.c.o
+[83/116] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/benchmarks/bench_temporal_isolation.c.o
+[84/116] Building C object tests/CMakeFiles/bench_stage2_fault.dir/common/printk_stub.c.o
+[85/116] Building C object tests/CMakeFiles/bench_stage2_fault.dir/__/src/core/irq/ownership.c.o
+[86/116] Building C object tests/CMakeFiles/bench_stage2_fault.dir/__/src/core/mm/stage2.c.o
+[87/116] Building C object tests/CMakeFiles/bench_smmu_policy.dir/common/printk_stub.c.o
+[88/116] Building C object tests/CMakeFiles/bench_smmu_policy.dir/benchmarks/bench_smmu_policy.c.o
+[89/116] Building C object tests/CMakeFiles/bench_stage2_fault.dir/__/src/core/sched/budget.c.o
+[90/116] Building C object tests/CMakeFiles/bench_stage2_fault.dir/benchmarks/bench_stage2_fault.c.o
+[91/116] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/mm/stage2.c.o
+[92/116] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/dma/smmu.c.o
+[93/116] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/irq/ownership.c.o
+[94/116] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/sched/budget.c.o
+[95/116] Building C object drivers/guest-tools/CMakeFiles/haven_tool.dir/haven_tool.c.o
+[96/116] Linking C executable tests/test_core_stubs
+[97/116] Linking C executable tests/test_smmu_dma
+[98/116] Linking C executable tests/test_timer
+[99/116] Linking C executable tests/test_iommu_policy
+[100/116] Linking C executable tests/test_freertos_integration
+[101/116] Linking C executable tests/test_guest_uart
+[102/116] Linking C executable tests/test_smmu_hardware
+[103/116] Linking C executable tests/test_spatial_isolation
+[104/116] Linking C executable tests/test_secondary_cpu_isolation
+[105/116] Linking C executable tests/test_temporal_isolation
+[106/116] Linking C executable tests/bench_temporal_isolation
+[107/116] Linking C executable tests/bench_isolation_latency
+[108/116] Linking C executable tests/bench_stage2_fault
+[109/116] Linking C executable drivers/guest-tools/haven_tool
+[110/116] Linking C executable tests/bench_smmu_policy
+ninja: build stopped: cannot make progress due to previous errors.

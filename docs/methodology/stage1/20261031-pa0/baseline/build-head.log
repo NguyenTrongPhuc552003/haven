@@ -1,0 +1,13 @@
+ninja: Entering directory `build-host'
+[1/12] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o
+[2/12] Building C object tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o
+[3/12] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o
+[4/12] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o
+[5/12] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o
+[6/12] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o
+[7/12] Linking C executable tests/test_fault_injection
+[8/12] Linking C executable tests/test_isolation_flow
+[9/12] Linking C executable tests/test_hypervisor_invariants
+[10/12] Linking C executable tests/demo_two_partition
+[11/12] Linking C executable tests/test_isolation_negative
+[12/12] Linking C executable tests/test_el2_exceptions

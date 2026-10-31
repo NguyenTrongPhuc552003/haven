@@ -1,0 +1,53 @@
+Test project /home/claude/b-bp
+      Start  1: test_core_stubs
+ 1/21 Test  #1: test_core_stubs ..................   Passed    0.00 sec
+      Start  2: test_smmu_dma
+ 2/21 Test  #2: test_smmu_dma ....................   Passed    0.00 sec
+      Start  3: test_stage2_attrs
+ 3/21 Test  #3: test_stage2_attrs ................   Passed    0.00 sec
+      Start  4: test_el2_exceptions
+ 4/21 Test  #4: test_el2_exceptions ..............   Passed    0.00 sec
+      Start  5: test_timer
+ 5/21 Test  #5: test_timer .......................   Passed    0.00 sec
+      Start  6: test_iommu_policy
+ 6/21 Test  #6: test_iommu_policy ................   Passed    0.00 sec
+      Start  7: test_guest_uart
+ 7/21 Test  #7: test_guest_uart ..................   Passed    0.00 sec
+      Start  8: test_freertos_integration
+ 8/21 Test  #8: test_freertos_integration ........   Passed    0.00 sec
+      Start  9: test_isolation_flow
+ 9/21 Test  #9: test_isolation_flow ..............   Passed    0.00 sec
+      Start 10: test_isolation_negative
+10/21 Test #10: test_isolation_negative ..........   Passed    0.00 sec
+      Start 11: test_fault_injection
+11/21 Test #11: test_fault_injection .............   Passed    0.00 sec
+      Start 12: test_secondary_cpu_isolation
+12/21 Test #12: test_secondary_cpu_isolation .....   Passed    0.00 sec
+      Start 13: test_smmu_hardware
+13/21 Test #13: test_smmu_hardware ...............   Passed    0.00 sec
+      Start 14: test_spatial_isolation
+14/21 Test #14: test_spatial_isolation ...........   Passed    0.00 sec
+      Start 15: test_temporal_isolation
+15/21 Test #15: test_temporal_isolation ..........   Passed    0.00 sec
+      Start 16: test_hypervisor_invariants
+16/21 Test #16: test_hypervisor_invariants .......   Passed    0.00 sec
+      Start 17: demo_two_partition
+17/21 Test #17: demo_two_partition ...............   Passed    0.00 sec
+      Start 18: bench_isolation_latency
+18/21 Test #18: bench_isolation_latency ..........   Passed    0.04 sec
+      Start 19: bench_temporal_isolation
+19/21 Test #19: bench_temporal_isolation .........***Timeout  10.01 sec
+      Start 20: bench_stage2_fault
+20/21 Test #20: bench_stage2_fault ...............   Passed    0.02 sec
+      Start 21: bench_smmu_policy
+21/21 Test #21: bench_smmu_policy ................   Passed    0.03 sec
+
+95% tests passed, 1 tests failed out of 21
+
+Total Test time (real) =  10.15 sec
+
+The following tests FAILED:
+	 19 - bench_temporal_isolation (Timeout)
+Errors while running CTest
+Output from these tests are in: /home/claude/b-bp/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.

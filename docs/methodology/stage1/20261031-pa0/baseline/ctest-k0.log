@@ -1,0 +1,243 @@
+Test project /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host
+      Start  1: test_core_stubs
+ 1/20 Test  #1: test_core_stubs ..................   Passed    0.33 sec
+      Start  2: test_smmu_dma
+ 2/20 Test  #2: test_smmu_dma ....................   Passed    0.32 sec
+      Start  3: test_el2_exceptions
+Could not find executable /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_el2_exceptions
+Looked in the following places:
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_el2_exceptions
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_el2_exceptions
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_el2_exceptions
+Unable to find executable: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_el2_exceptions
+ 3/20 Test  #3: test_el2_exceptions ..............***Not Run   0.00 sec
+      Start  4: test_timer
+ 4/20 Test  #4: test_timer .......................   Passed    0.34 sec
+      Start  5: test_iommu_policy
+ 5/20 Test  #5: test_iommu_policy ................   Passed    0.32 sec
+      Start  6: test_guest_uart
+ 6/20 Test  #6: test_guest_uart ..................   Passed    0.32 sec
+      Start  7: test_freertos_integration
+ 7/20 Test  #7: test_freertos_integration ........   Passed    0.33 sec
+      Start  8: test_isolation_flow
+Could not find executable /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_flow
+Looked in the following places:
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_flow
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_flow
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_flow
+Unable to find executable: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_flow
+ 8/20 Test  #8: test_isolation_flow ..............***Not Run   0.00 sec
+      Start  9: test_isolation_negative
+Could not find executable /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_negative
+Looked in the following places:
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_negative
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_negative
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_isolation_negative
+Unable to find executable: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_isolation_negative
+ 9/20 Test  #9: test_isolation_negative ..........***Not Run   0.00 sec
+      Start 10: test_fault_injection
+Could not find executable /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_fault_injection
+Looked in the following places:
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_fault_injection
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_fault_injection
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_fault_injection
+Unable to find executable: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_fault_injection
+10/20 Test #10: test_fault_injection .............***Not Run   0.00 sec
+      Start 11: test_secondary_cpu_isolation
+11/20 Test #11: test_secondary_cpu_isolation .....   Passed    0.32 sec
+      Start 12: test_smmu_hardware
+12/20 Test #12: test_smmu_hardware ...............   Passed    0.33 sec
+      Start 13: test_spatial_isolation
+13/20 Test #13: test_spatial_isolation ...........   Passed    0.33 sec
+      Start 14: test_temporal_isolation
+14/20 Test #14: test_temporal_isolation ..........   Passed    0.32 sec
+      Start 15: test_hypervisor_invariants
+Could not find executable /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_hypervisor_invariants
+Looked in the following places:
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_hypervisor_invariants
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_hypervisor_invariants
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/test_hypervisor_invariants
+Unable to find executable: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/test_hypervisor_invariants
+15/20 Test #15: test_hypervisor_invariants .......***Not Run   0.00 sec
+      Start 16: demo_two_partition
+Could not find executable /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/demo_two_partition
+Looked in the following places:
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/demo_two_partition
+/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Release/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Debug/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/MinSizeRel/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/RelWithDebInfo/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Deployment/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/demo_two_partition
+private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/Development/demo_two_partition
+Unable to find executable: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/tests/demo_two_partition
+16/20 Test #16: demo_two_partition ...............***Not Run   0.00 sec
+      Start 17: bench_isolation_latency
+17/20 Test #17: bench_isolation_latency ..........   Passed    0.36 sec
+      Start 18: bench_temporal_isolation
+18/20 Test #18: bench_temporal_isolation .........***Timeout  10.02 sec
+      Start 19: bench_stage2_fault
+19/20 Test #19: bench_stage2_fault ...............   Passed    0.37 sec
+      Start 20: bench_smmu_policy
+20/20 Test #20: bench_smmu_policy ................   Passed    0.36 sec
+
+65% tests passed, 7 tests failed out of 20
+
+Total Test time (real) =  14.37 sec
+
+The following tests FAILED:
+	  3 - test_el2_exceptions (Not Run)
+	  8 - test_isolation_flow (Not Run)
+	  9 - test_isolation_negative (Not Run)
+	 10 - test_fault_injection (Not Run)
+	 15 - test_hypervisor_invariants (Not Run)
+	 16 - demo_two_partition (Not Run)
+	 18 - bench_temporal_isolation (Timeout)
+Errors while running CTest
+Output from these tests are in: /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/build-host/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.

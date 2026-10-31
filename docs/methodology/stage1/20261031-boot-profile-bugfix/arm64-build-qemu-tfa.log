@@ -1,0 +1,6 @@
+/usr/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+   text	   data	    bss	    dec	    hex	filename
+  25853	     24	5173264	5199141	 4f5525	/sessions/rcw-01sw6z1g4rvkapvff62nxwzx/arm-qemu-tfa/haven.elf
+/usr/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+/usr/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+replay finished, fail=0
