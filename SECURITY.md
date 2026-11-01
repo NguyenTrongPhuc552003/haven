@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report security issues privately via GitHub Security Advisory or direct maintainer contact.
+Please report security issues privately by email to the maintainer (address in the Git commit history), not in a public issue.
 
 Provide:
 - Affected component

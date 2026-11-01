@@ -69,12 +69,13 @@ Full partition boot in QEMU is a Release 2 deliverable.
 
 ## CI Matrix
 
-QEMU validation runs in the CI pipeline (`ci.yml`) on every PR against
-`ubuntu-latest` with both `gcc` and `clang`. The nightly workflow
-(`nightly.yml`) additionally runs on macOS and Windows (WSL2).
+QEMU validation runs in Codeberg CI (`.forgejo/workflows/ci.yml`) on every
+push: a qemu-direct build boots on `cortex-a72` and `max`, and
+`scripts/qemu/qemu-direct-check.sh` checks the partition markers. The excerpt
+below is from the earlier GitHub workflow.
 
 ```yaml
-# .github/workflows/ci.yml (excerpt)
+# earlier GitHub workflow (excerpt, historical)
 strategy:
   matrix:
     compiler: [gcc, clang]

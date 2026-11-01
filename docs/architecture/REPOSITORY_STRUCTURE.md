@@ -4,7 +4,7 @@ This document defines the expected hierarchy and purpose of each area.
 
 ## Top level
 
-- .github/: issue templates and CI workflows.
+- .forgejo/: Codeberg CI workflows.
 - src/: hypervisor implementation.
 - include/: shared interfaces and headers.
 - configs/: static partition and platform configurations.

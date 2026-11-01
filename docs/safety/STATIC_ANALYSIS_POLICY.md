@@ -50,7 +50,6 @@ inter-procedural analysis and null-pointer dereference detection.
 
 Run on demand at milestone boundaries:
 
-- CodeQL: triggered via `github/codeql-action` on version tags
 - Coverity: manual submission at major milestone sign-off
 
 These are **advisory** - findings do not block merges but must be triaged within
@@ -167,7 +166,7 @@ At each milestone sign-off, the following coverage targets must be met:
 
 ## 8. CI Workflow Integration
 
-The static analysis CI gate is defined in `.github/workflows/static-analysis.yml`.
+Static analysis runs locally with `scripts/ci/static-analysis.sh`; it is not yet part of Codeberg CI.
 
 ### Current gate configuration
 

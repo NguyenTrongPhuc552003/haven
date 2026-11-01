@@ -68,6 +68,6 @@ TCB and is validated by the test suite.
 
 ## CI Integration
 
-The Coq proofs are checked in CI via `.github/workflows/ci.yml`.  Isabelle
-builds are run on demand (the full Isabelle image is large) and results are
-attached as workflow artefacts.
+The Coq proofs are checked locally with `coqc`; they are not yet part of
+Codeberg CI. Isabelle builds are run on demand (the full Isabelle image is
+large).

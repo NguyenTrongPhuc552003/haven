@@ -1,5 +1,9 @@
 # Haven: One-Year Master's Thesis Implementation Plan
 
+> Historical plan, written while the project was hosted on GitHub. The project
+> now lives on Codeberg; CI is in `.forgejo/workflows/ci.yml`. GitHub-specific
+> items below (workflows, templates, Pages, advisories) are not current.
+
 ## Context
 
 Haven is an EL2 static-partition hypervisor for heterogeneous AMP SoCs (Cortex-A + Cortex-M/R). The research question: *Can a minimal EL2 hypervisor enforce hard spatial and temporal isolation between Linux and RTOS on a real SoC, while remaining small enough for safety-certification analysis?*

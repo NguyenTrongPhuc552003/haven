@@ -1,5 +1,4 @@
-# Codeberg CI (Forgejo Actions). Forgejo reads .forgejo/workflows and ignores
-# .github/workflows, which stay for GitHub. Runner limits on Codeberg:
+# Codeberg CI (Forgejo Actions). Runner limits on Codeberg:
 # codeberg-small 2 CPU / 5 min, codeberg-medium 4 CPU / 10 min, amd64.
 name: ci
 

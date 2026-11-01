@@ -186,7 +186,7 @@ if [ "$DRY_RUN" -eq 0 ]; then
   "sha256sums_file": "SHA256SUMS",
   "slsa_level": 1,
   "builder": "scripts/release.sh",
-  "note": "SLSA L2/L3 deferred post-thesis. Keyless signing target via GitHub Actions OIDC."
+  "note": "SLSA L2/L3 deferred post-thesis."
 }
 EOF
 

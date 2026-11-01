@@ -112,15 +112,12 @@ To add a new benchmark:
 
 ## CI matrix explanation
 
-The CI pipeline (`.github/workflows/`) runs the following matrix:
+Codeberg CI (`.forgejo/workflows/ci.yml`) runs on every push:
 
-| Job            | Runner        | What it does                                        |
-| -------------- | ------------- | --------------------------------------------------- |
-| `host-tests`   | ubuntu-latest | CMake `host-tests` preset - builds and runs all tests via CTest |
-| `arm64-build`  | ubuntu-latest | CMake `arm64-qemu` preset - cross-compiles to ELF               |
-| `qemu-smoke`   | ubuntu-latest | `scripts/qemu-smoke.sh` - boots ELF in QEMU         |
-| `ci-preflight` | ubuntu-latest | `scripts/ci-preflight.sh` - lint, headers           |
-| `traceability` | ubuntu-latest | `scripts/check-traceability.sh` - requirement links |
+| Job            | Runner          | What it does                                                    |
+| -------------- | --------------- | --------------------------------------------------------------- |
+| `host-tests`   | codeberg-small  | CMake `host-tests` preset - builds and runs the tests via CTest |
+| `arm64-qemu`   | codeberg-medium | `arm64-qemu` preset (qemu-direct), then `scripts/qemu/qemu-direct-check.sh` on cortex-a72 and max |
 
 All jobs must pass for a PR to be mergeable. The `arm64-build` job does
 **not** run the test binaries (cross-compiled) - that is the role of

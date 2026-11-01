@@ -87,5 +87,5 @@ tools/scripts/qemu-run.sh [--config CONFIG_YAML] [--debug]
 ## Notes
 
 - Both scripts are idempotent: running them multiple times is safe.
-- For CI, `cross-compile.sh` is invoked by `.github/workflows/ci.yml`; manual
-  use is intended for local development on macOS or non-standard Linux setups.
+- CI cross-compiles with the CMake presets (`.forgejo/workflows/ci.yml`); this script
+  is intended for local development on macOS or non-standard Linux setups.

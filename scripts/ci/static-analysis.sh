@@ -2,7 +2,7 @@
 # scripts/ci/static-analysis.sh
 #
 # Run cppcheck + clang --analyze on core and driver modules.
-# Mirrors the checks performed by .github/workflows/static-analysis.yml.
+# Static analysis checks (cppcheck and compiler warnings), run locally.
 #
 # Usage:
 #   ./scripts/ci/static-analysis.sh          # analyse all targets

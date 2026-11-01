@@ -31,8 +31,6 @@ Hooks enforce:
 - commit-msg: conventional subject prefixes
 - pre-push: build and test verification
 
-## AI workflow conventions
+## Traceability
 
-- Read AGENTS.md for role-specific agent behavior.
-- Use .github/skills/thesis-evidence/SKILL.md at milestone boundaries.
 - Keep chapter traceability current for every completed milestone.

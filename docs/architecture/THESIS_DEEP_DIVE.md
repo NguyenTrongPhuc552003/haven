@@ -63,7 +63,7 @@ Expected proof style:
 | IRQ ownership | Deny-by-default ownership map with conflict rejection | `src/core/irq/ownership.c`, `tests/unit/test_core_stubs.c` | Bind ownership model to real GIC routing and boot-time policy loading |
 | Budget scheduler | Per-partition budget/period accounting with overrun denial | `src/core/sched/budget.c`, `tests/unit/test_core_stubs.c` | Add timer-driven period management and measured latency bounds under stress |
 | DMA isolation (SMMU) | StreamID and window policy model with overlap checks | `src/core/dma/smmu.c`, `tests/unit/test_smmu_dma.c` | Integrate with platform SMMU programming path and prove behavior on i.MX95 |
-| Validation process | CI, config checks, unit + integration tests operational | `.github/workflows/ci.yml`, `scripts/test.sh` | Expand board-backed campaigns and archive reproducible measurement artifacts |
+| Validation process | CI, config checks, unit + integration tests operational | `.forgejo/workflows/ci.yml`, `scripts/test.sh` | Expand board-backed campaigns and archive reproducible measurement artifacts |
 | Thesis evidence process | Traceability, roadmap, and templates exist | `docs/methodology/CHAPTER_TRACEABILITY.md`, `docs/methodology/IMX95_EVIDENCE_TEMPLATE.md` | Fill matrices with run-linked evidence and residual-risk closure |
 
 ## 5. Deep analysis of unfinished work (priority-ordered)

@@ -2,8 +2,8 @@
 
 **Hypervisor for Asymmetric Virtualization ENforcement and isolation**
 
-[![CI](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml/badge.svg)](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml)
-[![Docs](https://github.com/NguyenTrongPhuc552003/haven/actions/workflows/vercel.yml/badge.svg)](https://haven-tau-eight.vercel.app/)
+[![CI](https://codeberg.org/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml/badge.svg)](https://codeberg.org/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml)
+[![Docs](https://codeberg.org/NguyenTrongPhuc552003/haven/actions/workflows/vercel.yml/badge.svg)](https://haven-tau-eight.vercel.app/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.6.0-green.svg)](VERSION)
 [![Platform](https://img.shields.io/badge/platform-ARM64%20AArch64-lightgrey.svg)](configs/arm64/)
@@ -54,7 +54,7 @@ Haven is a static partition hypervisor research artifact that runs at **EL2** on
 **Prerequisites:** `gcc` or `clang`, `cmake` ≥ 3.22, `ninja-build`, `python3`, `qemu-system-aarch64` (optional)
 
 ```sh
-git clone https://github.com/NguyenTrongPhuc552003/haven.git
+git clone https://codeberg.org/NguyenTrongPhuc552003/haven.git
 cd haven
 ```
 
@@ -111,7 +111,7 @@ haven/
 ├── verification/       # Formal verification artifacts (Coq, Isabelle)
 ├── website/            # Astro Starlight documentation portal
 ├── scripts/            # Build, test, CI, and release automation
-└── .github/workflows/  # CI matrix (gcc/clang, QEMU smoke, Vercel deploy)
+└── .forgejo/workflows/ # Codeberg CI (host tests, ARM64 build, QEMU boot)
 ```
 
 **Key source modules:**
@@ -172,7 +172,6 @@ haven/
 | [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)                   | Community standards                 |
 | [`docs/safety/THREAT_MODEL.md`](docs/safety/THREAT_MODEL.md) | Adversary model and security claims |
 | [`docs/safety/ASSUMPTIONS.md`](docs/safety/ASSUMPTIONS.md)   | Hardware and platform assumptions   |
-| [`AGENTS.md`](AGENTS.md)                                     | AI agent roles and policies         |
 
 ---
 
