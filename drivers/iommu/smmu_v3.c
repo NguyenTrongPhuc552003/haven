@@ -93,7 +93,7 @@ static void ste_write_s2(uint32_t sid, uint64_t vttbr, uint32_t vmid)
 	ste[1] = 0;
 
 	/* Words 2-3: stage-2 attributes - VMID, IPA size, granule, AA64 flag.
-   * STE2_S2_ENCODE encodes: VMID, T0SZ=25 (39-bit IPA), SL0=1 (L2 start),
+   * STE2_S2_ENCODE encodes: VMID, T0SZ=25 (39-bit IPA), SL0=1 (level-1 start, as VTCR_EL2),
    * IRGN=1 (WB), ORGN=1 (WB), SH=3 (IS), TG=0 (4KB), PS=2 (40-bit PA),
    * AA64=1. */
 	ste[2] = STE2_S2_ENCODE(vmid);

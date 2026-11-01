@@ -44,8 +44,10 @@
  * Each partition has its own stage-2 table; they may share the same IPA
  * range (the current stage2.c only enforces *PA* non-overlap).
  *
- * Partition A: 512 MB  PA [0x40400000, 0x60400000)  IPA 0x40000000
- * Partition B:  64 MB  PA [0x60400000, 0x64400000)  IPA 0x40000000
+ * Partition A: 512 MB  PA [0x80800000, 0xA0800000)  IPA 0x40000000
+ *              2 MB    PA [0xA4C00000, 0xA4E00000)  IPA 0x70000000 (read-only)
+ * Partition B:  64 MB  PA [0xA0800000, 0xA4800000)  IPA 0x60000000
+ * (values for qemu-virt; see src/platform/qemu-virt/memory.h)
  * ----------------------------------------------------------------------- */
 
 static const struct hv_mem_region part_a_regions[] = {
@@ -64,6 +66,14 @@ static const struct hv_mem_region part_a_regions[] = {
 		.size = 0x1000UL, /* 4 KB MMIO page */
 		.attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */
 	},
+	/* Read-only Normal memory, never executable. Partition A does not
+	 * touch it; it lets read-back (A1) see write-permission drift. */
+	{
+		.ipa_base = PART_A_RO_IPA_BASE,
+		.pa_base = PART_A_RO_PA_BASE,
+		.size = PART_A_RO_SIZE,
+		.attrs = HV_MEM_R,
+	},
 };
 
 static const struct hv_mem_region part_b_regions[] = {
@@ -78,7 +88,7 @@ static const struct hv_mem_region part_b_regions[] = {
 static const struct hv_partition_mem part_a_mem_cfg = {
 	.partition_id = PARTITION_A_ID,
 	.regions = part_a_regions,
-	.region_count = 2U, /* DRAM + UART MMIO */
+	.region_count = 3U, /* DRAM + UART MMIO + read-only region */
 };
 
 static const struct hv_partition_mem part_b_mem_cfg = {

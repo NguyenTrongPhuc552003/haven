@@ -36,4 +36,12 @@
 #define SHARED_PA_BASE (PART_B_PA_BASE + PART_B_SIZE)
 #define SHARED_SIZE 0x00400000UL
 
+/* Partition A read-only region: 2 MB, one L2 block
+ * PA: [0xA4C00000, 0xA4E00000)  IPA: [0x70000000, 0x70200000)
+ * Granted read-only so that write-permission drift in the enforced stage-2
+ * tables is visible to read-back (A1). Partition A does not use it yet. */
+#define PART_A_RO_IPA_BASE 0x70000000UL
+#define PART_A_RO_PA_BASE (SHARED_PA_BASE + SHARED_SIZE)
+#define PART_A_RO_SIZE 0x00200000UL
+
 #endif /* HAVEN_PLATFORM_QEMU_VIRT_MEMORY_H */
