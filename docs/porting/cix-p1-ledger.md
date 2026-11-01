@@ -9,7 +9,7 @@ sources), S = single source or disputed.
 
 | # | Weakness | Ev. | Why it matters to HAVEN | How we test it (board) |
 | - | - | - | - | - |
-| 1 | GPU (ACPI `CIXH5000`) has no IORT/SMMU entry, so its DMA is untranslated | C | GPU DMA bypasses every stage-2/SMMU grant; a GPU partition must be identity-mapped and trusted. Direct A1 case: granted is not enforced | `acpidump`, `iasl -d` IORT; read SMMU stream tables from HAVEN |
+| 1 | GPU (ACPI `CIXH5000`) has no IORT/SMMU entry, so its DMA is untranslated | V (firmware source, see note) | GPU DMA bypasses every stage-2/SMMU grant; a GPU partition must be identity-mapped and trusted. Direct A1 case: granted is not enforced | `acpidump`, `iasl -d` IORT; read SMMU stream tables from HAVEN |
 | 2 | GPU access gated by an EL3 interconnect (IDM) grant; violations cause an EL3 RAS print storm that stalls all cores | C | EL3 can stall every partition; GPU security state is invisible at EL2 | GPU reset from a non-root partition, watch EL3 log |
 | 3 | SMMU0 event storm (`C_BAD_STREAMID`, ~130 IRQ/s) on some firmware; cause disputed | S | SMMU fault reporting unreliable; read-back must report `SMMU_CR0`, `STRTAB_BASE_CFG`, `GBPA` itself | Read both SMMUs per firmware version |
 | 4 | PCIe needs bypass stream entries at boot; enabling PRI causes a storm | C | Bypass entries are granted-but-unenforced DMA; must appear in read-back | Read STEs, list bypass entries |
@@ -32,6 +32,22 @@ sources), S = single source or disputed.
 | 21 | PCIe Gen4 freezes; x16 slot reportedly broken on some revisions | S | No discrete-GPU plans | n/a |
 | 22 | Firmware enters the OS at EL2 with VHE (`HCR_EL2.E2H` may be set) | S | Positive: HAVEN can start at EL2, but must handle E2H at entry | Dump `HCR_EL2`, `ID_AA64MMFR*` at HAVEN entry |
 | 23 | Armbian support alpha | S | Low | n/a |
+
+## Row 1 checked against vendor firmware source (2026-11-02)
+
+CIX UEFI source, `data/common/cix-bios/edk2-platforms` at `e5cb70f` ("CIX P1
+2026Q3 RC2.3 RELEASE"), `Platform/CIX/Sky1/Drivers/AcpiSocTables/`:
+
+- `Iort.aslc` declares 14 named components: `AEU0` to `AEU4`, `CBD0`, `CBD2`,
+  `DPU0` to `DPU4`, `ISPM`, `NPU0`. None is the GPU.
+- `Iort-NoSmmu.aslc`, the variant for firmware with the SMMU disabled,
+  declares no named component.
+- `Dsdt-GPU.asl` declares `Device (GPU)` with `_HID "CIXH5000"` and `_CCA 1`
+  (cache-coherent DMA master) and its own MMU interrupt.
+
+So under ACPI boot with this firmware release the GPU is a DMA master with no
+SMMU stream (reference fact). Still to confirm on a board: that its firmware is
+built from this release, and the device-tree boot path.
 
 ## GPU facts used by the thesis (source-derived)
 

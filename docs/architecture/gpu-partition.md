@@ -19,7 +19,7 @@ granted is not what is enforced. That is the A1 question on real hardware.
 | Fact | Evidence | Consequence |
 | - | - | - |
 | GPU is Arm Immortalis-G720 MC10 (arch v12, CSF) | [F] | Panthor (Linux 6.18+) or vendor kbase r54p1 |
-| GPU (ACPI `CIXH5000`) has no IORT entry and no IOMMU group | [S] | GPU DMA is untranslated; GPU partition must be trusted for DMA |
+| GPU (ACPI `CIXH5000`) has no IORT entry and no IOMMU group | [F] CIX firmware source, `Iort.aslc` (see ledger row 1 note) | GPU DMA is untranslated; GPU partition must be trusted for DMA |
 | GPU power, clocks and DVFS go through SCMI; DVFS churn can wedge the shared mailbox | [S] | The partition that owns the GPU should also own SCMI |
 | GPU access is gated by an EL3 interconnect grant (IDM) | [S] | GPU security state is invisible at EL2 |
 | Upstream Linux needs the CIX or Sky1-Linux patch set for GPU and display | [F] | Pin kernel 7.0 or 7.1 with CIX patches |
