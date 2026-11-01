@@ -9,10 +9,21 @@ HAVEN:
     stream table found through SMMU_STRTAB_BASE, plus every DMA-capable device
     QEMU emulates, classified as denied, translated, bypassed or unenforced
     (not behind any SMMU). Every stream entry that lets DMA through must be
-    granted, and a translated stream's reach (the partition's whole stage-2
-    map) is compared with the window the grant gives the device. Which buses sit behind the SMMU comes from QEMU's
-    own device tree, not from HAVEN.
+    granted. A translated stream's table is walked wherever S2TTB points:
+    a partition's root (the device then reaches that whole partition) or a
+    table of its own, which is attributed to the partition that owns the
+    physical memory it maps. Its reach, addresses and access rights are
+    compared with the window the grant gives the device. Which buses sit
+    behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
+
+Changes in v3 (after the SM1 to SM3 fixes): stream tables that are not a
+partition root are walked and attributed by memory ownership; window
+association and access are checked; the command queue registers are read and
+a queue error is a finding; --smmu-stage selects QEMU's SMMU model. QEMU 9.2
+and later give the virt machine's SMMU both stages ("nested", the default
+here; hw/arm/virt.c sets it and overrides -global); "1" and "2" use the
+virt-9.1 machine, whose SMMU honours the stage property (default stage 1).
 
 Changes from v1 (frozen in docs/methodology/stage1/20261101-a1-readback):
 the memory is read when partition A reaches its post-fault line or after a
@@ -21,7 +32,7 @@ SMMU read-back; extra QEMU devices; command-line options.
 
 Usage:
   readback.py BUILD GRANT.json OUT [--cpu CPU] [--nm NM] [--wait SECONDS]
-              [--device QEMU-DEVICE ...]
+              [--device QEMU-DEVICE ...] [--smmu-stage nested|1|2]
 Exit status: 0 = enforced state matches the grant, 1 = findings, 2 = probe failure.
 Needs qemu-system-aarch64, an aarch64 nm and dtc on PATH (or --nm).
 """
@@ -49,6 +60,7 @@ EXPECT = {  # portable attributes -> stage-2 fields (MM1 proposal, section 4)
     "DEVICE_R": {"s2ap": 1, "memattr": 0x1, "sh": 0, "xn": 2},
 }
 STE_CONFIG = {0: "abort", 4: "bypass", 5: "stage-1", 6: "stage-2", 7: "stage-1+2"}
+DMA_ACCESS = {"R": 1, "W": 2, "RW": 3}  # grant access -> S2AP of a DMA table
 MACHINE = "virt,virtualization=on,gic-version=3,iommu=smmuv3"
 
 
@@ -90,9 +102,12 @@ class QMP:
         return int(out.split()[-1], 16)
 
 
-def qemu_args(build, cpu, devices, extra):
-    args = ["qemu-system-aarch64", "-machine", MACHINE + extra, "-cpu", cpu, "-smp", "4",
+def qemu_args(build, cpu, devices, extra, smmu_stage="nested"):
+    machine = MACHINE if smmu_stage == "nested" else MACHINE.replace("virt,", "virt-9.1,", 1)
+    args = ["qemu-system-aarch64", "-machine", machine + extra, "-cpu", cpu, "-smp", "4",
             "-m", "2G", "-display", "none", "-nic", "none"]
+    if smmu_stage == "2":
+        args += ["-global", "arm-smmuv3.stage=2"]
     for d in devices:
         args += ["-device", d]
     return args + [
@@ -101,10 +116,10 @@ def qemu_args(build, cpu, devices, extra):
         "-device", f"loader,file={build}/guest_b.bin,addr=0xA0800000,force-raw=on"]
 
 
-def device_tree(build, cpu, devices, out):
+def device_tree(build, cpu, devices, out, smmu_stage):
     """QEMU's own hardware description for this machine (dumpdtb)."""
     dtb = os.path.join(out, "machine.dtb")
-    subprocess.run(qemu_args(build, cpu, devices, f",dumpdtb={dtb}"), capture_output=True, timeout=60)
+    subprocess.run(qemu_args(build, cpu, devices, f",dumpdtb={dtb}", smmu_stage), capture_output=True, timeout=60)
     dts = subprocess.run(["dtc", "-q", "-I", "dtb", "-O", "dts", dtb], capture_output=True, text=True).stdout
     open(os.path.join(out, "machine.dts"), "w").write(dts)
     return dts
@@ -116,7 +131,7 @@ def capture(args_ns, out):
     for p in (sock, uart):
         if os.path.exists(p):
             os.remove(p)
-    cmd = qemu_args(args_ns.build, args_ns.cpu, args_ns.device, "") + [
+    cmd = qemu_args(args_ns.build, args_ns.cpu, args_ns.device, "", args_ns.smmu_stage) + [
         "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait"]
     open(os.path.join(out, "qemu-command.txt"), "w").write(" ".join(cmd) + "\n")
     q = subprocess.Popen(cmd)
@@ -144,11 +159,13 @@ def capture(args_ns, out):
         snap["smmu"] = {
             "cr0": m.read32(SMMU_BASE + 0x20), "cr0ack": m.read32(SMMU_BASE + 0x24),
             "gbpa": m.read32(SMMU_BASE + 0x44), "strtab_base": m.read64(SMMU_BASE + 0x80),
-            "strtab_cfg": m.read32(SMMU_BASE + 0x88)}
+            "strtab_cfg": m.read32(SMMU_BASE + 0x88), "idr0": m.read32(SMMU_BASE + 0x0),
+            "gerror": m.read32(SMMU_BASE + 0x60), "cmdq_base": m.read64(SMMU_BASE + 0x90),
+            "cmdq_prod": m.read32(SMMU_BASE + 0x98), "cmdq_cons": m.read32(SMMU_BASE + 0x9C)}
         sm = snap["smmu"]
         if sm["cr0ack"] & 1:
             size = (1 << (sm["strtab_cfg"] & 0x3F)) * 64
-            base = sm["strtab_base"] & 0x3FFFFFFFFFFC0
+            base = sm["strtab_base"] & 0x000FFFFFFFFFFFC0
             stab = os.path.join(out, "stream-table.bin")
             m.cmd("pmemsave", val=base, size=size, filename=os.path.abspath(stab))
             snap["stream_table"] = open(stab, "rb").read()
@@ -278,7 +295,34 @@ def dma_masters(snap, pcie_maps):
     return masters
 
 
-def classify(master, snap, roots):
+def stream_table_reach(mem, ttb, parts):
+    """Walk a stream's own stage-2 table; attribute it to the partition whose
+    stage-2 map contains every physical range it maps (None if no single one)."""
+    leaves = []
+    walk(mem, ttb, 1, 0, leaves)
+    reach = coalesce(leaves)
+    owners = None
+    for r in reach:
+        own = {p for p, h in parts.items()
+               if any(x["pa"] <= r["pa"] and r["pa"] + r["size"] <= x["pa"] + x["size"] for x in h)}
+        owners = own if owners is None else owners & own
+    owner = next(iter(owners)) if owners and len(owners) == 1 else None
+    return reach, owner
+
+
+def resolve_ttb(ttb, roots, mem, parts):
+    """(partition or None, reach regions, kind) for a stream table base."""
+    part = next((p for p, r in roots.items() if r == ttb), None)
+    if part is not None:
+        return part, parts.get(part, []), "partition table"
+    try:
+        reach, owner = stream_table_reach(mem, ttb, parts)
+    except ValueError:
+        return None, [], "table outside the dumped image"
+    return owner, reach, "stream table"
+
+
+def classify(master, snap, roots, parts):
     sm = snap["smmu"]
     if not master["behind_smmu"]:
         return "unenforced", "no SMMU in the device's path"
@@ -297,9 +341,11 @@ def classify(master, snap, roots):
     if cfg == "bypass":
         return "bypassed", "STE bypass"
     if cfg in ("stage-2", "stage-1+2"):
-        ttb = w3 & 0x0000FFFFFFFFFFF0
-        part = next((p for p, r in roots.items() if r == ttb), None)
-        return f"translated:{part}" if part else "translated:unknown", f"STE {cfg}, S2TTB {ttb:#x}"
+        ttb = w3 & 0x000FFFFFFFFFFFF0
+        part, reach, kind = resolve_ttb(ttb, roots, snap["image"], parts)
+        size = sum(r["size"] for r in reach)
+        return (f"translated:{part}" if part is not None else "translated:unknown",
+                f"STE {cfg}, S2TTB {ttb:#x} ({kind}, {size:#x} bytes)")
     return cfg, f"STE {cfg}"
 
 
@@ -319,14 +365,18 @@ def ranges(sids):
     return ", ".join(out)
 
 
-def compare_smmu(snap, masters, expected, roots, h_by_part):
+def compare_smmu(snap, masters, expected, roots, parts):
     f, report = [], []
-    if bool(snap["smmu"]["cr0ack"] & 1) != expected.get("enabled", True):
-        f.append(("SMMU", "SMMU enable drift", f"CR0ACK={snap['smmu']['cr0ack']:#x}"))
+    sm = snap["smmu"]
+    if bool(sm["cr0ack"] & 1) != expected.get("enabled", True):
+        f.append(("SMMU", "SMMU enable drift", f"CR0ACK={sm['cr0ack']:#x}"))
+    if (sm["cmdq_cons"] >> 24) & 0x7F or sm["gerror"] & 1:
+        f.append(("SMMU", "SMMU command queue fault",
+                  f"CMDQ_CONS={sm['cmdq_cons']:#x} GERROR={sm['gerror']:#x}"))
     streams = {int(k): v for k, v in expected.get("streams", {}).items()}
     allowed = set(expected.get("allowed_unenforced", []))
     for m in masters:
-        state, why = classify(m, snap, roots)
+        state, why = classify(m, snap, roots, parts)
         report.append(dict(m, state=state, reason=why))
         if state == "unenforced":
             if m["device"] not in allowed:
@@ -346,20 +396,45 @@ def compare_smmu(snap, masters, expected, roots, h_by_part):
             if sid not in streams:
                 extra.append(sid)
                 continue
-            # Granted and translated: the device reaches the whole stage-2 map
-            # of the partition the entry points to; compare with the window.
+            # Granted and translated: compare what the device reaches through
+            # the table its entry points to with the granted window.
             win = streams[sid].get("window")
-            ttb = w3 & 0x0000FFFFFFFFFFF0
-            part = next((p for p, r in roots.items() if r == ttb), None)
+            ttb = w3 & 0x000FFFFFFFFFFFF0
+            part, reach, kind = resolve_ttb(ttb, roots, snap["image"], parts)
             if win and part is not None:
-                lo, size = int(win["ipa"], 16), int(win["size"], 16)
-                reach = sum(r["size"] for r in h_by_part.get(part, []))
-                if any(r["ipa"] < lo or r["ipa"] + r["size"] > lo + size for r in h_by_part.get(part, [])):
-                    f.append((f"SID {sid}", "DMA extent drift",
-                              f"granted window {lo:#x}+{size:#x}, enforced reach is partition {part}: {reach:#x} bytes"))
+                f += compare_window(sid, streams[sid], part, reach, kind, parts)
         if extra:
             f.append(("SMMU", "extra stream binding", f"{len(extra)} stream(s) not denied without a grant: SID {ranges(extra)}"))
     return f, report
+
+
+def compare_window(sid, grant, part, reach, kind, parts):
+    """A translated stream against its granted window. The window is in the
+    owning partition's address space (IOVA = IPA), so each DMA mapping must
+    lead to the physical address the partition's own stage-2 gives that IPA."""
+    f, name = [], f"SID {sid}"
+    lo, size = int(grant["window"]["ipa"], 16), int(grant["window"]["size"], 16)
+    total = sum(r["size"] for r in reach)
+    if any(r["ipa"] < lo or r["ipa"] + r["size"] > lo + size for r in reach):
+        f.append((name, "DMA extent drift",
+                  f"granted window {lo:#x}+{size:#x}, enforced reach ({kind}, partition {part}): {total:#x} bytes"))
+    cover = sum(max(0, min(r["ipa"] + r["size"], lo + size) - max(r["ipa"], lo)) for r in reach)
+    if cover < size:
+        f.append((name, "DMA missing binding", f"{cover:#x} of {size:#x} window bytes mapped"))
+    if kind != "stream table":
+        return f
+    want_ap = DMA_ACCESS[grant.get("access", "RW")]
+    for r in reach:
+        h = next((x for x in parts.get(part, [])
+                  if x["ipa"] <= r["ipa"] and r["ipa"] + r["size"] <= x["ipa"] + x["size"]), None)
+        if h is None or h["pa"] - h["ipa"] != r["pa"] - r["ipa"]:
+            f.append((name, "DMA association drift",
+                      f"IOVA {r['ipa']:#x} -> PA {r['pa']:#x}, partition {part} maps that IPA elsewhere"))
+        if r["s2ap"] != want_ap:
+            f.append((name, "DMA access drift", f"s2ap={r['s2ap']} expected {want_ap}"))
+        if r["af"] != 1:
+            f.append((name, "DMA access drift", "AF=0"))
+    return f
 
 
 # ---------------------------------------------------------------- main
@@ -372,6 +447,7 @@ def main():
     ap.add_argument("--nm", default=shutil.which("aarch64-unknown-linux-gnu-nm") or shutil.which("aarch64-linux-gnu-nm"))
     ap.add_argument("--wait", type=float, default=15)
     ap.add_argument("--device", action="append", default=[])
+    ap.add_argument("--smmu-stage", default="nested", choices=["nested", "1", "2"])
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     grant = json.load(open(a.grant))
@@ -404,18 +480,20 @@ def main():
             if p1 != p2 and a1 < a2 + s2 and a2 < a1 + s1:
                 findings.append(("*", "cross-partition alias", f"PA {max(a1, a2):#x} reachable from {p1} and {p2}"))
     if "smmu" in grant:
-        pcie_maps, mmio_with_iommu = dt_smmu_coverage(device_tree(a.build, a.cpu, a.device, a.out))
+        pcie_maps, mmio_with_iommu = dt_smmu_coverage(device_tree(a.build, a.cpu, a.device, a.out, a.smmu_stage))
         masters = dma_masters(snap, pcie_maps)
-        h_by_part = {int(p): [{"ipa": int(x["ipa"], 16), "size": int(x["size"], 16)} for x in d["H"]]
-                     for p, d in report["partitions"].items()}
-        f, rep = compare_smmu(snap, masters, grant["smmu"], roots, h_by_part)
+        parts = {int(p): [{k: int(x[k], 16) for k in ("ipa", "pa", "size")} for x in d["H"]]
+                 for p, d in report["partitions"].items()}
+        f, rep = compare_smmu(snap, masters, grant["smmu"], roots, parts)
         findings += f
         sm = snap["smmu"]
         report["smmu"] = {k: hex(v) for k, v in sm.items()}
         report["dma_masters"] = rep
         print(f"SMMU enabled={bool(sm['cr0ack'] & 1)} GBPA={sm['gbpa']:#x} "
-              f"stream table {sm['strtab_base'] & 0x3FFFFFFFFFFC0:#x}, {1 << (sm['strtab_cfg'] & 0x3F)} entries; "
+              f"stream table {sm['strtab_base'] & 0x000FFFFFFFFFFFC0:#x}, {1 << (sm['strtab_cfg'] & 0x3F)} entries; "
               f"virtio-mmio nodes behind an SMMU in the device tree: {mmio_with_iommu}")
+        print(f"SMMU IDR0={sm['idr0']:#x} (S2P={sm['idr0'] & 1}) CMDQ_BASE={sm['cmdq_base']:#x} "
+              f"PROD={sm['cmdq_prod']:#x} CONS={sm['cmdq_cons']:#x} GERROR={sm['gerror']:#x}")
         for m in rep:
             print(f"  DMA {m['device']:<22} {m['bus']:<16} SID={m['sid']} -> {m['state']} ({m['reason']})")
     report["findings"] = findings
