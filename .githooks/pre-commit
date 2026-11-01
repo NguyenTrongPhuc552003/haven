@@ -11,7 +11,12 @@ echo "[hook:pre-commit] running config checks"
 ./scripts/compile/check-configs.sh
 
 echo "[hook:pre-commit] fixing em-dashes"
+# Re-stage only the files that were already staged, so unrelated work in
+# progress never slips into the commit.
+staged=$(git diff --cached --name-only --diff-filter=ACM)
 ./scripts/dev/fix-emdash.sh
-git diff --name-only | xargs -r git add
+printf "%s\n" "$staged" | while IFS= read -r f; do
+	[ -n "$f" ] && [ -f "$f" ] && git add -- "$f"
+done
 
 echo "[hook:pre-commit] ok"
