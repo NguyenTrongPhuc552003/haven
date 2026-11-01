@@ -1,0 +1,11 @@
+read at: marker
+partition 1 root=0x80009000
+  H ipa=0x009000000 pa=0x009000000 size=0x00001000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+  H ipa=0x040000000 pa=0x080800000 size=0x20000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+partition 2 root=0x8000d000
+  H ipa=0x060000000 pa=0x0a0800000 size=0x04000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+SMMU enabled=True GBPA=0x1000 stream table 0x80418000, 256 entries; virtio-mmio nodes behind an SMMU in the device tree: 0
+  DMA pci-1af4:1005          pci 00:01.0      SID=8 -> bypassed (STE bypass)
+  FINDING pci-1af4:1005: DMA enforcement drift (pci 00:01.0 SID 8: bypassed (STE bypass), expected denied)
+RESULT 1 finding(s)
+exit=1
