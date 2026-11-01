@@ -27,9 +27,23 @@ extern "C" {
 #endif
 
 /**
- * Maximum number of devices that can be managed via SMMU.
+ * Maximum number of StreamIDs bound to partitions at the same time.
  */
 #define HV_MAX_SMMU_DEVICES 64
+
+/**
+ * Size of the StreamID space: hardware StreamIDs 0 to HV_MAX_SMMU_STREAMS - 1
+ * can be bound.  Matches the driver's linear stream table
+ * (drivers/iommu/smmu_v3.c, SMMU_MAX_STREAMS).
+ */
+#define HV_MAX_SMMU_STREAMS 256
+
+/**
+ * VMIDs that tag the SMMU TLB entries of DMA windows: one per configured
+ * stream, HV_SMMU_DMA_VMID_BASE to HV_SMMU_DMA_VMID_BASE +
+ * HV_MAX_SMMU_DEVICES - 1 (0xC0 to 0xFF, fits an 8-bit VMID).
+ */
+#define HV_SMMU_DMA_VMID_BASE 0xC0
 
 /**
  * Maximum StreamIDs per partition (for multi-function devices).
@@ -84,8 +98,10 @@ hv_status_t hv_smmu_init(void);
 /**
  * Allocate StreamID for a device.
  *
- * Reserves a StreamID for a new device, assigning it to a partition.
- * Each StreamID maps to a unique device in the system.
+ * Reserves the lowest free StreamID and assigns it to a partition.  Haven
+ * chooses the number, so it matches a real device only by coincidence: use
+ * it for policy tests, and hv_smmu_assign_streamid() for hardware devices.
+ * configure programs the stream table entry of whatever ID this returns.
  *
  * @param partition    Partition ID to own this device
  * @param streamid     Output: allocated StreamID
@@ -95,6 +111,22 @@ hv_status_t hv_smmu_init(void);
  * @return HV_ENOSPC if max devices reached (HV_MAX_SMMU_DEVICES)
  */
 hv_status_t hv_smmu_allocate_streamid(hv_u32 partition, hv_u16 *streamid);
+
+/**
+ * Bind a device's hardware StreamID to a partition.
+ *
+ * The StreamID comes from the platform description (device tree iommus /
+ * iommu-map, or ACPI IORT), not from Haven.
+ *
+ * @param partition    Partition ID to own this device
+ * @param hw_streamid  The device's StreamID as the SMMU sees it
+ *
+ * @return HV_OK on success
+ * @return HV_EINVAL if partition or hw_streamid is out of range
+ * @return HV_EPERM if hw_streamid is already bound
+ * @return HV_ENOSPC if HV_MAX_SMMU_DEVICES StreamIDs are already bound
+ */
+hv_status_t hv_smmu_assign_streamid(hv_u32 partition, hv_u16 hw_streamid);
 
 /**
  * Configure DMA window for a device.

@@ -17,6 +17,7 @@ enum {
 	HV_EPERM = -1,
 	HV_ENOMEM = -12,
 	HV_ENOSPC = -28,
+	HV_EIO = -5, /* hardware did not complete a request */
 	HV_ENOTSUP = -95
 };
 

@@ -41,6 +41,14 @@ static uint32_t pt_pool_next; /* next free page index */
 /* Per-partition L1 root table pointer (NULL = partition not initialized) */
 static hv_pt_page_t *pt_roots[HV_ARCH_MAX_PARTITIONS];
 
+/* Per-stream DMA root tables, indexed by hardware StreamID (NULL = none yet).
+ * Each maps only that stream's DMA window; the SMMU walks it in place of a
+ * partition's table, so a device never reaches the rest of its partition.
+ * Same walk format as pt_roots (4KB granule, 39-bit IPA, level-1 start). */
+#define HV_ARCH_MAX_DMA_STREAMS 256
+#define HV_ARCH_IPA_LIMIT (1ULL << 39)
+static hv_pt_page_t *dma_roots[HV_ARCH_MAX_DMA_STREAMS];
+
 /* -----------------------------------------------------------------------
  * Internal helpers
  * ----------------------------------------------------------------------- */
@@ -99,25 +107,15 @@ hv_status_t hv_arch_stage2_init_partition(uint32_t partition_id)
  *
  * Returns HV_OK on success, HV_ENOMEM if page-table pool exhausted.
  * ----------------------------------------------------------------------- */
-hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
-			       uint64_t size, uint32_t flags)
+/* Map [ipa, ipa + size) to [pa, ...) in the table rooted at l1 with the given
+ * descriptor attribute bits (S2AP, MemAttr, SH, XN).  Shared by partition
+ * and per-stream DMA tables. */
+static hv_status_t s2_map_table(hv_pt_page_t *l1, uint64_t ipa, uint64_t pa,
+				uint64_t size, uint64_t hw_attrs)
 {
-	if (partition_id == 0 || partition_id >= HV_ARCH_MAX_PARTITIONS)
-		return HV_EINVAL;
-	if (pt_roots[partition_id] == NULL)
-		return HV_EINVAL;
-	if ((ipa & (HV_PAGE_SIZE - 1)) || (pa & (HV_PAGE_SIZE - 1)) ||
-	    (size & (HV_PAGE_SIZE - 1)))
-		return HV_EINVAL;
-
-	hv_pt_page_t *l1 = pt_roots[partition_id];
 	uint64_t cur_ipa = ipa;
 	uint64_t cur_pa = pa;
 	uint64_t end_ipa = ipa + size;
-
-	/* Translate portable bits to S2AP, MemAttr, SH and XN once
-	 * (same for all pages in the region). */
-	uint64_t hw_attrs = hv_s2_hw_attrs(flags);
 
 	while (cur_ipa < end_ipa) {
 		uint32_t l1_idx = s2_l1_index(cur_ipa);
@@ -175,21 +173,31 @@ hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
 	return HV_OK;
 }
 
+hv_status_t hv_arch_stage2_map(uint32_t partition_id, uint64_t ipa, uint64_t pa,
+			       uint64_t size, uint32_t flags)
+{
+	if (partition_id == 0 || partition_id >= HV_ARCH_MAX_PARTITIONS)
+		return HV_EINVAL;
+	if (pt_roots[partition_id] == NULL)
+		return HV_EINVAL;
+	if ((ipa & (HV_PAGE_SIZE - 1)) || (pa & (HV_PAGE_SIZE - 1)) ||
+	    (size & (HV_PAGE_SIZE - 1)))
+		return HV_EINVAL;
+
+	/* Translate portable bits to S2AP, MemAttr, SH and XN once
+	 * (same for all pages in the region). */
+	return s2_map_table(pt_roots[partition_id], ipa, pa, size,
+			    hv_s2_hw_attrs(flags));
+}
+
 /* -----------------------------------------------------------------------
  * hv_arch_stage2_unmap - remove all mappings for a partition (full teardown).
  *
  * Does not free page-table pages (static pool without free support).
  * Marks all L3 descriptors as invalid; L1/L2 tables remain but are harmless.
  * ----------------------------------------------------------------------- */
-hv_status_t hv_arch_stage2_unmap(uint32_t partition_id, uint64_t ipa,
-				 uint64_t size)
+static void s2_unmap_table(hv_pt_page_t *l1, uint64_t ipa, uint64_t size)
 {
-	if (partition_id == 0 || partition_id >= HV_ARCH_MAX_PARTITIONS)
-		return HV_EINVAL;
-	if (pt_roots[partition_id] == NULL)
-		return HV_OK; /* Nothing to unmap */
-
-	hv_pt_page_t *l1 = pt_roots[partition_id];
 	uint64_t cur_ipa = ipa;
 	uint64_t end_ipa = ipa + size;
 
@@ -229,6 +237,78 @@ hv_status_t hv_arch_stage2_unmap(uint32_t partition_id, uint64_t ipa,
 	}
 
 	dsb_sy();
+}
+
+hv_status_t hv_arch_stage2_unmap(uint32_t partition_id, uint64_t ipa,
+				 uint64_t size)
+{
+	if (partition_id == 0 || partition_id >= HV_ARCH_MAX_PARTITIONS)
+		return HV_EINVAL;
+	if (pt_roots[partition_id] == NULL)
+		return HV_OK; /* Nothing to unmap */
+
+	s2_unmap_table(pt_roots[partition_id], ipa, size);
+	return HV_OK;
+}
+
+/* -----------------------------------------------------------------------
+ * hv_arch_dma_context_map - build the DMA translation table of one stream.
+ *
+ * Maps exactly [iova, iova + size) to [pa, pa + size) in the stream's own
+ * table, as Normal write-back inner-shareable memory, never executable,
+ * with S2AP taken from the access rights (1 read, 2 write, 3 both: the
+ * hv_dma_access_t values and the S2AP[1:0] encoding coincide).
+ *
+ * sid:    hardware StreamID (< HV_ARCH_MAX_DMA_STREAMS)
+ * vmid:   VMID for the SMMU TLB; encoded into *vttbr
+ * vttbr:  out, VTTBR-format value (table base | VMID) for STE.S2TTB
+ *
+ * The caller (src/core/dma/smmu.c) has checked that [pa, pa + size) lies in
+ * the owning partition.  On failure nothing stays mapped.
+ * ----------------------------------------------------------------------- */
+hv_status_t hv_arch_dma_context_map(uint32_t sid, uint64_t iova, uint64_t pa,
+				    uint64_t size, uint32_t access,
+				    uint32_t vmid, uint64_t *vttbr)
+{
+	hv_status_t rc;
+
+	if (sid >= HV_ARCH_MAX_DMA_STREAMS || vttbr == NULL || size == 0 ||
+	    access == 0 || access > 3U)
+		return HV_EINVAL;
+	if ((iova & (HV_PAGE_SIZE - 1)) || (pa & (HV_PAGE_SIZE - 1)) ||
+	    (size & (HV_PAGE_SIZE - 1)))
+		return HV_EINVAL;
+	if (iova >= HV_ARCH_IPA_LIMIT || size > HV_ARCH_IPA_LIMIT - iova)
+		return HV_EINVAL; /* beyond the 39-bit input range of the walk */
+
+	if (dma_roots[sid] == NULL) {
+		dma_roots[sid] = pt_alloc();
+		if (dma_roots[sid] == NULL)
+			return HV_ENOMEM;
+	}
+
+	rc = s2_map_table(dma_roots[sid], iova, pa, size,
+			  (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS |
+				     S2_XN_NEVER) |
+				  ((uint64_t)access << S2AP_SHIFT));
+	if (rc != HV_OK) {
+		s2_unmap_table(dma_roots[sid], iova, size);
+		return rc;
+	}
+
+	*vttbr = vttbr_encode(pt_pa(dma_roots[sid]), vmid);
+	return HV_OK;
+}
+
+/* hv_arch_dma_context_unmap - remove a stream's window mappings.  The table
+ * pages stay allocated (static pool) and are reused by the next window. */
+hv_status_t hv_arch_dma_context_unmap(uint32_t sid, uint64_t iova,
+				      uint64_t size)
+{
+	if (sid >= HV_ARCH_MAX_DMA_STREAMS)
+		return HV_EINVAL;
+	if (dma_roots[sid] != NULL)
+		s2_unmap_table(dma_roots[sid], iova, size);
 	return HV_OK;
 }
 
@@ -280,9 +360,9 @@ uint32_t hv_arch_stage2_pool_free_pages(void)
 /*
  * hv_arch_stage2_vttbr - return the VTTBR_EL2 value for a partition.
  *
- * Used by the SMMU driver to program STE.S2TTB with the same stage-2
- * table that the CPU's VTTBR_EL2 uses, ensuring DMA and CPU translations
- * are coherent for the same partition VMID.
+ * Diagnostics and tests.  The SMMU no longer uses partition tables: each
+ * DMA stream gets its own table (hv_arch_dma_context_map) so that a device
+ * reaches only its granted window.
  *
  * Returns 0 if the partition has no stage-2 table yet.
  */

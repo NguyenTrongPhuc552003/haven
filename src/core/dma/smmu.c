@@ -10,17 +10,23 @@
 #include <haven/types.h>
 #ifdef HAVEN_ARCH_ARM64
 #include "drivers/iommu/smmu_v3.h"
-/* Query function from arch/arm64/mm.c */
-extern uint64_t hv_arch_stage2_vttbr(uint32_t partition_id, uint32_t vmid);
+/* Per-stream DMA translation tables, arch/arm64/mm.c */
+extern hv_status_t hv_arch_dma_context_map(uint32_t sid, uint64_t iova,
+					   uint64_t pa, uint64_t size,
+					   uint32_t access, uint32_t vmid,
+					   uint64_t *vttbr);
+extern hv_status_t hv_arch_dma_context_unmap(uint32_t sid, uint64_t iova,
+					     uint64_t size);
 #endif
 
 /**
- * Internal state tracking for SMMU.
+ * Internal state tracking for SMMU.  Indexed by hardware StreamID.
  */
 static struct {
-	hv_u16 streamid_to_partition[HV_MAX_SMMU_DEVICES];
+	hv_u16 streamid_to_partition[HV_MAX_SMMU_STREAMS];
 	hv_u16 streamid_count;
-	int streamid_allocated[HV_MAX_SMMU_DEVICES];
+	int streamid_allocated[HV_MAX_SMMU_STREAMS];
+	int dma_vmid_used[HV_MAX_SMMU_DEVICES];
 } smmu_state = {
 	.streamid_count = 0,
 	.streamid_allocated = {0},
@@ -37,8 +43,9 @@ static struct {
 	hv_u64 dma_base;
 	hv_u64 dma_size;
 	hv_u64 phys_base;
+	hv_u32 vmid; /* SMMU TLB tag of this window */
 	int configured;
-} device_dma_config[HV_MAX_SMMU_DEVICES] = {0};
+} device_dma_config[HV_MAX_SMMU_STREAMS] = {0};
 
 /**
  * Check if two DMA windows overlap.
@@ -113,6 +120,47 @@ hv_status_t hv_smmu_allocate_streamid(hv_u32 partition, hv_u16 *streamid)
 	return HV_ENOSPC;
 }
 
+hv_status_t hv_smmu_assign_streamid(hv_u32 partition, hv_u16 hw_streamid)
+{
+	if (partition >= HV_MAX_SMMU_PARTITIONS ||
+	    hw_streamid >= HV_MAX_SMMU_STREAMS) {
+		return HV_EINVAL;
+	}
+
+	if (smmu_state.streamid_allocated[hw_streamid]) {
+		return HV_EPERM;
+	}
+
+	if (smmu_state.streamid_count >= HV_MAX_SMMU_DEVICES) {
+		return HV_ENOSPC;
+	}
+
+	smmu_state.streamid_allocated[hw_streamid] = 1;
+	smmu_state.streamid_to_partition[hw_streamid] = (hv_u16)partition;
+	smmu_state.streamid_count++;
+	return HV_OK;
+}
+
+/* Take a free DMA VMID slot; returns the VMID, or 0 if none is free. */
+static hv_u32 dma_vmid_take(void)
+{
+	for (hv_u32 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+		if (!smmu_state.dma_vmid_used[i]) {
+			smmu_state.dma_vmid_used[i] = 1;
+			return HV_SMMU_DMA_VMID_BASE + i;
+		}
+	}
+	return 0;
+}
+
+static void dma_vmid_put(hv_u32 vmid)
+{
+	if (vmid >= HV_SMMU_DMA_VMID_BASE &&
+	    vmid < HV_SMMU_DMA_VMID_BASE + HV_MAX_SMMU_DEVICES) {
+		smmu_state.dma_vmid_used[vmid - HV_SMMU_DMA_VMID_BASE] = 0;
+	}
+}
+
 hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
 					 hv_u64 dma_size, hv_u64 phys_base,
 					 hv_dma_access_t access)
@@ -121,7 +169,7 @@ hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
 		return HV_EINVAL;
 	}
 
-	if (streamid >= HV_MAX_SMMU_DEVICES) {
+	if (streamid >= HV_MAX_SMMU_STREAMS) {
 		return HV_EINVAL;
 	}
 
@@ -151,7 +199,7 @@ hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
 	}
 
 	/* Check for DMA window overlap with other devices. */
-	for (hv_u16 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+	for (hv_u16 i = 0; i < HV_MAX_SMMU_STREAMS; i++) {
 		if (i == streamid || !device_dma_config[i].configured) {
 			continue;
 		}
@@ -163,6 +211,36 @@ hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
 		}
 	}
 
+	hv_u32 vmid = dma_vmid_take();
+	if (vmid == 0) {
+		return HV_ENOSPC;
+	}
+
+#ifdef HAVEN_ARCH_ARM64
+	/* Bind hardware before committing state: build a stage-2 table for
+	 * this stream that maps exactly [dma_base, dma_base + dma_size) to
+	 * [phys_base, ...) with the granted access, then point the stream's
+	 * STE at it.  The device reaches nothing else, not even the rest of
+	 * its partition. */
+	{
+		uint64_t vttbr;
+		hv_status_t rc = hv_arch_dma_context_map(streamid, dma_base,
+							 phys_base, dma_size,
+							 (uint32_t)access, vmid,
+							 &vttbr);
+		if (rc == HV_OK) {
+			rc = smmu_v3_set_ste_partition(streamid, vttbr, vmid);
+		}
+		if (rc != HV_OK) {
+			(void)smmu_v3_set_ste_abort(streamid);
+			(void)hv_arch_dma_context_unmap(streamid, dma_base,
+							dma_size);
+			dma_vmid_put(vmid);
+			return rc;
+		}
+	}
+#endif
+
 	/* Store configuration. */
 	device_dma_config[streamid].streamid = streamid;
 	device_dma_config[streamid].partition =
@@ -171,25 +249,17 @@ hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
 	device_dma_config[streamid].dma_base = dma_base;
 	device_dma_config[streamid].dma_size = dma_size;
 	device_dma_config[streamid].phys_base = phys_base;
+	device_dma_config[streamid].vmid = vmid;
 	device_dma_config[streamid].configured = 1;
-
-#ifdef HAVEN_ARCH_ARM64
-	/* Bind hardware: program STE with partition's stage-2 table.
-   * VMID equals partition ID (Haven's static assignment convention). */
-	{
-		uint32_t partition = smmu_state.streamid_to_partition[streamid];
-		uint64_t vttbr = hv_arch_stage2_vttbr(partition, partition);
-		if (vttbr != 0)
-			smmu_v3_set_ste_partition(streamid, vttbr, partition);
-	}
-#endif
 
 	return HV_OK;
 }
 
 hv_status_t hv_smmu_revoke_dma_access(hv_u16 streamid)
 {
-	if (streamid >= HV_MAX_SMMU_DEVICES) {
+	hv_status_t rc = HV_OK;
+
+	if (streamid >= HV_MAX_SMMU_STREAMS) {
 		return HV_EINVAL;
 	}
 
@@ -201,6 +271,16 @@ hv_status_t hv_smmu_revoke_dma_access(hv_u16 streamid)
 		return HV_EPERM; /* Already revoked or never configured */
 	}
 
+#ifdef HAVEN_ARCH_ARM64
+	/* Deny first, then take the window's mappings away.  HV_EIO means the
+	 * SMMU did not confirm the invalidation; ownership is still revoked. */
+	rc = smmu_v3_set_ste_abort(streamid);
+	(void)hv_arch_dma_context_unmap(streamid,
+					device_dma_config[streamid].dma_base,
+					device_dma_config[streamid].dma_size);
+#endif
+	dma_vmid_put(device_dma_config[streamid].vmid);
+
 	/* Clear configuration. */
 	memset(&device_dma_config[streamid], 0, sizeof(device_dma_config[0]));
 	smmu_state.streamid_allocated[streamid] = 0;
@@ -209,12 +289,7 @@ hv_status_t hv_smmu_revoke_dma_access(hv_u16 streamid)
 		smmu_state.streamid_count--;
 	}
 
-#ifdef HAVEN_ARCH_ARM64
-	/* Revert STE to ABORT - DMA from this StreamID is now denied. */
-	smmu_v3_set_ste_abort(streamid);
-#endif
-
-	return HV_OK;
+	return rc;
 }
 
 hv_status_t hv_smmu_get_device_dma(hv_u16 streamid, hv_device_dma_t *dma_info)
@@ -223,7 +298,7 @@ hv_status_t hv_smmu_get_device_dma(hv_u16 streamid, hv_device_dma_t *dma_info)
 		return HV_EINVAL;
 	}
 
-	if (streamid >= HV_MAX_SMMU_DEVICES) {
+	if (streamid >= HV_MAX_SMMU_STREAMS) {
 		return HV_EINVAL;
 	}
 
@@ -247,7 +322,7 @@ hv_status_t hv_smmu_get_device_dma(hv_u16 streamid, hv_device_dma_t *dma_info)
 hv_status_t hv_smmu_check_dma_access(hv_u16 streamid, hv_u64 dma_addr,
 				     hv_u64 size, hv_dma_access_t access)
 {
-	if (streamid >= HV_MAX_SMMU_DEVICES) {
+	if (streamid >= HV_MAX_SMMU_STREAMS) {
 		return HV_EINVAL;
 	}
 
@@ -293,7 +368,7 @@ hv_status_t hv_smmu_reset_partition(hv_u32 partition)
 	 * (e.g., one whose configure call was rejected due to a PA overlap)
 	 * must not persist after a partition reset - it would otherwise leak
 	 * quota from the global StreamID pool. */
-	for (hv_u16 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+	for (hv_u16 i = 0; i < HV_MAX_SMMU_STREAMS; i++) {
 		if (!smmu_state.streamid_allocated[i] ||
 		    smmu_state.streamid_to_partition[i] != partition) {
 			continue;

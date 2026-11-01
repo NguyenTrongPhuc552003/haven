@@ -22,11 +22,15 @@ hv_status_t smmu_v3_init(uintptr_t base, uint32_t nr_streams);
 
 /*
  * smmu_v3_set_ste_partition - enable stage-2 translation for a StreamID.
- * DMA from this device is now gated by the partition's stage-2 table.
+ * DMA from this device is now gated by the given stage-2 table (the stream's
+ * own window table, built by hv_arch_dma_context_map()).
  *
  * @sid:   StreamID (must be < nr_streams)
- * @vttbr: VTTBR_EL2 value (stage-2 table base + VMID)
- * @vmid:  Partition VMID
+ * @vttbr: VTTBR_EL2-format value (stage-2 table base + VMID)
+ * @vmid:  VMID tagging this stream's SMMU TLB entries (non-zero)
+ *
+ * Returns HV_ENOTSUP if the SMMU has no stage 2, HV_EIO if the SMMU did not
+ * complete the invalidation.
  */
 hv_status_t smmu_v3_set_ste_partition(uint32_t sid, uint64_t vttbr,
 				      uint32_t vmid);

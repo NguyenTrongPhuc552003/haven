@@ -91,18 +91,30 @@
 #define CR0_VMW (1U << 6) /* Virtual Machine Watchdog */
 #define CR0_TRANSLATIONEN (CR0_SMMU_ENABLE)
 
-/* SMMU_CR1 bits */
-#define CR1_SIF (1U << 0) /* Secure Instruction Fetch */
-#define CR1_CMDQ_SH_SHIFT 4
-#define CR1_CMDQ_SH_IS (3U << 4) /* Inner Shareable Command Queue */
-#define CR1_CMDQ_OC_WB (1U << 6) /* Write-back cacheable Command Queue */
-#define CR1_CMDQ_IC_WB (1U << 8) /* Instruction cacheable Command Queue */
-#define CR1_EVTQ_SH_IS (3U << 10) /* Inner Shareable Event Queue */
-#define CR1_EVTQ_OC_WB (1U << 12)
-#define CR1_EVTQ_IC_WB (1U << 14)
-#define CR1_STAB_SH_IS (3U << 16) /* Inner Shareable Stream Table */
-#define CR1_STAB_OC_WB (1U << 18)
-#define CR1_STAB_IC_WB (1U << 20)
+/* SMMU_CR1 fields: cacheability and shareability of the SMMU's own accesses
+ * to its queues and to the stream table and translation tables.  Layout as in
+ * Linux drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h (CR1_TABLE_SH [11:10],
+ * TABLE_OC [9:8], TABLE_IC [7:6], QUEUE_SH [5:4], QUEUE_OC [3:2],
+ * QUEUE_IC [1:0]).  Cache encoding: 0 non-cacheable, 1 write-back,
+ * 2 write-through.  Shareability: 0 non, 2 outer, 3 inner. */
+#define CR1_QUEUE_IC_SHIFT 0
+#define CR1_QUEUE_OC_SHIFT 2
+#define CR1_QUEUE_SH_SHIFT 4
+#define CR1_TABLE_IC_SHIFT 6
+#define CR1_TABLE_OC_SHIFT 8
+#define CR1_TABLE_SH_SHIFT 10
+#define CR1_CACHE_WB 1U
+#define CR1_SH_ISH 3U
+#define CR1_WB_ISH                              \
+	((CR1_CACHE_WB << CR1_QUEUE_IC_SHIFT) | \
+	 (CR1_CACHE_WB << CR1_QUEUE_OC_SHIFT) | \
+	 (CR1_SH_ISH << CR1_QUEUE_SH_SHIFT) |   \
+	 (CR1_CACHE_WB << CR1_TABLE_IC_SHIFT) | \
+	 (CR1_CACHE_WB << CR1_TABLE_OC_SHIFT) | \
+	 (CR1_SH_ISH << CR1_TABLE_SH_SHIFT))
+
+/* SMMU_GERROR bits */
+#define GERROR_CMDQ_ERR (1U << 0)
 
 /* -----------------------------------------------------------------------
  * Stream table base address register
@@ -113,7 +125,7 @@
 
 /* SMMU_STRTAB_BASE fields */
 #define STRTAB_BASE_RA (1UL << 62) /* Read-Allocate hint */
-#define STRTAB_BASE_ADDR_MASK (0x3fffffffffffcUL) /* Bits [49:6] */
+#define STRTAB_BASE_ADDR_MASK (0x000fffffffffffc0UL) /* Bits [51:6] */
 
 /* SMMU_STRTAB_BASE_CFG fields */
 #define STRTAB_BASE_CFG_FMT_SHIFT 16
@@ -129,9 +141,32 @@
  * Command Queue
  * ----------------------------------------------------------------------- */
 
-#define SMMU_CMDQ_BASE 0x0090
-#define SMMU_CMDQ_PROD 0x008c /* Command Queue Producer */
-#define SMMU_CMDQ_CONS 0x0090 /* Command Queue Consumer */
+#define SMMU_CMDQ_BASE 0x0090 /* Command Queue Base (64-bit) */
+#define SMMU_CMDQ_PROD 0x0098 /* Command Queue Producer */
+#define SMMU_CMDQ_CONS 0x009c /* Command Queue Consumer */
+
+/* SMMU_CMDQ_BASE fields: the queue lives in memory, this register holds its
+ * address and size. */
+#define Q_BASE_RWA (1UL << 62) /* Read-Write Allocate hint */
+#define Q_BASE_ADDR_MASK (0x000fffffffffffe0UL) /* Bits [51:5] */
+#define Q_BASE_LOG2SIZE_MASK (0x1fUL) /* Bits [4:0]: log2(entries) */
+
+/* SMMU_CMDQ_CONS.ERR [30:24]: reason the queue stopped (0 = none) */
+#define CMDQ_CONS_ERR_SHIFT 24
+#define CMDQ_CONS_ERR_MASK (0x7fU << CMDQ_CONS_ERR_SHIFT)
+
+/* SMMU_IDR1.CMDQS [25:21]: largest supported log2(command queue entries) */
+#define IDR1_CMDQS_SHIFT 21
+#define IDR1_CMDQS_MASK (0x1fU << IDR1_CMDQS_SHIFT)
+
+/* Command fields (16-byte command = dw0, dw1) */
+#define CMDQ_ENT_DWORDS 2
+#define CMDQ_0_OP_MASK 0xffULL /* dw0 [7:0] */
+#define CMDQ_CFGI_0_SID_SHIFT 32 /* dw0 [63:32] */
+#define CMDQ_CFGI_1_LEAF (1ULL << 0) /* dw1 bit 0 */
+#define CMDQ_CFGI_1_RANGE_ALL 31ULL /* dw1 [4:0] = 31: every SID */
+#define CMDQ_TLBI_0_VMID_SHIFT 32 /* dw0 [47:32] */
+#define CMDQ_SYNC_0_CS_NONE (0ULL << 12) /* dw0 [13:12]: no signal */
 
 /* Command opcodes */
 #define CMDQ_OP_PREFETCH_CONFIG 0x01
@@ -140,7 +175,7 @@
 #define CMDQ_OP_CFGI_STE_RANGE 0x04
 #define CMDQ_OP_CFGI_CD 0x05 /* Invalidate CD cache */
 #define CMDQ_OP_CFGI_CD_ALL 0x06
-#define CMDQ_OP_CFGI_ALL 0x04 /* Invalidate all config caches */
+#define CMDQ_OP_CFGI_ALL 0x04 /* CFGI_STE_RANGE with RANGE=31: all SIDs */
 #define CMDQ_OP_TLBI_NH_ALL 0x10 /* NH TLB invalidate all */
 #define CMDQ_OP_TLBI_NH_ASID 0x11 /* NH TLB invalidate ASID */
 #define CMDQ_OP_TLBI_NH_VA 0x12 /* NH TLB invalidate VA */
@@ -174,14 +209,9 @@
 #define STE_0_S1FMT_LINEAR (0UL << 4) /* Linear CD table */
 #define STE_0_S1FMT_2LVL (1UL << 4) /* 2-level CD table */
 #define STE_0_S1CDMAX_SHIFT 6
-#define STE_0_SHCFG_INC (1UL << 44) /* Incoming shareability attribute */
-#define STE_0_SHCFG_OVR (2UL << 44) /* Override with NSH/ISH */
-#define STE_0_SHCFG_NSH (3UL << 44) /* Force non-shareable */
-#define STE_0_MTCFG (1UL << 46) /* Memory type config override */
-#define STE_0_ALLOCCFG_SHIFT 48
-#define STE_0_NSCFG_SHIFT 52
-#define STE_0_PRIVCFG_SHIFT 54
-#define STE_0_INSTCFG_SHIFT 56
+
+/* Word 1 */
+#define STE_1_SHCFG_INCOMING (1UL << 44) /* SHCFG [45:44] = 1: use incoming */
 
 /* Word 2 - Stage-2 config */
 #define STE_2_S2VMID_SHIFT 0
@@ -209,7 +239,7 @@
 #define STE_2_S2R (1UL << 58) /* Record fault */
 
 /* Word 3 - VTTBR for stage-2 translation */
-#define STE_3_S2TTB_MASK (0xfffffffffffcUL) /* VTTBR bits [51:4] */
+#define STE_3_S2TTB_MASK (0x000ffffffffffff0UL) /* S2TTB bits [51:4] */
 
 /* Encode STE word 2 for a given VMID with 4KB granule, 40-bit PA, 39-bit IPA */
 #define STE2_S2_ENCODE(vmid)                                                \
@@ -259,12 +289,18 @@ static inline void smmu_write64(uintptr_t base, uint32_t offset, uint64_t val)
 	*(volatile uint64_t *)(base + offset) = val;
 }
 
-/* Poll CR0ACK until it matches CR0 value (command accepted) */
-static inline void smmu_wait_cr0ack(uintptr_t base, uint32_t cr0_val)
+/* Poll CR0ACK until every enable bit matches the value written to CR0.
+ * Returns 0 on success, -1 if the SMMU did not acknowledge in time. */
+#define SMMU_POLL_LIMIT 10000000U
+
+static inline int smmu_wait_cr0ack(uintptr_t base, uint32_t cr0_val)
 {
-	while ((smmu_read32(base, SMMU_CR0ACK) & CR0_TRANSLATIONEN) !=
-	       (cr0_val & CR0_TRANSLATIONEN))
+	for (uint32_t spin = 0; spin < SMMU_POLL_LIMIT; spin++) {
+		if (smmu_read32(base, SMMU_CR0ACK) == cr0_val)
+			return 0;
 		__asm__ volatile("yield");
+	}
+	return -1;
 }
 
 #endif /* HAVEN_ASM_SMMU_H */

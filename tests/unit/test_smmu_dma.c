@@ -119,9 +119,9 @@ static void test_smmu_configure_dma_window(void)
 		"smmu_configure_dma_window: rejects reconfigure without revoke");
 
 	/* Negative: Invalid StreamID. */
-	status = hv_smmu_configure_dma_window(HV_MAX_SMMU_DEVICES + 1,
-					      0x80000000, 0x10000000,
-					      0xc0000000, HV_DMA_RW);
+	status = hv_smmu_configure_dma_window(HV_MAX_SMMU_STREAMS, 0x80000000,
+					      0x10000000, 0xc0000000,
+					      HV_DMA_RW);
 	assert(status == HV_EINVAL);
 	TEST_PASS("smmu_configure_dma_window: rejects invalid streamid");
 
@@ -251,7 +251,7 @@ static void test_smmu_revoke_dma_access(void)
 	TEST_PASS("smmu_revoke_dma_access: prevents double revocation");
 
 	/* Negative: Invalid StreamID. */
-	status = hv_smmu_revoke_dma_access(HV_MAX_SMMU_DEVICES + 1);
+	status = hv_smmu_revoke_dma_access(HV_MAX_SMMU_STREAMS);
 	assert(status == HV_EINVAL);
 	TEST_PASS("smmu_revoke_dma_access: rejects invalid streamid");
 }
@@ -372,6 +372,89 @@ static void test_smmu_reset_partition(void)
 /**
  * Main test runner.
  */
+/**
+ * Test: Bind a hardware StreamID (SM1, FINDINGS.md section 6).
+ */
+static void test_smmu_assign_streamid(void)
+{
+	hv_smmu_init();
+	setup_partition_memory(1, 0xc0000000, 0x10000000);
+
+	hv_device_dma_t info;
+	hv_u16 sid;
+	hv_status_t status;
+
+	/* The device's own StreamID is bound, not a pool index. */
+	status = hv_smmu_assign_streamid(1, 8);
+	assert(status == HV_OK);
+	status = hv_smmu_configure_dma_window(8, 0xc0000000, 0x100000,
+					      0xc0000000, HV_DMA_RW);
+	assert(status == HV_OK);
+	assert(hv_smmu_get_device_dma(8, &info) == HV_OK);
+	assert(info.streamid == 8 && info.partition == 1);
+	TEST_PASS("smmu_assign_streamid: binds the hardware StreamID");
+
+	/* StreamIDs beyond the old 64-entry pool are reachable. */
+	status = hv_smmu_assign_streamid(1, 200);
+	assert(status == HV_OK);
+	TEST_PASS("smmu_assign_streamid: accepts StreamIDs above 63");
+
+	/* A StreamID can be bound once. */
+	status = hv_smmu_assign_streamid(1, 8);
+	assert(status == HV_EPERM);
+	TEST_PASS("smmu_assign_streamid: rejects a bound StreamID");
+
+	/* The allocator does not hand out a bound StreamID. */
+	status = hv_smmu_allocate_streamid(1, &sid);
+	assert(status == HV_OK && sid != 8 && sid != 200);
+	TEST_PASS("smmu_assign_streamid: allocator skips bound StreamIDs");
+
+	/* Out of range. */
+	assert(hv_smmu_assign_streamid(1, HV_MAX_SMMU_STREAMS) == HV_EINVAL);
+	assert(hv_smmu_assign_streamid(HV_MAX_SMMU_PARTITIONS, 9) == HV_EINVAL);
+	TEST_PASS("smmu_assign_streamid: rejects out-of-range arguments");
+
+	/* Revocation frees the StreamID for a new binding. */
+	assert(hv_smmu_revoke_dma_access(8) == HV_OK);
+	assert(hv_smmu_assign_streamid(1, 8) == HV_OK);
+	TEST_PASS("smmu_assign_streamid: rebinding after revoke");
+}
+
+/**
+ * Test: DMA windows get their own VMIDs, released on revoke (SM2).
+ */
+static void test_smmu_dma_vmid_slots(void)
+{
+	hv_smmu_init();
+	setup_partition_memory(1, 0xc0000000, 0x10000000);
+
+	hv_status_t status;
+	hv_u16 sid;
+	hv_u16 i;
+
+	/* HV_MAX_SMMU_DEVICES windows can be configured at once. */
+	for (i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+		assert(hv_smmu_allocate_streamid(1, &sid) == HV_OK);
+		status = hv_smmu_configure_dma_window(
+			sid, 0x100000ULL * i, 0x1000,
+			0xc0000000ULL + 0x1000 * i, HV_DMA_RO);
+		assert(status == HV_OK);
+	}
+	TEST_PASS("smmu_dma_vmid: one VMID per configured window");
+
+	/* Revoking one window frees its VMID for the next. */
+	assert(hv_smmu_revoke_dma_access(5) == HV_OK);
+	assert(hv_smmu_assign_streamid(1, 100) == HV_OK);
+	status = hv_smmu_configure_dma_window(100, 0x80000000, 0x1000,
+					      0xcf000000, HV_DMA_WO);
+	assert(status == HV_OK);
+	TEST_PASS("smmu_dma_vmid: VMID reused after revoke");
+
+	assert(hv_smmu_reset_partition(1) == HV_OK);
+	assert(hv_smmu_assign_streamid(1, 100) == HV_OK);
+	TEST_PASS("smmu_dma_vmid: reset releases every window");
+}
+
 int main(void)
 {
 	printf("\n=== SMMU DMA Isolation Unit Tests ===\n\n");
@@ -383,6 +466,8 @@ int main(void)
 	test_smmu_revoke_dma_access();
 	test_smmu_check_dma_access();
 	test_smmu_reset_partition();
+	test_smmu_assign_streamid();
+	test_smmu_dma_vmid_slots();
 
 	printf("\n=== All SMMU tests passed ===\n\n");
 	return 0;
