@@ -1,6 +1,19 @@
 #!/usr/bin/env sh
 set -eu
 
+# Skip the build and tests when the push only deletes remote branches
+# (every local object name is all zeros) or sends nothing.
+only_deletes=1
+while read -r _local_ref local_sha _remote_ref _remote_sha; do
+	case "$local_sha" in
+	*[!0]*) only_deletes=0 ;;
+	esac
+done
+if [ "$only_deletes" -eq 1 ]; then
+	echo "[hook:pre-push] branch deletion only; skipping build and tests"
+	exit 0
+fi
+
 echo "[hook:pre-push] building"
 ./scripts/compile/build.sh
 
