@@ -367,7 +367,7 @@ void hv_arch_stage2_enable(uint64_t ttbr0, uint32_t vmid);
 
 **Week 11–12: Platform Board Abstraction (fill `src/platform/`)**
 
-*Create: `src/platform/platform.h`* - common platform interface
+*Create: `include/haven/platform.h`* - common platform interface
 ```c
 struct hv_platform_ops {
     void (*uart_putchar)(char c);
@@ -851,7 +851,7 @@ Key: These proofs are for the *policy* (C-level contracts), not the hardware imp
 | `src/common/string.c`                  | Safe string ops                 |
 | `src/common/panic.c`                   | Panic handler                   |
 | `src/common/spinlock.c`                | SMP spinlock                    |
-| `src/platform/platform.h`              | Platform ops interface          |
+| `include/haven/platform.h`              | Platform ops interface          |
 | `src/platform/qemu-virt/platform.c`    | QEMU board                      |
 | `src/platform/imx95-devkit/platform.c` | i.MX95 board                    |
 | `src/platform/imx8qm-mek/platform.c`   | Secondary board                 |
