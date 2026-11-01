@@ -1,0 +1,245 @@
+{
+ "haven_commit": "b1dabd8",
+ "results": {
+  "D1": {
+   "case": "D1",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 2,
+    "boot_rc": 1,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 2,
+    "boot_rc": 1,
+    "findings": []
+   }
+  },
+  "D2": {
+   "case": "D2",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "extent drift"
+     ],
+     [
+      "B RAM",
+      "extent drift"
+     ],
+     [
+      "*",
+      "cross-partition alias"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "extent drift"
+     ],
+     [
+      "B RAM",
+      "extent drift"
+     ],
+     [
+      "*",
+      "cross-partition alias"
+     ]
+    ]
+   }
+  },
+  "D3": {
+   "case": "D3",
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A UART",
+      "memory-type drift"
+     ],
+     [
+      "A UART",
+      "shareability drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A UART",
+      "memory-type drift"
+     ],
+     [
+      "A UART",
+      "shareability drift"
+     ]
+    ]
+   }
+  },
+  "D4": {
+   "case": "D4",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RAM",
+      "missing binding"
+     ],
+     [
+      "B RAM",
+      "missing binding"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RAM",
+      "missing binding"
+     ],
+     [
+      "B RAM",
+      "missing binding"
+     ]
+    ]
+   }
+  },
+  "D5": {
+   "case": "D5",
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RAM",
+      "access drift"
+     ],
+     [
+      "B RAM",
+      "access drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RAM",
+      "access drift"
+     ],
+     [
+      "B RAM",
+      "access drift"
+     ]
+    ]
+   }
+  },
+  "D6": {
+   "case": "D6",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 2,
+    "boot_rc": 1,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 2,
+    "boot_rc": 1,
+    "findings": []
+   }
+  },
+  "D7": {
+   "case": "D7",
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A UART",
+      "execute drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A UART",
+      "execute drift"
+     ]
+    ]
+   }
+  },
+  "C1": {
+   "case": "C1",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   }
+  },
+  "C2": {
+   "case": "C2",
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   }
+  },
+  "C3": {
+   "case": "C3",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   }
+  }
+ }
+}

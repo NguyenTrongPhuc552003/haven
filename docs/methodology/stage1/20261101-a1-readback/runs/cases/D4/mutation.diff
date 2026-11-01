@@ -1,0 +1,11 @@
+--- ./arch/arm64/mm.c	2026-11-01 16:25:23
++++ /tmp/a1-D4-7rri7_5h/arch/arm64/mm.c	2026-11-01 16:35:09
+@@ -113,7 +113,7 @@
+ 	hv_pt_page_t *l1 = pt_roots[partition_id];
+ 	uint64_t cur_ipa = ipa;
+ 	uint64_t cur_pa = pa;
+-	uint64_t end_ipa = ipa + size;
++	uint64_t end_ipa = ipa + size - ((size >= HV_BLOCK_SIZE_L2) ? HV_BLOCK_SIZE_L2 : 0);
+ 
+ 	/* Translate portable bits to S2AP, MemAttr, SH and XN once
+ 	 * (same for all pages in the region). */

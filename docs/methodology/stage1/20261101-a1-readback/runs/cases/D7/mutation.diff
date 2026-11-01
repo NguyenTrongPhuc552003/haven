@@ -1,0 +1,11 @@
+--- ./arch/arm64/include/asm/page.h	2026-11-01 16:25:23
++++ /tmp/a1-D7-ie4zlk2l/arch/arm64/include/asm/page.h	2026-11-01 16:37:25
+@@ -86,7 +86,7 @@
+ #define S2_XN_SHIFT 53
+ #define S2_XN_MASK (3UL << S2_XN_SHIFT)
+ #define S2_XN_EXEC (0UL << S2_XN_SHIFT) /* 00: executable at EL1 and EL0 */
+-#define S2_XN_NEVER (2UL << S2_XN_SHIFT) /* 10: never executable */
++#define S2_XN_NEVER (3UL << S2_XN_SHIFT) /* 10: never executable */
+ #define S2_XN_ALL S2_XN_NEVER /* kept for existing users; now 0b10 */
+ 
+ /* Contiguous hint (bit 52) */

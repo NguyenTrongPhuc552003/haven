@@ -1,0 +1,11 @@
+--- ./arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:25:23
++++ /tmp/a1-D3-i320uudj/arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:34:58
+@@ -18,7 +18,7 @@
+ {
+ 	uint64_t hw;
+ 
+-	if ((attrs & HV_MEM_DEVICE) != 0U) {
++	if (((attrs & HV_MEM_DEVICE) != 0U) && 0) {
+ 		hw = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS);
+ 	} else {
+ 		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);

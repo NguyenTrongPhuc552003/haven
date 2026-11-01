@@ -1,0 +1,16 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  1 2026 16:37:44
+  CPU: PARange=4 GIC=v3 - features OK
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: PSCI CPU_ON error -1 (NOT_SUPPORTED)
+HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
+HAVEN: ERET -> partition A entry IPA=0x40000000
+PARTITION_A: Hello from partition A (EL1 guest)
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0x60000000 ESR=0x93c08006
+PARTITION_A: Post-fault check OK

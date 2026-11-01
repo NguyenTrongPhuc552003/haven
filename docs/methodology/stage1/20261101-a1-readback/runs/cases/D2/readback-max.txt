@@ -1,0 +1,9 @@
+partition 1 root=0x80009000
+  H ipa=0x009000000 pa=0x009000000 size=0x00001000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+  H ipa=0x040000000 pa=0x080800000 size=0x20200000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+  DRIFT A RAM: extent drift (range 0x40000000+0x20200000 crosses grant)
+partition 2 root=0x8000d000
+  H ipa=0x060000000 pa=0x0a0800000 size=0x04200000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+  DRIFT B RAM: extent drift (range 0x60000000+0x4200000 crosses grant)
+  DRIFT cross-partition alias: PA 0xa0800000 reachable from 1 and 2
+RESULT drift found

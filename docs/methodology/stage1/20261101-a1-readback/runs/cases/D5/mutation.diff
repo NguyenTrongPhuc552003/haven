@@ -1,0 +1,11 @@
+--- ./arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:25:23
++++ /tmp/a1-D5-xor4z2ca/arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:35:19
+@@ -24,7 +24,7 @@
+ 		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);
+ 	}
+ 
+-	hw |= ((attrs & HV_MEM_W) != 0U) ? (uint64_t)S2AP_RW :
++	hw |= (((attrs & HV_MEM_W) != 0U) && ((attrs & HV_MEM_DEVICE) != 0U)) ? (uint64_t)S2AP_RW :
+ 					   (uint64_t)S2AP_RO;
+ 
+ 	if ((attrs & HV_MEM_X) == 0U) {

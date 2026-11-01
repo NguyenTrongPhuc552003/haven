@@ -1,0 +1,63 @@
+{
+ "cpu": "max",
+ "pt_roots": "0x80008008",
+ "partitions": {
+  "1": {
+   "root_pa": "0x80009000",
+   "H": [
+    {
+     "ipa": "0x9000000",
+     "size": "0x1000",
+     "pa": "0x9000000",
+     "memattr": 1,
+     "s2ap": 3,
+     "sh": 0,
+     "af": 1,
+     "xn": 2,
+     "level": 3
+    },
+    {
+     "ipa": "0x40000000",
+     "size": "0x20200000",
+     "pa": "0x80800000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 0,
+     "level": 2
+    }
+   ],
+   "findings": [
+    [
+     "A RAM",
+     "extent drift",
+     "range 0x40000000+0x20200000 crosses grant"
+    ]
+   ]
+  },
+  "2": {
+   "root_pa": "0x8000d000",
+   "H": [
+    {
+     "ipa": "0x60000000",
+     "size": "0x4200000",
+     "pa": "0xa0800000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 0,
+     "level": 2
+    }
+   ],
+   "findings": [
+    [
+     "B RAM",
+     "extent drift",
+     "range 0x60000000+0x4200000 crosses grant"
+    ]
+   ]
+  }
+ }
+}

@@ -95,3 +95,72 @@ Supporting observations:
 3. Add the GIC view (IRQ route drift) through the same QMP path if QEMU
    exposes the redistributor/distributor state usably.
 4. Recheck prior work (`DESIGN.md` section 6) before stating any distinction.
+
+## 6. Scored case set (2026-11-01)
+
+**Status:** EXPERIMENT, observed. Frozen case set (`CASES.md`,
+`freeze/SHA256SUMS`, owner-approved), run with `run_cases.py` on haven
+`b1dabd8`, cortex-a72 and max (identical results on both). Full table:
+`runs/cases/results.md`; logs per case in `runs/cases/<case>/`; memory dumps
+removed after hashing (`runs/cases/DUMP_SHA256SUMS`).
+
+One runner fix before the scored run: the D2 and D4 edit first matched two
+places in `mm.c` (map and unmap); the runner refused, and the edit was
+anchored to `hv_arch_stage2_map`, the place `CASES.md` describes. The frozen
+files did not change.
+
+| Case | Read-back | Unit tests | Boot check | Caught only by read-back |
+| - | - | - | - | - |
+| D1 association | no verdict (probe failure) | pass | **fail** | no |
+| D2 extent | expected drift, plus cross-partition alias | pass | **fail** | no |
+| D3 memory type | expected drift | **fail** | pass | no |
+| D4 missing binding | expected drift (A RAM, and also B RAM) | pass | pass | **yes** |
+| D5 access | expected drift | **fail** | pass | no |
+| D6 access flag | no verdict (probe failure) | pass | **fail** | no |
+| D7 execute | expected drift | **fail** | pass | no |
+| C1 baseline | H matches G | pass | pass | control |
+| C2 MM1 revert | H matches G (as expected) | **fail** | pass | control |
+| C3 refactor | H matches G | pass | pass | control |
+
+**Observations**
+
+- Read-back gave the expected verdict in 5 of 7 seeded faults and no false
+  drift in the 3 controls.
+- Read-back was the only check to catch 1 of 7 faults (D4). The existing checks
+  together caught the other 6: unit tests D3, D5, D7; boot check D1, D2, D6.
+- D1 and D6 break partition A before its post-fault line, so the frozen probe,
+  which waits for that line, never dumps memory. The boot check catches both.
+- D2 and D4 affect every region of 2 MiB or more, so read-back also reported B
+  RAM (D4) and a cross-partition alias (D2), beyond the approved verdict.
+- Two predictions in `CASES.md` were wrong: D2 fails the boot check (the extra
+  block maps the IPA that partition A probes to show a denial), and D5 passes
+  it (HAVEN skips denied data accesses, so read-only RAM goes unnoticed).
+- C2 behaves as predicted: unit tests catch the MM1 revert, read-back cannot,
+  because the current grant has no read-only region.
+
+**Interpretation (inference)**
+
+- In this seeded set, read-back adds narrow but real coverage: layout drift
+  that no guest touches and that attribute-level unit tests do not model
+  (D4). It also names region and field for every fault it sees, where the
+  other checks give pass or fail.
+- It is not a replacement for unit tests (C2, D3, D5, D7) or for behavioural
+  checks.
+- The skip-on-deny policy (EX2) masks write-permission drift in the boot check
+  (D5): a reason to keep a structural check that does not depend on guest
+  behaviour.
+
+**Threats to validity**
+
+- Claude wrote the seeded faults, the expected verdicts, the probe and
+  `test_stage2_attrs` (part of the MM1 fix), so the unit tests are not an
+  independent baseline for D3, D5 and D7. No owner-authored held-out case.
+- Seven faults, one platform model, one grant; the result is a feasibility
+  signal, not a rate.
+
+**Next**
+
+- Probe v2: dump after a fixed time even if the guest stalls (would give
+  verdicts for D1 and D6), as a new version with its own freeze.
+- Add a read-only region to the grant so access drift such as C2 becomes
+  visible; SMMU read-back (experiment G1) next.

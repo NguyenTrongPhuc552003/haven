@@ -1,0 +1,11 @@
+--- ./arch/arm64/mm.c	2026-11-01 16:25:23
++++ /tmp/a1-D6-t7ltmyua/arch/arm64/mm.c	2026-11-01 16:35:30
+@@ -144,7 +144,7 @@
+ 		    !s2_desc_is_table((*l2)[l2_idx])) {
+ 			/* Write 2MB L2 block descriptor */
+ 			(*l2)[l2_idx] = (cur_pa & HV_BLOCK_MASK_L2) |
+-					S2_DESC_BLOCK | hw_attrs | S2_AF;
++					S2_DESC_BLOCK | hw_attrs;
+ 			cur_ipa += HV_BLOCK_SIZE_L2;
+ 			cur_pa += HV_BLOCK_SIZE_L2;
+ 			continue;

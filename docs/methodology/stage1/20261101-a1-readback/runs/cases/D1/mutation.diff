@@ -1,0 +1,11 @@
+--- ./arch/arm64/mm.c	2026-11-01 16:25:23
++++ /tmp/a1-D1-ttjbz39r/arch/arm64/mm.c	2026-11-01 16:32:53
+@@ -143,7 +143,7 @@
+ 		    (end_ipa - cur_ipa) >= HV_BLOCK_SIZE_L2 &&
+ 		    !s2_desc_is_table((*l2)[l2_idx])) {
+ 			/* Write 2MB L2 block descriptor */
+-			(*l2)[l2_idx] = (cur_pa & HV_BLOCK_MASK_L2) |
++			(*l2)[l2_idx] = ((cur_pa + HV_BLOCK_SIZE_L2) & HV_BLOCK_MASK_L2) |
+ 					S2_DESC_BLOCK | hw_attrs | S2_AF;
+ 			cur_ipa += HV_BLOCK_SIZE_L2;
+ 			cur_pa += HV_BLOCK_SIZE_L2;

@@ -1,0 +1,23 @@
+$ ./scripts/qemu/qemu-direct-check.sh build max
+qemu-system-aarch64: terminating on signal 15 from pid 34900 (<unknown process>)
+---- UART (build/evidence/qemu-direct-max-uart.log) ----
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  1 2026 16:34:56
+  CPU: PARange=6 GIC=v3 - features OK
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: PSCI CPU_ON error -1 (NOT_SUPPORTED)
+HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
+HAVEN: ERET -> partition A entry IPA=0x40000000
+PARTITION_A: Hello from partition A (EL1 guest)
+PARTITION_A: Post-fault check OK
+---------------------
+ok      Hello from partition A
+MISSING Denied stage-2 violation
+ok      PARTITION_A: Post-fault check OK
+qemu-direct-check: FAIL (max)
