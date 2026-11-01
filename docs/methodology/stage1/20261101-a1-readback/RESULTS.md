@@ -6,17 +6,17 @@ research distinction (`DESIGN.md` section 6 prior work is not yet rechecked).
 
 ## 1. Setup (reproducible)
 
-| Item | Value |
-| - | - |
-| HAVEN source | branch `stage1/evidence-and-bugfixes`, commit `eab5288` |
-| Build | CMake + Ninja, `cmake/arm64.cmake`, `MinSizeRel`, `HAVEN_BOOT_PROFILE=qemu-direct` |
-| Toolchain | aarch64-unknown-linux-gnu GCC 15.2.0 (Homebrew) |
-| Emulator | QEMU 11.1.3, `virt,virtualization=on,gic-version=3,iommu=smmuv3`, 4 CPUs, 2 GiB |
-| CPU models | `cortex-a72`, `max` |
-| Probe | `readback.py` (this folder), Python 3.9.6 on macOS |
-| Oracle | `expected-G.json`, derived from G and the MM1 proposal section 4 translation table |
-| Exact QEMU command | `runs/*/qemu-command.txt` |
-| Build and dump hashes | `runs/BUILD_SHA256SUMS`, `runs/DUMP_SHA256SUMS` (8 MiB dumps not committed) |
+| Item                  | Value                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| HAVEN source          | branch `stage1/evidence-and-bugfixes`, commit `eab5288`                            |
+| Build                 | CMake + Ninja, `cmake/arm64.cmake`, `MinSizeRel`, `HAVEN_BOOT_PROFILE=qemu-direct` |
+| Toolchain             | aarch64-unknown-linux-gnu GCC 15.2.0 (Homebrew)                                    |
+| Emulator              | QEMU 11.1.3, `virt,virtualization=on,gic-version=3,iommu=smmuv3`, 4 CPUs, 2 GiB    |
+| CPU models            | `cortex-a72`, `max`                                                                |
+| Probe                 | `readback.py` (this folder), Python 3.9.6 on macOS                                 |
+| Oracle                | `expected-G.json`, derived from G and the MM1 proposal section 4 translation table |
+| Exact QEMU command    | `runs/*/qemu-command.txt`                                                          |
+| Build and dump hashes | `runs/BUILD_SHA256SUMS`, `runs/DUMP_SHA256SUMS` (8 MiB dumps not committed)        |
 
 Command per run:
 
@@ -37,12 +37,12 @@ touched the repository.
 
 ## 2. Observations
 
-| Run | Read-back H (partition: IPA, PA, size, S2AP, MemAttr, SH, XN, AF) | Verdict | Exit |
-| - | - | - | - |
-| baseline, cortex-a72 | 1: 0x0900_0000 -> 0x0900_0000, 4 KiB, 3, 0x1, 0, 0b10, 1; 0x4000_0000 -> 0x8080_0000, 512 MiB, 3, 0xF, 3, 0b00, 1. 2: 0x6000_0000 -> 0xA080_0000, 64 MiB, 3, 0xF, 3, 0b00, 1 | H matches G | 0 |
-| baseline, max | identical to cortex-a72 | H matches G | 0 |
-| mutant, cortex-a72 | as baseline except partition 1 UART XN = 0b11 | execute drift on A UART (XN 0b11, expected 0b10) | 1 |
-| mutant, max | identical to mutant cortex-a72 | same | 1 |
+| Run                  | Read-back H (partition: IPA, PA, size, S2AP, MemAttr, SH, XN, AF)                                                                                                            | Verdict                                          | Exit |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---- |
+| baseline, cortex-a72 | 1: 0x0900_0000 -> 0x0900_0000, 4 KiB, 3, 0x1, 0, 0b10, 1; 0x4000_0000 -> 0x8080_0000, 512 MiB, 3, 0xF, 3, 0b00, 1. 2: 0x6000_0000 -> 0xA080_0000, 64 MiB, 3, 0xF, 3, 0b00, 1 | H matches G                                      | 0    |
+| baseline, max        | identical to cortex-a72                                                                                                                                                      | H matches G                                      | 0    |
+| mutant, cortex-a72   | as baseline except partition 1 UART XN = 0b11                                                                                                                                | execute drift on A UART (XN 0b11, expected 0b10) | 1    |
+| mutant, max          | identical to mutant cortex-a72                                                                                                                                               | same                                             | 1    |
 
 Supporting observations:
 
