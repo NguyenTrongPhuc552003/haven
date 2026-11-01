@@ -8,7 +8,9 @@ HAVEN:
   - SMMU (when the grant file has an "smmu" section): SMMU_CR0ACK, GBPA and the
     stream table found through SMMU_STRTAB_BASE, plus every DMA-capable device
     QEMU emulates, classified as denied, translated, bypassed or unenforced
-    (not behind any SMMU). Which buses sit behind the SMMU comes from QEMU's
+    (not behind any SMMU). Every stream entry that lets DMA through must be
+    granted, and a translated stream's reach (the partition's whole stage-2
+    map) is compared with the window the grant gives the device. Which buses sit behind the SMMU comes from QEMU's
     own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
@@ -301,7 +303,23 @@ def classify(master, snap, roots):
     return cfg, f"STE {cfg}"
 
 
-def compare_smmu(snap, masters, expected, roots):
+def ranges(sids):
+    """Compress a sorted list of integers into "a-b" ranges."""
+    out, start, prev = [], None, None
+    for x in sids:
+        if start is None:
+            start = prev = x
+        elif x == prev + 1:
+            prev = x
+        else:
+            out.append(f"{start}-{prev}" if start != prev else str(start))
+            start = prev = x
+    if start is not None:
+        out.append(f"{start}-{prev}" if start != prev else str(start))
+    return ", ".join(out)
+
+
+def compare_smmu(snap, masters, expected, roots, h_by_part):
     f, report = [], []
     if bool(snap["smmu"]["cr0ack"] & 1) != expected.get("enabled", True):
         f.append(("SMMU", "SMMU enable drift", f"CR0ACK={snap['smmu']['cr0ack']:#x}"))
@@ -317,6 +335,30 @@ def compare_smmu(snap, masters, expected, roots):
         want = f"translated:{streams[m['sid']]['partition']}" if m["sid"] in streams else "denied"
         if state != want:
             f.append((m["device"], "DMA enforcement drift", f"{m['bus']} SID {m['sid']}: {state} ({why}), expected {want}"))
+    if snap["smmu"]["cr0ack"] & 1:
+        # Every stream table entry that lets DMA through must be granted.
+        extra = []
+        for sid in range(len(snap["stream_table"]) // 64):
+            w0, _, _, w3 = struct.unpack_from("<4Q", snap["stream_table"], sid * 64)
+            cfg = STE_CONFIG.get((w0 >> 1) & 7, "reserved") if w0 & 1 else "invalid"
+            if cfg in ("abort", "invalid"):
+                continue
+            if sid not in streams:
+                extra.append(sid)
+                continue
+            # Granted and translated: the device reaches the whole stage-2 map
+            # of the partition the entry points to; compare with the window.
+            win = streams[sid].get("window")
+            ttb = w3 & 0x0000FFFFFFFFFFF0
+            part = next((p for p, r in roots.items() if r == ttb), None)
+            if win and part is not None:
+                lo, size = int(win["ipa"], 16), int(win["size"], 16)
+                reach = sum(r["size"] for r in h_by_part.get(part, []))
+                if any(r["ipa"] < lo or r["ipa"] + r["size"] > lo + size for r in h_by_part.get(part, [])):
+                    f.append((f"SID {sid}", "DMA extent drift",
+                              f"granted window {lo:#x}+{size:#x}, enforced reach is partition {part}: {reach:#x} bytes"))
+        if extra:
+            f.append(("SMMU", "extra stream binding", f"{len(extra)} stream(s) not denied without a grant: SID {ranges(extra)}"))
     return f, report
 
 
@@ -364,7 +406,9 @@ def main():
     if "smmu" in grant:
         pcie_maps, mmio_with_iommu = dt_smmu_coverage(device_tree(a.build, a.cpu, a.device, a.out))
         masters = dma_masters(snap, pcie_maps)
-        f, rep = compare_smmu(snap, masters, grant["smmu"], roots)
+        h_by_part = {int(p): [{"ipa": int(x["ipa"], 16), "size": int(x["size"], 16)} for x in d["H"]]
+                     for p, d in report["partitions"].items()}
+        f, rep = compare_smmu(snap, masters, grant["smmu"], roots, h_by_part)
         findings += f
         sm = snap["smmu"]
         report["smmu"] = {k: hex(v) for k, v in sm.items()}
