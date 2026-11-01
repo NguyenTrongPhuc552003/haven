@@ -24,7 +24,7 @@ BASELINE="${ROOT}/tests/benchmarks/latency-baseline.json"
 RESULTS_DIR="${ROOT}/build/benchmarks"
 
 echo "[bench-update-baseline] running benchmark suite..."
-"${ROOT}/scripts/dev/test.sh" 2>&1 | grep -E "^\[bench\]|\[test\]" || true
+HAVEN_BENCH=1 "${ROOT}/scripts/dev/test.sh" 2>&1 | grep -E "^\[bench\]|\[test\]" || true
 
 echo "[bench-update-baseline] collecting results from ${RESULTS_DIR}/*.json"
 

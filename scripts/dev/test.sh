@@ -3,6 +3,16 @@ set -eu
 
 CC_BIN="${CC:-cc}"
 
+# Benchmarks are always compiled, but only run with HAVEN_BENCH=1: the
+# temporal isolation benchmark spins on the wall clock for about 7 minutes.
+run_bench() {
+	if [ "${HAVEN_BENCH:-0}" = 1 ]; then
+		"$@"
+	else
+		echo "[bench] skipped $1 (set HAVEN_BENCH=1 to run)"
+	fi
+}
+
 echo "[test] running unit tests"
 mkdir -p build/tests
 
@@ -183,7 +193,7 @@ mkdir -p build/benchmarks
 	src/core/time/timer.c \
 	src/core/iommu/iommu_policy.c \
 	-o build/tests/bench_isolation_latency
-./build/tests/bench_isolation_latency
+run_bench ./build/tests/bench_isolation_latency
 
 echo "[test] running temporal isolation benchmark"
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
@@ -192,7 +202,7 @@ echo "[test] running temporal isolation benchmark"
 	src/core/sched/budget.c \
 	src/core/time/timer.c \
 	-o build/tests/bench_temporal_isolation
-./build/tests/bench_temporal_isolation
+run_bench ./build/tests/bench_temporal_isolation
 
 echo "[test] running stage-2 fault containment benchmark"
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
@@ -202,7 +212,7 @@ echo "[test] running stage-2 fault containment benchmark"
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
 	-o build/tests/bench_stage2_fault
-./build/tests/bench_stage2_fault
+run_bench ./build/tests/bench_stage2_fault
 
 echo "[test] running SMMU DMA policy benchmark"
 "$CC_BIN" -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -Iinclude \
@@ -213,7 +223,7 @@ echo "[test] running SMMU DMA policy benchmark"
 	src/core/irq/ownership.c \
 	src/core/sched/budget.c \
 	-o build/tests/bench_smmu_policy
-./build/tests/bench_smmu_policy
+run_bench ./build/tests/bench_smmu_policy
 
 echo "[test] running secondary CPU isolation policy test"
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \

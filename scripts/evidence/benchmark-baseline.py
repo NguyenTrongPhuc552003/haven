@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import os
 import subprocess
 import sys
 import time
@@ -17,7 +18,8 @@ COMMANDS = [
 
 def run_timed(cmd: list[str]) -> dict[str, object]:
     start = time.perf_counter()
-    result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    env = dict(os.environ, HAVEN_BENCH="1")  # time the full suite, benchmarks included
+    result = subprocess.run(cmd, check=False, capture_output=True, text=True, env=env)
     elapsed = time.perf_counter() - start
     return {
         "command": " ".join(cmd),
