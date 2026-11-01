@@ -1,8 +1,7 @@
 # A1 case set v2 (proposal, needs owner approval)
 
-**Status:** proposed 2026-11-02, not frozen, nothing run as a scored set.
-Claude drafted the cases; the owner approves or changes each expected
-read-back verdict before the run, as for case set v1 (`CASES.md`).
+**Status:** approved by the owner and frozen 2026-11-02 (`freeze/SHA256SUMS-v2`).
+Claude drafted the cases; the owner approved every expected read-back verdict.
 
 **Method.** As v1, with probe v2 (`tools/readback/readback.py`) and grant v2
 (`grant-qemu-v2.json`: case set v1 grant plus the partition A read-only region
@@ -27,15 +26,17 @@ they are scored as regression checks. S7, U1, C1 and C5 have not been run.
 | C5 | behaviour-preserving refactor of `ste_write_abort` (same STE bytes) | enforced state matches the grant | pass | pass |
 
 S5, S6 and S7 use the grant that gives SID 8 to partition A with a 1 MiB
-window (`runs/v2b/grant-sid8-to-A.json`). Their boot-check failures come from
+window (`grant-sid8-to-A.json`). Their boot-check failures come from
 the SM3 hang, not from the seeded change itself.
 
-## What the owner reviews
+## Owner review (2026-11-02)
 
-1. Is each expected read-back verdict right? Mark Y, N (and what it should
-   be) or ? per case.
-2. Is any important drift missing? One line each; it becomes an owner-authored
-   held-out case.
-3. Is `grant-qemu-v2.json` a correct statement of the grant?
+| Question | Owner answer |
+| - | - |
+| Is each expected read-back verdict right? | Yes, all nine cases |
+| Is any important drift missing (held-out case)? | No case added |
+| Is `grant-qemu-v2.json` a correct statement of the grant? | Yes |
 
-After approval: freeze with SHA-256 sums, run, score, report in `RESULTS.md`.
+Frozen inputs (`freeze/SHA256SUMS-v2`): this file, `grant-qemu-v2.json`,
+`grant-sid8-to-A.json`, `run_cases_v2.py` and `tools/readback/readback.py`.
+The SMMU defects SM1 to SM3 stay unfixed for this run.

@@ -1,0 +1,5 @@
+71182930ecd4bad7d0f86135be11a569ca2511a5c124882e36475ff0b2a1367c  CASES-v2.md
+1276754dd87fbaadbf6be8625bb08620f018fda16b6a38c0adcada59943b578b  grant-qemu-v2.json
+4c01e22d8c3613d2d91df26846ea35e6d1dd3bb37127d0aef6676ab20cac2680  grant-sid8-to-A.json
+f17c42cc9e66a4c3ae1dfae73ada5cdc382d1b4cadb312195816a025e805266f  run_cases_v2.py
+89e03bbe8d92a353a028f9e26fa414dd43ecc3a8d836574f2b0c0ced9df3d0ef  ../../../../tools/readback/readback.py
