@@ -164,3 +164,51 @@ files did not change.
   verdicts for D1 and D6), as a new version with its own freeze.
 - Add a read-only region to the grant so access drift such as C2 becomes
   visible; SMMU read-back (experiment G1) next.
+
+## 7. Probe v2 and SMMU read-back (G1), feasibility (2026-11-02)
+
+**Status:** EXPERIMENT, observed; feasibility runs, not a frozen or scored
+case set. Tool: `tools/readback/readback.py` (v2); grant:
+`grant-qemu-g1.json`; mutants: `try_v2_mutants.sh`; logs: `runs/v2/` (memory,
+stream-table and device-tree dumps replaced by `runs/v2/DUMP_SHA256SUMS`).
+haven `1c5daf7`, QEMU 11.1.3, cortex-a72 and max (identical results).
+
+**What v2 changes.** Memory is read when partition A reaches its post-fault
+line or after a time limit, whichever comes first. New SMMU view: SMMU_CR0ACK,
+GBPA and the stream table found through SMMU_STRTAB_BASE, and every DMA-capable
+device QEMU emulates, classified as denied, translated, bypassed or
+unenforced. Which buses are behind the SMMU comes from the device tree QEMU
+generates (`dumpdtb`), not from HAVEN.
+
+| Run | Seeded change | Read-back | Unit tests | Boot check |
+| - | - | - | - | - |
+| G1 baseline (+ virtio-rng-pci, virtio-rng-device) | none | SMMU on, 256 entries; PCIe device SID 8 denied (STE abort); virtio-mmio device **unenforced** | not run | not run |
+| S1 | default stream entry BYPASS instead of ABORT | **DMA enforcement drift**: SID 8 bypassed | pass | pass |
+| S2 | SMMU never enabled | **SMMU enable drift** and SID 8 bypassed (GBPA bypass) | pass | pass |
+| D1 (v2) | stage-2 output address +2 MiB | association drift on A RAM and B RAM (read at the time limit) | pass (case set) | fail (case set) |
+| D6 (v2) | access flag cleared on blocks | access-flag drift on A RAM and B RAM (read at the time limit) | pass (case set) | fail (case set) |
+
+Unit tests and boot check for S1 and S2 were run with the same edits (host
+tests via ctest, `scripts/qemu/qemu-direct-check.sh` on cortex-a72): all 20
+tests and the boot check passed.
+
+**Observations**
+
+- G1 pass condition met: the PCIe device is classified as enforced (denied)
+  and the virtio-mmio device as unenforced; nothing is falsely called enforced.
+  None of the 32 virtio-mmio nodes in the QEMU device tree is behind the SMMU.
+- S1 and S2 are caught by read-back only: neither guest does DMA, so no
+  behavioural check can notice that DMA is no longer enforced.
+- v2 gives verdicts for D1 and D6, which v1 could not. D1 shows no
+  cross-partition alias, because both partitions move by the same 2 MiB; the
+  alias predicted in `CASES.md` for D1 was wrong.
+
+**Interpretation (inference).** DMA enforcement is where read-back adds most:
+a missing or bypassed SMMU stream has no behavioural symptom until a device
+misbehaves. This is the CIX GPU situation (`docs/architecture/gpu-partition.md`),
+where the GPU appears to have no SMMU stream at all.
+
+**Threats to validity.** Claude wrote the mutants and the tool; two SMMU
+mutants only; one QEMU machine model; no device actually performs DMA. Before
+any claim, these SMMU cases need an owner-reviewed, frozen case set like
+sections 5 and 6.
