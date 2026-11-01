@@ -1,8 +1,8 @@
 # A1 case set (proposal, needs owner approval)
 
-**Status:** proposed 2026-11-01, not frozen, nothing run. Claude drafted the
-cases, so the expected read-back verdicts must be approved (or changed) by the
-owner before any run is scored, as in P-A0.
+**Status:** approved by the owner and frozen 2026-11-01 (`freeze/SHA256SUMS`);
+not yet run. Claude drafted the cases; the owner approved every expected
+read-back verdict, as required by the P-A0 protocol.
 
 **Method.** Each case is a disposable copy of `stage1/integration` with one
 seeded change in the arch layer (`arch/arm64/mm.c` or `asm/s2_attrs.h`). The
@@ -37,14 +37,15 @@ predictions to be measured, not part of the oracle.
 | C2 | MM1 revert (S2AP always read/write) | **H matches G**, because the current G grants no read-only region | shows a limit: read-back only sees drift that the grant makes visible |
 | C3 | behaviour-preserving refactor of the mapping loop (same descriptors) | H matches G | read-back must not flag code changes that keep enforcement equal |
 
-## What the owner reviews
+## Owner review (2026-11-01)
 
-1. Is each expected read-back verdict right? Mark Y, N (and what it should
-   be) or ? per case.
-2. Is any important drift missing? One line each; it becomes your own held-out
-   case, built from your description without Claude seeing the expected
-   verdict until scoring.
-3. Is `expected-G.json` a correct statement of the grant?
+| Question | Owner answer |
+| - | - |
+| Is each expected read-back verdict right? | Yes, all ten cases (D1 to D7, C1 to C3) |
+| Is any important drift missing (held-out case)? | No case added for now |
+| Is `expected-G.json` a correct statement of the grant? | Yes |
 
-After approval the case list and expected verdicts are frozen with SHA-256
-sums, then run and scored with the same rules as P-A0.
+The case list, expected verdicts and `expected-G.json` are frozen by
+`freeze/SHA256SUMS`. Changing any of them requires a new owner review and a new
+freeze. No owner-authored held-out case exists, so results are reported as
+seeded-mutant results, not as independent held-out validation.
