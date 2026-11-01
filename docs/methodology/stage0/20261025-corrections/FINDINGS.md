@@ -462,3 +462,66 @@ their capture-time status.
 - **Unverified:** runtime behaviour; how "stop the partition" is realised in
   HAVEN's current control flow.
 - **Provenance:** [QEMU readiness audit](../../stage1/20261031-mm1-qemu-readiness/AUDIT.md) 2b.
+
+## 6. Stage 1 additions (2026-11-02): SMMU
+
+Found while building SMMU read-back (A1, experiment G1). All three are latent
+in the shipped configuration, because no production code path grants a DMA
+device to a partition yet; they appear as soon as one does. No code change.
+
+### SM1 - Stream IDs are allocated by table index, not bound to devices
+
+- **Status:** source-derived + observed in QEMU (feasibility run S5,
+  2026-11-02).
+- **Expected contract / source:** granting a device to a partition programs the
+  stream table entry of that device's hardware StreamID (for PCIe on QEMU
+  `virt`, the requester ID through the `iommu-map` of the PCIe node).
+- **Observed / evidence:** `hv_smmu_allocate_streamid()` returns the first free
+  index of its own pool and `hv_smmu_configure_dma_window()` programs the STE at
+  that index (`src/core/dma/smmu.c`). In run S5 the PCIe device with hardware
+  SID 8 was granted to partition A: its STE stayed ABORT, and STE 0, which no
+  device uses, was translated to partition A (`runs/v2b/S5-*`).
+- **Consequence:** a grant cannot bind a specific device; the device stays
+  blocked and an unused stream is opened instead.
+- **Smallest correction (proposal):** take the device's hardware StreamID as an
+  input of the grant and program exactly that STE.
+
+### SM2 - The DMA window is not enforced by hardware
+
+- **Status:** source-derived + observed in QEMU (feasibility run S6).
+- **Expected contract / source:** `hv_smmu_configure_dma_window()` documents a
+  DMA window (`dma_base`, `dma_size`, `phys_base`) per device.
+- **Observed / evidence:** the window is stored and checked only in software
+  (`hv_smmu_check_dma_access`); the STE points the device at the partition's
+  whole stage-2 table (`STE.S2TTB` = the partition's VTTBR). In run S6 a
+  device granted a 1 MiB window could reach `0x20201000` bytes, all of
+  partition A.
+- **Consequence:** a device can DMA anywhere its partition can, not only into
+  its window; the grant is narrower than the enforcement.
+- **Smallest correction (proposal):** give each device stream its own stage-2
+  table limited to the window, or record that HAVEN grants DMA at partition
+  granularity and drop the window from the contract.
+
+### SM3 - The SMMU command queue is never set up
+
+- **Status:** source-derived, register offsets checked against Linux
+  `drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h`; observed as a hang in QEMU
+  (runs S5 and S6: the boot log stops after "partition A mapped").
+- **Expected contract / source:** SMMUv3 commands (`CFGI_STE`, `CMD_SYNC`) are
+  written to a queue in memory whose address is in `SMMU_CMDQ_BASE` (0x90),
+  with `SMMU_CMDQ_PROD` at 0x98, `SMMU_CMDQ_CONS` at 0x9c and the queue enabled
+  by `SMMU_CR0.CMDQEN` (bit 3) (Linux: `ARM_SMMU_CMDQ_BASE 0x90`,
+  `ARM_SMMU_CMDQ_PROD 0x98`, `ARM_SMMU_CMDQ_CONS 0x9c`, `CR0_CMDQEN (1 << 3)`).
+- **Observed / evidence:** `arch/arm64/include/asm/smmu.h` defines
+  `SMMU_CMDQ_PROD 0x8c` and `SMMU_CMDQ_CONS 0x90`; `smmu_v3.c` writes commands
+  into the register page at `SMMU_CMDQ_BASE + index * 16`; `smmu_v3_init()`
+  never programs `SMMU_CMDQ_BASE` and never sets `CMDQEN`. The first STE change
+  after boot waits for a consumer index that never moves, then halts (`b .`).
+- **Consequence:** any runtime grant or revocation hangs HAVEN; without working
+  invalidation, the SMMU could also keep using a cached STE after a change.
+- **Smallest correction (proposal):** allocate an aligned command queue in
+  memory, program `SMMU_CMDQ_BASE`, fix the PROD/CONS offsets, enable `CMDQEN`
+  and wait for `CR0ACK`, then keep the existing CFGI_STE + CMD_SYNC sequence.
+- **Note for read-back:** read-back reads the stream table in memory; once
+  invalidation works, the SMMU's cached view and the table agree. Until then
+  the two can differ.

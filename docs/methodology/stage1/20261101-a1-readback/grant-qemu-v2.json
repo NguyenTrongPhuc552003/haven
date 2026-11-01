@@ -1,0 +1,14 @@
+{
+  "source": "haven src/core/partition.c and src/platform/qemu-virt/memory.h (main, with the partition A read-only region); no DMA device is assigned to any partition, so every SMMU stream must deny",
+  "partitions": {
+    "1": [
+      {"name": "A RAM", "ipa": "0x40000000", "pa": "0x80800000", "size": "0x20000000", "attrs": "RWX"},
+      {"name": "A UART", "ipa": "0x09000000", "pa": "0x09000000", "size": "0x1000", "attrs": "DEVICE_RW"},
+      {"name": "A RO", "ipa": "0x70000000", "pa": "0xA4C00000", "size": "0x200000", "attrs": "R"}
+    ],
+    "2": [
+      {"name": "B RAM", "ipa": "0x60000000", "pa": "0xA0800000", "size": "0x04000000", "attrs": "RWX"}
+    ]
+  },
+  "smmu": {"enabled": true, "streams": {}, "allowed_unenforced": []}
+}

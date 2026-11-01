@@ -212,3 +212,45 @@ where the GPU appears to have no SMMU stream at all.
 mutants only; one QEMU machine model; no device actually performs DMA. Before
 any claim, these SMMU cases need an owner-reviewed, frozen case set like
 sections 5 and 6.
+
+## 8. Read-only region and SMMU findings, feasibility (2026-11-02)
+
+**Status:** EXPERIMENT, observed; feasibility runs, not a scored case set.
+Script: `try_v2b.sh`; logs: `runs/v2b/` (dumps replaced by
+`runs/v2b/DUMP_SHA256SUMS`). Read-only region added to the QEMU grant on the
+owner's approval (`ro-region.md`, option A; placed at PA `0xA4C0_0000`, after
+the reserved shared region, not at `0xA480_0000` as first proposed). QEMU
+memory node checked with `dumpdtb`: RAM `0x4000_0000` to `0xC000_0000`; HAVEN
+image ends at `0x804F_7010`.
+
+| Run | Change | Read-back | Boot check |
+| - | - | - | - |
+| Baseline, grant v2 | read-only region added | A RO read back as `s2ap=1, xn=0b10, af=1`; matches the grant | pass |
+| R1 | MM1 revert | **access drift on A RO** | pass |
+| S1 | default stream entry BYPASS | DMA enforcement drift on SID 8; **extra stream binding, SID 0-255** | pass |
+| S5 | device granted to A through the current API | **SID 8 still denied; SID 0 translated to A** (SM1) | fail: HAVEN hangs (SM3) |
+| S6 | as S5, allocator forced to SID 8 | **SID 8 translated to A; reach `0x20201000` bytes for a 1 MiB window** (SM2) | fail: HAVEN hangs (SM3) |
+
+Baseline host tests: 20 of 20 (benchmark excluded). Results identical on
+cortex-a72 and max.
+
+**Observations**
+
+- The read-only region closes the blind spot of case set v1: the MM1 class is
+  now visible to read-back (R1) while the boot check still passes.
+- Three SMMU defects, recorded as SM1 to SM3 in the finding ledger
+  (`../../stage0/20261025-corrections/FINDINGS.md` section 6). They are latent
+  today because nothing grants a DMA device yet.
+- In S5 and S6 HAVEN hangs inside `smmu_invalidate_ste()` (SM3) right after
+  writing the STE, so partition A never starts; read-back still gets a verdict
+  through the probe v2 time limit.
+
+**Interpretation (inference).** Read-back found three HAVEN defects in the DMA
+path that none of the existing checks covers: the policy layer and its unit
+tests model DMA windows and stream ownership, but not how they reach the
+hardware. This is the clearest case so far for the A1 claim that enforcement
+must be checked where it happens.
+
+**Threats to validity.** Same as section 7; in addition, read-back reads the
+stream table in memory, which can differ from the SMMU's cached view while
+invalidation is broken (SM3).
