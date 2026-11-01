@@ -1,0 +1,11 @@
+smmuv3_cmdq_consume_out prod:0, cons:0, prod_wrap:0, cons_wrap:0 
+smmuv3_cmdq_consume prod=3 cons=0 prod.wrap=0 cons.wrap=0
+smmuv3_cmdq_opcode <--- SMMU_CMD_CFGI_STE_RANGE
+smmuv3_cmdq_cfgi_ste_range start=0x0 - end=0xffffffff
+smmuv3_cmdq_consume prod=3 cons=1 prod.wrap=0 cons.wrap=0
+smmuv3_cmdq_opcode <--- SMMU_CMD_TLBI_NSNH_ALL
+smmuv3_cmdq_tlbi_nsnh 
+smmuv3_cmdq_consume prod=3 cons=2 prod.wrap=0 cons.wrap=0
+smmuv3_cmdq_opcode <--- SMMU_CMD_SYNC
+smmuv3_cmdq_consume_out prod:3, cons:3, prod_wrap:0, cons_wrap:0 
+smmuv3_cmdq_consume_out prod:3, cons:3, prod_wrap:0, cons_wrap:0 

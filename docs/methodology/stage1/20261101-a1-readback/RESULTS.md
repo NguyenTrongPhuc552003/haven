@@ -306,3 +306,10 @@ Claude wrote the cases and the tool; the owner approved the verdicts but no
 independent party seeded faults. One platform (QEMU virt), one device model
 per bus. Read-back still reads the stream table in memory, not the SMMU's
 cached view (SM3).
+
+**Afterwards.** SM1 to SM3 were fixed in haven `7ec513e`
+(`../20261102-smmu-bugfix/README.md`) and read-back moved to v3 (`d5bb678`).
+`freeze/SHA256SUMS-v2` matches the tool at `3517927`, not at later commits;
+check it with `git show 3517927:tools/readback/readback.py`. Re-running S5 to
+S7 on the fixed code needs the new `hv_smmu_assign_streamid` call, so they are
+superseded by the bugfix checks rather than re-scored.

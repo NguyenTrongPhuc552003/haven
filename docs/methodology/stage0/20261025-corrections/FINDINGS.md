@@ -485,6 +485,8 @@ device to a partition yet; they appear as soon as one does. No code change.
   blocked and an unused stream is opened instead.
 - **Smallest correction (proposal):** take the device's hardware StreamID as an
   input of the grant and program exactly that STE.
+- **Resolution:** fixed in haven `7ec513e` (2026-11-02), verified in QEMU
+  with read-back v3 (`../../stage1/20261102-smmu-bugfix/README.md`, checks F1 and M2).
 
 ### SM2 - The DMA window is not enforced by hardware
 
@@ -501,6 +503,8 @@ device to a partition yet; they appear as soon as one does. No code change.
 - **Smallest correction (proposal):** give each device stream its own stage-2
   table limited to the window, or record that HAVEN grants DMA at partition
   granularity and drop the window from the contract.
+- **Resolution:** fixed in haven `7ec513e` (2026-11-02), verified in QEMU
+  with read-back v3 (`../../stage1/20261102-smmu-bugfix/README.md`, checks F1, F2, M1, M3 and M4).
 
 ### SM3 - The SMMU command queue is never set up
 
@@ -525,3 +529,5 @@ device to a partition yet; they appear as soon as one does. No code change.
 - **Note for read-back:** read-back reads the stream table in memory; once
   invalidation works, the SMMU's cached view and the table agree. Until then
   the two can differ.
+- **Resolution:** fixed in haven `7ec513e` (2026-11-02), verified in QEMU
+  with read-back v3 (`../../stage1/20261102-smmu-bugfix/README.md`, QEMU command trace and checks F1, F3).

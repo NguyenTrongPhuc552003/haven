@@ -49,6 +49,18 @@ So under ACPI boot with this firmware release the GPU is a DMA master with no
 SMMU stream (reference fact). Still to confirm on a board: that its firmware is
 built from this release, and the device-tree boot path.
 
+Same release, `CommonDefines.h` (checked 2026-11-02 for the SMMU bugfix):
+
+- `PCIE_SMMU_ENABLE 0`, `SUB_SYSTEM_SMMU_ENABLE 0`, `MM_HUB_SMMU_ENABLE 1`
+  (with DPU, NPU, ISP and CSI enabled). In the default build, PCIe devices
+  have no SMMU in their path either; only the multimedia hub SMMU is
+  described. A PCIe device in a partition would then be an unenforced DMA
+  master, as the GPU is.
+- `Iort.aslc` sets `EFI_ACPI_IORT_SMMUv3_FLAG_COHAC_OVERRIDE` on all three
+  SMMU nodes (`SMMU0_BASE` PCIe, `SMMU2_BASE`, `SMMU1_BASE`): the SMMUs'
+  table and queue accesses are coherent, which HAVEN's SMMU_CR1 setting
+  relies on (`docs/methodology/stage1/20261102-smmu-bugfix/`).
+
 ## GPU facts used by the thesis (source-derived)
 
 - GPU: Arm Immortalis-G720 MC10 (arch v12, CSF). Upstream Panthor knows it

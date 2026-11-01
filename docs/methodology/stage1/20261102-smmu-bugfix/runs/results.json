@@ -1,0 +1,283 @@
+{
+ "haven_commit": "d5bb678",
+ "unit_rc": 0,
+ "results": {
+  "B0": {
+   "check": "B0",
+   "grant": "docs/methodology/stage1/20261101-a1-readback/grant-qemu-v2.json",
+   "smmu_stage": "nested",
+   "expect": [],
+   "build_rc": 0,
+   "trace": [
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_CFGI_STE_RANGE",
+    "smmuv3_cmdq_cfgi_ste_range start=0x0 - end=0xffffffff",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_TLBI_NSNH_ALL",
+    "smmuv3_cmdq_tlbi_nsnh ",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_SYNC"
+   ],
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": null
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": null
+   }
+  },
+  "B1": {
+   "check": "B1",
+   "grant": "docs/methodology/stage1/20261101-a1-readback/grant-qemu-v2.json",
+   "smmu_stage": "1",
+   "expect": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": null
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": null
+   }
+  },
+  "F1": {
+   "check": "F1",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-rw.json",
+   "smmu_stage": "nested",
+   "expect": [],
+   "build_rc": 0,
+   "trace": [
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_CFGI_STE_RANGE",
+    "smmuv3_cmdq_cfgi_ste_range start=0x0 - end=0xffffffff",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_TLBI_NSNH_ALL",
+    "smmuv3_cmdq_tlbi_nsnh ",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_SYNC",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_CFGI_STE",
+    "smmuv3_cmdq_cfgi_ste streamid= 0x8",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_TLBI_S12_VMALL",
+    "smmuv3_cmdq_tlbi_s12_vmid vmid=192",
+    "smmuv3_cmdq_opcode <--- SMMU_CMD_SYNC"
+   ],
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   }
+  },
+  "F2": {
+   "check": "F2",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-r.json",
+   "smmu_stage": "nested",
+   "expect": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   }
+  },
+  "F3": {
+   "check": "F3",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-rw.json",
+   "smmu_stage": "1",
+   "expect": [
+    [
+     "pci-1af4:1005",
+     "DMA enforcement drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=-95"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=-95"
+   }
+  },
+  "M1": {
+   "check": "M1",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-rw.json",
+   "smmu_stage": "nested",
+   "expect": [
+    [
+     "SID 8",
+     "DMA extent drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   }
+  },
+  "M2": {
+   "check": "M2",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-rw.json",
+   "smmu_stage": "nested",
+   "expect": [
+    [
+     "pci-1af4:1005",
+     "DMA enforcement drift"
+    ],
+    [
+     "SMMU",
+     "extra stream binding"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SMMU",
+      "extra stream binding"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 0 rc=0"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SMMU",
+      "extra stream binding"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 0 rc=0"
+   }
+  },
+  "M3": {
+   "check": "M3",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-r.json",
+   "smmu_stage": "nested",
+   "expect": [
+    [
+     "SID 8",
+     "DMA access drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA access drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA access drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   }
+  },
+  "M4": {
+   "check": "M4",
+   "grant": "docs/methodology/stage1/20261102-smmu-bugfix/grant-sid8-A-rw.json",
+   "smmu_stage": "nested",
+   "expect": [
+    [
+     "SID 8",
+     "DMA association drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA association drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA association drift"
+     ]
+    ],
+    "grant_line": "HAVEN: DMA grant SID 8 rc=0"
+   }
+  }
+ }
+}

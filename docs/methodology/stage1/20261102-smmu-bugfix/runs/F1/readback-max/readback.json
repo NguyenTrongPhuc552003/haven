@@ -1,0 +1,79 @@
+{
+ "cpu": "max",
+ "trigger": "marker",
+ "partitions": {
+  "1": {
+   "root": "0x8000a000",
+   "H": [
+    {
+     "ipa": "0x9000000",
+     "size": "0x1000",
+     "pa": "0x9000000",
+     "memattr": 1,
+     "s2ap": 3,
+     "sh": 0,
+     "af": 1,
+     "xn": 2
+    },
+    {
+     "ipa": "0x40000000",
+     "size": "0x20000000",
+     "pa": "0x80800000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 0
+    },
+    {
+     "ipa": "0x70000000",
+     "size": "0x200000",
+     "pa": "0xa4c00000",
+     "memattr": 15,
+     "s2ap": 1,
+     "sh": 3,
+     "af": 1,
+     "xn": 2
+    }
+   ]
+  },
+  "2": {
+   "root": "0x8000e000",
+   "H": [
+    {
+     "ipa": "0x60000000",
+     "size": "0x4000000",
+     "pa": "0xa0800000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 0
+    }
+   ]
+  }
+ },
+ "smmu": {
+  "cr0": "0x9",
+  "cr0ack": "0x9",
+  "gbpa": "0x1000",
+  "strtab_base": "0x4000000080414000",
+  "strtab_cfg": "0x8",
+  "idr0": "0xd44101b",
+  "gerror": "0x0",
+  "cmdq_base": "0x4000000080418008",
+  "cmdq_prod": "0x6",
+  "cmdq_cons": "0x6"
+ },
+ "dma_masters": [
+  {
+   "device": "pci-1af4:1005",
+   "bus": "pci 00:01.0",
+   "sid": 8,
+   "behind_smmu": true,
+   "state": "translated:1",
+   "reason": "STE stage-2, S2TTB 0x80010000 (stream table, 0x100000 bytes)"
+  }
+ ],
+ "findings": []
+}
