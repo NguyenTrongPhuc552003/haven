@@ -1,0 +1,297 @@
+{
+ "haven_commit": "3517927",
+ "results": {
+  "R1": {
+   "case": "R1",
+   "grant": "grant-qemu-v2.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RO",
+      "access drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RO",
+      "access drift"
+     ]
+    ],
+    "trigger": "marker"
+   }
+  },
+  "S1": {
+   "case": "S1",
+   "grant": "grant-qemu-v2.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SMMU",
+      "extra stream binding"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SMMU",
+      "extra stream binding"
+     ]
+    ],
+    "trigger": "marker"
+   }
+  },
+  "S2": {
+   "case": "S2",
+   "grant": "grant-qemu-v2.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SMMU",
+      "SMMU enable drift"
+     ],
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SMMU",
+      "SMMU enable drift"
+     ],
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ]
+    ],
+    "trigger": "marker"
+   }
+  },
+  "S5": {
+   "case": "S5",
+   "grant": "grant-sid8-to-A.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SMMU",
+      "extra stream binding"
+     ]
+    ],
+    "trigger": "time limit (8 s, partition A did not reach its post-fault line)"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SMMU",
+      "extra stream binding"
+     ]
+    ],
+    "trigger": "time limit (8 s, partition A did not reach its post-fault line)"
+   }
+  },
+  "S6": {
+   "case": "S6",
+   "grant": "grant-sid8-to-A.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "trigger": "time limit (8 s, partition A did not reach its post-fault line)"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "trigger": "time limit (8 s, partition A did not reach its post-fault line)"
+   }
+  },
+  "S7": {
+   "case": "S7",
+   "grant": "grant-sid8-to-A.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "trigger": "time limit (8 s, partition A did not reach its post-fault line)"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "DMA enforcement drift"
+     ],
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "trigger": "time limit (8 s, partition A did not reach its post-fault line)"
+   }
+  },
+  "U1": {
+   "case": "U1",
+   "grant": "grant-qemu-v2.json",
+   "devices": [
+    "virtio-rng-pci",
+    "virtio-rng-device"
+   ],
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "virtio-rng-device",
+      "unenforced DMA master"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "virtio-rng-device",
+      "unenforced DMA master"
+     ]
+    ],
+    "trigger": "marker"
+   }
+  },
+  "C1": {
+   "case": "C1",
+   "grant": "grant-qemu-v2.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   }
+  },
+  "C5": {
+   "case": "C5",
+   "grant": "grant-qemu-v2.json",
+   "devices": [
+    "virtio-rng-pci"
+   ],
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   }
+  }
+ }
+}

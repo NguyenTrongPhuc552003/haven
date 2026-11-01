@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/iommu/smmu_v3.c	2026-11-02 01:21:00
++++ /tmp/a1v2-S1-psmit_qo/drivers/iommu/smmu_v3.c	2026-11-02 01:37:24
+@@ -58,7 +58,7 @@
+ 	uint64_t *ste = &smmu.ste_table[sid * SMMU_STE_DWORDS];
+ 
+ 	/* Word 0: VALID=1, CONFIG=ABORT */
+-	ste[0] = STE_0_VALID | STE_0_CONFIG_ABORT;
++	ste[0] = STE_0_VALID | STE_0_CONFIG_BYPASS;
+ 	/* Words 1-7: zero (unused for ABORT) */
+ 	for (int i = 1; i < SMMU_STE_DWORDS; i++)
+ 		ste[i] = 0;

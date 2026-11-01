@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/iommu/smmu_v3.c	2026-11-02 01:21:00
++++ /tmp/a1v2-S2-paymua2_/drivers/iommu/smmu_v3.c	2026-11-02 01:37:32
+@@ -272,8 +272,6 @@
+ 	smmu_write32(base, SMMU_STRTAB_BASE_CFG, strtab_cfg);
+ 
+ 	/* Enable SMMU translation */
+-	smmu_write32(base, SMMU_CR0, CR0_SMMU_ENABLE);
+-	smmu_wait_cr0ack(base, CR0_SMMU_ENABLE);
+ 
+ 	smmu.initialized = 1;
+ 	return HV_OK;

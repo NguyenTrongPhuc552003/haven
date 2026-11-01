@@ -1,0 +1,16 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/iommu/smmu_v3.c	2026-11-02 01:21:00
++++ /tmp/a1v2-C5-06la_urg/drivers/iommu/smmu_v3.c	2026-11-02 01:42:13
+@@ -57,11 +57,10 @@
+ {
+ 	uint64_t *ste = &smmu.ste_table[sid * SMMU_STE_DWORDS];
+ 
+-	/* Word 0: VALID=1, CONFIG=ABORT */
+-	ste[0] = STE_0_VALID | STE_0_CONFIG_ABORT;
+-	/* Words 1-7: zero (unused for ABORT) */
++	/* Words 1-7 first, then word 0: same STE bytes */
+ 	for (int i = 1; i < SMMU_STE_DWORDS; i++)
+ 		ste[i] = 0;
++	ste[0] = STE_0_VALID | STE_0_CONFIG_ABORT;
+ 
+ 	/* Ensure store is visible before SMMU sees it */
+ 	__asm__ volatile("dsb sy" ::: "memory");

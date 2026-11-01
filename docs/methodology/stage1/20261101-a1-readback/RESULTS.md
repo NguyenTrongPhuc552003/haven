@@ -254,3 +254,55 @@ must be checked where it happens.
 **Threats to validity.** Same as section 7; in addition, read-back reads the
 stream table in memory, which can differ from the SMMU's cached view while
 invalidation is broken (SM3).
+
+## 9. Scored case set v2 (2026-11-02)
+
+**Status:** EXPERIMENT, scored. Cases and expected verdicts: `CASES-v2.md`,
+owner-approved and frozen before the run (`freeze/SHA256SUMS-v2`). Runner:
+`run_cases_v2.py` at haven `3517927`. Results: `runs/cases-v2/results.md`
+and `results.json`; per-case logs and diffs in `runs/cases-v2/<case>/`;
+memory dumps replaced by `runs/cases-v2/DUMP_SHA256SUMS`.
+
+| Case | Expected read-back verdict | Read-back | Unit tests | Boot check | Caught only by read-back |
+| - | - | - | - | - | - |
+| R1 | access drift on A RO | yes | fail | pass | no |
+| S1 | DMA enforcement drift; extra stream binding | yes | pass | pass | **yes** |
+| S2 | SMMU enable drift; DMA enforcement drift | yes | pass | pass | **yes** |
+| S5 | DMA enforcement drift; extra stream binding | yes | pass | fail | no |
+| S6 | DMA extent drift on SID 8 | yes | fail (see below) | fail | no |
+| S7 | DMA enforcement drift | yes, plus DMA extent drift | fail (see below) | fail | no |
+| U1 | unenforced DMA master | yes | pass | pass | **yes** |
+| C1 | matches the grant | yes | pass | pass | control |
+| C5 | matches the grant | yes | pass | pass | control |
+
+Results identical on cortex-a72 and max (18 runs).
+
+**Observations**
+
+- Read-back gave the expected verdict in all 7 seeded cases and no finding in
+  either control. No case ended without a verdict.
+- S1, S2 and U1 passed both existing checks and were caught only by
+  read-back.
+- S7 has one finding beyond the expected set: DMA extent drift on SID 8. It
+  is correct: the entry points at the whole of partition B, so its reach also
+  exceeds the 1 MiB window. The expected set was a minimum, not exhaustive.
+- The unit-test failures in S6 and S7 differ from the prediction. They come
+  from the case scaffolding, not the seeded defect: forcing the allocator to
+  start at SID 8 makes `test_smmu_hardware` S8 ("pool fill should succeed")
+  fail and `test_smmu_dma` abort, because the pool can no longer hand out all
+  64 IDs. They are not evidence that unit tests detect SM2.
+- The boot-check failures in S5, S6 and S7 come from the SM3 hang, as
+  predicted.
+
+**Interpretation (inference).** The v2 case set repeats the v1 pattern with
+the SMMU in scope: read-back sees DMA enforcement faults that the host tests
+and the boot check do not, and stays quiet on behaviour-preserving changes.
+The evidence supports the A1 claim for the QEMU platform; it says nothing yet
+about real hardware.
+
+**Threats to validity.** Five of the seven seeded cases were run before the
+expected verdicts were written (section 8), so only S7 and U1 are blind.
+Claude wrote the cases and the tool; the owner approved the verdicts but no
+independent party seeded faults. One platform (QEMU virt), one device model
+per bus. Read-back still reads the stream table in memory, not the SMMU's
+cached view (SM3).

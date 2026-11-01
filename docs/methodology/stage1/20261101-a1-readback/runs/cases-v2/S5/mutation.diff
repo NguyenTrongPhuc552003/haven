@@ -1,0 +1,23 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 01:21:00
++++ /tmp/a1v2-S5-7rpoazrr/src/core/partition.c	2026-11-02 01:37:39
+@@ -22,6 +22,7 @@
+ 
+ #include <haven/budget_sched.h>
+ #include <haven/irq_ownership.h>
++#include <haven/smmu.h>
+ #include <haven/stage2.h>
+ #include <haven/types.h>
+ #include <stdint.h>
+@@ -221,6 +222,12 @@
+ 		hv_stage2_unmap_partition(PARTITION_A_ID);
+ 		hv_panic("partition B stage-2 mapping failed");
+ 	}
++	{
++		hv_u16 sid;
++		if (hv_smmu_allocate_streamid(PARTITION_A_ID, &sid) == HV_OK)
++			(void)hv_smmu_configure_dma_window(sid, PART_A_IPA_BASE, 0x100000UL,
++							    PART_A_PA_BASE, HV_DMA_RW);
++	}
+ 	hv_printk("HAVEN: partition B mapped PA=0x%lx IPA=0x%lx size=%uMB\n",
+ 		  (unsigned long)PART_B_PA_BASE, (unsigned long)PART_B_IPA_BASE,
+ 		  (unsigned)(PART_B_SIZE >> 20));

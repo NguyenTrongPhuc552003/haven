@@ -1,0 +1,14 @@
+$ ./scripts/qemu/qemu-direct-check.sh build cortex-a72
+qemu-system-aarch64: terminating on signal 15 from pid 51004 (<unknown process>)
+---- UART (build/evidence/qemu-direct-cortex-a72-uart.log) ----
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  2 2026 01:37:46
+  CPU: PARange=4 GIC=v3 - features OK
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+---------------------
+MISSING Hello from partition A
+MISSING Denied stage-2 violation
+MISSING PARTITION_A: Post-fault check OK
+qemu-direct-check: FAIL (cortex-a72)
