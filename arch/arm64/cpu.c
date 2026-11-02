@@ -78,13 +78,11 @@ void hv_arch_cpu_init(void)
 /* -----------------------------------------------------------------------
  * Logical CPU map (FINDINGS B3, asm/cpu_map.h).
  *
- * Weak default: four CPUs numbered in Aff0, the historical assumption, kept
- * for the legacy i.MX platforms (unverified there).  A platform overrides
- * both symbols with its own table, boot CPU first.
+ * Each platform defines hv_cpu_mpidr[] and hv_cpu_count, boot CPU first.
+ * No weak default here: GCC folded a weak const default into this file,
+ * so the platform's count was ignored in C while boot.S used it (seen in
+ * control L5, 2026-11-02).
  * ----------------------------------------------------------------------- */
-__attribute__((weak)) const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
-__attribute__((weak)) const uint32_t hv_cpu_count = 4U;
-
 uint32_t hv_arch_cpu_id(void)
 {
 	uint64_t mpidr = read_sysreg(mpidr_el1) & HV_MPIDR_AFF_MASK;

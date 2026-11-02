@@ -32,6 +32,7 @@ DELAY = ("\t{ /* control: report ready 300 ms late */\n"
 READY = "CPU 2 ready, partition B started"
 LATE = "CPU 2 not ready within 100 ms - partition B not started"
 NO_PSCI = "PSCI CPU_ON failed for CPU 2 - partition B inactive"
+NO_CPU = "no CPU 2 in the CPU map - partition B not started"
 A_DONE = "PARTITION_A: IRQ test done"
 # name: (edits, lines that must appear, lines that must not, B stage expected)
 CHECKS = {
@@ -44,8 +45,11 @@ CHECKS = {
     # The boot CPU is not entry 0 of the map: Haven refuses to start.
     "L4": ([(PLAT, TABLE, "const uint64_t hv_cpu_mpidr[] = {0x1, 0x0, 0x2, 0x3};")],
            ["boot CPU is not entry 0 of the CPU map"], [READY, A_DONE], 0),
-    # The map has no CPU 2: no MPIDR to switch on, CPU_ON fails.
-    "L5": ([(PLAT, COUNT, "const uint32_t hv_cpu_count = 2U;")], [NO_PSCI, A_DONE], [READY, LATE], 0),
+    # The map has no CPU 2. First run (runs-first/) expected CPU_ON to
+    # fail; instead the ready deadline fired, because the C side ignored
+    # the platform's count (GCC folded a weak const default), started
+    # MPIDR 2, and boot.S parked it. Haven now refuses before CPU_ON.
+    "L5": ([(PLAT, COUNT, "const uint32_t hv_cpu_count = 2U;")], [NO_CPU, A_DONE], [READY, LATE, NO_PSCI], 0),
 }
 CPUS = ["cortex-a72", "max"]
 TOOLCHAIN = "/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin"
@@ -98,8 +102,11 @@ def main():
                 open(os.path.join(cdir, f"partb-{cpu}.txt"), "w").write(p.stdout + p.stderr)
                 m = re.search(r"stage=(\d+)", p.stdout)
                 c["stage"] = int(m.group(1)) if m else None
-                c["present"] = [w for w in want if w in p.stdout]
-                c["forbidden_seen"] = [w for w in forbid if w in p.stdout]
+                # Match the UART only: the check list printed after it
+                # repeats some of these lines as labels (first-run bug).
+                uart = p.stdout.split("---------------------")[0]
+                c["present"] = [w for w in want if w in uart]
+                c["forbidden_seen"] = [w for w in forbid if w in uart]
                 c["ok"] = len(c["present"]) == len(want) and not c["forbidden_seen"] and c["stage"] == stage
             r[cpu] = c
         results[name] = r

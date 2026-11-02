@@ -313,6 +313,7 @@ extern void hv_arch_secondary_start(uint32_t cpu_id,
 				    void (*entry_fn)(uint64_t cpu_id));
 extern int hv_arch_psci_cpu_on(uint64_t target_mpidr, uintptr_t entry_pa);
 extern uint64_t hv_arch_logical_mpidr(uint32_t cpu);
+#define HV_ARCH_NO_CPU 0xffffffffUL /* HV_CPU_INVALID, asm/cpu_map.h */
 extern int hv_arch_cpu_wait_ready(uint32_t cpu, uint64_t timeout_us);
 extern int hv_arch_cpu_report_ready(uint32_t cpu);
 extern void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition);
@@ -458,8 +459,13 @@ void partitions_launch(void)
 	 * The PSCI CPU_ON call is asynchronous: CPU 2 may still be waking up
 	 * when we write the mailbox, so the SEV in hv_arch_secondary_start
 	 * guarantees the wake-up is observed. */
-	if (hv_arch_psci_cpu_on(hv_arch_logical_mpidr(PART_B_CPU),
-				(uintptr_t)secondary_entry) == 0) {
+	if (hv_arch_logical_mpidr(PART_B_CPU) == HV_ARCH_NO_CPU) {
+		/* No MPIDR to switch on: never issue CPU_ON for an index the
+		 * platform's CPU map does not contain (control L5). */
+		hv_printk("HAVEN: no CPU 2 in the CPU map - partition B not "
+			  "started\n");
+	} else if (hv_arch_psci_cpu_on(hv_arch_logical_mpidr(PART_B_CPU),
+				       (uintptr_t)secondary_entry) == 0) {
 		hv_arch_secondary_start(PART_B_CPU,
 					partition_b_secondary_cpu_init);
 		/* PSCI success only means the CPU was switched on; partition B

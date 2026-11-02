@@ -25,6 +25,12 @@
  * i.MX LPUART1 - register-level access via drivers/uart/imx_uart.c
  * ----------------------------------------------------------------------- */
 
+/* Logical CPU map (asm/cpu_map.h).  Legacy platform, not maintained: these
+ * values keep the old "CPUs numbered in Aff0" assumption and were never
+ * checked against this SoC. */
+const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
+const uint32_t hv_cpu_count = 4U;
+
 static void imx95_uart_putchar(char c)
 {
 	uart_putchar(IMX95_UART1_BASE, c);

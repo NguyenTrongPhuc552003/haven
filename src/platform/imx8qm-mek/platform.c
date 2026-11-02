@@ -29,6 +29,12 @@
 #define LPUART_DATA 0x1C
 #define LPUART_STAT_TDRE (1U << 23)
 
+/* Logical CPU map (asm/cpu_map.h).  Legacy platform, not maintained: these
+ * values keep the old "CPUs numbered in Aff0" assumption and were never
+ * checked against this SoC. */
+const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
+const uint32_t hv_cpu_count = 4U;
+
 static void imx8qm_uart_putchar(char c)
 {
 	volatile uint32_t *stat =

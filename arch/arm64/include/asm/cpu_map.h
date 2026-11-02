@@ -37,7 +37,7 @@
 #include <stdint.h>
 
 /* Platform table: MPIDR affinity of each logical CPU, boot CPU first.
- * A platform defines both; arch/arm64/cpu.c has a weak default. */
+ * Every platform defines both (no weak default: see arch/arm64/cpu.c). */
 extern const uint64_t hv_cpu_mpidr[];
 extern const uint32_t hv_cpu_count;
 
