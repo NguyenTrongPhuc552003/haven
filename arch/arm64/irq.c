@@ -226,7 +226,10 @@ void hv_arch_gic_el2_setup(void)
  *     owner is checked against the running partition, not inferred from
  *     the routing, so a misrouted interrupt never reaches another
  *     partition;
- *   - anything else, or no free list register: EOI and DIR, logged once.
+ *   - anything else, or no free list register: EOI and DIR.  An SPI that
+ *     cannot be delivered is also disabled in the distributor: a level
+ *     interrupt nobody clears would otherwise fire again at once and keep
+ *     the CPU in Haven (observed in QEMU before this rule).
  * ----------------------------------------------------------------------- */
 
 static uint32_t smmu_evtq_intid;
@@ -278,7 +281,7 @@ void hv_arch_handle_phys_irq(void)
 	extern void smmu_v3_service_irq(void);
 	extern uint32_t hv_arch_cpu_id(void);
 	extern hv_u32 hv_irq_owner(hv_u32 irq_id, hv_u32 * target_cpu);
-	static uint32_t undelivered;
+	extern hv_status_t gic_v3_disable_irq(uint32_t irq);
 
 	for (;;) {
 		uint64_t iar = read_sysreg(icc_iar1_el1);
@@ -301,8 +304,10 @@ void hv_arch_handle_phys_irq(void)
 				isb();
 				continue;
 			}
-			if (undelivered++ == 0U) {
-				hv_printk("HAVEN: IRQ %u not delivered\n",
+			if (intid >= 32U) {
+				(void)gic_v3_disable_irq(intid);
+				hv_printk("HAVEN: IRQ %u not delivered, "
+					  "disabled\n",
 					  (unsigned)intid);
 			}
 		}
