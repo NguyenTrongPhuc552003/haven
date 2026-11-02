@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-09-26 15:24:52
++++ /tmp/gic-I3-09r_k9bg/drivers/irqchip/gic_v3.c	2026-11-02 12:52:51
+@@ -182,7 +182,7 @@
+ 		gic_write32(gicr_cpu_base(0), GICR_ISENABLER0, 1U << irq);
+ 	} else {
+ 		gic_write32(gic.gicd_base, GICD_ISENABLER(irq / 32),
+-			    1U << (irq % 32));
++			    0xffffffffU);
+ 	}
+ 	return HV_OK;
+ }

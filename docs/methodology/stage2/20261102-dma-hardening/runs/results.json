@@ -1,0 +1,1540 @@
+{
+ "haven_commit": "d0ed794",
+ "results": {
+  "H1": {
+   "check": "H1",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "config page read-only",
+    "DMA inside window OK",
+    "DMA outside window blocked",
+    "HAVEN: SMMU event 0x10 SID 8"
+   ],
+   "expect": [],
+   "expect_consumed": true,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000004 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000008 write",
+     "HAVEN: SMMU events so far: 8",
+     "HAVEN: SMMU events so far: 16",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     }
+    ]
+   },
+   "max": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000004 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000008 write",
+     "HAVEN: SMMU events so far: 8",
+     "HAVEN: SMMU events so far: 16",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     }
+    ]
+   }
+  },
+  "H2": {
+   "check": "H2",
+   "device": null,
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "withheld: device absent",
+    "no DMA device granted"
+   ],
+   "expect": [
+    [
+     "A PCI config",
+     "missing binding"
+    ],
+    [
+     "A PCI BAR",
+     "missing binding"
+    ]
+   ],
+   "expect_consumed": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1 withheld: device absent",
+     "PARTITION_A: no DMA device granted",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1 withheld: device absent",
+     "PARTITION_A: no DMA device granted",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   }
+  },
+  "H3": {
+   "check": "H3",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "config write landed"
+   ],
+   "expect": [
+    [
+     "A PCI config",
+     "access drift"
+    ]
+   ],
+   "expect_consumed": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "A PCI config",
+      "access drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config write landed",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "A PCI config",
+      "access drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config write landed",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   }
+  },
+  "H4": {
+   "check": "H4",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "DMA inside window OK",
+    "DMA outside window blocked"
+   ],
+   "expect": [],
+   "expect_consumed": true,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000004 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000008 write",
+     "HAVEN: SMMU events so far: 8",
+     "HAVEN: SMMU events so far: 16",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     }
+    ]
+   },
+   "max": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000004 write",
+     "HAVEN: SMMU event 0x10 SID 8 addr 0x5e000008 write",
+     "HAVEN: SMMU events so far: 8",
+     "HAVEN: SMMU events so far: 16",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": true
+     }
+    ]
+   }
+  },
+  "H5": {
+   "check": "H5",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "DMA outside window blocked"
+   ],
+   "expect": [
+    [
+     "SPI 106",
+     "interrupt routing drift"
+    ]
+   ],
+   "expect_consumed": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "SPI 106",
+      "interrupt routing drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     }
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "SPI 106",
+      "interrupt routing drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     }
+    ]
+   }
+  },
+  "H6": {
+   "check": "H6",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "DMA outside window blocked"
+   ],
+   "expect": [
+    [
+     "SPI 106",
+     "missing interrupt binding"
+    ]
+   ],
+   "expect_consumed": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "SPI 106",
+      "missing interrupt binding"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     }
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "SPI 106",
+      "missing interrupt binding"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: config page read-only",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true,
+      "consumed": false
+     }
+    ]
+   }
+  }
+ }
+}

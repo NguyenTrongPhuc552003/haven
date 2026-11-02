@@ -1,0 +1,18 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 12:57:50
++++ /tmp/g2-H4-yq2c81wr/src/core/partition.c	2026-11-02 13:00:03
+@@ -199,6 +199,7 @@
+ 			}
+ 			rc = pci_ecam_place_bar((uintptr_t)g->cfg_pa, g->bar,
+ 						g->bar_pa, g->bar_size);
++			pci_ecam_enable((uintptr_t)g->cfg_pa);
+ 		}
+ #endif
+ 		if (rc == HV_OK) {
+@@ -213,7 +214,6 @@
+ #ifdef HAVEN_ARCH_ARM64
+ 				/* Window enforced: now the device may master. */
+ 				if (g->cfg_pa != 0U) {
+-					pci_ecam_enable((uintptr_t)g->cfg_pa);
+ 				}
+ #endif
+ 				rc = hv_stage2_add_regions(&mmio);

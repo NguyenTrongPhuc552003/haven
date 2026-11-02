@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-09-26 15:24:52
++++ /tmp/gic-I2-dgbkryom/drivers/irqchip/gic_v3.c	2026-11-02 12:52:43
+@@ -208,7 +208,7 @@
+ 		return HV_EINVAL;
+ 
+ 	gic_write64(gic.gicd_base, GICD_IROUTER(irq),
+-		    gicd_irouter_from_mpidr(mpidr));
++		    gicd_irouter_from_mpidr(mpidr) | GICD_IROUTER_IRM);
+ 	return HV_OK;
+ }
+ 

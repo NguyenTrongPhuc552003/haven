@@ -1,0 +1,16 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-09-26 15:24:52
++++ /tmp/gic-C1-5oswp08m/drivers/irqchip/gic_v3.c	2026-11-02 12:53:25
+@@ -207,8 +207,11 @@
+ 	if (!gic.initialized || irq < GIC_SPI_BASE || irq >= gic.nr_irqs)
+ 		return HV_EINVAL;
+ 
+-	gic_write64(gic.gicd_base, GICD_IROUTER(irq),
+-		    gicd_irouter_from_mpidr(mpidr));
++	{
++		uint64_t route = gicd_irouter_from_mpidr(mpidr);
++
++		gic_write64(gic.gicd_base, GICD_IROUTER(irq), route);
++	}
+ 	return HV_OK;
+ }
+ 

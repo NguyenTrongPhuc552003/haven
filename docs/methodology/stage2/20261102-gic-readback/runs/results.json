@@ -1,0 +1,209 @@
+{
+ "haven_commit": "401f5da",
+ "results": {
+  "I0": {
+   "case": "I0",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   }
+  },
+  "I1": {
+   "case": "I1",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt routing drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt routing drift"
+     ]
+    ]
+   }
+  },
+  "I2": {
+   "case": "I2",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt routing drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt routing drift"
+     ]
+    ]
+   }
+  },
+  "I3": {
+   "case": "I3",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "GIC",
+      "interrupt enable drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "GIC",
+      "interrupt enable drift"
+     ]
+    ]
+   }
+  },
+  "I4": {
+   "case": "I4",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt group drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt group drift"
+     ]
+    ]
+   }
+  },
+  "I5": {
+   "case": "I5",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "CPU 0 PPIs",
+      "interrupt enable drift"
+     ],
+     [
+      "CPU 1 PPIs",
+      "interrupt enable drift"
+     ],
+     [
+      "CPU 2 PPIs",
+      "interrupt enable drift"
+     ],
+     [
+      "CPU 3 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "CPU 0 PPIs",
+      "interrupt enable drift"
+     ],
+     [
+      "CPU 1 PPIs",
+      "interrupt enable drift"
+     ],
+     [
+      "CPU 2 PPIs",
+      "interrupt enable drift"
+     ],
+     [
+      "CPU 3 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   }
+  },
+  "I6": {
+   "case": "I6",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "missing interrupt binding"
+     ]
+    ]
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SPI 33",
+      "missing interrupt binding"
+     ]
+    ]
+   }
+  },
+  "C1": {
+   "case": "C1",
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": []
+   }
+  }
+ }
+}

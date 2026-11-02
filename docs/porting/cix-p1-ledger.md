@@ -83,6 +83,22 @@ GPU has no SMMU stream here either (row 1 holds). No Orange Pi 6 Plus
 firmware image is in `data/`, so the same check has not been done for the
 Plus.
 
+## Orange Pi 6 versus 6 Plus schematics (2026-11-02)
+
+From `data/orange-pi-6/base/OPi_6-V11-SCH.pdf` and
+`data/orange-pi-6/plus/OPi 6 PLUS V11 DSN 0612.pdf` (both V1.x, Shenzhen
+Xunlong), sheets "SKY1 I2C/JTAG/GPIO/MISC" and "STRAP/UART DEBUG":
+
+| | Orange Pi 6 | Orange Pi 6 Plus |
+| - | - | - |
+| SoC JTAG | TDI/TDO/TCK/TMS/TRST to unfitted test points ("Dummy"); the Lauterbach/J-Link connector is not on the board | **J21**, 2x5 header (PH0205-100TM-SM-H10, 1.27 mm) with TMS, TCK, TDO, TDI and reset, pull-ups to 1.8 V; drawn without a "Dummy" mark |
+| Debug UART header | J135, 2x2: UART2 (UEFI and kernel console) only; PM, SE and UART6 lines to unfitted test points | J135, 2x5: UART2 console, UART4 (power management), UART5 (security engine), UART6 |
+| Firmware image in `data/` | yes (IORT checked above) | no |
+
+Whether J21 is fitted on retail Plus boards, and whether the CIX P1 allows
+external debug of the application cores without Secure authorisation, is
+not shown by these documents; both are to be checked on the board.
+
 ## GPU facts used by the thesis (source-derived)
 
 - GPU: Arm Immortalis-G720 MC10 (arch v12, CSF). Upstream Panthor knows it

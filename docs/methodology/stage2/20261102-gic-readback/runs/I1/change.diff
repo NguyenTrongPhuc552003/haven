@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 12:14:21
++++ /tmp/gic-I1-1n1r983l/src/core/partition.c	2026-11-02 12:52:35
+@@ -222,7 +222,7 @@
+  * ----------------------------------------------------------------------- */
+ 
+ static const struct hv_irq_route part_a_irqs[] = {
+-	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
++	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 2U},
+ };
+ 
+ /* Partition B: no SPI IRQ assignments for the QEMU demo.

@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-09-26 15:24:52
++++ /tmp/gic-I5-bn27iogl/drivers/irqchip/gic_v3.c	2026-11-02 12:53:08
+@@ -112,7 +112,7 @@
+ 
+ 	/* SGIs enabled by default; PPIs disabled (assigned per partition) */
+ 	gic_write32(base, GICR_ICENABLER0, 0xffff0000U);
+-	gic_write32(base, GICR_ISENABLER0, 0x0000ffffU);
++	gic_write32(base, GICR_ISENABLER0, 0xffffffffU);
+ 
+ 	/* Default priority: Linux-level */
+ 	for (uint32_t i = 0; i < 8; i++)

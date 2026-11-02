@@ -1,0 +1,196 @@
+$ cmake --preset host-tests && cmake --build build-host
+-- The C compiler identification is AppleClang 21.0.0.21000334
+-- The ASM compiler identification is AppleClang
+-- Found assembler: /usr/bin/cc
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /private/tmp/gic-I6-0kpe9qzi/build-host
+[1/130] Building C object tests/CMakeFiles/test_core_stubs.dir/common/printk_stub.c.o
+[2/130] Building C object tests/CMakeFiles/test_core_stubs.dir/unit/test_core_stubs.c.o
+[3/130] Building C object tests/CMakeFiles/test_core_stubs.dir/__/src/core/sched/budget.c.o
+[4/130] Building C object tests/CMakeFiles/test_smmu_dma.dir/__/src/core/mm/stage2.c.o
+[5/130] Building C object tests/CMakeFiles/test_core_stubs.dir/__/src/core/mm/stage2.c.o
+[6/130] Building C object tests/CMakeFiles/test_stage2_attrs.dir/__/src/core/mm/stage2.c.o
+[7/130] Building C object tests/CMakeFiles/test_timer.dir/__/src/core/time/timer.c.o
+[8/130] Building C object tests/CMakeFiles/test_core_stubs.dir/__/src/core/irq/ownership.c.o
+[9/130] Building C object tests/CMakeFiles/test_el2_exceptions.dir/unit/test_el2_exceptions.c.o
+[10/130] Building C object tests/CMakeFiles/test_stage2_attrs.dir/unit/test_stage2_attrs.c.o
+[11/130] Building C object tests/CMakeFiles/test_smmu_dma.dir/unit/test_smmu_dma.c.o
+[12/130] Building C object tests/CMakeFiles/test_smmu_dma.dir/__/src/core/dma/smmu.c.o
+[13/130] Building C object tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o
+[14/130] Building C object tests/CMakeFiles/test_timer.dir/unit/test_timer.c.o
+[15/130] Building C object tests/CMakeFiles/test_iommu_policy.dir/unit/test_iommu_policy.c.o
+[16/130] Building C object tests/CMakeFiles/test_iommu_policy.dir/__/src/core/iommu/iommu_policy.c.o
+[17/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/integration/test_isolation_flow.c.o
+[18/130] Building C object tests/CMakeFiles/test_freertos_integration.dir/common/printk_stub.c.o
+[19/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/common/printk_stub.c.o
+[20/130] Building C object tests/CMakeFiles/test_freertos_integration.dir/unit/test_freertos_integration.c.o
+[21/130] Building C object tests/CMakeFiles/test_guest_uart.dir/__/src/guest/drivers/uart.c.o
+[22/130] Building C object tests/CMakeFiles/test_freertos_integration.dir/__/src/guest/rtos/freertos_integration.c.o
+[23/130] Building C object tests/CMakeFiles/test_guest_uart.dir/unit/test_guest_uart.c.o
+[24/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/mm/stage2.c.o
+[25/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/sched/budget.c.o
+[26/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/irq/ownership.c.o
+[27/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/time/timer.c.o
+[28/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/dma/smmu.c.o
+[29/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/iommu/iommu_policy.c.o
+[30/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/mm/stage2.c.o
+[31/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/common/printk_stub.c.o
+[32/130] Building C object tests/CMakeFiles/test_isolation_flow.dir/__/src/core/exc/el2_exceptions.c.o
+[33/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/integration/test_isolation_negative.c.o
+[34/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/irq/ownership.c.o
+[35/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/dma/smmu.c.o
+[36/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/sched/budget.c.o
+[37/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/time/timer.c.o
+[38/130] Building C object tests/CMakeFiles/test_fault_injection.dir/common/printk_stub.c.o
+[39/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/exc/el2_exceptions.c.o
+[40/130] Building C object tests/CMakeFiles/test_isolation_negative.dir/__/src/core/iommu/iommu_policy.c.o
+[41/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/mm/stage2.c.o
+[42/130] Building C object tests/CMakeFiles/test_fault_injection.dir/integration/test_fault_injection.c.o
+[43/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/sched/budget.c.o
+[44/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/time/timer.c.o
+[45/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/irq/ownership.c.o
+[46/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/iommu/iommu_policy.c.o
+[47/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/dma/smmu.c.o
+[48/130] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/common/printk_stub.c.o
+[49/130] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/__/src/core/mm/stage2.c.o
+[50/130] Building C object tests/CMakeFiles/test_fault_injection.dir/__/src/core/exc/el2_exceptions.c.o
+[51/130] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/integration/test_secondary_cpu_isolation.c.o
+[52/130] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/__/src/core/irq/ownership.c.o
+[53/130] Building C object tests/CMakeFiles/test_secondary_cpu_isolation.dir/__/src/core/sched/budget.c.o
+[54/130] Building C object tests/CMakeFiles/test_smmu_hardware.dir/__/src/core/mm/stage2.c.o
+[55/130] Building C object tests/CMakeFiles/test_smmu_hardware.dir/integration/test_smmu_hardware.c.o
+[56/130] Building C object tests/CMakeFiles/test_smmu_hardware.dir/__/src/core/dma/smmu.c.o
+[57/130] Building C object tests/CMakeFiles/test_smmu_hardware.dir/__/src/core/iommu/iommu_policy.c.o
+[58/130] Building C object tests/CMakeFiles/test_spatial_isolation.dir/isolation/test_spatial_isolation.c.o
+[59/130] Building C object tests/CMakeFiles/test_temporal_isolation.dir/common/printk_stub.c.o
+[60/130] Building C object tests/CMakeFiles/test_spatial_isolation.dir/__/src/core/iommu/iommu_policy.c.o
+[61/130] Building C object tests/CMakeFiles/test_spatial_isolation.dir/__/src/core/mm/stage2.c.o
+[62/130] Building C object tests/CMakeFiles/test_spatial_isolation.dir/__/src/core/dma/smmu.c.o
+[63/130] Building C object tests/CMakeFiles/test_temporal_isolation.dir/__/src/core/irq/ownership.c.o
+[64/130] Building C object tests/CMakeFiles/test_temporal_isolation.dir/__/src/core/sched/budget.c.o
+[65/130] Building C object tests/CMakeFiles/test_temporal_isolation.dir/isolation/test_temporal_isolation.c.o
+[66/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/common/printk_stub.c.o
+[67/130] Building C object tests/CMakeFiles/test_temporal_isolation.dir/__/src/core/time/timer.c.o
+[68/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/selftests/test_hypervisor_invariants.c.o
+[69/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/irq/ownership.c.o
+[70/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/mm/stage2.c.o
+[71/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/sched/budget.c.o
+[72/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/iommu/iommu_policy.c.o
+[73/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/dma/smmu.c.o
+[74/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/exc/el2_exceptions.c.o
+[75/130] Building C object tests/CMakeFiles/demo_two_partition.dir/common/printk_stub.c.o
+[76/130] Building C object tests/CMakeFiles/demo_two_partition.dir/demos/demo_two_partition.c.o
+[77/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/mm/stage2.c.o
+[78/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/irq/ownership.c.o
+[79/130] Building C object tests/CMakeFiles/test_hypervisor_invariants.dir/__/src/core/time/timer.c.o
+[80/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/sched/budget.c.o
+[81/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/time/timer.c.o
+[82/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/iommu/iommu_policy.c.o
+[83/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/dma/smmu.c.o
+[84/130] Building C object tests/CMakeFiles/demo_two_partition.dir/__/src/core/exc/el2_exceptions.c.o
+[85/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/common/printk_stub.c.o
+[86/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/mm/stage2.c.o
+[87/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/benchmarks/bench_isolation_latency.c.o
+[88/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/irq/ownership.c.o
+[89/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/sched/budget.c.o
+[90/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/dma/smmu.c.o
+[91/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/time/timer.c.o
+[92/130] Building C object tests/CMakeFiles/bench_isolation_latency.dir/__/src/core/iommu/iommu_policy.c.o
+[93/130] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/common/printk_stub.c.o
+[94/130] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/benchmarks/bench_temporal_isolation.c.o
+[95/130] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/__/src/core/sched/budget.c.o
+[96/130] Building C object tests/CMakeFiles/bench_temporal_isolation.dir/__/src/core/time/timer.c.o
+[97/130] Building C object tests/CMakeFiles/bench_stage2_fault.dir/common/printk_stub.c.o
+[98/130] Building C object tests/CMakeFiles/bench_stage2_fault.dir/__/src/core/irq/ownership.c.o
+[99/130] Building C object tests/CMakeFiles/bench_smmu_policy.dir/common/printk_stub.c.o
+[100/130] Building C object tests/CMakeFiles/bench_stage2_fault.dir/__/src/core/sched/budget.c.o
+[101/130] Building C object tests/CMakeFiles/bench_stage2_fault.dir/benchmarks/bench_stage2_fault.c.o
+[102/130] Building C object tests/CMakeFiles/bench_stage2_fault.dir/__/src/core/mm/stage2.c.o
+[103/130] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/irq/ownership.c.o
+[104/130] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/mm/stage2.c.o
+[105/130] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/dma/smmu.c.o
+[106/130] Building C object tests/CMakeFiles/bench_smmu_policy.dir/benchmarks/bench_smmu_policy.c.o
+[107/130] Building C object tests/CMakeFiles/bench_smmu_policy.dir/__/src/core/sched/budget.c.o
+[108/130] Building C object drivers/guest-tools/CMakeFiles/haven_tool.dir/haven_tool.c.o
+[109/130] Linking C executable tests/test_core_stubs
+[110/130] Linking C executable tests/test_smmu_dma
+[111/130] Linking C executable tests/test_timer
+[112/130] Linking C executable tests/test_el2_exceptions
+[113/130] Linking C executable tests/test_iommu_policy
+[114/130] Linking C executable tests/test_guest_uart
+[115/130] Linking C executable tests/test_freertos_integration
+[116/130] Linking C executable tests/test_stage2_attrs
+[117/130] Linking C executable tests/test_isolation_flow
+[118/130] Linking C executable tests/test_fault_injection
+[119/130] Linking C executable tests/test_isolation_negative
+[120/130] Linking C executable tests/test_smmu_hardware
+[121/130] Linking C executable tests/test_secondary_cpu_isolation
+[122/130] Linking C executable tests/test_spatial_isolation
+[123/130] Linking C executable tests/test_temporal_isolation
+[124/130] Linking C executable tests/test_hypervisor_invariants
+[125/130] Linking C executable tests/demo_two_partition
+[126/130] Linking C executable tests/bench_isolation_latency
+[127/130] Linking C executable tests/bench_stage2_fault
+[128/130] Linking C executable tests/bench_temporal_isolation
+[129/130] Linking C executable drivers/guest-tools/haven_tool
+[130/130] Linking C executable tests/bench_smmu_policy
+$ cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build
+-- The C compiler identification is GNU 15.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/homebrew/bin/aarch64-linux-gnu-gcc
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/homebrew/bin/aarch64-linux-gnu-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Haven PSCI conduit: HAVEN_PSCI_CONDUIT_NONE (profile qemu-direct)
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /private/tmp/gic-I6-0kpe9qzi/build
+[1/33] Building ASM object CMakeFiles/haven.dir/arch/arm64/entry.S.obj
+[2/33] Building ASM object CMakeFiles/haven.dir/arch/arm64/context.S.obj
+[3/33] Building C object CMakeFiles/haven.dir/arch/arm64/cpu.c.obj
+[4/33] Building ASM object CMakeFiles/haven.dir/arch/arm64/boot.S.obj
+[5/33] Building ASM object CMakeFiles/haven.dir/arch/arm64/partition.S.obj
+[6/33] Building C object CMakeFiles/haven.dir/arch/arm64/irq.c.obj
+[7/33] Building C object CMakeFiles/haven.dir/arch/arm64/timer.c.obj
+[8/33] Building C object CMakeFiles/haven.dir/drivers/uart/pl011.c.obj
+[9/33] Building C object CMakeFiles/haven.dir/src/core/irq/ownership.c.obj
+[10/33] Building C object CMakeFiles/haven.dir/src/core/sched/budget.c.obj
+[11/33] Building C object CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj
+[12/33] Building C object CMakeFiles/haven.dir/arch/arm64/mm.c.obj
+[13/33] Building C object CMakeFiles/haven.dir/src/core/mm/stage2.c.obj
+[14/33] Building C object CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj
+[15/33] Building C object CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj
+[16/33] Building C object CMakeFiles/haven.dir/src/core/init.c.obj
+[17/33] Building C object CMakeFiles/haven.dir/src/common/panic.c.obj
+[18/33] Building C object CMakeFiles/haven.dir/src/core/time/timer.c.obj
+[19/33] Building C object CMakeFiles/haven.dir/src/common/string.c.obj
+[20/33] Building C object CMakeFiles/haven.dir/src/core/partition.c.obj
+[21/33] Building C object CMakeFiles/haven.dir/src/common/spinlock.c.obj
+[22/33] Building C object CMakeFiles/haven.dir/src/common/printk.c.obj
+[23/33] Building C object CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj
+[24/33] Building C object CMakeFiles/haven.dir/src/core/dma/smmu.c.obj
+[25/33] Building ASM object CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj
+[26/33] Building C object CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj
+[27/33] Building ASM object CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj
+[28/33] Linking ASM executable guest_b.elf; objcopy → guest_b.bin
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: guest_b.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+[29/33] Building C object CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj
+[30/33] Building C object CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj
+[31/33] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_a_dma.c.obj
+[32/33] Linking C executable guest_a.elf; objcopy → guest_a.bin
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: guest_a.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+[33/33] Linking C executable haven.elf; haven.elf section sizes; objcopy → haven.bin
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: haven.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+   text	   data	    bss	    dec	    hex	filename
+  28028	     88	5167504	5195620	 4f4764	/private/tmp/gic-I6-0kpe9qzi/build/haven.elf

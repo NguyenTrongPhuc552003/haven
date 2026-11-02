@@ -531,3 +531,46 @@ device to a partition yet; they appear as soon as one does. No code change.
   the two can differ.
 - **Resolution:** fixed in haven `7ec513e` (2026-11-02), verified in QEMU
   with read-back v3 (`../../stage1/20261102-smmu-bugfix/README.md`, QEMU command trace and checks F1, F3).
+
+## 7. Stage 2 additions (2026-11-02): GIC
+
+Found while building GIC read-back (`../../stage2/20261102-gic-readback/`).
+No code change for GI1 (fix needs owner approval); GI2 is partly addressed.
+
+### GI1 - GICD_CTLR written with the Secure-view bit layout
+
+- **Status:** source-derived (Linux `include/linux/irqchip/arm-gic-v3.h`)
+  + observed in QEMU (GICD_CTLR reads `0x53` after HAVEN's write).
+- **Expected contract / source:** HAVEN runs at Non-secure EL2. A
+  Non-secure access to GICD_CTLR sees ARE_NS at bit 4, EnableGrp1A at bit 1
+  and EnableGrp1 at bit 0 (Linux: `GICD_CTLR_ARE_NS (1U << 4)`,
+  `GICD_CTLR_ENABLE_G1A (1U << 1)`, `GICD_CTLR_ENABLE_G1 (1U << 0)`). With
+  a single security state (DS = 1) ARE is bit 4 and EnableGrp1 bit 1.
+- **Observed / evidence:** `arch/arm64/include/asm/gic.h` defines
+  `GICD_CTLR_ARE_NS (1U << 5)`, `GICD_CTLR_ENABLE_G1NS (1U << 1)`,
+  `GICD_CTLR_ENABLE_G0 (1U << 0)` (the Secure view), and `gicd_init()`
+  writes 0, then those bits. In QEMU (DS = 1, ARE read-as-one) the result
+  `0x53` happens to be correct.
+- **Consequence (inference):** on a board with two security states (the
+  CIX P1 boots through Secure firmware) the write of 0 clears the
+  Non-secure group enable and may try to clear ARE_NS, and the second write
+  sets a reserved bit instead of ARE_NS. Affinity routing then depends on
+  what firmware left behind.
+- **Smallest correction (proposal):** use the Non-secure layout (bit 4
+  ARE_NS, bit 1 EnableGrp1A), read DS to choose the single-security layout,
+  and never write ARE as 0 once set: read-modify-write, waiting on RWP.
+
+### GI2 - Interrupts granted to a partition are never delivered
+
+- **Status:** source-derived + observed (GIC read-back: SPI 33 enabled and
+  routed to CPU 0; no EL2 interrupt path before `1f84fe0`).
+- **Observed / evidence:** HAVEN routes and enables owned SPIs in the
+  distributor, but until `1f84fe0` it never enabled Group 1 at its CPU
+  interface and had no handler; it has no virtual injection of physical
+  interrupts into partitions.
+- **Consequence:** an interrupt grant is enforced (it cannot reach another
+  partition) but useless to its owner; partitions must poll.
+- **Status after `1f84fe0`:** HAVEN takes physical interrupts at EL2 and
+  handles its own (SMMU events); interrupts owned by partitions are
+  completed without delivery. Virtual injection through the list registers
+  is still to do.

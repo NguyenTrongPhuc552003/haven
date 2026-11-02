@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 12:57:50
++++ /tmp/g2-H3-bbupsol7/src/core/partition.c	2026-11-02 13:00:02
+@@ -139,7 +139,7 @@
+ 		.ipa_base = PART_A_DMA_CFG_PA,
+ 		.pa_base = PART_A_DMA_CFG_PA,
+ 		.size = 0x1000UL, /* config space of 00:01.0 only */
+-		.attrs = HV_MEM_DEVICE | HV_MEM_R, /* read-only */
++		.attrs = HV_MEM_DEVICE_RW,
+ 	},
+ 	{
+ 		.ipa_base = PART_A_DMA_BAR_PA,

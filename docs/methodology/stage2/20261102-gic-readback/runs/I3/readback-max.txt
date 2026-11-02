@@ -1,0 +1,51 @@
+read at: marker
+partition 1 root=0x8000a000
+  H ipa=0x009000000 pa=0x009000000 size=0x00001000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+  H ipa=0x010000000 pa=0x010000000 size=0x00004000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+  H ipa=0x040000000 pa=0x080800000 size=0x20000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+  H ipa=0x070000000 pa=0x0a4c00000 size=0x00200000 s2ap=1 memattr=0xf sh=3 xn=0b10 af=1
+  H ipa=0x4010008000 pa=0x4010008000 size=0x00001000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+partition 2 root=0x8000e000
+  H ipa=0x060000000 pa=0x0a0800000 size=0x04000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+SMMU enabled=True GBPA=0x1000 stream table 0x80414000, 256 entries; virtio-mmio nodes behind an SMMU in the device tree: 0
+SMMU IDR0=0xd44101b (S2P=1) CMDQ_BASE=0x4000000080418008 PROD=0x6 CONS=0x6 GERROR=0x0
+SMMU event queue: 0 event(s)
+GIC GICD_CTLR=0x53, 288 INTIDs; enabled SPIs:
+  SPI 32: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 33: enabled=1 group1=1 -> CPU 0 (IROUTER 0x0)
+  SPI 34: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 35: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 36: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 37: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 38: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 39: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 40: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 41: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 42: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 43: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 44: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 45: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 46: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 47: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 48: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 49: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 50: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 51: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 52: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 53: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 54: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 55: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 56: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 57: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 58: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 59: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 60: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 61: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 62: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 63: enabled=1 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  CPU 0 (affinity 0x0): PPIs enabled none
+  CPU 1 (affinity 0x1): PPIs enabled none
+  CPU 2 (affinity 0x2): PPIs enabled none
+  CPU 3 (affinity 0x3): PPIs enabled none
+  FINDING GIC: interrupt enable drift (31 SPI(s) enabled without a grant: 32, 34-63)
+RESULT 1 finding(s)

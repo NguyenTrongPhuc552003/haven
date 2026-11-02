@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/init.c	2026-11-02 12:57:50
++++ /tmp/g2-H5-lguprsy2/src/core/init.c	2026-11-02 13:00:04
+@@ -103,7 +103,7 @@
+ 		if (irq != 0U && smmu_v3_enable_event_irq() == HV_OK &&
+ 		    gic_v3_configure_irq(irq, GIC_PRIO_HYPERVISOR, 1) ==
+ 			    HV_OK &&
+-		    gic_v3_route_irq(irq, 0U) == HV_OK &&
++		    gic_v3_route_irq(irq, 2U) == HV_OK &&
+ 		    gic_v3_enable_irq(irq) == HV_OK) {
+ 			hv_arch_phys_irq_init(irq);
+ 		}
