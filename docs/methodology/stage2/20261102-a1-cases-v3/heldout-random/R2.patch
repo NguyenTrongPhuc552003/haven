@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -74,7 +74,7 @@
+ 	}
+ 
+ 	/* Default priority: Linux-level for all SPIs */
+-	for (uint32_t i = 8; i < (gic.nr_irqs / 4); i++)
++	for (uint32_t i = 9; i < (gic.nr_irqs / 4); i++)
+ 		gic_write32(gic.gicd_base, GICD_IPRIORITYR(i),
+ 			    GIC_PRIO_LINUX * 0x01010101U);
+ 

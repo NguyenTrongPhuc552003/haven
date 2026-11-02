@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -371,7 +371,7 @@
+ 		(unsigned)(PART_A_SIZE >> 20));
+ 
+ 	st = hv_stage2_map_partition(&part_b_mem_cfg);
+-	if (st != HV_OK) {
++	if (st == HV_OK) {
+ 		hv_stage2_unmap_partition(PARTITION_A_ID);
+ 		hv_panic("partition B stage-2 mapping failed");
+ 	}

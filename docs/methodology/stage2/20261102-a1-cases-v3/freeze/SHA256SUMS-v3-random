@@ -1,0 +1,13 @@
+b0d1d744ca409a31de52c099fb95a2e84e61ccca3ff3cac00ac0a5cd18c7384a  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R1.patch
+cbecc234ad96b57645e16f9b52866a29d5d6141a9397e1c0f2c5d9512ccdee64  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R2.patch
+4b8030ea4efe8e1fdbb09605d4a5047df4a74546a4d5ae62294f16a8d72f2f46  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R3.patch
+38b1ea406bacef3bfc632ca37bf4ff7f0a229f58632bfe780d52dcf91257e6c6  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R4.patch
+e782a6dd635a4d8384d3303b73b4ccaedf0f1a0dc7777c77a6fca9a4e5371b43  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R1.expect.txt
+552ade6d2ed499c0d64b8abe872a08078b832fe9784418b776235f69f0192835  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R2.expect.txt
+3412856d3b46b369fd763ab41b356b9eb78c6a3bd7e428ad50dfb5b854ef09be  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R3.expect.txt
+058f9d4aa6563128629370f011a1a6f9a539c02635e9e7ea993bd298a416c247  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/R4.expect.txt
+c24d46e8af7bb26bd8ff452ad21f6e0d73926731bccf7d054382a1e514a4fa5b  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/EXPECT-random.md
+46c4072ba703507fa81fd01ea0f3bb8333551ad5a591c47be2e5ea546a1e0c29  docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/draw.json
+88a973ed478186c67f784d9b4e1493d2aced55ff454063dcf6f9a6ec17ca70a6  docs/methodology/stage2/20261102-a1-cases-v3/run_cases_v3.py
+2c03ff9cccfa0fb4d1bebd5ca6c28dce841be2fd9d49b9b4c65d96df5c89df81  docs/methodology/stage2/20261102-a1-cases-v3/heldout_random.py
+aa0c608d60f4b6295e5b3fdef0cdef84e6a27fdeba08b4299b4ff0a9764ad22c  tools/readback/readback.py

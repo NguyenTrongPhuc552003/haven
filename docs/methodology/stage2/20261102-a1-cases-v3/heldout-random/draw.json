@@ -1,0 +1,44 @@
+{
+ "haven_commit": "e47b722987df833fbe4ca94156d195a96d14a307",
+ "seed_text": "haven e47b722 | owner 2026-11-02 14:21: You should write and run them in yourself, not me",
+ "seed_sha256": "26fa6c49325a8628aaec4d06621e937773820cbf1f8cb590a7590ef3d06c8f64",
+ "mutants_total": 1062,
+ "kept": [
+  {
+   "index": 267,
+   "file": "src/core/mm/stage2.c",
+   "line": 115,
+   "mutation": "constant 0U -> 1U",
+   "name": "R1"
+  },
+  {
+   "index": 781,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 77,
+   "mutation": "constant 8 -> 9",
+   "name": "R2"
+  },
+  {
+   "index": 617,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 358,
+   "mutation": "constant 0 -> 1",
+   "name": "R3"
+  },
+  {
+   "index": 43,
+   "file": "src/core/partition.c",
+   "line": 374,
+   "mutation": "comparison != -> ==",
+   "name": "R4"
+  }
+ ],
+ "skipped": [
+  {
+   "index": 273,
+   "file": "src/core/mm/stage2.c",
+   "line": 123,
+   "mutation": "logic || -> &&"
+  }
+ ]
+}
