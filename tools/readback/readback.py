@@ -24,6 +24,11 @@ a queue error is a finding; --smmu-stage selects QEMU's SMMU model. QEMU 9.2
 and later give the virt machine's SMMU both stages ("nested", the default
 here; hw/arm/virt.c sets it and overrides -global); "1" and "2" use the
 virt-9.1 machine, whose SMMU honours the stage property (default stage 1).
+Also in v3: the SMMU event queue (what the SMMU stopped) is decoded and
+reported as observations; a virtio PCI device without
+VIRTIO_F_ACCESS_PLATFORM (QEMU iommu_platform=false) is an unenforced DMA
+master, because QEMU lets it reach physical memory without the SMMU; and
+--marker chooses the UART line after which the memory is read.
 
 Changes from v1 (frozen in docs/methodology/stage1/20261101-a1-readback):
 the memory is read when partition A reaches its post-fault line or after a
@@ -32,7 +37,7 @@ SMMU read-back; extra QEMU devices; command-line options.
 
 Usage:
   readback.py BUILD GRANT.json OUT [--cpu CPU] [--nm NM] [--wait SECONDS]
-              [--device QEMU-DEVICE ...] [--smmu-stage nested|1|2]
+              [--device QEMU-DEVICE ...] [--smmu-stage nested|1|2] [--marker TEXT]
 Exit status: 0 = enforced state matches the grant, 1 = findings, 2 = probe failure.
 Needs qemu-system-aarch64, an aarch64 nm and dtc on PATH (or --nm).
 """
@@ -49,7 +54,10 @@ import time
 
 IMG_PA, IMG_SIZE = 0x80000000, 0x800000
 SMMU_BASE = 0x09050000
-MARKER = "Post-fault check OK"
+MARKER = "Post-fault check OK"  # default; --marker overrides
+EVT_NAMES = {0x02: "bad StreamID", 0x03: "STE fetch fault", 0x04: "bad STE", 0x06: "stream disabled",
+             0x10: "translation fault", 0x11: "address size fault", 0x12: "access fault",
+             0x13: "permission fault"}
 LEVEL_SHIFT = {1: 30, 2: 21, 3: 12}
 EXPECT = {  # portable attributes -> stage-2 fields (MM1 proposal, section 4)
     "RWX": {"s2ap": 3, "memattr": 0xF, "sh": 3, "xn": 0},
@@ -141,14 +149,14 @@ def capture(args_ns, out):
         while not os.path.exists(sock) and time.time() - t0 < 10:
             time.sleep(0.05)
         while time.time() - t0 < args_ns.wait:
-            if os.path.exists(uart) and MARKER in open(uart, errors="replace").read():
+            if os.path.exists(uart) and args_ns.marker in open(uart, errors="replace").read():
                 snap["trigger"] = "marker"
                 break
             if q.poll() is not None:
                 break
             time.sleep(0.2)
         else:
-            snap["trigger"] = f"time limit ({args_ns.wait:g} s, partition A did not reach its post-fault line)"
+            snap["trigger"] = f"time limit ({args_ns.wait:g} s, partition A did not print {args_ns.marker!r})"
         if q.poll() is not None:
             return None
         m = QMP(sock)
@@ -161,7 +169,9 @@ def capture(args_ns, out):
             "gbpa": m.read32(SMMU_BASE + 0x44), "strtab_base": m.read64(SMMU_BASE + 0x80),
             "strtab_cfg": m.read32(SMMU_BASE + 0x88), "idr0": m.read32(SMMU_BASE + 0x0),
             "gerror": m.read32(SMMU_BASE + 0x60), "cmdq_base": m.read64(SMMU_BASE + 0x90),
-            "cmdq_prod": m.read32(SMMU_BASE + 0x98), "cmdq_cons": m.read32(SMMU_BASE + 0x9C)}
+            "cmdq_prod": m.read32(SMMU_BASE + 0x98), "cmdq_cons": m.read32(SMMU_BASE + 0x9C),
+            "evtq_base": m.read64(SMMU_BASE + 0xA0), "evtq_prod": m.read32(SMMU_BASE + 0x100A8),
+            "evtq_cons": m.read32(SMMU_BASE + 0x100AC)}
         sm = snap["smmu"]
         if sm["cr0ack"] & 1:
             size = (1 << (sm["strtab_cfg"] & 0x3F)) * 64
@@ -274,8 +284,22 @@ def dt_smmu_coverage(dts):
     return pcie_maps, mmio_with_iommu
 
 
+def virtio_platform(qtree):
+    """(slot, function) -> iommu_platform for virtio PCI devices on bus 0. A
+    virtio device without VIRTIO_F_ACCESS_PLATFORM does its DMA to physical
+    addresses directly, outside any IOMMU (QEMU: iommu_platform=false)."""
+    out = {}
+    for m in re.finditer(r"dev: [\w-]+-pci, id \"[^\"]*\"\r?\n((?:(?!dev: [\w-]+-pci).)*)", qtree, re.S):
+        a = re.search(r"addr = ([0-9a-f]{2})\.([0-7])", m.group(1))
+        p = re.search(r"iommu_platform = (true|false)", m.group(1))
+        if a and p:
+            out[(int(a.group(1), 16), int(a.group(2)))] = p.group(1) == "true"
+    return out
+
+
 def dma_masters(snap, pcie_maps):
     masters = []
+    platform = virtio_platform(snap["qtree"])
     for bus in snap["pci"]:
         for d in bus.get("devices", []):
             if d.get("class_info", {}).get("class") == 0x0600:  # host bridge
@@ -283,10 +307,11 @@ def dma_masters(snap, pcie_maps):
             rid = (bus["bus"] << 8) | (d["slot"] << 3) | d["function"]
             m = next((x for x in pcie_maps if x["rid_base"] <= rid < x["rid_base"] + x["length"]), None)
             ident = d.get("id", {})
+            bypass = bus["bus"] == 0 and platform.get((d["slot"], d["function"])) is False
             masters.append({"device": d.get("qdev_id") or "pci-%04x:%04x" % (ident.get("vendor", 0), ident.get("device", 0)),
                             "bus": f"pci {bus['bus']:02x}:{d['slot']:02x}.{d['function']}",
                             "sid": None if m is None else rid - m["rid_base"] + m["sid_base"],
-                            "behind_smmu": m is not None})
+                            "behind_smmu": m is not None and not bypass, "virtio_bypass": bypass})
     # virtio-mmio transports that have a device plugged in
     for m in re.finditer(r"(?m)^( +)bus: virtio-mmio-bus\.(\d+)\r?\n\1  type virtio-mmio-bus\r?\n\1  dev: ([\w-]+)",
                          snap["qtree"]):
@@ -324,6 +349,8 @@ def resolve_ttb(ttb, roots, mem, parts):
 
 def classify(master, snap, roots, parts):
     sm = snap["smmu"]
+    if master.get("virtio_bypass"):
+        return "unenforced", "virtio device without VIRTIO_F_ACCESS_PLATFORM: its DMA bypasses the SMMU"
     if not master["behind_smmu"]:
         return "unenforced", "no SMMU in the device's path"
     if not sm["cr0ack"] & 1:
@@ -408,6 +435,25 @@ def compare_smmu(snap, masters, expected, roots, parts):
     return f, report
 
 
+def smmu_events(snap):
+    """Events the SMMU wrote to its event queue (in HAVEN's image): what it
+    stopped. Observations, not findings: a fault on a granted stream outside
+    its window is enforcement working."""
+    sm, out = snap["smmu"], []
+    base = sm["evtq_base"] & 0x000FFFFFFFFFFFE0
+    log2 = sm["evtq_base"] & 0x1F
+    if not sm["cr0ack"] & (1 << 2) or not IMG_PA <= base < IMG_PA + IMG_SIZE:
+        return out
+    n, mask = 1 << log2, (2 << log2) - 1
+    cons, prod = sm["evtq_cons"] & mask, sm["evtq_prod"] & mask
+    while cons != prod:
+        w0, w1, w2, _ = struct.unpack_from("<4Q", snap["image"], base - IMG_PA + (cons & (n - 1)) * 32)
+        out.append({"id": w0 & 0xFF, "event": EVT_NAMES.get(w0 & 0xFF, f"event {w0 & 0xFF:#x}"),
+                    "sid": w0 >> 32, "addr": w2, "write": not (w1 >> 35) & 1, "stage2": bool((w1 >> 39) & 1)})
+        cons = (cons + 1) & mask
+    return out
+
+
 def compare_window(sid, grant, part, reach, kind, parts):
     """A translated stream against its granted window. The window is in the
     owning partition's address space (IOVA = IPA), so each DMA mapping must
@@ -448,6 +494,7 @@ def main():
     ap.add_argument("--wait", type=float, default=15)
     ap.add_argument("--device", action="append", default=[])
     ap.add_argument("--smmu-stage", default="nested", choices=["nested", "1", "2"])
+    ap.add_argument("--marker", default=MARKER, help="UART line after which the memory is read")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     grant = json.load(open(a.grant))
@@ -486,6 +533,7 @@ def main():
                  for p, d in report["partitions"].items()}
         f, rep = compare_smmu(snap, masters, grant["smmu"], roots, parts)
         findings += f
+        report["smmu_events"] = smmu_events(snap)
         sm = snap["smmu"]
         report["smmu"] = {k: hex(v) for k, v in sm.items()}
         report["dma_masters"] = rep
@@ -496,6 +544,11 @@ def main():
               f"PROD={sm['cmdq_prod']:#x} CONS={sm['cmdq_cons']:#x} GERROR={sm['gerror']:#x}")
         for m in rep:
             print(f"  DMA {m['device']:<22} {m['bus']:<16} SID={m['sid']} -> {m['state']} ({m['reason']})")
+        evs = report["smmu_events"]
+        print(f"SMMU event queue: {len(evs)} event(s)")
+        for e in sorted({(e['event'], e['sid'], e['addr'] & ~0xFFF, e['write']) for e in evs}):
+            n = sum(1 for x in evs if (x['event'], x['sid'], x['addr'] & ~0xFFF, x['write']) == e)
+            print(f"  EVENT {e[0]} SID {e[1]} page {e[2]:#x} {'write' if e[3] else 'read'} x{n}")
     report["findings"] = findings
     json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
     for name, cls, detail in findings:

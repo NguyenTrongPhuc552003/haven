@@ -34,6 +34,13 @@ gives it), DMA access drift (rights differ from the grant), SMMU command queue
 fault, and unenforced DMA master (a device that can do DMA with no SMMU in its
 path).
 
+The SMMU event queue is decoded and listed (observations, not findings). A
+virtio PCI device without `VIRTIO_F_ACCESS_PLATFORM` (QEMU
+`iommu_platform=false`) counts as an unenforced DMA master: QEMU lets such a
+device reach physical memory without the SMMU, whatever its stream table
+entry says. `--marker TEXT` reads the memory after that UART line (default
+`Post-fault check OK`).
+
 A stream's table is walked wherever its entry points: a partition's root, or
 a table of its own, which is attributed to the partition owning the physical
 memory it maps.
