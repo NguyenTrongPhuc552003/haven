@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""External read-back of HAVEN's enforced state in QEMU (probe v5).
+"""External read-back of HAVEN's enforced state in QEMU (probe v6).
 
 Boots a qemu-direct HAVEN build, stops the machine and reads, from outside
 HAVEN:
@@ -16,6 +16,12 @@ HAVEN:
     compared with the window the grant gives the device. Which buses sit
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
+
+Changes in v6 (2026-11-02, budgets enforced by the EL2 timer): the grant's
+"gic" section may list "haven_ppis" per CPU (HAVEN's own private interrupts,
+such as the EL2 timer, PPI 26). They may be enabled, must be enabled
+(otherwise "missing interrupt binding": the enforcement mechanism is off),
+and must have HAVEN's priority.
 
 Changes in v5 (2026-11-02, after FINDINGS A1 option A): HAVEN's own EL2
 stage-1 table (found through hv_el2_ttbr) is walked. Partition memory that
@@ -641,14 +647,15 @@ def compare_gic(g, expected):
     if extra:
         f.append(("GIC", "interrupt enable drift", f"{len(extra)} SPI(s) enabled without a grant: {ranges(extra)}"))
     ppis = {int(c): set(v) for c, v in expected.get("ppis", {}).items()}
+    hppis = {int(c): set(v) for c, v in expected.get("haven_ppis", {}).items()}  # v6
     for i, cpu in enumerate(g["cpus"]):
         en = [b for b in range(16, 32) if (cpu["isenabler0"] >> b) & 1]
         report["cpus"].append({"cpu": i, "affinity": hex(cpu["typer"] >> 32), "ppis_enabled": en,
                                "sgis_enabled": [b for b in range(16) if (cpu["isenabler0"] >> b) & 1]})
-        bad = [b for b in en if b not in ppis.get(i, set())]
+        bad = [b for b in en if b not in ppis.get(i, set()) | hppis.get(i, set())]
         if bad:
             f.append((f"CPU {i} PPIs", "interrupt enable drift", f"enabled without a grant: {ranges(bad)}"))
-        for b in sorted(ppis.get(i, set())):  # v4, RB2
+        for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):  # v4 RB2, v6
             if b not in en:
                 f.append((f"CPU {i} PPI {b}", "missing interrupt binding", "granted but disabled"))
     pr = expected.get("priority")
@@ -663,13 +670,14 @@ def compare_gic(g, expected):
                 why = " (outranks HAVEN)" if want["partition"] != 0 and got <= want_h else ""
                 f.append((f"SPI {irq}", "interrupt priority drift", f"priority {got:#x}, granted {exp:#x}{why}"))
         for i, cpu in enumerate(g["cpus"]):
-            for b in sorted(ppis.get(i, set())):
+            for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):
                 got = prio(cpu["ipriorityr"], b)
-                report["priorities"].append({"irq": b, "cpu": i, "priority": hex(got), "expected": hex(want_p)})
-                if got != want_p:
-                    why = " (outranks HAVEN)" if got <= want_h else ""
+                exp = want_h if b in hppis.get(i, set()) else want_p
+                report["priorities"].append({"irq": b, "cpu": i, "priority": hex(got), "expected": hex(exp)})
+                if got != exp:
+                    why = " (outranks HAVEN)" if exp == want_p and got <= want_h else ""
                     f.append((f"CPU {i} PPI {b}", "interrupt priority drift",
-                              f"priority {got:#x}, granted {want_p:#x}{why}"))
+                              f"priority {got:#x}, granted {exp:#x}{why}"))
     return f, report
 
 
