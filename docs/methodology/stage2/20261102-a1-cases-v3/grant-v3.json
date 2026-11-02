@@ -1,0 +1,84 @@
+{
+ "source": "haven at the freeze of A1 case set v3 (owner-approved grant): partition A RAM, UART and read-only region; PCIe function 00:01.0 (SID 8) granted to A: config page read-only, BAR 4 placed by HAVEN at 0x10000000 (16 KiB) and mapped RW, DMA window IPA 0x5F000000 (1 MiB) RW; interrupts: SPI 33 (UART) owned by A on CPU 0, SPI 106 (SMMU event queue) owned by HAVEN on CPU 0; A runs on CPUs 0-1, B on CPU 2",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x40000000",
+    "pa": "0x80800000",
+    "size": "0x20000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART",
+    "ipa": "0x09000000",
+    "pa": "0x09000000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A RO",
+    "ipa": "0x70000000",
+    "pa": "0xA4C00000",
+    "size": "0x200000",
+    "attrs": "R"
+   },
+   {
+    "name": "A PCI config",
+    "ipa": "0x4010008000",
+    "pa": "0x4010008000",
+    "size": "0x1000",
+    "attrs": "DEVICE_R"
+   },
+   {
+    "name": "A PCI BAR",
+    "ipa": "0x10000000",
+    "pa": "0x10000000",
+    "size": "0x4000",
+    "attrs": "DEVICE_RW"
+   }
+  ],
+  "2": [
+   {
+    "name": "B RAM",
+    "ipa": "0x60000000",
+    "pa": "0xA0800000",
+    "size": "0x04000000",
+    "attrs": "RWX"
+   }
+  ]
+ },
+ "smmu": {
+  "enabled": true,
+  "streams": {
+   "8": {
+    "partition": 1,
+    "window": {
+     "ipa": "0x5F000000",
+     "size": "0x100000"
+    },
+    "access": "RW"
+   }
+  },
+  "allowed_unenforced": []
+ },
+ "gic": {
+  "cpus": {
+   "0": 1,
+   "1": 1,
+   "2": 2,
+   "3": 0
+  },
+  "spis": {
+   "33": {
+    "partition": 1,
+    "cpu": 0
+   },
+   "106": {
+    "partition": 0,
+    "cpu": 0
+   }
+  },
+  "ppis": {}
+ }
+}
