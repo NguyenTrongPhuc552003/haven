@@ -465,19 +465,24 @@ def compare_smmu(snap, masters, expected, roots, parts):
 def smmu_events(snap):
     """Events the SMMU wrote to its event queue (in HAVEN's image): what it
     stopped. Observations, not findings: a fault on a granted stream outside
-    its window is enforcement working."""
+    its window is enforcement working. HAVEN may already have consumed them
+    (CONS); consumed entries stay in memory, so every entry written since
+    the queue was set up is decoded while the ring has not wrapped, and the
+    last full ring otherwise."""
     sm, out = snap["smmu"], []
     base = sm["evtq_base"] & 0x000FFFFFFFFFFFE0
     log2 = sm["evtq_base"] & 0x1F
     if not sm["cr0ack"] & (1 << 2) or not IMG_PA <= base < IMG_PA + IMG_SIZE:
         return out
     n, mask = 1 << log2, (2 << log2) - 1
-    cons, prod = sm["evtq_cons"] & mask, sm["evtq_prod"] & mask
-    while cons != prod:
-        w0, w1, w2, _ = struct.unpack_from("<4Q", snap["image"], base - IMG_PA + (cons & (n - 1)) * 32)
+    prod, cons = sm["evtq_prod"] & mask, sm["evtq_cons"] & mask
+    count = prod if prod < n and not sm["evtq_prod"] & (1 << 31) else n
+    for k in range(count):
+        ptr = (prod - count + k) & mask
+        w0, w1, w2, _ = struct.unpack_from("<4Q", snap["image"], base - IMG_PA + (ptr & (n - 1)) * 32)
         out.append({"id": w0 & 0xFF, "event": EVT_NAMES.get(w0 & 0xFF, f"event {w0 & 0xFF:#x}"),
-                    "sid": w0 >> 32, "addr": w2, "write": not (w1 >> 35) & 1, "stage2": bool((w1 >> 39) & 1)})
-        cons = (cons + 1) & mask
+                    "sid": w0 >> 32, "addr": w2, "write": not (w1 >> 35) & 1, "stage2": bool((w1 >> 39) & 1),
+                    "consumed": ((prod - ptr) & mask) > ((prod - cons) & mask)})
     return out
 
 
@@ -546,7 +551,10 @@ def compare_gic(g, expected):
         if not en:
             f.append((name, "missing interrupt binding", "granted but disabled"))
             continue
-        if irm:
+        if want["partition"] == 0:  # HAVEN's own interrupt: CPU only
+            if irm or cpu != want["cpu"]:
+                f.append((name, "interrupt routing drift", f"HAVEN interrupt routed to CPU {state['cpu']}, granted CPU {want['cpu']}"))
+        elif irm:
             f.append((name, "interrupt routing drift", f"1-of-N routing: may reach any CPU, granted CPU {want['cpu']}"))
         elif cpu is None or cpu_part.get(cpu) != want["partition"]:
             f.append((name, "interrupt routing drift",
@@ -630,7 +638,7 @@ def main():
         for m in rep:
             print(f"  DMA {m['device']:<22} {m['bus']:<16} SID={m['sid']} -> {m['state']} ({m['reason']})")
         evs = report["smmu_events"]
-        print(f"SMMU event queue: {len(evs)} event(s)")
+        print(f"SMMU event queue: {len(evs)} event(s), {sum(e['consumed'] for e in evs)} consumed by HAVEN")
         for e in sorted({(e['event'], e['sid'], e['addr'] & ~0xFFF, e['write']) for e in evs}):
             n = sum(1 for x in evs if (x['event'], x['sid'], x['addr'] & ~0xFFF, x['write']) == e)
             print(f"  EVENT {e[0]} SID {e[1]} page {e[2]:#x} {'write' if e[3] else 'read'} x{n}")
