@@ -44,3 +44,12 @@ jobs:
         run: ./scripts/qemu/qemu-direct-check.sh build cortex-a72
       - name: Boot in QEMU (max)
         run: ./scripts/qemu/qemu-direct-check.sh build max
+      # Partition B on CPU 2: QEMU's built-in PSCI starts it (qemu-psci).
+      - name: Cross-compile (qemu-psci profile)
+        run: |
+          cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci
+          cmake --build build-psci
+      - name: Partition B check (cortex-a72)
+        run: python3 scripts/qemu/partition-b-check.py build-psci cortex-a72
+      - name: Partition B check (max)
+        run: python3 scripts/qemu/partition-b-check.py build-psci max
