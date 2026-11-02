@@ -18,7 +18,9 @@
  *      the fault and resumed execution.
  *   5. Runs the DMA test (guest_a_dma.c) with the entry argument Haven
  *      passed in x0 (bit 0: the DMA grant is in force).
- *   6. Halts with WFI loop.
+ *   6. Runs the interrupt test (guest_a_irq.c): the UART interrupt it owns
+ *      must arrive through the virtual CPU interface.
+ *   7. Halts with WFI loop.
  *
  * PL011 UART at IPA 0x09000000 (identity-mapped from partition.c).
  * PL011 data register is at offset 0x00; busy flag at UARTFR (offset 0x18)
@@ -62,6 +64,9 @@ _guest_start:
         adr     x1, _guest_arg
         ldr     x0, [x1]
         bl      guest_a_dma_test
+
+        /* Interrupt delivery: the UART interrupt (SPI 33) is ours */
+        bl      guest_a_irq_test
 
 _guest_halt:
         wfi

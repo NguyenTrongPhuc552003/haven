@@ -115,3 +115,15 @@ hv_status_t hv_irq_is_owned_by(hv_u32 irq_id, hv_u32 partition_id)
 
 	return HV_OK;
 }
+
+hv_u32 hv_irq_owner(hv_u32 irq_id, hv_u32 *target_cpu)
+{
+	if (irq_id == 0U || irq_id >= HV_MAX_IRQ_ID) {
+		return 0U;
+	}
+
+	if (target_cpu != NULL) {
+		*target_cpu = irq_target_cpu_map[irq_id];
+	}
+	return irq_owner_map[irq_id];
+}

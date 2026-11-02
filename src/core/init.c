@@ -93,20 +93,24 @@ void haven_init(uintptr_t dtb_pa)
 	hv_el2_exceptions_init();
 
 #ifdef HAVEN_ARCH_ARM64
-	/* Haven's own interrupt: the SMMU event queue, on the boot CPU.  If
-	 * the platform names none or the SMMU has no event queue, events stay
+	/* Physical interrupts at EL2 on the boot CPU: Haven's own (the SMMU
+	 * event queue) and those it injects into partitions.  If the platform
+	 * names no SMMU interrupt or the SMMU has no event queue, events stay
 	 * in memory for external read-back. */
-	if (platform->smmu_evtq_irq != NULL) {
+	{
 		extern void hv_arch_phys_irq_init(uint32_t smmu_intid);
-		uint32_t irq = platform->smmu_evtq_irq();
+		uint32_t irq = (platform->smmu_evtq_irq != NULL) ?
+				       platform->smmu_evtq_irq() :
+				       0U;
 
-		if (irq != 0U && smmu_v3_enable_event_irq() == HV_OK &&
-		    gic_v3_configure_irq(irq, GIC_PRIO_HYPERVISOR, 1) ==
-			    HV_OK &&
-		    gic_v3_route_irq(irq, 0U) == HV_OK &&
-		    gic_v3_enable_irq(irq) == HV_OK) {
-			hv_arch_phys_irq_init(irq);
+		if (irq != 0U && (smmu_v3_enable_event_irq() != HV_OK ||
+				  gic_v3_configure_irq(irq, GIC_PRIO_HYPERVISOR,
+						       1) != HV_OK ||
+				  gic_v3_route_irq(irq, 0U) != HV_OK ||
+				  gic_v3_enable_irq(irq) != HV_OK)) {
+			irq = 0U;
 		}
+		hv_arch_phys_irq_init(irq);
 	}
 #endif
 

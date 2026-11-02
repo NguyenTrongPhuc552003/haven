@@ -304,6 +304,8 @@ extern void hv_arch_stage2_enable(uint32_t partition_id, uint32_t vmid);
 extern void hv_arch_secondary_start(uint32_t cpu_id,
 				    void (*entry_fn)(uint64_t cpu_id));
 extern int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
+extern void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition);
+extern uint32_t hv_arch_cpu_id(void);
 /* Symbol defined in arch/arm64/boot.S - the secondary CPU spin-loop entry */
 extern void secondary_entry(void);
 
@@ -319,6 +321,7 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
 	(void)cpu_id;
 
 	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
+	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);
 
 	/* ERET to Partition B entry at its IPA base. */
 	hv_arch_start_partition(
@@ -432,6 +435,7 @@ void partitions_launch(void)
 
 	hv_printk("HAVEN: ERET -> partition A entry IPA=0x%lx\n",
 		  (unsigned long)PART_A_IPA_BASE);
+	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_A_ID);
 	hv_arch_start_partition(
 		(uintptr_t)PART_A_IPA_BASE,
 		(uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL),

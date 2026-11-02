@@ -109,6 +109,15 @@ static void test_irq_contract(void)
 	assert(hv_irq_assign(NULL) == HV_EINVAL);
 	assert(hv_irq_assign(&invalid_cpu_route) == HV_ENOSPC);
 	assert(hv_irq_assign(&route) == HV_OK);
+	{
+		hv_u32 cpu = 99U;
+
+		/* Owner lookup used for virtual injection (GI2). */
+		assert(hv_irq_owner(32, &cpu) == 1U && cpu == 0U);
+		assert(hv_irq_owner(34, NULL) == 0U);
+		assert(hv_irq_owner(0, NULL) == 0U);
+		assert(hv_irq_owner(2048, NULL) == 0U);
+	}
 	assert(hv_irq_assign(&same_owner_same_cpu) == HV_OK);
 	assert(hv_irq_assign(&same_owner_different_cpu) == HV_EPERM);
 	assert(hv_irq_assign(&foreign_route) == HV_EPERM);
