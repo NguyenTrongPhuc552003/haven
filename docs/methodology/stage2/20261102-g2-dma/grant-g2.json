@@ -1,0 +1,65 @@
+{
+ "source": "haven src/core/partition.c and src/platform/qemu-virt/memory.h at the G2 change: partition A RAM, UART and read-only region; the DMA grant of the PCIe function 00:01.0 (hardware SID 8) to partition A: its config page and memory BAR mapped to A, DMA window IPA 0x5F000000 (1 MiB) RW",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x40000000",
+    "pa": "0x80800000",
+    "size": "0x20000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART",
+    "ipa": "0x09000000",
+    "pa": "0x09000000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A RO",
+    "ipa": "0x70000000",
+    "pa": "0xA4C00000",
+    "size": "0x200000",
+    "attrs": "R"
+   },
+   {
+    "name": "A PCI config",
+    "ipa": "0x4010008000",
+    "pa": "0x4010008000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A PCI BAR",
+    "ipa": "0x10000000",
+    "pa": "0x10000000",
+    "size": "0x4000",
+    "attrs": "DEVICE_RW"
+   }
+  ],
+  "2": [
+   {
+    "name": "B RAM",
+    "ipa": "0x60000000",
+    "pa": "0xA0800000",
+    "size": "0x04000000",
+    "attrs": "RWX"
+   }
+  ]
+ },
+ "smmu": {
+  "enabled": true,
+  "streams": {
+   "8": {
+    "partition": 1,
+    "window": {
+     "ipa": "0x5F000000",
+     "size": "0x100000"
+    },
+    "access": "RW"
+   }
+  },
+  "allowed_unenforced": []
+ }
+}

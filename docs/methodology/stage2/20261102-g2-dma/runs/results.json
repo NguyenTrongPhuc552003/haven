@@ -1,0 +1,510 @@
+{
+ "haven_commit": "f4da7e8",
+ "results": {
+  "G0": {
+   "check": "G0",
+   "device": null,
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "DMA device absent"
+   ],
+   "expect": [],
+   "expect_events": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: DMA device absent",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   },
+   "max": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: DMA device absent",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   }
+  },
+  "G1": {
+   "check": "G1",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "DMA inside window OK",
+    "DMA outside window blocked"
+   ],
+   "expect": [],
+   "expect_events": true,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true
+     }
+    ]
+   },
+   "max": {
+    "readback_rc": 0,
+    "findings": [],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": [
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058304,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058308,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058312,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058316,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058320,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058324,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058328,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058332,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058336,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058340,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058344,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058348,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058352,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058356,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058360,
+      "write": true,
+      "stage2": true
+     },
+     {
+      "id": 16,
+      "event": "translation fault",
+      "sid": 8,
+      "addr": 1577058364,
+      "write": true,
+      "stage2": true
+     }
+    ]
+   }
+  },
+  "G2": {
+   "check": "G2",
+   "device": "virtio-rng-pci",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "bypasses the IOMMU"
+   ],
+   "expect": [
+    [
+     "pci-1af4:1005",
+     "unenforced DMA master"
+    ]
+   ],
+   "expect_events": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "unenforced DMA master"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: DMA device bypasses the IOMMU (no VIRTIO_F_ACCESS_PLATFORM), not started",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "pci-1af4:1005",
+      "unenforced DMA master"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000",
+     "PARTITION_A: DMA device bypasses the IOMMU (no VIRTIO_F_ACCESS_PLATFORM), not started",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   }
+  },
+  "G3": {
+   "check": "G3",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "1",
+   "expect_uart": [
+    "withheld (rc=-95)",
+    "no DMA device granted"
+   ],
+   "expect": [
+    [
+     "A PCI config",
+     "missing binding"
+    ],
+    [
+     "A PCI BAR",
+     "missing binding"
+    ],
+    [
+     "pci-1af4:1044",
+     "DMA enforcement drift"
+    ]
+   ],
+   "expect_events": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ],
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1 withheld (rc=-95)",
+     "PARTITION_A: no DMA device granted",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ],
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1 withheld (rc=-95)",
+     "PARTITION_A: no DMA device granted",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   }
+  },
+  "G4": {
+   "check": "G4",
+   "device": "virtio-rng-pci,disable-legacy=on,iommu_platform=on",
+   "smmu_stage": "nested",
+   "expect_uart": [
+    "DMA inside window OK",
+    "DMA outside window NOT blocked"
+   ],
+   "expect": [
+    [
+     "SID 8",
+     "DMA extent drift"
+    ]
+   ],
+   "expect_events": false,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5e000000 size 0x2000000",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window NOT blocked, bytes written 0x40",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   },
+   "max": {
+    "readback_rc": 1,
+    "findings": [
+     [
+      "SID 8",
+      "DMA extent drift"
+     ]
+    ],
+    "uart": [
+     "HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5e000000 size 0x2000000",
+     "PARTITION_A: DMA inside window OK, bytes written 0x40",
+     "PARTITION_A: DMA outside window NOT blocked, bytes written 0x40",
+     "PARTITION_A: DMA test done"
+    ],
+    "events": []
+   }
+  }
+ }
+}

@@ -61,6 +61,28 @@ Same release, `CommonDefines.h` (checked 2026-11-02 for the SMMU bugfix):
   table and queue accesses are coherent, which HAVEN's SMMU_CR1 setting
   relies on (`docs/methodology/stage1/20261102-smmu-bugfix/`).
 
+## Orange Pi 6 firmware image checked (2026-11-02)
+
+`data/orange-pi-6/base/BIOS/opi6_bios_image_20260708.img` (vendor image,
+not flashed; SHA-256
+`4ed78c5a4185e25bfcf47bfba833cf36e451bd1135c516020a604d5d1596fba4`). Its LZMA-compressed
+firmware volumes hold an ACPI IORT (revision 5, OEM `CIXTEK SKY1EDK2`,
+19 nodes), decoded from the image bytes:
+
+- an SMMUv3 at `0x0B010000` (`SMMU0_BASE` in
+  `Silicon/CIX/Sky1/Include/MemoryMap.h`, the PCIe SMMU) with the coherent
+  flag set, and the PCIe root complex mapping requester IDs `0x0`-`0xFFFF`
+  to it one to one (StreamID = requester ID, as in QEMU `virt`);
+- an SMMUv3 at `0x0B1B0000` (`SMMU2_BASE`) for the same 14 named components
+  as the CIX source (DPU, AEU, NPU0, ISPM, CBD0, CBD2); no GPU entry;
+- an RMR node.
+
+So unlike the CIX RC2.3 source default (`PCIE_SMMU_ENABLE 0`), this Orange Pi
+6 release describes the PCIe SMMU (reference fact for this image). The
+GPU has no SMMU stream here either (row 1 holds). No Orange Pi 6 Plus
+firmware image is in `data/`, so the same check has not been done for the
+Plus.
+
 ## GPU facts used by the thesis (source-derived)
 
 - GPU: Arm Immortalis-G720 MC10 (arch v12, CSF). Upstream Panthor knows it

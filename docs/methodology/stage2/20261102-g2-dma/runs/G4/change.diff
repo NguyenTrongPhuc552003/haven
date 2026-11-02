@@ -1,0 +1,15 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 12:14:21
++++ /tmp/g2-G4-nsq_z7mj/src/core/partition.c	2026-11-02 12:24:53
+@@ -140,9 +140,9 @@
+ 	{
+ 		.partition_id = PARTITION_A_ID,
+ 		.streamid = PART_A_DMA_SID,
+-		.iova = PART_A_DMA_IPA,
+-		.size = PART_A_DMA_SIZE,
+-		.pa = PART_A_DMA_PA,
++		.iova = PART_A_DMA_IPA - 0x1000000UL,
++		.size = 0x2000000UL,
++		.pa = PART_A_DMA_PA - 0x1000000UL,
+ 		.access = HV_DMA_RW,
+ 		.mmio = part_a_dma_mmio,
+ 		.mmio_count = 2U,

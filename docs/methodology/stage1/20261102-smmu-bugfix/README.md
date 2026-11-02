@@ -88,3 +88,15 @@ matches the grant and flags each fix when it is reverted.
 - On CIX P1 the vendor default firmware builds without the PCIe SMMU
   (`PCIE_SMMU_ENABLE 0` in `CommonDefines.h`); see
   `../../../porting/cix-p1-ledger.md`.
+
+## Afterwards (G2, 2026-11-02)
+
+The checks above used `-device virtio-rng-pci` with QEMU's defaults. Such a
+transitional virtio device does not offer `VIRTIO_F_ACCESS_PLATFORM`, and
+QEMU then lets its DMA bypass the SMMU entirely. No check here ran DMA, so
+the verdicts on the stream table and the per-stream tables stand, but
+"SID 8 translated" describes the table entry, not the device's real path.
+Real DMA through the SMMU was shown in
+`../../stage2/20261102-g2-dma/README.md` with
+`iommu_platform=on,disable-legacy=on`; read-back v3 now flags the default
+virtio device as an unenforced DMA master.
