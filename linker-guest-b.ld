@@ -17,6 +17,7 @@ ENTRY(_guest_b_start)
 SECTIONS
 {
     . = 0x60000000;
+    __guest_start = .;
 
     .text.entry : { *(.text.entry) }
     .text       : { *(.text*) }
@@ -26,6 +27,7 @@ SECTIONS
     . = ALIGN(4096);
     .bss.stack  : { *(.bss.stack) }
     .bss        : { *(.bss*) *(COMMON) }
+    __guest_end = .;
 
     /DISCARD/ : { *(.comment) *(.note*) *(.ARM.attributes) }
 }

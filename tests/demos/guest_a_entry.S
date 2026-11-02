@@ -47,6 +47,9 @@ _guest_start:
         adr     x0, _guest_stack_top
         mov     sp, x0
 
+        /* Caches on: EL1 identity map (tests/demos/guest_mmu.c) */
+        bl      guest_mmu_enable
+
         /* Print greeting */
         adr     x0, msg_hello
         bl      uart_puts
@@ -68,6 +71,7 @@ _guest_start:
         /* Interrupt delivery: the UART interrupt (SPI 33) is ours */
         bl      guest_a_irq_test
         bl      guest_a_duty_test
+        bl      guest_a_load
 
 _guest_halt:
         wfi

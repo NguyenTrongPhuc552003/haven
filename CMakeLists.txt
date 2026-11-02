@@ -191,7 +191,8 @@ if(HAVEN_ARCH_ARM64)
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
     )
     add_executable(guest_a tests/demos/guest_a_entry.S tests/demos/guest_vectors.S
-        tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c tests/demos/guest_a_duty.c)
+        tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c tests/demos/guest_a_duty.c
+        tests/demos/guest_mmu.c)
     target_include_directories(guest_a PRIVATE
         ${CMAKE_SOURCE_DIR}/arch/arm64/include
         ${CMAKE_SOURCE_DIR}/include
@@ -199,9 +200,13 @@ if(HAVEN_ARCH_ARM64)
     # Stage-1 MMU off at EL1: all accesses are Device memory, so no
     # unaligned accesses may be generated.
     set_source_files_properties(tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c
-        tests/demos/guest_a_duty.c tests/demos/guest_b_timer.c PROPERTIES
+        tests/demos/guest_a_duty.c tests/demos/guest_b_timer.c tests/demos/guest_mmu.c PROPERTIES
         COMPILE_OPTIONS "${HAVEN_ARM64_CFLAGS};-mstrict-align;-O2"
     )
+    # Interference aggressor in partition A: 0 none, 1 CPU loop, 2 memory
+    # stream (docs/methodology/stage2/20261102-interference/PLAN.md).
+    set(HAVEN_DEMO_A_LOAD 0 CACHE STRING "Partition A load: 0 none, 1 cpu, 2 memory")
+    target_compile_definitions(guest_a PRIVATE GUEST_A_LOAD=${HAVEN_DEMO_A_LOAD})
     target_link_options(guest_a PRIVATE
         -T ${CMAKE_SOURCE_DIR}/linker-guest.ld
         -nostdlib -static
@@ -224,7 +229,7 @@ if(HAVEN_ARCH_ARM64)
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
     )
     add_executable(guest_b tests/demos/guest_b_entry.S tests/demos/guest_vectors.S
-        tests/demos/guest_b_timer.c)
+        tests/demos/guest_b_timer.c tests/demos/guest_mmu.c)
     target_include_directories(guest_b PRIVATE
         ${CMAKE_SOURCE_DIR}/arch/arm64/include
         ${CMAKE_SOURCE_DIR}/include

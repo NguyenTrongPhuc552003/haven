@@ -48,3 +48,36 @@ void guest_a_duty_test(void)
 	put_u32(d.gaps);
 	put("\r\nPARTITION_A: duty test done\r\n");
 }
+
+/* Aggressor for the interference measurements, chosen at build time
+ * (HAVEN_DEMO_A_LOAD: 0 none, 1 CPU loop, 2 memory stream). It runs until
+ * the machine stops; partition B's latency probe starts 4 s after
+ * power-on, by when partition A is here. */
+#ifndef GUEST_A_LOAD
+#define GUEST_A_LOAD 0
+#endif
+#define STREAM_BASE 0x48000000UL /* inside A's RAM, above its image */
+#define STREAM_SIZE (64UL << 20) /* larger than any last-level cache */
+
+void guest_a_load(void)
+{
+	uint64_t sctlr;
+
+	__asm__ volatile("mrs %0, sctlr_el1" : "=r"(sctlr));
+	put("PARTITION_A: caches ");
+	put((sctlr & 5U) == 5U ? "on" : "OFF");
+	put(" (SCTLR_EL1 M and C)\r\n");
+	if (GUEST_A_LOAD == 1) {
+		put("PARTITION_A: load cpu running\r\n");
+		for (;;)
+			__asm__ volatile("" ::: "memory");
+	}
+	if (GUEST_A_LOAD == 2) {
+		volatile uint64_t *p = (volatile uint64_t *)STREAM_BASE;
+
+		put("PARTITION_A: load memory stream running\r\n");
+		for (uint64_t pass = 1;; pass++)
+			for (uint64_t i = 0; i < STREAM_SIZE / 8U; i += 8U)
+				p[i] = p[i] + pass;
+	}
+}

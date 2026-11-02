@@ -46,6 +46,9 @@ _guest_b_start:
         adr     x0, _guest_b_stack_top
         mov     sp, x0
 
+        /* Caches on: EL1 identity map (tests/demos/guest_mmu.c) */
+        bl      guest_mmu_enable
+
         mov     w0, #1                  /* stage 1: started */
         bl      guest_b_stage
 

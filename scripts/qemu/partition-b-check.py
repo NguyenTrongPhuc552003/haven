@@ -31,7 +31,9 @@ PART_B_IPA_BASE = 0x60000000
 PART_B_PA_BASE = 0xA0800000
 GUEST_B_MAGIC = 0x48564E42
 FIELDS = ("magic", "stage", "timer_irqs", "other_irqs", "last_intid", "result",
-          "duty_permille", "max_gap_us", "gaps")  # duty: reported, not judged here
+          "duty_permille", "max_gap_us", "gaps",  # duty: reported, not judged here
+          "lat_samples", "lat_max_ns", "lat_avg_ns",  # latency probe: reported only
+          "lat_lt10us", "lat_lt100us", "lat_lt1ms", "lat_lt10ms", "lat_ge10ms", "sctlr_el1")
 RESULTS = {0: "none", 1: "pass", 2: "too few timer interrupts", 3: "other interrupts"}
 TIMER_IRQS = 8
 
