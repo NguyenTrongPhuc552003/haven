@@ -1,0 +1,213 @@
+{
+ "haven_commit": "d0d5002",
+ "results": {
+  "N1": {
+   "check": "N1",
+   "want": [
+    "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+    "CPU 2 ready, partition B started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 not ready within 100 ms - partition B not started",
+    "EL2 stage-1 off (no EL2 map on this platform)"
+   ],
+   "stage": 5,
+   "want_rb": [],
+   "want_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 5,
+    "present": [
+     "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 0,
+    "rb": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 5,
+    "present": [
+     "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 0,
+    "rb": [],
+    "ok": true
+   }
+  },
+  "N2": {
+   "check": "N2",
+   "want": [
+    "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+    "CPU 2 ready, partition B started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 not ready within 100 ms - partition B not started"
+   ],
+   "stage": 5,
+   "want_rb": [
+    [
+     "EL2 / partition 2",
+     "partition memory mapped at EL2"
+    ]
+   ],
+   "want_rc": 1,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 5,
+    "present": [
+     "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 1,
+    "rb": [
+     [
+      "EL2 / partition 2",
+      "partition memory mapped at EL2"
+     ]
+    ],
+    "ok": true
+   },
+   "max": {
+    "stage": 5,
+    "present": [
+     "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 1,
+    "rb": [
+     [
+      "EL2 / partition 2",
+      "partition memory mapped at EL2"
+     ]
+    ],
+    "ok": true
+   }
+  },
+  "N3": {
+   "check": "N3",
+   "want": [
+    "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+    "CPU 2 not ready within 100 ms - partition B not started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 ready, partition B started"
+   ],
+   "stage": 0,
+   "want_rb": [],
+   "want_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 0,
+    "present": [
+     "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+     "CPU 2 not ready within 100 ms - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 0,
+    "rb": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 0,
+    "present": [
+     "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+     "CPU 2 not ready within 100 ms - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 0,
+    "rb": [],
+    "ok": true
+   }
+  },
+  "N4": {
+   "check": "N4",
+   "want": [
+    "EL2 map rejected (rc=-4)"
+   ],
+   "forbid": [
+    "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+    "CPU 2 ready, partition B started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "stage": 0,
+   "want_rb": null,
+   "want_rc": null,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 0,
+    "present": [
+     "EL2 map rejected (rc=-4)"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": null,
+    "rb": null,
+    "ok": true
+   },
+   "max": {
+    "stage": 0,
+    "present": [
+     "EL2 map rejected (rc=-4)"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": null,
+    "rb": null,
+    "ok": true
+   }
+  },
+  "N5": {
+   "check": "N5",
+   "want": [
+    "EL2 stage-1 off (no EL2 map on this platform)",
+    "CPU 2 ready, partition B started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "EL2 stage-1 on (identity map, image Normal WB, MMIO Device)",
+    "CPU 2 not ready within 100 ms - partition B not started"
+   ],
+   "stage": 5,
+   "want_rb": [],
+   "want_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 5,
+    "present": [
+     "EL2 stage-1 off (no EL2 map on this platform)",
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 0,
+    "rb": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 5,
+    "present": [
+     "EL2 stage-1 off (no EL2 map on this platform)",
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "rb_rc": 0,
+    "rb": [],
+    "ok": true
+   }
+  }
+ }
+}

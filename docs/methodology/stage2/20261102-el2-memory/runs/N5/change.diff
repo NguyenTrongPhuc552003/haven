@@ -1,0 +1,12 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 23:13:28
++++ /tmp/a1-N5-4a1cr938/src/platform/qemu-virt/platform.c	2026-11-02 23:17:24
+@@ -42,8 +42,7 @@
+ 	{0x4000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+ 	{HAVEN_LOAD_PA, HAVEN_SIZE, HV_EL2_NORMAL},
+ };
+-const uint32_t hv_el2_region_count =
+-	sizeof(hv_el2_regions) / sizeof(hv_el2_regions[0]);
++const uint32_t hv_el2_region_count = 0U;
+ 
+ static void qemu_uart_putchar(char c)
+ {

@@ -35,12 +35,12 @@ without growing Haven's trusted code?
 | Stage-2 memory isolation | Per-partition tables with permissions and memory types; cross-partition access denied and logged | `docs/methodology/stage1/` |
 | DMA isolation | SMMUv3 with one stage-2 table per granted stream (own VMID); real virtio DMA allowed inside its window, blocked outside; blocked DMA logged from the event queue | `stage2/20261102-g2-dma/`, `stage2/20261102-dma-hardening/` |
 | Interrupts | SPIs and per-CPU PPIs owned per partition; delivered as hardware-linked virtual interrupts; undeliverable interrupts disabled | `stage2/20261102-irq-delivery/`, `stage2/20261102-partition-b/` |
-| Two partitions, two CPUs | Partition A on CPU 0; partition B on CPU 2, started through PSCI, with its own virtual timer | `stage2/20261102-partition-b/` |
-| Read-back v4 | Stage-2, SMMU and GIC state compared with a grant; seeded-fault case sets and randomly drawn held-out faults | `tools/readback/`, `stage2/20261102-a1-cases-v3/`, `stage2/20261102-readback-v4/` |
+| Two partitions, two CPUs | Partition A on CPU 0; partition B on CPU 2, started through PSCI after a ready handshake, with its own virtual timer | `stage2/20261102-partition-b/`, `stage2/20261102-secondary-cpu/` |
+| Haven's own memory | EL2 stage-1 identity map: Haven's image cacheable, MMIO device, partition RAM unmapped; read back | `stage2/20261102-el2-memory/` |
+| Read-back v5 | Stage-2, SMMU, GIC and Haven's EL2 map compared with a grant; seeded-fault case sets and randomly drawn held-out faults | `tools/readback/`, `stage2/20261102-a1-cases-v3/`, `stage2/20261102-readback-v4/` |
 
 **Not done yet:** CPU time budgets are configured but not enforced (the EL2
-timer is never armed); no secondary-CPU ready handshake; EL2 runs with its MMU
-off; no Linux guest; no board bring-up. Every known defect and its status is
+timer is never armed); no Linux guest; no board bring-up. Every known defect and its status is
 in [`FINDINGS.md`](docs/methodology/stage0/20261025-corrections/FINDINGS.md).
 
 ## Quick start

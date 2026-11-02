@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 23:13:28
++++ /tmp/a1-N4-5_pma1no/src/platform/qemu-virt/platform.c	2026-11-02 23:16:42
+@@ -40,7 +40,7 @@
+ const struct hv_el2_region hv_el2_regions[] = {
+ 	{0x0000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+ 	{0x4000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+-	{HAVEN_LOAD_PA, HAVEN_SIZE, HV_EL2_NORMAL},
++	{HAVEN_LOAD_PA, HAVEN_SIZE / 2U, HV_EL2_NORMAL},
+ };
+ const uint32_t hv_el2_region_count =
+ 	sizeof(hv_el2_regions) / sizeof(hv_el2_regions[0]);

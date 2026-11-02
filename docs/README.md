@@ -10,9 +10,11 @@ working research question is enforcement read-back (see the repository
 | - | - |
 | [`methodology/stage0/20261025-corrections/FINDINGS.md`](methodology/stage0/20261025-corrections/FINDINGS.md) | Every known defect and tool gap, with status, evidence and the commit that resolved it |
 | `methodology/stage0/` to `stage2/` | Dated experiment records: changes, expectations fixed before the run, raw runs (large dumps listed by hash), limits |
-| [`methodology/stage2/20261102-readback-v4/`](methodology/stage2/20261102-readback-v4/README.md) | Latest read-back version and its grants |
+| [`methodology/stage2/20261102-readback-v4/`](methodology/stage2/20261102-readback-v4/README.md) | Read-back v4 and its grants (v5 adds the EL2 map check, see `el2-memory`) |
 | [`methodology/stage2/20261102-a1-cases-v3/`](methodology/stage2/20261102-a1-cases-v3/RESULTS.md) | Frozen seeded-fault case set, random held-out faults, scores |
 | [`methodology/stage2/20261102-partition-b/`](methodology/stage2/20261102-partition-b/README.md) | Two partitions on two CPUs, per-CPU interrupts, partition B's timer |
+| [`methodology/stage2/20261102-secondary-cpu/`](methodology/stage2/20261102-secondary-cpu/README.md) | CPU map, entry checks, ready handshake for secondary CPUs |
+| [`methodology/stage2/20261102-el2-memory/`](methodology/stage2/20261102-el2-memory/DECISION.md) | Haven's own EL2 memory contract: decision and results |
 | [`porting/cix-p1-ledger.md`](porting/cix-p1-ledger.md) | CIX P1 platform facts and weaknesses: IORT, SMMUs, GPU, firmware, board differences |
 | [`architecture/gpu-partition.md`](architecture/gpu-partition.md) | GPU partition design and the board experiments G1 to G4 |
 | [`architecture/NAMING_RATIONALE.md`](architecture/NAMING_RATIONALE.md), [`architecture/REPOSITORY_STRUCTURE.md`](architecture/REPOSITORY_STRUCTURE.md) | Name and layout |

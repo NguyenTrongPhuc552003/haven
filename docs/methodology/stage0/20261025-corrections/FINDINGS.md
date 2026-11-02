@@ -317,12 +317,17 @@ These define obligations and interfaces; the archive logs establish observations
 
 ### A1 - Layout-sensitive EL2 alignment faults, enabling cause unresolved
 
-- **Status (2026-11-02):** analysed, option choice pending with the owner:
-  `docs/methodology/stage2/20261102-el2-memory/DECISION.md`. Beyond the
-  alignment faults, Haven writes stage-2 tables and SMMU structures as
-  Device memory while the table walker and the SMMU read them as
-  write-back cacheable (mismatched attributes, inference; invisible in
-  QEMU).
+- **Status (2026-11-02):** resolved for QEMU by option A (owner decision),
+  haven `443a7de`: Haven's own EL2 identity map, image Normal WB inner
+  shareable, MMIO Device-nGnRE, partition RAM unmapped; the boot CPU
+  invalidates stale lines over its image before enabling, secondaries
+  enable before their first data write. Read-back v5 checks the EL2 map.
+  Controls N1-N5 as expected
+  (`docs/methodology/stage2/20261102-el2-memory/`). The attribute-mismatch
+  hazard it removes cannot be shown in QEMU; board evidence: a revocation
+  test (unmap a DMA window, then DMA into it). Alignment: Haven's data is
+  now Normal memory, so the Stage 0 alignment faults no longer apply to it;
+  Device registers are still accessed with aligned 32/64-bit accessors only.
 
 - **Expected contract / source:** A. Compiler access assumptions must match
   effective EL2 memory attributes and alignment rules. Clearing SCTLR.A does

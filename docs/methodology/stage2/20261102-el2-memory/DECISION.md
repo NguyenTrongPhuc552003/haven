@@ -1,7 +1,7 @@
 # EL2 memory contract before the board (FINDINGS A1)
 
-**Status:** PROPOSAL, 2026-11-02, waiting for the owner's choice of option.
-Analysis by Claude; no code changed yet.
+**Status:** DECIDED 2026-11-02: the owner chose option A. Implemented in
+haven `443a7de`, read-back v5 in `d0d5002`; results in `RESULTS.md`.
 
 ## Correction first
 
