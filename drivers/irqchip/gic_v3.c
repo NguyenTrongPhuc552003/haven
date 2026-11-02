@@ -210,6 +210,23 @@ hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq)
 	return HV_OK;
 }
 
+hv_status_t gic_v3_set_ppi_priority(uint32_t cpu, uint32_t irq,
+				    uint8_t priority)
+{
+	uint32_t reg, shift, val;
+
+	if (!ppi_valid(cpu, irq))
+		return HV_EINVAL;
+
+	reg = GICR_IPRIORITYR(irq / 4U);
+	shift = (irq % 4U) * 8U;
+	val = gic_read32(gicr_cpu_base(cpu), reg);
+	val &= ~(0xffU << shift);
+	val |= (uint32_t)priority << shift;
+	gic_write32(gicr_cpu_base(cpu), reg, val);
+	return HV_OK;
+}
+
 hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq)
 {
 	if (!ppi_valid(cpu, irq))

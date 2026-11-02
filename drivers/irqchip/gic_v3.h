@@ -36,6 +36,9 @@ hv_status_t gic_v3_disable_irq(uint32_t irq);
  * gic_v3_enable_irq and gic_v3_disable_irq take SPIs only. */
 hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq);
 hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
+/* Priority of PPI irq in CPU cpu's redistributor. */
+hv_status_t gic_v3_set_ppi_priority(uint32_t cpu, uint32_t irq,
+				    uint8_t priority);
 
 /*
  * gic_v3_route_irq - affinity-route SPI to a physical CPU.

@@ -106,6 +106,7 @@ if(HAVEN_ARCH_ARM64)
         arch/arm64/irq.c
         arch/arm64/smp.c
         arch/arm64/mmu_el2.c
+        arch/arm64/budget_hw.c
     )
     set(HAVEN_ARCH_ASM_SRCS
         arch/arm64/entry.S
@@ -190,7 +191,7 @@ if(HAVEN_ARCH_ARM64)
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
     )
     add_executable(guest_a tests/demos/guest_a_entry.S tests/demos/guest_vectors.S
-        tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c)
+        tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c tests/demos/guest_a_duty.c)
     target_include_directories(guest_a PRIVATE
         ${CMAKE_SOURCE_DIR}/arch/arm64/include
         ${CMAKE_SOURCE_DIR}/include
@@ -198,7 +199,7 @@ if(HAVEN_ARCH_ARM64)
     # Stage-1 MMU off at EL1: all accesses are Device memory, so no
     # unaligned accesses may be generated.
     set_source_files_properties(tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c
-        tests/demos/guest_b_timer.c PROPERTIES
+        tests/demos/guest_a_duty.c tests/demos/guest_b_timer.c PROPERTIES
         COMPILE_OPTIONS "${HAVEN_ARM64_CFLAGS};-mstrict-align;-O2"
     )
     target_link_options(guest_a PRIVATE

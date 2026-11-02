@@ -16,6 +16,7 @@
  * Timer registers: Arm ARM D24 (CNTV_CTL_EL0 ENABLE bit 0, IMASK bit 1).
  */
 
+#include "guest_duty.h"
 #include <stdint.h>
 
 #define GUEST_B_MAGIC 0x48564e42U /* "HVNB" */
@@ -30,7 +31,7 @@ enum {
 	RESULT_OTHER_IRQ = 3U,
 };
 
-/* Layout read by partition-b-check.py: six 32-bit words. */
+/* Layout read by partition-b-check.py: nine 32-bit words. */
 struct guest_b_status {
 	uint32_t magic;
 	uint32_t stage; /* 1 started, 2 periods, 3 resumed, 4 timer, 5 done */
@@ -38,6 +39,9 @@ struct guest_b_status {
 	uint32_t other_irqs;
 	uint32_t last_intid;
 	uint32_t result;
+	uint32_t duty_permille; /* running time over a 200 ms window */
+	uint32_t max_gap_us; /* longest time not running in that window */
+	uint32_t gaps;
 };
 
 volatile struct guest_b_status guest_b_status
@@ -108,5 +112,15 @@ void guest_b_timer_test(void)
 		guest_b_status.result = RESULT_OTHER_IRQ;
 	else
 		guest_b_status.result = RESULT_PASS;
+
+	/* Budget: 2 ms per 10 ms on CPU 2 (src/core/partition.c). */
+	{
+		struct guest_duty d;
+
+		guest_duty_measure(&d, 200U, 200U);
+		guest_b_status.duty_permille = d.permille;
+		guest_b_status.max_gap_us = d.max_gap_us;
+		guest_b_status.gaps = d.gaps;
+	}
 	guest_b_stage(5U);
 }

@@ -14,6 +14,7 @@
  *   Bits [9:0]  - vINTID (virtual IRQ ID sent to guest)
  */
 
+#include <asm/gic.h>
 #include <asm/sysregs.h>
 #include <haven/types.h>
 #include <stdint.h>
@@ -319,6 +320,7 @@ void hv_arch_handle_phys_irq(void)
 	extern void smmu_v3_service_irq(void);
 	extern uint32_t hv_arch_cpu_id(void);
 	extern hv_u32 hv_irq_owner_on(hv_u32 irq_id, hv_u32 cpu);
+	extern int hv_arch_budget_expired(uint32_t cpu);
 	extern hv_status_t gic_v3_disable_irq(uint32_t irq);
 	extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
 
@@ -332,6 +334,9 @@ void hv_arch_handle_phys_irq(void)
 			break; /* spurious or none pending */
 		if (intid == smmu_evtq_intid && intid != 0U) {
 			smmu_v3_service_irq();
+		} else if (intid == HV_CNTHP_PPI) {
+			/* Budget spent: held at EL2 until the next period. */
+			(void)hv_arch_budget_expired(here);
 		} else {
 			owner = hv_irq_owner_on(intid, here);
 			if (owner != 0U && here < HV_ARCH_IRQ_MAX_CPUS &&

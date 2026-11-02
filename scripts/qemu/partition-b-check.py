@@ -30,7 +30,8 @@ import time
 PART_B_IPA_BASE = 0x60000000
 PART_B_PA_BASE = 0xA0800000
 GUEST_B_MAGIC = 0x48564E42
-FIELDS = ("magic", "stage", "timer_irqs", "other_irqs", "last_intid", "result")
+FIELDS = ("magic", "stage", "timer_irqs", "other_irqs", "last_intid", "result",
+          "duty_permille", "max_gap_us", "gaps")  # duty: reported, not judged here
 RESULTS = {0: "none", 1: "pass", 2: "too few timer interrupts", 3: "other interrupts"}
 TIMER_IRQS = 8
 
@@ -82,6 +83,10 @@ def main():
         return 2
 
     status_pa = symbol(nm, os.path.join(build, "guest_b.elf"), "guest_b_status") - PART_B_IPA_BASE + PART_B_PA_BASE
+    try:  # Haven's per-CPU budget statistics (arch/arm64/budget_hw.c), if built in
+        budget_pa = symbol(nm, os.path.join(build, "haven.elf"), "hv_cpu_budget")
+    except SystemExit:
+        budget_pa = None
     out = os.path.join(build, "evidence")
     os.makedirs(out, exist_ok=True)
     uart = os.path.join(out, f"partition-b-{cpu}-uart.log")
@@ -98,6 +103,7 @@ def main():
         "-device", f"loader,file={build}/guest_b.bin,addr={PART_B_PA_BASE:#x},force-raw=on",
     ])
     status = dict.fromkeys(FIELDS, 0)
+    budgets = {}
     log = ""
     try:
         t0 = time.time()
@@ -107,10 +113,18 @@ def main():
         while time.time() - t0 < limit and q.poll() is None:
             status = dict(zip(FIELDS, (m.read32(status_pa + 4 * i) for i in range(len(FIELDS)))))
             log = open(uart, errors="replace").read() if os.path.exists(uart) else ""
-            if status["result"] != 0 and "PARTITION_A: IRQ test done" in log:
+            if status["stage"] == 5 and "PARTITION_A: IRQ test done" in log:
                 break
             time.sleep(0.25)
         time.sleep(0.5)  # let the last HAVEN lines reach the log
+        budgets = {}
+        if budget_pa is not None and q.poll() is None:
+            for c in (0, 2):  # struct cpu_budget: 5 x u64, then 4 x u32 (56 bytes)
+                base = budget_pa + 56 * c
+                lo = lambda off: m.read32(base + off) | (m.read32(base + off + 4) << 32)
+                budgets[c] = {"budget_ticks": lo(8), "max_late_ticks": lo(32),
+                              "active": m.read32(base + 40), "throttles": m.read32(base + 44),
+                              "missed": m.read32(base + 48)}
     finally:
         q.kill()
         q.wait()
@@ -118,14 +132,18 @@ def main():
             os.remove(sock)
     log = open(uart, errors="replace").read() if os.path.exists(uart) else ""
     status["status_pa"] = status_pa
-    json.dump({k: (hex(v) if k in ("magic", "status_pa") else v) for k, v in status.items()},
-              open(os.path.join(out, f"partition-b-{cpu}-status.json"), "w"), indent=1)
+    rec = {k: (hex(v) if k in ("magic", "status_pa") else v) for k, v in status.items()}
+    rec["haven_budgets"] = budgets
+    json.dump(rec, open(os.path.join(out, f"partition-b-{cpu}-status.json"), "w"), indent=1)
 
     print(f"---- UART ({uart}) ----")
     print(log, end="")
     print("---------------------")
     print("partition B status @PA %#x: %s" % (status_pa, ", ".join(
         f"{k}={status[k]:#x}" if k == "magic" else f"{k}={status[k]}" for k in FIELDS)))
+    for c, b in budgets.items():  # reported, not judged here (QEMU timing)
+        print(f"Haven budget CPU {c}: active={b['active']} throttles={b['throttles']} "
+              f"missed={b['missed']} max_late_ticks={b['max_late_ticks']}")
     denied_b = [l for l in log.splitlines() if "Denied stage-2 violation" in l and "IPA=0x40000000" in l]
     checks = [
         ("CPU 2 ready, partition B started", "CPU 2 ready, partition B started" in log),

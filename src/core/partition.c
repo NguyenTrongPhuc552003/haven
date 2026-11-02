@@ -316,6 +316,8 @@ extern uint64_t hv_arch_logical_mpidr(uint32_t cpu);
 #define HV_ARCH_NO_CPU 0xffffffffUL /* HV_CPU_INVALID, asm/cpu_map.h */
 extern int hv_arch_cpu_wait_ready(uint32_t cpu, uint64_t timeout_us);
 extern int hv_arch_cpu_report_ready(uint32_t cpu);
+extern int hv_arch_budget_start(uint32_t cpu, uint64_t budget_ns,
+				uint64_t period_ns);
 extern void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition);
 extern void hv_arch_cpu_init(void);
 extern void hv_arch_phys_irq_cpu_init(void);
@@ -351,6 +353,10 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
 		for (;;)
 			__asm__ volatile("wfe");
 	}
+
+	/* CPU time budget enforced by the EL2 timer from here on. */
+	(void)hv_arch_budget_start(PART_B_CPU, part_b_budget.budget_ns,
+				   part_b_budget.period_ns);
 
 	/* ERET to Partition B entry at its IPA base. */
 	hv_arch_start_partition(
@@ -486,6 +492,10 @@ void partitions_launch(void)
 	hv_printk("HAVEN: ERET -> partition A entry IPA=0x%lx\n",
 		  (unsigned long)PART_A_IPA_BASE);
 	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_A_ID);
+	if (hv_arch_budget_start(hv_arch_cpu_id(), part_a_budget.budget_ns,
+				 part_a_budget.period_ns))
+		hv_printk("HAVEN: CPU 0 budget enforced by the EL2 timer "
+			  "(partition A)\n");
 	hv_arch_start_partition(
 		(uintptr_t)PART_A_IPA_BASE,
 		(uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL),

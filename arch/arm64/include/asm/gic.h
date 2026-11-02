@@ -166,6 +166,12 @@
  * Grouping: Grp0 must have higher priority (lower number) than Grp1.
  * ----------------------------------------------------------------------- */
 
+/* Generic timer PPIs. QEMU virt and CIX P1 agree: the CIX GTDT takes them
+ * from ArmPkg defaults (PcdArmArchTimerHypIntrNum 26, ...VirtIntrNum 27;
+ * data/common/cix-bios, not overridden for Sky1). */
+#define HV_CNTHP_PPI 26U /* EL2 physical timer: Haven's budgets */
+#define HV_CNTV_PPI 27U /* EL1 virtual timer: the partition's */
+
 #define GIC_PRIO_HIGHEST 0x00 /* Highest priority */
 #define GIC_PRIO_HYPERVISOR 0x40 /* Haven EL2 handlers */
 #define GIC_PRIO_RTOS_HIGH 0x60 /* High-criticality RTOS partition */

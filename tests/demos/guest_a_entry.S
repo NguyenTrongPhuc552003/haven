@@ -67,6 +67,7 @@ _guest_start:
 
         /* Interrupt delivery: the UART interrupt (SPI 33) is ours */
         bl      guest_a_irq_test
+        bl      guest_a_duty_test
 
 _guest_halt:
         wfi
