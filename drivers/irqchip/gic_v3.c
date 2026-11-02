@@ -82,10 +82,11 @@ static void gicd_init(void)
 	for (uint32_t i = GIC_SPI_BASE; i < gic.nr_irqs; i++)
 		gic_write64(gic.gicd_base, GICD_IROUTER(i), GICD_IROUTER_IRM);
 
-	/* Enable: ARE_NS + G1NS + G0 */
+	/* Enable affinity routing and Group 1 (Non-secure layout, as Linux
+	 * gic_dist_init: disabled with 0 above, then ARE_NS | G1A | G1). */
 	gic_write32(gic.gicd_base, GICD_CTLR,
-		    GICD_CTLR_ARE_NS | GICD_CTLR_ENABLE_G1NS |
-			    GICD_CTLR_ENABLE_G0);
+		    GICD_CTLR_ARE_NS | GICD_CTLR_ENABLE_G1A |
+			    GICD_CTLR_ENABLE_G1);
 	gicd_wait_rwp(gic.gicd_base);
 }
 

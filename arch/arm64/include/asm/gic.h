@@ -48,12 +48,15 @@
 #define GICD_IROUTER(n) \
 	(0x6000 + (n) * 8) /* Interrupt Routing Registers (SPI ≥ 32) */
 
-/* GICD_CTLR bits */
-#define GICD_CTLR_ENABLE_G0 (1U << 0) /* Enable Group 0 */
-#define GICD_CTLR_ENABLE_G1NS (1U << 1) /* Enable Non-Secure Group 1 */
-#define GICD_CTLR_ENABLE_G1S (1U << 2) /* Enable Secure Group 1 */
-#define GICD_CTLR_ARE_S (1U << 4) /* Affinity Routing Enable (Secure) */
-#define GICD_CTLR_ARE_NS (1U << 5) /* Affinity Routing Enable (NS) */
+/* GICD_CTLR bits as a Non-secure access sees them (Haven runs at
+ * Non-secure EL2).  Same values as Linux include/linux/irqchip/arm-gic-v3.h.
+ * With a single security state (DS = 1) the same positions mean
+ * EnableGrp0 (bit 0), EnableGrp1 (bit 1) and ARE (bit 4), so the same write
+ * is correct in both cases.  The Secure view (ARE_NS at bit 5) is only
+ * visible to Secure accesses and is not used here (FINDINGS GI1). */
+#define GICD_CTLR_ENABLE_G1 (1U << 0) /* NS: EnableGrp1; DS=1: EnableGrp0 */
+#define GICD_CTLR_ENABLE_G1A (1U << 1) /* NS: EnableGrp1A; DS=1: EnableGrp1 */
+#define GICD_CTLR_ARE_NS (1U << 4) /* NS: ARE_NS; DS=1: ARE */
 #define GICD_CTLR_DS (1U << 6) /* Disable Security (single-security state) */
 #define GICD_CTLR_RWP (1U << 31) /* Register Write Pending */
 
