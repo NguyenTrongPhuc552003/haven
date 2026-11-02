@@ -535,7 +535,8 @@ device to a partition yet; they appear as soon as one does. No code change.
 ## 7. Stage 2 additions (2026-11-02): GIC
 
 Found while building GIC read-back (`../../stage2/20261102-gic-readback/`).
-No code change for GI1 (fix needs owner approval); GI2 is partly addressed.
+Both fixed on 2026-11-02 after owner approval
+(`../../stage2/20261102-irq-delivery/README.md`).
 
 ### GI1 - GICD_CTLR written with the Secure-view bit layout
 
@@ -559,6 +560,10 @@ No code change for GI1 (fix needs owner approval); GI2 is partly addressed.
 - **Smallest correction (proposal):** use the Non-secure layout (bit 4
   ARE_NS, bit 1 EnableGrp1A), read DS to choose the single-security layout,
   and never write ARE as 0 once set: read-modify-write, waiting on RWP.
+- **Resolution:** fixed in `de6291c` with the Linux sequence (write 0, wait
+  RWP, then ARE_NS | EnableGrp1A | EnableGrp1); the same bit positions are
+  correct for DS = 1, so no DS branch is needed. Not demonstrable in QEMU
+  `qemu-direct` (single security state); to be confirmed on the board.
 
 ### GI2 - Interrupts granted to a partition are never delivered
 
@@ -574,3 +579,8 @@ No code change for GI1 (fix needs owner approval); GI2 is partly addressed.
   handles its own (SMMU events); interrupts owned by partitions are
   completed without delivery. Virtual injection through the list registers
   is still to do.
+- **Resolution:** `f6fe485` injects an interrupt into its owner, if that
+  partition runs on the CPU, as a hardware-linked virtual interrupt;
+  `3fbafae` disables an SPI that cannot be delivered. Partition A receives
+  its UART interrupt (checks J1-J4). Open: physical interrupts on CPUs
+  other than the boot CPU.

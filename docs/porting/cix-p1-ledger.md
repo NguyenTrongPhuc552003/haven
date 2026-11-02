@@ -93,11 +93,30 @@ Xunlong), sheets "SKY1 I2C/JTAG/GPIO/MISC" and "STRAP/UART DEBUG":
 | - | - | - |
 | SoC JTAG | TDI/TDO/TCK/TMS/TRST to unfitted test points ("Dummy"); the Lauterbach/J-Link connector is not on the board | **J21**, 2x5 header (PH0205-100TM-SM-H10, 1.27 mm) with TMS, TCK, TDO, TDI and reset, pull-ups to 1.8 V; drawn without a "Dummy" mark |
 | Debug UART header | J135, 2x2: UART2 (UEFI and kernel console) only; PM, SE and UART6 lines to unfitted test points | J135, 2x5: UART2 console, UART4 (power management), UART5 (security engine), UART6 |
-| Firmware image in `data/` | yes (IORT checked above) | no |
+| Firmware image in `data/` | yes (IORT checked above) | yes, since 2026-11-02 (below) |
 
 Whether J21 is fitted on retail Plus boards, and whether the CIX P1 allows
 external debug of the application cores without Secure authorisation, is
 not shown by these documents; both are to be checked on the board.
+
+## Orange Pi 6 Plus firmware images checked (2026-11-02)
+
+Downloaded by the owner from the official Orange Pi 6 Plus support page into
+`data/orange-pi-6/plus/BIOS firmware release package/`, checked with
+`tools/fwscan/iort_scan.py` (not flashed):
+
+| Image | SHA-256 (first 16) | IORT |
+| - | - | - |
+| `Linux_Bios/opi6plus_bios_image_for_linux_20251031.img` | `3628b1c8b90b6470` | 3 copies, table `233babc52e073bb5` |
+| `General_Bios/Bios1.4/.../OPI6PLUS_BIOS_1.4_General.bin` | `acf957ac8af7c391` | table `233babc52e073bb5` |
+| `Android_Bios/Bios1.3/.../OPI6PLUS_BIOS_1.3_Android.bin` | `722de84d90ce2d35` | table `233babc52e073bb5` |
+| Orange Pi 6 `opi6_bios_image_20260708.img` (for comparison) | `4ed78c5a4185e25b` | 4 copies, table `233babc52e073bb5` |
+
+All carry the same IORT, byte for byte: the PCIe SMMUv3 at `0x0B010000`
+(coherent) with requester ID = StreamID, the multimedia SMMUv3 at
+`0x0B1B0000`, the same 14 named components, an RMR node, and no GPU
+entry. So on either board, with the vendor firmware, PCIe devices are behind
+an SMMU and the GPU is not (row 1).
 
 ## GPU facts used by the thesis (source-derived)
 

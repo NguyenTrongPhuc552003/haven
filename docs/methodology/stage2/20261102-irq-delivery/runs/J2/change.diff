@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/irq.c	2026-11-02 13:19:22
++++ /tmp/g2-J2-on_xj_v1/arch/arm64/irq.c	2026-11-02 13:19:38
+@@ -297,7 +297,7 @@
+ 		} else {
+ 			owner = hv_irq_owner(intid, &cpu);
+ 			if (owner != 0U && here < HV_ARCH_IRQ_MAX_CPUS &&
+-			    owner == cpu_partition[here] &&
++			    owner == cpu_partition[here] + 100U &&
+ 			    inject_hw(intid, 0xa0U) == HV_OK) {
+ 				write_sysreg(iar,
+ 					     icc_eoir1_el1); /* drop only */
