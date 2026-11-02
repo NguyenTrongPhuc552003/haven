@@ -31,6 +31,12 @@
 const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
 const uint32_t hv_cpu_count = 4U;
 
+/* EL2 map (asm/el2_mmu.h): none, so EL2 translation stays off on this
+ * legacy platform. */
+#include <asm/el2_mmu.h>
+const struct hv_el2_region hv_el2_regions[1] = {{0, 0, 0}};
+const uint32_t hv_el2_region_count = 0U;
+
 static void imx95_uart_putchar(char c)
 {
 	uart_putchar(IMX95_UART1_BASE, c);

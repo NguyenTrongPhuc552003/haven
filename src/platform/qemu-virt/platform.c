@@ -29,6 +29,22 @@
 const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
 const uint32_t hv_cpu_count = 4U;
 
+/* -----------------------------------------------------------------------
+ * Haven's EL2 map (asm/el2_mmu.h): only what Haven itself touches.
+ *   0x00_0000_0000 + 1 GiB  Device: GIC, PL011, SMMUv3, PCIe MMIO window
+ *   0x40_0000_0000 + 1 GiB  Device: PCIe ECAM (0x40_1000_0000)
+ *   Haven's image            Normal: HAVEN_LOAD_PA + HAVEN_SIZE (8 MiB)
+ * Partition RAM is deliberately absent.
+ * ----------------------------------------------------------------------- */
+#include <asm/el2_mmu.h>
+const struct hv_el2_region hv_el2_regions[] = {
+	{0x0000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+	{0x4000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+	{HAVEN_LOAD_PA, HAVEN_SIZE, HV_EL2_NORMAL},
+};
+const uint32_t hv_el2_region_count =
+	sizeof(hv_el2_regions) / sizeof(hv_el2_regions[0]);
+
 static void qemu_uart_putchar(char c)
 {
 	uart_putchar(QEMU_UART_BASE, c);

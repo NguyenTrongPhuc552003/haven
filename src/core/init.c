@@ -69,6 +69,28 @@ void haven_init(uintptr_t dtb_pa)
 		if (hv_arch_cpu_id() != 0U)
 			hv_panic("boot CPU is not entry 0 of the CPU map");
 	}
+	/* FINDINGS A1 (option A): Haven's own EL2 identity map, before any
+	 * stage-2 or SMMU structure is written. */
+	{
+		extern int hv_arch_el2_mmu_build(void);
+		extern void hv_arch_el2_mmu_enable(void);
+		extern void hv_panic(const char *msg);
+		extern volatile uint64_t hv_el2_ttbr;
+		extern void hv_printk(const char *fmt, ...);
+		int rc = hv_arch_el2_mmu_build();
+
+		if (rc != 0) {
+			hv_printk("HAVEN: EL2 map rejected (rc=%d)\n", rc);
+			hv_panic("EL2 stage-1 map invalid");
+		}
+		hv_arch_el2_mmu_enable();
+		if (hv_el2_ttbr != 0U)
+			hv_printk("HAVEN: EL2 stage-1 on (identity map, "
+				  "image Normal WB, MMIO Device)\n");
+		else
+			hv_printk("HAVEN: EL2 stage-1 off (no EL2 map on this "
+				  "platform)\n");
+	}
 #endif
 
 	/* Step 3: Verify hardware supports all required features */

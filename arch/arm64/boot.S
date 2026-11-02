@@ -30,6 +30,7 @@
 #define __ASSEMBLY__
 #endif
 #include <asm/cpu_map.h>        /* HV_MAX_CPUS, HV_STACK_SIZE, CPU states */
+#include <asm/el2_mmu.h>        /* EL2 MAIR, TCR, SCTLR bits */
 
 /* -----------------------------------------------------------------------
  * Primary CPU entry point - symbol must match linker script entry
@@ -101,6 +102,31 @@ secondary_entry:
         cmp     x4, #2
         b.ne    _secondary_park          /* not EL2 */
 
+        /* FINDINGS A1: turn on EL2 translation with the boot CPU's tables
+         * before this CPU writes anything, so it never holds data that
+         * bypassed the caches. hv_el2_ttbr is 0 if EL2 translation is off.
+         * No cache invalidation here: it would discard the boot CPU's
+         * dirty lines in this inner-shareable domain. */
+        adrp    x6, hv_el2_ttbr
+        ldr     x6, [x6, :lo12:hv_el2_ttbr]
+        cbz     x6, 3f
+        mov     x7, #EL2_MAIR_VALUE
+        msr     mair_el2, x7
+        movz    x7, #(EL2_TCR_VALUE & 0xffff)
+        movk    x7, #((EL2_TCR_VALUE >> 16) & 0xffff), lsl #16
+        msr     tcr_el2, x7
+        msr     ttbr0_el2, x6
+        isb
+        tlbi    alle2
+        dsb     ish
+        isb
+        mrs     x7, sctlr_el2
+        mov     x8, #(EL2_SCTLR_M | EL2_SCTLR_C)
+        orr     x7, x7, x8
+        orr     x7, x7, #EL2_SCTLR_I
+        msr     sctlr_el2, x7
+        isb
+3:
         /* MPIDR affinity: Aff3 [39:32] and Aff2..Aff0 [23:0]. */
         mrs     x1, mpidr_el1
         ubfx    x4, x1, #32, #8
