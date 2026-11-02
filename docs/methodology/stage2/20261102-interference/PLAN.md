@@ -2,7 +2,8 @@
 
 **Status:** PLAN, 2026-11-02, approved in principle by the owner
 ("interference measurements"). Written by Claude after the budget work.
-Nothing here is measured yet.
+Nothing here is measured yet. The QEMU pipeline check of prerequisites 1 to 3
+ran on 2026-11-03: see `README.md` (all cells ok, numbers host-bound).
 
 ## Question
 

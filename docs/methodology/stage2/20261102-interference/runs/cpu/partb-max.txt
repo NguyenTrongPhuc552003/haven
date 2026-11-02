@@ -1,0 +1,46 @@
+---- UART (/tmp/ifp-cpu-7tin4dkm/build/evidence/partition-b-max-uart.log) ----
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  3 2026 00:53:44
+HAVEN: EL2 stage-1 on (identity map, image Normal WB, MMIO Device)
+  CPU: PARange=6 GIC=v3 - features OK
+HAVEN: GIC virtual interface: 4 list registers
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1 withheld: device absent
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: CPU 2 ready, partition B started (VMID=2)
+HAVEN: ERET -> partition A entry IPA=0x40000000
+HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)
+PARTITION_A: Hello from partition A (EL1 guest)
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0x60000000 ESR=0x93c08006 cpu=0
+PARTITION_A: Post-fault check OK
+PARTITION_A: no DMA device granted
+PARTITION_A: DMA test done
+PARTITION_A: waiting for the UART interrupt
+PARTITION_A: UART interrupt delivered (INTID 33)
+PARTITION_A: IRQ test done
+HAVEN: Denied stage-2 violation IPA=0x40000000 FAR=0x40000000 ESR=0x93c08006 cpu=2
+PARTITION_A: duty 646 permille, longest gap 10192 us, gaps 63
+PARTITION_A: duty test done
+PARTITION_A: caches on (SCTLR_EL1 M and C)
+PARTITION_A: load cpu running
+---------------------
+partition B status @PA 0xa0801518: magic=0x48564e42, stage=5, timer_irqs=8, other_irqs=0, last_intid=27, result=1, duty_permille=247, max_gap_us=7512, gaps=31, lat_samples=500, lat_max_ns=9260000, lat_avg_ns=5111002, lat_lt10us=0, lat_lt100us=3, lat_lt1ms=189, lat_lt10ms=308, lat_ge10ms=0, sctlr_el1=12916797
+Haven budget CPU 0: active=1 throttles=469 missed=313 max_late_ticks=6373000
+Haven budget CPU 2: active=1 throttles=782 missed=0 max_late_ticks=5216000
+ok      CPU 2 ready, partition B started
+ok      partition B IRQs assigned
+ok      partition A: IRQ test done
+ok      B's read of A's IPA denied on CPU 2
+ok      B status magic
+ok      B reached stage 5 (done)
+ok      B timer interrupts >= 8
+ok      B saw no other interrupts
+ok      B result: pass
+ok      no undelivered interrupt
+partition-b-check: PASS (max)
