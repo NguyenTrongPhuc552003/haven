@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""External read-back of HAVEN's enforced state in QEMU (probe v4).
+"""External read-back of HAVEN's enforced state in QEMU (probe v5).
 
 Boots a qemu-direct HAVEN build, stops the machine and reads, from outside
 HAVEN:
@@ -16,6 +16,14 @@ HAVEN:
     compared with the window the grant gives the device. Which buses sit
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
+
+Changes in v5 (2026-11-02, after FINDINGS A1 option A): HAVEN's own EL2
+stage-1 table (found through hv_el2_ttbr) is walked. Partition memory that
+the stage-2 tables map as Normal must not appear in it ("partition memory
+mapped at EL2"), and every EL2 mapping must be an identity mapping. EL2
+translation off is reported as an observation. AttrIndx is read with HAVEN's
+documented MAIR_EL2 (0xff04: 0 Device-nGnRE, 1 Normal WB), because QEMU's
+monitor does not expose MAIR_EL2: an assumption, stated in the report.
 
 Changes in v4 (2026-11-02, after the random held-out cases and partition B):
   - RB1: a partition whose stage-2 root is zero or outside HAVEN's image
@@ -284,6 +292,54 @@ def coalesce(leaves):
     for r in out:
         r.pop("key")
     return out
+
+
+EL2_MAIR = {0: "Device-nGnRE", 1: "Normal WB"}  # HAVEN's MAIR_EL2 0xff04 (assumed)
+
+
+def compare_el2(a, snap, parts):
+    """v5: HAVEN's own EL2 stage-1 map against partition memory."""
+    f, rep = [], {"ttbr": None, "ranges": [], "mair_assumed": "0xff04"}
+    try:
+        ttbr = rd64(snap["image"], symbol(a.nm, os.path.join(a.build, "haven.elf"), "hv_el2_ttbr"))
+    except (SystemExit, ValueError):
+        rep["note"] = "no hv_el2_ttbr in this build (EL2 translation not implemented)"
+        print(f"EL2 map: {rep['note']}")
+        return f, rep
+    rep["ttbr"] = hex(ttbr)
+    if ttbr == 0:
+        rep["note"] = "EL2 translation off: HAVEN accesses all memory as Device"
+        print(f"EL2 map: {rep['note']}")
+        return f, rep
+    leaves = []
+    try:
+        walk(snap["image"], ttbr & 0x0000FFFFFFFFF000, 1, 0, leaves)
+    except ValueError as e:
+        f.append(("EL2", "EL2 map drift", f"table outside HAVEN's image ({e})"))
+        return f, rep
+    for r in coalesce(leaves):
+        attr = EL2_MAIR.get(r["memattr"] & 7, f"AttrIndx {r['memattr'] & 7}")
+        x = {"va": hex(r["ipa"]), "pa": hex(r["pa"]), "size": hex(r["size"]), "type": attr,
+             "xn": (r["xn"] >> 1) & 1, "readonly": (r["s2ap"] >> 1) & 1}
+        rep["ranges"].append(x)
+        print(f"  EL2 va={r['ipa']:#012x} pa={r['pa']:#012x} size={r['size']:#012x} {attr} xn={x['xn']}")
+        if r["ipa"] != r["pa"]:
+            f.append(("EL2", "EL2 map drift", f"VA {r['ipa']:#x} maps PA {r['pa']:#x} (identity expected)"))
+        for pid, d in parts.items():
+            for h in d["H"]:
+                hpa, hsz, hattr = int(h["pa"], 16), int(h["size"], 16), h["memattr"]
+                if r["pa"] < hpa + hsz and hpa < r["pa"] + r["size"]:
+                    lo, hi = max(r["pa"], hpa), min(r["pa"] + r["size"], hpa + hsz)
+                    if hattr & 0xC:  # stage-2 Normal memory
+                        f.append((f"EL2 / partition {pid}", "partition memory mapped at EL2",
+                                  f"PA {lo:#x}-{hi:#x} ({attr} at EL2)"))
+                    else:
+                        rep.setdefault("shared_device", []).append(
+                            f"partition {pid} device PA {lo:#x}-{hi:#x} also mapped at EL2")
+    print(f"EL2 map: {len(rep['ranges'])} range(s), TTBR0_EL2 {ttbr:#x}")
+    for n in rep.get("shared_device", []):
+        print(f"  EL2 observation: {n}")
+    return f, rep
 
 
 def compare_stage2(h, grants):
@@ -663,6 +719,8 @@ def main():
         for r in h:
             print(f"  H ipa={r['ipa']:#011x} pa={r['pa']:#011x} size={r['size']:#010x} s2ap={r['s2ap']} "
                   f"memattr={r['memattr']:#x} sh={r['sh']} xn=0b{r['xn']:02b} af={r['af']}")
+    el2_findings, report["el2"] = compare_el2(a, snap, report["partitions"])
+    findings += el2_findings
     all_pa = [(p, r["pa"], r["size"]) for p, d in report["partitions"].items()
               for r in ({"pa": int(x["pa"], 16), "size": int(x["size"], 16)} for x in d["H"])]
     for i, (p1, a1, s1) in enumerate(all_pa):
