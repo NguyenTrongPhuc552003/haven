@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 23:22:40
++++ /tmp/bud-P3-k_leqg50/src/core/partition.c	2026-11-02 23:28:39
+@@ -296,7 +296,7 @@
+ static const struct hv_budget part_b_budget = {
+ 	.partition_id = PARTITION_B_ID,
+ 	.period_ns = 10000000ULL, /* 10 ms */
+-	.budget_ns = 2000000ULL, /*  2 ms */
++	.budget_ns = 10000000ULL, /* control: = period */
+ };
+ 
+ /* -----------------------------------------------------------------------

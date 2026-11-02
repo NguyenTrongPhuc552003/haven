@@ -1,0 +1,318 @@
+{
+ "haven_commit": "5d7d908",
+ "results": {
+  "P1": {
+   "check": "P1",
+   "band_a": [
+    "throttled",
+    0,
+    900,
+    5
+   ],
+   "band_b": [
+    "throttled",
+    150,
+    400,
+    10
+   ],
+   "want_rb": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "duty_a": [
+     527,
+     9747,
+     17
+    ],
+    "duty_b": [
+     319,
+     7780,
+     20
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=1 throttles=57 missed=47 max_late_ticks=241312",
+     "Haven budget CPU 2: active=1 throttles=104 missed=0 max_late_ticks=178625"
+    ],
+    "rb": [],
+    "ok": true
+   },
+   "max": {
+    "duty_a": [
+     564,
+     9521,
+     11
+    ],
+    "duty_b": [
+     319,
+     7926,
+     20
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=1 throttles=45 missed=35 max_late_ticks=3911000",
+     "Haven budget CPU 2: active=1 throttles=80 missed=0 max_late_ticks=1779000"
+    ],
+    "rb": [],
+    "ok": true
+   }
+  },
+  "P2": {
+   "check": "P2",
+   "band_a": [
+    "free",
+    990,
+    1000,
+    0
+   ],
+   "band_b": [
+    "free",
+    990,
+    1000,
+    0
+   ],
+   "want_rb": [
+    [
+     "CPU 0 PPI 26",
+     "missing interrupt binding"
+    ],
+    [
+     "CPU 2 PPI 26",
+     "missing interrupt binding"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "duty_a": [
+     997,
+     356,
+     2
+    ],
+    "duty_b": [
+     1000,
+     0,
+     0
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=0 throttles=0 missed=0 max_late_ticks=0",
+     "Haven budget CPU 2: active=0 throttles=0 missed=0 max_late_ticks=0"
+    ],
+    "rb": [
+     [
+      "CPU 0 PPI 26",
+      "missing interrupt binding"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "missing interrupt binding"
+     ],
+     [
+      "CPU 0 PPI 26",
+      "interrupt priority drift"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "interrupt priority drift"
+     ]
+    ],
+    "ok": false
+   },
+   "max": {
+    "duty_a": [
+     994,
+     443,
+     4
+    ],
+    "duty_b": [
+     987,
+     1683,
+     3
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=0 throttles=0 missed=0 max_late_ticks=0",
+     "Haven budget CPU 2: active=0 throttles=0 missed=0 max_late_ticks=0"
+    ],
+    "rb": [
+     [
+      "CPU 0 PPI 26",
+      "missing interrupt binding"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "missing interrupt binding"
+     ],
+     [
+      "CPU 0 PPI 26",
+      "interrupt priority drift"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "interrupt priority drift"
+     ]
+    ],
+    "ok": false
+   }
+  },
+  "P3": {
+   "check": "P3",
+   "band_a": [
+    "throttled",
+    0,
+    900,
+    5
+   ],
+   "band_b": [
+    "free",
+    990,
+    1000,
+    0
+   ],
+   "want_rb": [
+    [
+     "CPU 2 PPI 26",
+     "missing interrupt binding"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "duty_a": [
+     627,
+     9923,
+     11
+    ],
+    "duty_b": [
+     1000,
+     0,
+     0
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=1 throttles=45 missed=36 max_late_ticks=258437",
+     "Haven budget CPU 2: active=0 throttles=0 missed=0 max_late_ticks=0"
+    ],
+    "rb": [
+     [
+      "CPU 2 PPI 26",
+      "missing interrupt binding"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "interrupt priority drift"
+     ]
+    ],
+    "ok": false
+   },
+   "max": {
+    "duty_a": [
+     619,
+     9524,
+     11
+    ],
+    "duty_b": [
+     1000,
+     0,
+     0
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=1 throttles=42 missed=37 max_late_ticks=4077000",
+     "Haven budget CPU 2: active=0 throttles=0 missed=0 max_late_ticks=0"
+    ],
+    "rb": [
+     [
+      "CPU 2 PPI 26",
+      "missing interrupt binding"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "interrupt priority drift"
+     ]
+    ],
+    "ok": false
+   }
+  },
+  "P4": {
+   "check": "P4",
+   "band_a": [
+    "free",
+    990,
+    1000,
+    0
+   ],
+   "band_b": [
+    "free",
+    990,
+    1000,
+    0
+   ],
+   "want_rb": [
+    [
+     "CPU 0 PPI 26",
+     "interrupt priority drift"
+    ],
+    [
+     "CPU 2 PPI 26",
+     "interrupt priority drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "duty_a": [
+     992,
+     1270,
+     2
+    ],
+    "duty_b": [
+     995,
+     913,
+     1
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=1 throttles=0 missed=0 max_late_ticks=0",
+     "Haven budget CPU 2: active=1 throttles=0 missed=0 max_late_ticks=0"
+    ],
+    "rb": [
+     [
+      "CPU 0 PPI 26",
+      "interrupt priority drift"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "interrupt priority drift"
+     ]
+    ],
+    "ok": false
+   },
+   "max": {
+    "duty_a": [
+     990,
+     1523,
+     2
+    ],
+    "duty_b": [
+     1000,
+     0,
+     0
+    ],
+    "partb_rc": 0,
+    "budget_stats": [
+     "Haven budget CPU 0: active=1 throttles=0 missed=0 max_late_ticks=0",
+     "Haven budget CPU 2: active=1 throttles=0 missed=0 max_late_ticks=0"
+    ],
+    "rb": [
+     [
+      "CPU 0 PPI 26",
+      "interrupt priority drift"
+     ],
+     [
+      "CPU 2 PPI 26",
+      "interrupt priority drift"
+     ]
+    ],
+    "ok": false
+   }
+  }
+ }
+}

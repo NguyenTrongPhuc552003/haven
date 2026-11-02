@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/budget_hw.c	2026-11-02 23:26:19
++++ /tmp/bud-P4-swqyupdd/arch/arm64/budget_hw.c	2026-11-02 23:28:42
+@@ -74,7 +74,7 @@
+ 	b->throttled = 0U;
+ 	b->max_late = 0U;
+ 	b->missed = 0U;
+-	if (gic_v3_set_ppi_priority(cpu, HV_CNTHP_PPI, GIC_PRIO_HYPERVISOR) !=
++	if (gic_v3_set_ppi_priority(cpu, HV_CNTHP_PPI, 0xf0) !=
+ 		    HV_OK ||
+ 	    gic_v3_enable_ppi(cpu, HV_CNTHP_PPI) != HV_OK)
+ 		return 0;

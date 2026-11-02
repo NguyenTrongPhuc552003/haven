@@ -15,6 +15,8 @@ working research question is enforcement read-back (see the repository
 | [`methodology/stage2/20261102-partition-b/`](methodology/stage2/20261102-partition-b/README.md) | Two partitions on two CPUs, per-CPU interrupts, partition B's timer |
 | [`methodology/stage2/20261102-secondary-cpu/`](methodology/stage2/20261102-secondary-cpu/README.md) | CPU map, entry checks, ready handshake for secondary CPUs |
 | [`methodology/stage2/20261102-el2-memory/`](methodology/stage2/20261102-el2-memory/DECISION.md) | Haven's own EL2 memory contract: decision and results |
+| [`methodology/stage2/20261102-budgets/`](methodology/stage2/20261102-budgets/README.md) | CPU time budgets enforced by the EL2 timer; QEMU timer lateness |
+| [`methodology/stage2/20261102-interference/PLAN.md`](methodology/stage2/20261102-interference/PLAN.md) | Plan for the interference measurements (board) |
 | [`porting/cix-p1-ledger.md`](porting/cix-p1-ledger.md) | CIX P1 platform facts and weaknesses: IORT, SMMUs, GPU, firmware, board differences |
 | [`architecture/gpu-partition.md`](architecture/gpu-partition.md) | GPU partition design and the board experiments G1 to G4 |
 | [`architecture/NAMING_RATIONALE.md`](architecture/NAMING_RATIONALE.md), [`architecture/REPOSITORY_STRUCTURE.md`](architecture/REPOSITORY_STRUCTURE.md) | Name and layout |

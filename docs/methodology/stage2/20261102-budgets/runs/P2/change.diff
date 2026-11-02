@@ -1,0 +1,13 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/budget_hw.c	2026-11-02 23:26:19
++++ /tmp/bud-P2-7ligelil/arch/arm64/budget_hw.c	2026-11-02 23:28:36
+@@ -64,8 +64,8 @@
+ {
+ 	struct cpu_budget *b;
+ 
+-	if (cpu >= HV_MAX_CPUS || budget_ns == 0U || budget_ns >= period_ns)
+-		return 0; /* nothing to enforce */
++	if (1)
++		return 0; /* control: enforcement off */
+ 
+ 	b = &hv_cpu_budget[cpu];
+ 	b->period = ns_to_ticks(period_ns);
