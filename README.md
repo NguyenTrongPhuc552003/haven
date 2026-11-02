@@ -45,6 +45,16 @@ cacheable guests, see `docs/methodology/stage2/20261102-interference/PLAN.md`);
 no Linux guest; no board bring-up. Every known defect and its status is
 in [`FINDINGS.md`](docs/methodology/stage0/20261025-corrections/FINDINGS.md).
 
+## Try it without a cross compiler
+
+`scripts/release/make-try-bundle.sh` builds a small archive (about 70 KB)
+with prebuilt HAVEN images, the read-back tool and `try.sh`. Unpacked
+anywhere, `./try.sh` needs only `qemu-system-aarch64`, `python3` and `dtc`:
+it boots both partitions, reads back the enforced state, then boots a
+deliberately faulty image that passes the boot check and is caught only
+by read-back. See `scripts/release/try/README.md`. A published release of
+the bundle is planned.
+
 ## Quick start
 
 Prerequisites: `cmake` 3.22 or later, `ninja`, a host C compiler, `python3`;
