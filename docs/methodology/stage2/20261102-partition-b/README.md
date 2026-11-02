@@ -3,7 +3,7 @@
 **Status:** EXPERIMENT, observed 2026-11-02. Work approved by the owner
 ("finish partition B", 2026-11-02). Checks and expected outcomes by Claude,
 fixed in `run_partb.py` (commit `4c740a5`) before the first run; not blind.
-The grant `grant-partb.json` is a proposal pending owner approval.
+The grant `grant-partb.json` was approved by the owner on 2026-11-02.
 
 ## Problem
 

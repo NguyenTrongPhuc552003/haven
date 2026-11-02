@@ -150,6 +150,13 @@ These define obligations and interfaces; the archive logs establish observations
 
 ### I1 - Virtual interface capacity and initialization assumptions
 
+- **Status (2026-11-02):** resolved for capacity and reset (owner approval
+  2026-11-02). `nr_lrs()` reads ICH_VTR_EL2.ListRegs; every list-register
+  loop is bounded by it. Each CPU clears its implemented list registers and
+  ICH_AP0R0/AP1R0 before entering a partition. HAVEN logs the count at boot:
+  4 on both QEMU `cortex-a72` and `max` (observed). Not exercised: an
+  injection with all list registers busy (no QEMU test fills four).
+
 - **Expected contract / source:** I and the GIC virtualization interface.
   Discover implemented LR capacity through `ICH_VTR_EL2`; use only supported
   registers and establish known virtual pending/active state before enabling.

@@ -1,5 +1,5 @@
 {
- "source": "PROPOSED by Claude 2026-11-02, pending owner approval: the A1 case set v3 grant (owner-approved) plus one change, PPI 27 (EL1 virtual timer) enabled on CPU 2 only, owned by partition B, which runs on CPU 2 under the qemu-psci boot profile",
+ "source": "Owner-approved 2026-11-02 (proposed by Claude): the A1 case set v3 grant (owner-approved) plus one change, PPI 27 (EL1 virtual timer) enabled on CPU 2 only, owned by partition B, which runs on CPU 2 under the qemu-psci boot profile",
  "partitions": {
   "1": [
    {

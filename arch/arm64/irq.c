@@ -45,6 +45,17 @@ static inline uint64_t make_lr(uint32_t virq, uint32_t priority)
  * to select among ICH_LR0_EL2 .. ICH_LR15_EL2 at runtime.
  * ----------------------------------------------------------------------- */
 
+/* Number of list registers this CPU implements: ICH_VTR_EL2.ListRegs
+ * (bits [4:0]) holds the number minus one (FINDINGS I1).  QEMU's cortex-a72
+ * implements 4; accessing ICH_LR<n>_EL2 beyond that is UNDEFINED. */
+static unsigned int nr_lrs(void)
+{
+	uint64_t vtr;
+
+	__asm__ volatile("mrs %0, ich_vtr_el2" : "=r"(vtr));
+	return (unsigned int)(vtr & 0x1fU) + 1U;
+}
+
 static uint64_t read_ich_lr(unsigned int n)
 {
 	uint64_t val = 0;
@@ -255,6 +266,16 @@ void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition)
  * lowest, Group 1 enabled.  Each CPU that runs a partition calls it. */
 void hv_arch_phys_irq_cpu_init(void)
 {
+	unsigned int n = nr_lrs();
+
+	/* Known virtual state before any injection (FINDINGS I1): every
+	 * implemented list register invalid, no active virtual priority.
+	 * Their reset values are UNKNOWN on hardware. */
+	for (unsigned int i = 0; i < n; i++)
+		write_ich_lr(i, 0);
+	__asm__ volatile("msr ich_ap0r0_el2, xzr\n\tmsr ich_ap1r0_el2, xzr");
+	isb();
+
 	write_sysreg(read_sysreg(icc_ctlr_el1) | ICC_CTLR_EOIMODE,
 		     icc_ctlr_el1);
 	write_sysreg(0xF0UL, icc_pmr_el1);
@@ -264,15 +285,21 @@ void hv_arch_phys_irq_cpu_init(void)
 
 void hv_arch_phys_irq_init(uint32_t smmu_intid)
 {
+	extern void hv_printk(const char *fmt, ...);
+
 	smmu_evtq_intid = smmu_intid;
 	hv_arch_phys_irq_cpu_init();
+	hv_printk("HAVEN: GIC virtual interface: %u list registers\n",
+		  nr_lrs());
 }
 
 /* Queue a virtual interrupt linked to physical intid (same number) in a free
  * list register.  Returns HV_OK or HV_ENOSPC. */
 static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
 {
-	for (unsigned int i = 0; i < 16U; i++) {
+	unsigned int n = nr_lrs();
+
+	for (unsigned int i = 0; i < n; i++) {
 		if ((read_ich_lr(i) & HV_LR_STATE_MASK) != HV_LR_STATE_INVALID)
 			continue;
 		write_ich_lr(i,
@@ -338,20 +365,23 @@ void hv_arch_handle_phys_irq(void)
 /* -----------------------------------------------------------------------
  * hv_arch_inject_virtual_irq - inject a virtual IRQ into the current guest.
  *
- * Scans ICH_LR0_EL2 .. ICH_LR15_EL2 for an Invalid slot, writes the LR
+ * Scans the implemented list registers (ICH_VTR_EL2.ListRegs + 1, at most
+ * 16) for an Invalid slot, writes the LR
  * with State=Pending, Group1, and the requested priority and vINTID.
  *
  * @virq:     virtual INTID to deliver to the guest (bits [9:0])
  * @priority: GIC priority byte; 0x00 = highest, 0xFF = lowest
  *
- * Returns HV_OK if the IRQ was enqueued, HV_ENOSPC if all 16 LRs are busy.
+ * Returns HV_OK if the IRQ was enqueued, HV_ENOSPC if every implemented LR
+ * is busy.
  * ----------------------------------------------------------------------- */
 
 hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 {
 	unsigned int i;
+	unsigned int n = nr_lrs();
 
-	for (i = 0; i < 16U; i++) {
+	for (i = 0; i < n; i++) {
 		uint64_t lr = read_ich_lr(i);
 
 		if ((lr & HV_LR_STATE_MASK) == HV_LR_STATE_INVALID) {
@@ -375,8 +405,9 @@ uint32_t hv_arch_pending_virtual_irqs(void)
 {
 	uint32_t count = 0;
 	unsigned int i;
+	unsigned int n = nr_lrs();
 
-	for (i = 0; i < 16U; i++) {
+	for (i = 0; i < n; i++) {
 		uint64_t lr = read_ich_lr(i);
 		uint64_t state = (lr >> 62) & 0x3ULL;
 
