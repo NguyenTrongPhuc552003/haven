@@ -2,7 +2,7 @@
 
 **Status:** EXPERIMENT, observed 2026-11-02. Work approved by the owner.
 Checks and duty bands by Claude, committed in `5d7d908` before the run;
-not blind. `grant-budget.json` is a proposal pending owner approval.
+not blind. `grant-budget.json` was approved by the owner on 2026-11-03.
 
 ## Changes
 

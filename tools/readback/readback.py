@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""External read-back of HAVEN's enforced state in QEMU (probe v6).
+"""External read-back of HAVEN's enforced state in QEMU (probe v7).
 
 Boots a qemu-direct HAVEN build, stops the machine and reads, from outside
 HAVEN:
@@ -16,6 +16,10 @@ HAVEN:
     compared with the window the grant gives the device. Which buses sit
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
+
+Changes in v7 (2026-11-03, RB3): the priority of a granted interrupt that
+is not enabled is no longer checked; its "missing interrupt binding" already
+says it is not set up (v6 reported both).
 
 Changes in v6 (2026-11-02, budgets enforced by the EL2 timer): the grant's
 "gic" section may list "haven_ppis" per CPU (HAVEN's own private interrupts,
@@ -663,6 +667,8 @@ def compare_gic(g, expected):
         want_h, want_p = int(str(pr["haven"]), 0), int(str(pr["partition"]), 0)
         report["priorities"] = []
         for irq, want in sorted(spis.items()):
+            if not (g["isenabler"][irq // 32] >> (irq % 32)) & 1:
+                continue  # v7, RB3: already a missing binding
             got = prio(g["ipriorityr"], irq)
             exp = want_h if want["partition"] == 0 else want_p
             report["priorities"].append({"irq": irq, "priority": hex(got), "expected": hex(exp)})
@@ -671,6 +677,8 @@ def compare_gic(g, expected):
                 f.append((f"SPI {irq}", "interrupt priority drift", f"priority {got:#x}, granted {exp:#x}{why}"))
         for i, cpu in enumerate(g["cpus"]):
             for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):
+                if not (cpu["isenabler0"] >> b) & 1:
+                    continue  # v7, RB3: already a missing binding
                 got = prio(cpu["ipriorityr"], b)
                 exp = want_h if b in hppis.get(i, set()) else want_p
                 report["priorities"].append({"irq": b, "cpu": i, "priority": hex(got), "expected": hex(exp)})

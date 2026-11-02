@@ -1,5 +1,5 @@
 {
- "source": "PROPOSED by Claude 2026-11-02, pending owner approval: grant-partb-v4.json (approved) plus HAVEN's EL2 timer (PPI 26) enabled at HAVEN's priority on every CPU that runs a partition with a budget (CPU 0: A 8 ms per 10 ms; CPU 2: B 2 ms per 10 ms)",
+ "source": "Owner-approved 2026-11-03 (proposed by Claude 2026-11-02): grant-partb-v4.json (approved) plus HAVEN's EL2 timer (PPI 26) enabled at HAVEN's priority on every CPU that runs a partition with a budget (CPU 0: A 8 ms per 10 ms; CPU 2: B 2 ms per 10 ms)",
  "partitions": {
   "1": [
    {
