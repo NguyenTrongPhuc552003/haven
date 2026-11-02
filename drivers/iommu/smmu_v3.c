@@ -38,6 +38,7 @@
  */
 
 #include <asm/smmu.h>
+#include <asm/smmu_ste.h>
 #include <haven/types.h>
 #include <stdint.h>
 
@@ -129,8 +130,8 @@ static void ste_write_s2(uint32_t sid, uint64_t vttbr, uint32_t vmid)
 	 * SH=3 (IS), TG=0 (4KB), PS=2 (40-bit PA), AA64=1, S2R=1. */
 	ste[2] = STE2_S2_ENCODE(vmid);
 
-	/* Word 3: stage-2 table base, bits [51:4] (VMID and CnP dropped) */
-	ste[3] = vttbr & STE_3_S2TTB_MASK;
+	/* Word 3: stage-2 table base, bits [51:4]; VMID and CnP dropped */
+	ste[3] = smmu_ste3_s2ttb(vttbr);
 
 	/* Words 4-7: reserved */
 	for (int i = 4; i < SMMU_STE_DWORDS; i++)

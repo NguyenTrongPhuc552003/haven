@@ -41,6 +41,12 @@ mkdir -p build/tests
 
 ./build/tests/test_stage2_attrs
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -I. \
+	tests/unit/test_smmu_ste.c \
+	-o build/tests/test_smmu_ste
+
+./build/tests/test_smmu_ste
+
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_el2_exceptions.c \
 	src/core/exc/el2_exceptions.c \

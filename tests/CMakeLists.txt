@@ -47,6 +47,9 @@ haven_test(test_stage2_attrs
     SRCS ${_T}/unit/test_stage2_attrs.c
          ${CORE_STAGE2}
 )
+haven_test(test_smmu_ste
+    SRCS ${_T}/unit/test_smmu_ste.c
+)
 haven_test(test_el2_exceptions
     SRCS ${_T}/unit/test_el2_exceptions.c
          ${CORE_EL2}
