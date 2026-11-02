@@ -1,0 +1,5 @@
+Mutation: `partition.c:374` `!=` becomes `==` after mapping partition B 
+Read-back: missing binding on partition A's regions; DMA enforcement drift on SID 8; missing interrupt binding on SPI 33 
+Unit tests: pass 
+Boot check: fail 
+Reasoning: a successful B mapping now unmaps A and panics, so grants and interrupt routes are never applied 

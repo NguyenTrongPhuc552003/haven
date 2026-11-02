@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -112,7 +112,7 @@
+ 	for (i = 0U; i < count; ++i) {
+ 		const struct hv_mem_region *region = &regions[i];
+ 
+-		if (region->size == 0U) {
++		if (region->size == 1U) {
+ 			return HV_EINVAL;
+ 		}
+ 

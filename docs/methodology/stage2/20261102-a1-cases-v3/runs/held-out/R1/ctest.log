@@ -1,0 +1,54 @@
+$ ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation
+Test project /private/tmp/v3-R1-l5_ma8sj/build-host
+      Start  1: test_core_stubs
+ 1/21 Test  #1: test_core_stubs ..................   Passed    0.39 sec
+      Start  2: test_smmu_dma
+ 2/21 Test  #2: test_smmu_dma ....................   Passed    0.28 sec
+      Start  3: test_stage2_attrs
+ 3/21 Test  #3: test_stage2_attrs ................   Passed    0.27 sec
+      Start  4: test_smmu_ste
+ 4/21 Test  #4: test_smmu_ste ....................   Passed    0.28 sec
+      Start  5: test_el2_exceptions
+ 5/21 Test  #5: test_el2_exceptions ..............   Passed    0.27 sec
+      Start  6: test_timer
+ 6/21 Test  #6: test_timer .......................   Passed    0.28 sec
+      Start  7: test_iommu_policy
+ 7/21 Test  #7: test_iommu_policy ................   Passed    0.27 sec
+      Start  8: test_guest_uart
+ 8/21 Test  #8: test_guest_uart ..................   Passed    0.28 sec
+      Start  9: test_freertos_integration
+ 9/21 Test  #9: test_freertos_integration ........   Passed    0.27 sec
+      Start 10: test_isolation_flow
+10/21 Test #10: test_isolation_flow ..............   Passed    0.28 sec
+      Start 11: test_isolation_negative
+11/21 Test #11: test_isolation_negative ..........Subprocess aborted***Exception:   0.27 sec
+Assertion failed: (hv_stage2_map_partition(&zero_size_cfg) == HV_EINVAL), function run_negative_isolation_flow, file test_isolation_negative.c, line 111.
+
+      Start 12: test_fault_injection
+12/21 Test #12: test_fault_injection .............   Passed    0.27 sec
+      Start 13: test_secondary_cpu_isolation
+13/21 Test #13: test_secondary_cpu_isolation .....   Passed    0.28 sec
+      Start 14: test_smmu_hardware
+14/21 Test #14: test_smmu_hardware ...............   Passed    0.28 sec
+      Start 15: test_spatial_isolation
+15/21 Test #15: test_spatial_isolation ...........   Passed    0.27 sec
+      Start 16: test_temporal_isolation
+16/21 Test #16: test_temporal_isolation ..........   Passed    0.27 sec
+      Start 17: test_hypervisor_invariants
+17/21 Test #17: test_hypervisor_invariants .......   Passed    0.28 sec
+      Start 18: demo_two_partition
+18/21 Test #18: demo_two_partition ...............   Passed    0.28 sec
+      Start 19: bench_isolation_latency
+19/21 Test #19: bench_isolation_latency ..........   Passed    0.30 sec
+      Start 20: bench_stage2_fault
+20/21 Test #20: bench_stage2_fault ...............   Passed    0.30 sec
+      Start 21: bench_smmu_policy
+21/21 Test #21: bench_smmu_policy ................   Passed    0.32 sec
+
+95% tests passed, 1 tests failed out of 21
+
+Total Test time (real) =   6.00 sec
+
+The following tests FAILED:
+	 11 - test_isolation_negative (Subprocess aborted)
+Errors while running CTest

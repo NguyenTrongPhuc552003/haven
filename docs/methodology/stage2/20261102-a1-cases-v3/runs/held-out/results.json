@@ -1,0 +1,131 @@
+{
+ "haven_commit": "ce220bb",
+ "results": {
+  "R1": {
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "R1"
+  },
+  "R2": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "R2"
+  },
+  "R3": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [],
+    "trigger": null
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [],
+    "trigger": null
+   },
+   "case": "R3"
+  },
+  "R4": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "missing binding"
+     ],
+     [
+      "A UART",
+      "missing binding"
+     ],
+     [
+      "A RO",
+      "missing binding"
+     ],
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ],
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ],
+     [
+      "SPI 33",
+      "missing interrupt binding"
+     ]
+    ],
+    "trigger": "time limit (20 s, partition A did not print 'IRQ test done')"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "missing binding"
+     ],
+     [
+      "A UART",
+      "missing binding"
+     ],
+     [
+      "A RO",
+      "missing binding"
+     ],
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ],
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ],
+     [
+      "SPI 33",
+      "missing interrupt binding"
+     ]
+    ],
+    "trigger": "time limit (20 s, partition A did not print 'IRQ test done')"
+   },
+   "case": "R4"
+  }
+ }
+}

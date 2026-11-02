@@ -1,0 +1,26 @@
+{
+ "haven_commit": "ce220bb",
+ "results": {
+  "S9": {
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "S9",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  }
+ }
+}

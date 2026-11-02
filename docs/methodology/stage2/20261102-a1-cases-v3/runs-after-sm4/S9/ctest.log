@@ -1,0 +1,97 @@
+$ ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation
+Test project /private/tmp/v3-S9-a6vqv4rr/build-host
+      Start  1: test_core_stubs
+ 1/21 Test  #1: test_core_stubs ..................   Passed    0.29 sec
+      Start  2: test_smmu_dma
+ 2/21 Test  #2: test_smmu_dma ....................Subprocess aborted***Exception:   0.28 sec
+Assertion failed: (status == HV_OK), function test_smmu_dma_vmid_slots, file test_smmu_dma.c, line 459.
+
+=== SMMU DMA Isolation Unit Tests ===
+
+[PASS] smmu_init: basic initialization
+[PASS] smmu_allocate_streamid: first device allocated
+[PASS] smmu_allocate_streamid: second device allocated
+[PASS] smmu_allocate_streamid: rejects NULL streamid pointer
+[PASS] smmu_allocate_streamid: rejects invalid partition
+[PASS] smmu_configure_dma_window: basic configuration
+[PASS] smmu_configure_dma_window: rejects reconfigure without revoke
+[PASS] smmu_configure_dma_window: rejects invalid streamid
+[PASS] smmu_configure_dma_window: rejects unallocated streamid
+[PASS] smmu_configure_dma_window: rejects misaligned DMA address
+[PASS] smmu_configure_dma_window: rejects misaligned physical address
+[PASS] smmu_configure_dma_window: rejects non-power-of-2 size
+[PASS] smmu_configure_dma_window: rejects invalid access flag
+[PASS] smmu_configure_dma_window: rejects window outside partition memory
+[PASS] smmu_configure_dma_window: reconfigure after revoke succeeds
+[PASS] smmu_window_overlap: first window configured
+[PASS] smmu_window_overlap: detects overlapping window
+[PASS] smmu_window_overlap: allows non-overlapping window
+[PASS] smmu_revoke_dma_access: successful revocation
+[PASS] smmu_revoke_dma_access: prevents double revocation
+[PASS] smmu_revoke_dma_access: rejects invalid streamid
+[PASS] smmu_check_dma_access: RW device permits read
+[PASS] smmu_check_dma_access: RW device permits write
+[PASS] smmu_check_dma_access: RO device permits read
+[PASS] smmu_check_dma_access: RO device denies write
+[PASS] smmu_check_dma_access: denies access outside window
+[PASS] smmu_check_dma_access: denies unallocated streamid
+[PASS] smmu_reset_partition: partition reset successful
+[PASS] smmu_reset_partition: sid1 revoked
+[PASS] smmu_reset_partition: sid2 revoked
+[PASS] smmu_reset_partition: rejects invalid partition
+[PASS] smmu_reset_partition: streamid can be reused after reset
+[PASS] smmu_assign_streamid: binds the hardware StreamID
+[PASS] smmu_assign_streamid: accepts StreamIDs above 63
+[PASS] smmu_assign_streamid: rejects a bound StreamID
+[PASS] smmu_assign_streamid: allocator skips bound StreamIDs
+[PASS] smmu_assign_streamid: rejects out-of-range arguments
+[PASS] smmu_assign_streamid: rebinding after revoke
+[PASS] smmu_release_streamid: frees only unconfigured StreamIDs
+[PASS] smmu_dma_vmid: one VMID per configured window
+
+      Start  3: test_stage2_attrs
+ 3/21 Test  #3: test_stage2_attrs ................   Passed    0.28 sec
+      Start  4: test_smmu_ste
+ 4/21 Test  #4: test_smmu_ste ....................   Passed    0.28 sec
+      Start  5: test_el2_exceptions
+ 5/21 Test  #5: test_el2_exceptions ..............   Passed    0.28 sec
+      Start  6: test_timer
+ 6/21 Test  #6: test_timer .......................   Passed    0.27 sec
+      Start  7: test_iommu_policy
+ 7/21 Test  #7: test_iommu_policy ................   Passed    0.27 sec
+      Start  8: test_guest_uart
+ 8/21 Test  #8: test_guest_uart ..................   Passed    0.27 sec
+      Start  9: test_freertos_integration
+ 9/21 Test  #9: test_freertos_integration ........   Passed    0.27 sec
+      Start 10: test_isolation_flow
+10/21 Test #10: test_isolation_flow ..............   Passed    0.27 sec
+      Start 11: test_isolation_negative
+11/21 Test #11: test_isolation_negative ..........   Passed    0.29 sec
+      Start 12: test_fault_injection
+12/21 Test #12: test_fault_injection .............   Passed    0.27 sec
+      Start 13: test_secondary_cpu_isolation
+13/21 Test #13: test_secondary_cpu_isolation .....   Passed    0.28 sec
+      Start 14: test_smmu_hardware
+14/21 Test #14: test_smmu_hardware ...............   Passed    0.27 sec
+      Start 15: test_spatial_isolation
+15/21 Test #15: test_spatial_isolation ...........   Passed    0.28 sec
+      Start 16: test_temporal_isolation
+16/21 Test #16: test_temporal_isolation ..........   Passed    0.27 sec
+      Start 17: test_hypervisor_invariants
+17/21 Test #17: test_hypervisor_invariants .......   Passed    0.27 sec
+      Start 18: demo_two_partition
+18/21 Test #18: demo_two_partition ...............   Passed    0.28 sec
+      Start 19: bench_isolation_latency
+19/21 Test #19: bench_isolation_latency ..........   Passed    0.30 sec
+      Start 20: bench_stage2_fault
+20/21 Test #20: bench_stage2_fault ...............   Passed    0.29 sec
+      Start 21: bench_smmu_policy
+21/21 Test #21: bench_smmu_policy ................   Passed    0.33 sec
+
+95% tests passed, 1 tests failed out of 21
+
+Total Test time (real) =   5.93 sec
+
+The following tests FAILED:
+	  2 - test_smmu_dma (Subprocess aborted)
+Errors while running CTest

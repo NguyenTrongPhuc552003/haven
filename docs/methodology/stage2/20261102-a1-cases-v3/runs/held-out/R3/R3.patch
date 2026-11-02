@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -355,7 +355,7 @@
+ 		return HV_EIO;
+ 
+ 	/* Nothing cached from before Haven may survive */
+-	cmds[0][0] = CMDQ_OP_CFGI_ALL;
++	cmds[1][0] = CMDQ_OP_CFGI_ALL;
+ 	cmds[0][1] = CMDQ_CFGI_1_RANGE_ALL;
+ 	cmds[1][0] = CMDQ_OP_TLBI_NSNH_ALL;
+ 	cmds[1][1] = 0;

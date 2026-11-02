@@ -1,0 +1,5 @@
+Mutation: `gic_v3.c:77` SPI priority loop starts at register 9, not 8 
+Read-back: no finding 
+Unit tests: pass 
+Boot check: pass 
+Reasoning: INTIDs 32-35 keep reset priority 0 instead of 0xA0; UART still delivered. A real priority inversion (partition interrupt above HAVEN's 0x40), but read-back does not read priorities (blind spot, as I7) 

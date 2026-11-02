@@ -1,0 +1,6 @@
+29d2d9760b0bc9b339784dc5c7a8ae12744f76adaff0088dc79ba3be7760ed1d  ./S9/readback-cortex-a72/haven-image.bin
+a6fadf32d647d411d5f94933c39e9bf47b1e2aff3dc43102178a18d1bee52f4a  ./S9/readback-cortex-a72/machine.dtb
+89a513bd4f834fbe44a0f25a116741314d0bf9fbb14d7f1c6ae9be5bd992da48  ./S9/readback-cortex-a72/stream-table.bin
+29d2d9760b0bc9b339784dc5c7a8ae12744f76adaff0088dc79ba3be7760ed1d  ./S9/readback-max/haven-image.bin
+fd1bece12d89818a829a2f5e59ef0dedef3a7378737ce58eb077bb64bb8762ac  ./S9/readback-max/machine.dtb
+89a513bd4f834fbe44a0f25a116741314d0bf9fbb14d7f1c6ae9be5bd992da48  ./S9/readback-max/stream-table.bin

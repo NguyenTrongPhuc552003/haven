@@ -1,0 +1,5 @@
+Mutation: `stage2.c:115` region size check `== 0U` becomes `== 1U` 
+Read-back: no finding 
+Unit tests: pass (low confidence: a test may submit a zero-size region) 
+Boot check: pass 
+Reasoning: no configured region has size 0 or 1; a size-1 region already fails the alignment check; equivalent for HAVEN's configuration 

@@ -1,0 +1,23 @@
+read at: time limit (20 s, partition A did not print 'IRQ test done')
+partition 1 root=0x8000a000
+partition 2 root=0x8000e000
+  H ipa=0x060000000 pa=0x0a0800000 size=0x04000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+SMMU enabled=True GBPA=0x1000 stream table 0x80418000, 256 entries; virtio-mmio nodes behind an SMMU in the device tree: 0
+SMMU IDR0=0xd44101b (S2P=1) CMDQ_BASE=0x400000008041c008 PROD=0x3 CONS=0x3 GERROR=0x0
+  DMA pci-1af4:1044          pci 00:01.0      SID=8 -> denied (STE abort)
+SMMU event queue: 0 event(s), 0 consumed by HAVEN
+GIC GICD_CTLR=0x53, 288 INTIDs; enabled SPIs:
+  SPI 33: enabled=0 group1=1 -> CPU any (1-of-N) (IROUTER 0x80000000)
+  SPI 106: enabled=1 group1=1 -> CPU 0 (IROUTER 0x0)
+  CPU 0 (affinity 0x0): PPIs enabled none
+  CPU 1 (affinity 0x1): PPIs enabled none
+  CPU 2 (affinity 0x2): PPIs enabled none
+  CPU 3 (affinity 0x3): PPIs enabled none
+  FINDING A RAM: missing binding (0x0 of 0x20000000 bytes mapped)
+  FINDING A UART: missing binding (0x0 of 0x1000 bytes mapped)
+  FINDING A RO: missing binding (0x0 of 0x200000 bytes mapped)
+  FINDING A PCI config: missing binding (0x0 of 0x1000 bytes mapped)
+  FINDING A PCI BAR: missing binding (0x0 of 0x4000 bytes mapped)
+  FINDING pci-1af4:1044: DMA enforcement drift (pci 00:01.0 SID 8: denied (STE abort), expected translated:1)
+  FINDING SPI 33: missing interrupt binding (granted but disabled)
+RESULT 7 finding(s)

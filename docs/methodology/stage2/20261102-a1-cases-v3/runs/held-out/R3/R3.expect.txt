@@ -1,0 +1,5 @@
+Mutation: `smmu_v3.c:358` first init command left uninitialised 
+Read-back: SMMU enable drift and SMMU command queue fault; possibly a probe failure, because HAVEN stops before building stage-2 tables 
+Unit tests: pass 
+Boot check: fail 
+Reasoning: the garbage or zero opcode is illegal, the queue stops with an error, `smmu_v3_init` returns HV_EIO and HAVEN panics 

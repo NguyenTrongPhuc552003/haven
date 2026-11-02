@@ -589,8 +589,8 @@ Both fixed on 2026-11-02 after owner approval
 
 ### SM4 - A DMA window's VMID leaks into its stage-2 table address
 
-- **Status:** observed in QEMU (case set v3, S9) + source-derived. No code
-  change yet (fix needs owner approval).
+- **Status:** resolved in haven `2b6f5ea` (owner approval 2026-11-02).
+  Observed in QEMU (case set v3, S9) + source-derived.
 - **Expected contract / source:** STE.S2TTB holds the table base, bits
   [51:4] (Linux `STRTAB_STE_3_S2TTB_MASK GENMASK_ULL(51, 4)`); the VMID goes
   in STE.S2VMID (word 2).
@@ -606,3 +606,24 @@ Both fixed on 2026-11-02 after owner approval
   to the driver (or clear the VMID with `VTTBR_BADDR_MASK` before applying
   `STE_3_S2TTB_MASK`), and add a unit-level check that S2TTB equals the
   table base for VMIDs `0xC0` to `0xFF`.
+- **Resolution:** `arch/arm64/include/asm/smmu_ste.h` adds
+  `smmu_ste3_s2ttb()`, which clears VTTBR bits [63:48] before applying the
+  S2TTB mask; `smmu_v3_set_ste_partition()` uses it. Host test
+  `test_smmu_ste` checks S2TTB equals the table base for VMIDs `0xC0` to
+  `0xFF`, VMID 1 and CnP. S9 rerun at `ce220bb` (case set v3,
+  `runs-after-sm4/`): S2TTB `0x80010000`, no "bad STE" event, DMA inside
+  the window succeeds.
+
+### RB1 - Read-back crashes when HAVEN halts before stage-2 setup
+
+- **Status:** observed in QEMU (held-out case R3, 2026-11-02). Tool defect,
+  not a HAVEN defect. No change yet: `readback.py` v3 is frozen, so the fix
+  goes into a new tool version with its own freeze.
+- **Observed / evidence:** with the SMMU init fault R3, HAVEN panics before
+  filling `pt_roots`; read-back walks root `0x0` and raises `ValueError: PA
+  0x0 outside the dumped image` (exit status 1). The v3 runner maps any
+  exit status 1 to "findings", so its summary table reports findings that
+  do not exist.
+- **Smallest correction (proposal):** treat a zero root as a probe result
+  ("HAVEN halted before stage-2 setup", exit 2) and make the runner require
+  a report file before counting findings.
