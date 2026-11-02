@@ -1,0 +1,57 @@
+$ cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build
+-- The C compiler identification is GNU 15.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/homebrew/bin/aarch64-linux-gnu-gcc
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/homebrew/bin/aarch64-linux-gnu-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Haven PSCI conduit: HAVEN_PSCI_CONDUIT_NONE (profile qemu-direct)
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /private/tmp/rbv4-R4-r1ploud1/build
+[1/36] Building ASM object CMakeFiles/haven.dir/arch/arm64/entry.S.obj
+[2/36] Building ASM object CMakeFiles/haven.dir/arch/arm64/context.S.obj
+[3/36] Building ASM object CMakeFiles/haven.dir/arch/arm64/boot.S.obj
+[4/36] Building C object CMakeFiles/haven.dir/arch/arm64/timer.c.obj
+[5/36] Building ASM object CMakeFiles/haven.dir/arch/arm64/partition.S.obj
+[6/36] Building C object CMakeFiles/haven.dir/drivers/uart/pl011.c.obj
+[7/36] Building C object CMakeFiles/haven.dir/arch/arm64/cpu.c.obj
+[8/36] Building C object CMakeFiles/haven.dir/arch/arm64/irq.c.obj
+[9/36] Building C object CMakeFiles/haven.dir/drivers/pci/ecam.c.obj
+[10/36] Building C object CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj
+[11/36] Building C object CMakeFiles/haven.dir/src/core/irq/ownership.c.obj
+[12/36] Building C object CMakeFiles/haven.dir/arch/arm64/mm.c.obj
+[13/36] Building C object CMakeFiles/haven.dir/src/core/mm/stage2.c.obj
+[14/36] Building C object CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj
+[15/36] Building C object CMakeFiles/haven.dir/src/core/sched/budget.c.obj
+[16/36] Building C object CMakeFiles/haven.dir/src/core/partition.c.obj
+[17/36] Building C object CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj
+[18/36] Building C object CMakeFiles/haven.dir/src/core/time/timer.c.obj
+[19/36] Building C object CMakeFiles/haven.dir/src/core/init.c.obj
+[20/36] Building C object CMakeFiles/haven.dir/src/common/panic.c.obj
+[21/36] Building C object CMakeFiles/haven.dir/src/common/spinlock.c.obj
+[22/36] Building C object CMakeFiles/haven.dir/src/core/dma/smmu.c.obj
+[23/36] Building C object CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj
+[24/36] Building C object CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj
+[25/36] Building C object CMakeFiles/haven.dir/src/common/printk.c.obj
+[26/36] Building ASM object CMakeFiles/guest_a.dir/tests/demos/guest_a_vectors.S.obj
+[27/36] Building ASM object CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj
+[28/36] Building C object CMakeFiles/haven.dir/src/common/string.c.obj
+[29/36] Building ASM object CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj
+[30/36] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_a_irq.c.obj
+[31/36] Linking ASM executable guest_b.elf; objcopy → guest_b.bin
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: guest_b.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+[32/36] Building C object CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj
+[33/36] Building C object CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj
+[34/36] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_a_dma.c.obj
+[35/36] Linking C executable guest_a.elf; objcopy → guest_a.bin
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: guest_a.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+[36/36] Linking C executable haven.elf; haven.elf section sizes; objcopy → haven.bin
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: haven.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+   text	   data	    bss	    dec	    hex	filename
+  29836	     96	5183888	5213820	 4f8e7c	/private/tmp/rbv4-R4-r1ploud1/build/haven.elf

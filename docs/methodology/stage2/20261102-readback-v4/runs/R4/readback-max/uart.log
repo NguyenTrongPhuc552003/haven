@@ -1,0 +1,10 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  2 2026 21:14:03
+  CPU: PARange=6 GIC=v3 - features OK
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+
+*** HAVEN PANIC ***
+  partition B stage-2 mapping failed
+  Halting.

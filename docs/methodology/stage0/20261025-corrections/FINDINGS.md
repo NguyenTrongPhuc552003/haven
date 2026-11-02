@@ -642,9 +642,10 @@ Both fixed on 2026-11-02 after owner approval
 
 ### RB1 - Read-back crashes when HAVEN halts before stage-2 setup
 
-- **Status:** observed in QEMU (held-out case R3, 2026-11-02). Tool defect,
-  not a HAVEN defect. No change yet: `readback.py` v3 is frozen, so the fix
-  goes into a new tool version with its own freeze.
+- **Status:** resolved in read-back v4 (haven `a9bf185`, owner approval
+  2026-11-02): R3 now gives exit 2 "HAVEN halted before stage-2 setup".
+  Observed in QEMU (held-out case R3, 2026-11-02). Tool defect, not a HAVEN
+  defect; v3 stays as frozen at `ce220bb`.
 - **Observed / evidence:** with the SMMU init fault R3, HAVEN panics before
   filling `pt_roots`; read-back walks root `0x0` and raises `ValueError: PA
   0x0 outside the dumped image` (exit status 1). The v3 runner maps any
@@ -656,8 +657,9 @@ Both fixed on 2026-11-02 after owner approval
 
 ### RB2 - Read-back does not flag a granted PPI that is disabled
 
-- **Status:** observed in QEMU (partition B control K3, 2026-11-02). Tool
-  gap, not a HAVEN defect; for a future read-back version.
+- **Status:** resolved in read-back v4 (haven `a9bf185`): K3 now gives
+  "CPU 2 PPI 27: missing interrupt binding". Observed in QEMU (partition B
+  control K3, 2026-11-02). Tool gap, not a HAVEN defect.
 - **Observed / evidence:** with PPI 27 on CPU 2 given to partition A in
   HAVEN's table, HAVEN disables it after refusing delivery; read-back
   against the grant (PPI 27 on CPU 2 for B) reports no finding.

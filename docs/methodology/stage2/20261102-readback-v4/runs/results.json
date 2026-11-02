@@ -1,0 +1,305 @@
+{
+ "haven_commit": "a9bf185",
+ "results": {
+  "V0": {
+   "check": "V0",
+   "commit": "ce220bb",
+   "profile": "qemu-direct",
+   "grant": "grant-v4.json",
+   "patch": null,
+   "edited": false,
+   "expect_rc": 0,
+   "expect": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 0,
+    "findings": [],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 0,
+    "findings": [],
+    "probe_failure": null
+   }
+  },
+  "R1": {
+   "check": "R1",
+   "commit": "ce220bb",
+   "profile": "qemu-direct",
+   "grant": "grant-v4.json",
+   "patch": "R1",
+   "edited": false,
+   "expect_rc": 0,
+   "expect": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 0,
+    "findings": [],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 0,
+    "findings": [],
+    "probe_failure": null
+   }
+  },
+  "R2": {
+   "check": "R2",
+   "commit": "ce220bb",
+   "profile": "qemu-direct",
+   "grant": "grant-v4.json",
+   "patch": "R2",
+   "edited": false,
+   "expect_rc": 1,
+   "expect": [
+    [
+     "SPI 33",
+     "interrupt priority drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 1,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt priority drift"
+     ]
+    ],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 1,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt priority drift"
+     ]
+    ],
+    "probe_failure": null
+   }
+  },
+  "R3": {
+   "check": "R3",
+   "commit": "ce220bb",
+   "profile": "qemu-direct",
+   "grant": "grant-v4.json",
+   "patch": "R3",
+   "edited": false,
+   "expect_rc": 2,
+   "expect": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 2,
+    "findings": [],
+    "probe_failure": "HAVEN halted before stage-2 setup: partition 1 root 0x0 (root is zero)"
+   },
+   "max": {
+    "rc": 2,
+    "findings": [],
+    "probe_failure": "HAVEN halted before stage-2 setup: partition 1 root 0x0 (root is zero)"
+   }
+  },
+  "R4": {
+   "check": "R4",
+   "commit": "ce220bb",
+   "profile": "qemu-direct",
+   "grant": "grant-v4.json",
+   "patch": "R4",
+   "edited": false,
+   "expect_rc": 1,
+   "expect": [
+    [
+     "A RAM",
+     "missing binding"
+    ],
+    [
+     "A UART",
+     "missing binding"
+    ],
+    [
+     "A RO",
+     "missing binding"
+    ],
+    [
+     "A PCI config",
+     "missing binding"
+    ],
+    [
+     "A PCI BAR",
+     "missing binding"
+    ],
+    [
+     "pci-1af4:1044",
+     "DMA enforcement drift"
+    ],
+    [
+     "SPI 33",
+     "missing interrupt binding"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "missing binding"
+     ],
+     [
+      "A UART",
+      "missing binding"
+     ],
+     [
+      "A RO",
+      "missing binding"
+     ],
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ],
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ],
+     [
+      "SPI 33",
+      "missing interrupt binding"
+     ]
+    ],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "missing binding"
+     ],
+     [
+      "A UART",
+      "missing binding"
+     ],
+     [
+      "A RO",
+      "missing binding"
+     ],
+     [
+      "A PCI config",
+      "missing binding"
+     ],
+     [
+      "A PCI BAR",
+      "missing binding"
+     ],
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ],
+     [
+      "SPI 33",
+      "missing interrupt binding"
+     ]
+    ],
+    "probe_failure": null
+   }
+  },
+  "I7": {
+   "check": "I7",
+   "commit": "ce220bb",
+   "profile": "qemu-direct",
+   "grant": "grant-v4.json",
+   "patch": null,
+   "edited": true,
+   "expect_rc": 1,
+   "expect": [
+    [
+     "SPI 33",
+     "interrupt priority drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 1,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt priority drift"
+     ]
+    ],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 1,
+    "findings": [
+     [
+      "SPI 33",
+      "interrupt priority drift"
+     ]
+    ],
+    "probe_failure": null
+   }
+  },
+  "W0": {
+   "check": "W0",
+   "commit": "HEAD",
+   "profile": "qemu-psci",
+   "grant": "grant-partb-v4.json",
+   "patch": null,
+   "edited": false,
+   "expect_rc": 0,
+   "expect": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 0,
+    "findings": [],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 0,
+    "findings": [],
+    "probe_failure": null
+   }
+  },
+  "W3": {
+   "check": "W3",
+   "commit": "HEAD",
+   "profile": "qemu-psci",
+   "grant": "grant-partb-v4.json",
+   "patch": null,
+   "edited": true,
+   "expect_rc": 1,
+   "expect": [
+    [
+     "CPU 2 PPI 27",
+     "missing interrupt binding"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "rc": 1,
+    "findings": [
+     [
+      "CPU 2 PPI 27",
+      "missing interrupt binding"
+     ]
+    ],
+    "probe_failure": null
+   },
+   "max": {
+    "rc": 1,
+    "findings": [
+     [
+      "CPU 2 PPI 27",
+      "missing interrupt binding"
+     ]
+    ],
+    "probe_failure": null
+   }
+  }
+ }
+}

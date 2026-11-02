@@ -1,0 +1,7 @@
+{
+ "cpu": "cortex-a72",
+ "trigger": "time limit (20 s, partition A did not print 'IRQ test done')",
+ "partitions": {},
+ "findings": [],
+ "probe_failure": "HAVEN halted before stage-2 setup: partition 1 root 0x0 (root is zero)"
+}

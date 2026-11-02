@@ -1,0 +1,8 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  2 2026 21:13:22
+  CPU: PARange=4 GIC=v3 - features OK
+
+*** HAVEN PANIC ***
+  SMMUv3 initialization failed
+  Halting.
