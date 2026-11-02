@@ -34,6 +34,16 @@ gives it), DMA access drift (rights differ from the grant), SMMU command queue
 fault, and unenforced DMA master (a device that can do DMA with no SMMU in its
 path).
 
+With a `gic` section (`{"cpus": {"<cpu>": partition}, "spis": {"<INTID>":
+{"partition": N, "cpu": C}}, "ppis": {"<cpu>": [INTID, ...]}}`), read-back
+also checks interrupt ownership as the GICv3 enforces it: GIC distributor
+drift (affinity routing or Group 1 off), interrupt enable drift (an SPI or
+PPI enabled without a grant), interrupt routing drift (1-of-N, or routed to
+a CPU of another partition or another CPU), interrupt group drift and
+missing interrupt binding. GIC registers are read one access at a time:
+QEMU's GIC model answers the wider accesses of a multi-value `xp` with
+zeros.
+
 The SMMU event queue is decoded and listed (observations, not findings). A
 virtio PCI device without `VIRTIO_F_ACCESS_PLATFORM` (QEMU
 `iommu_platform=false`) counts as an unenforced DMA master: QEMU lets such a

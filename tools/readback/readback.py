@@ -29,6 +29,9 @@ reported as observations; a virtio PCI device without
 VIRTIO_F_ACCESS_PLATFORM (QEMU iommu_platform=false) is an unenforced DMA
 master, because QEMU lets it reach physical memory without the SMMU; and
 --marker chooses the UART line after which the memory is read.
+GIC (when the grant has a "gic" section): GICD_CTLR, and per SPI the
+enable, group and IROUTER, plus each redistributor's PPI enables, compared
+with the granted interrupt owners and the CPUs each partition runs on.
 
 Changes from v1 (frozen in docs/methodology/stage1/20261101-a1-readback):
 the memory is read when partition A reaches its post-fault line or after a
@@ -54,6 +57,7 @@ import time
 
 IMG_PA, IMG_SIZE = 0x80000000, 0x800000
 SMMU_BASE = 0x09050000
+GICD_BASE, GICR_BASE, GICR_STRIDE, NCPUS = 0x08000000, 0x080A0000, 0x20000, 4  # QEMU virt, -smp 4
 MARKER = "Post-fault check OK"  # default; --marker overrides
 EVT_NAMES = {0x02: "bad StreamID", 0x03: "STE fetch fault", 0x04: "bad STE", 0x06: "stream disabled",
              0x10: "translation fault", 0x11: "address size fault", 0x12: "access fault",
@@ -108,6 +112,13 @@ class QMP:
     def read64(self, pa):
         out = self.hmp(f"xp /1gx {pa:#x}")
         return int(out.split()[-1], 16)
+
+    def read_words(self, pa, n, size="w"):
+        """n consecutive 32-bit (size w) or 64-bit (size g) MMIO registers,
+        one access each: a multi-value xp reads device memory in wider
+        chunks, which the GIC model answers with zeros (observed, QEMU 11.1)."""
+        step = 4 if size == "w" else 8
+        return [(self.read32 if size == "w" else self.read64)(pa + i * step) for i in range(n)]
 
 
 def qemu_args(build, cpu, devices, extra, smmu_stage="nested"):
@@ -179,6 +190,7 @@ def capture(args_ns, out):
             stab = os.path.join(out, "stream-table.bin")
             m.cmd("pmemsave", val=base, size=size, filename=os.path.abspath(stab))
             snap["stream_table"] = open(stab, "rb").read()
+        snap["gic"] = read_gic(m)
         snap["pci"] = m.cmd("query-pci") or []
         snap["qtree"] = m.hmp("info qtree")
         json.dump(m.log, open(os.path.join(out, "qmp.json"), "w"), indent=1)
@@ -190,6 +202,21 @@ def capture(args_ns, out):
         if os.path.exists(sock):
             os.remove(sock)
     return snap
+
+
+def read_gic(m):
+    """GICv3 distributor and redistributor state (QEMU virt addresses)."""
+    ctlr, typer = m.read32(GICD_BASE), m.read32(GICD_BASE + 0x4)
+    nirq = min(((typer & 0x1F) + 1) * 32, 1020)
+    g = {"ctlr": ctlr, "typer": typer, "nirq": nirq,
+         "igroupr": m.read_words(GICD_BASE + 0x80, nirq // 32),
+         "isenabler": m.read_words(GICD_BASE + 0x100, nirq // 32),
+         "irouter": m.read_words(GICD_BASE + 0x6000 + 8 * 32, nirq - 32, "g"), "cpus": []}
+    for c in range(NCPUS):
+        base = GICR_BASE + c * GICR_STRIDE
+        g["cpus"].append({"typer": m.read64(base + 0x8), "igroupr0": m.read32(base + 0x10080),
+                          "isenabler0": m.read32(base + 0x10100)})
+    return g
 
 
 # ---------------------------------------------------------------- stage-2
@@ -483,6 +510,64 @@ def compare_window(sid, grant, part, reach, kind, parts):
     return f
 
 
+# ---------------------------------------------------------------- GIC
+def compare_gic(g, expected):
+    """Interrupt ownership as enforced by the GIC against the grant: every
+    enabled SPI must be granted, routed (affinity, not 1-of-N) to the granted
+    CPU of the granted partition, in Group 1 Non-secure; per CPU, only
+    granted PPIs may be enabled. SGIs (0-15) are not restricted by HAVEN."""
+    f, report = [], {"spis": [], "cpus": []}
+    # GICD_CTLR as seen by a Non-secure access: with DS=1 (one security
+    # state) ARE is bit 4 and EnableGrp1 bit 1; with two security states the
+    # Non-secure view has ARE_NS at bit 4 and EnableGrp1A at bit 1.
+    if not g["ctlr"] & (1 << 4) or not g["ctlr"] & (1 << 1):
+        f.append(("GIC", "GIC distributor drift", f"GICD_CTLR={g['ctlr']:#x} (affinity routing and Group 1 expected)"))
+    cpu_part = {int(c): p for c, p in expected.get("cpus", {}).items()}
+    aff_cpu = {cpu["typer"] >> 32: i for i, cpu in enumerate(g["cpus"])}
+    spis = {int(k): v for k, v in expected.get("spis", {}).items()}
+    extra = []
+    for irq in range(32, g["nirq"]):
+        en = (g["isenabler"][irq // 32] >> (irq % 32)) & 1
+        grp1 = (g["igroupr"][irq // 32] >> (irq % 32)) & 1
+        rt = g["irouter"][irq - 32]
+        if not en and irq not in spis:
+            continue
+        irm = (rt >> 31) & 1
+        aff = (rt & 0xFFFFFF) | ((rt >> 32) & 0xFF) << 24
+        cpu = None if irm else aff_cpu.get(aff)
+        state = {"irq": irq, "enabled": en, "group1": grp1, "irouter": hex(rt),
+                 "cpu": "any (1-of-N)" if irm else cpu}
+        report["spis"].append(state)
+        if irq not in spis:
+            extra.append(irq)
+            continue
+        want = spis[irq]
+        name = f"SPI {irq}"
+        if not en:
+            f.append((name, "missing interrupt binding", "granted but disabled"))
+            continue
+        if irm:
+            f.append((name, "interrupt routing drift", f"1-of-N routing: may reach any CPU, granted CPU {want['cpu']}"))
+        elif cpu is None or cpu_part.get(cpu) != want["partition"]:
+            f.append((name, "interrupt routing drift",
+                      f"routed to CPU {cpu} (partition {cpu_part.get(cpu)}), granted partition {want['partition']}"))
+        elif cpu != want["cpu"]:
+            f.append((name, "interrupt routing drift", f"routed to CPU {cpu}, granted CPU {want['cpu']}"))
+        if not grp1:
+            f.append((name, "interrupt group drift", "Group 0 (expected Group 1 Non-secure)"))
+    if extra:
+        f.append(("GIC", "interrupt enable drift", f"{len(extra)} SPI(s) enabled without a grant: {ranges(extra)}"))
+    ppis = {int(c): set(v) for c, v in expected.get("ppis", {}).items()}
+    for i, cpu in enumerate(g["cpus"]):
+        en = [b for b in range(16, 32) if (cpu["isenabler0"] >> b) & 1]
+        report["cpus"].append({"cpu": i, "affinity": hex(cpu["typer"] >> 32), "ppis_enabled": en,
+                               "sgis_enabled": [b for b in range(16) if (cpu["isenabler0"] >> b) & 1]})
+        bad = [b for b in en if b not in ppis.get(i, set())]
+        if bad:
+            f.append((f"CPU {i} PPIs", "interrupt enable drift", f"enabled without a grant: {ranges(bad)}"))
+    return f, report
+
+
 # ---------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -549,6 +634,16 @@ def main():
         for e in sorted({(e['event'], e['sid'], e['addr'] & ~0xFFF, e['write']) for e in evs}):
             n = sum(1 for x in evs if (x['event'], x['sid'], x['addr'] & ~0xFFF, x['write']) == e)
             print(f"  EVENT {e[0]} SID {e[1]} page {e[2]:#x} {'write' if e[3] else 'read'} x{n}")
+    if "gic" in grant:
+        f, rep = compare_gic(snap["gic"], grant["gic"])
+        findings += f
+        report["gic"] = rep
+        g = snap["gic"]
+        print(f"GIC GICD_CTLR={g['ctlr']:#x}, {g['nirq']} INTIDs; enabled SPIs:")
+        for x in rep["spis"]:
+            print(f"  SPI {x['irq']}: enabled={x['enabled']} group1={x['group1']} -> CPU {x['cpu']} (IROUTER {x['irouter']})")
+        for c in rep["cpus"]:
+            print(f"  CPU {c['cpu']} (affinity {c['affinity']}): PPIs enabled {c['ppis_enabled'] or 'none'}")
     report["findings"] = findings
     json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
     for name, cls, detail in findings:
