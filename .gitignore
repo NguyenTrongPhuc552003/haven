@@ -37,3 +37,6 @@ website/.astro/
 
 # QEMU device-tree dumps from read-back: 1 MiB each, hashed in DUMP_SHA256SUMS
 docs/methodology/**/machine.dtb
+
+# Release bundles (scripts/release/make-try-bundle.sh)
+dist/

@@ -258,7 +258,17 @@ def prio(words, irq):
 
 # ---------------------------------------------------------------- stage-2
 def symbol(nm, elf, name):
-    for line in subprocess.check_output([nm, elf], text=True).splitlines():
+    """Address of name in elf. A prebuilt symbol list next to the ELF
+    (<elf without .elf>.nm, the output of nm) is used when present, so the
+    try-it bundle needs no cross binutils."""
+    listing = os.path.splitext(elf)[0] + ".nm"
+    if os.path.exists(listing):
+        lines = open(listing).read().splitlines()
+    else:
+        if not nm:
+            raise SystemExit(f"no aarch64 nm and no {listing} for {elf}")
+        lines = subprocess.check_output([nm, elf], text=True).splitlines()
+    for line in lines:
         parts = line.split()
         if len(parts) == 3 and parts[2] == name:
             return int(parts[0], 16)

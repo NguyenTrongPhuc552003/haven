@@ -62,7 +62,17 @@ class QMP:
 
 
 def symbol(nm, elf, name):
-    for line in subprocess.check_output([nm, elf], text=True).splitlines():
+    """Address of name in elf. A prebuilt symbol list next to the ELF
+    (<elf without .elf>.nm, the output of nm) is used when present, so the
+    try-it bundle needs no cross binutils."""
+    listing = os.path.splitext(elf)[0] + ".nm"
+    if os.path.exists(listing):
+        lines = open(listing).read().splitlines()
+    else:
+        if not nm:
+            raise SystemExit(f"no aarch64 nm and no {listing} for {elf}")
+        lines = subprocess.check_output([nm, elf], text=True).splitlines()
+    for line in lines:
         parts = line.split()
         if len(parts) == 3 and parts[2] == name:
             return int(parts[0], 16)
@@ -73,13 +83,14 @@ def main():
     build = sys.argv[1] if len(sys.argv) > 1 else "build"
     cpu = sys.argv[2] if len(sys.argv) > 2 else "cortex-a72"
     limit = float(sys.argv[3]) if len(sys.argv) > 3 else 30.0
-    for f in ("haven.bin", "guest_a.bin", "guest_b.bin", "guest_b.elf"):
+    for f in ("haven.bin", "guest_a.bin", "guest_b.bin"):
         if not os.path.isfile(os.path.join(build, f)):
             print(f"partition-b-check: missing {build}/{f} (build with the qemu-psci profile first)")
             return 2
     nm = shutil.which("aarch64-unknown-linux-gnu-nm") or shutil.which("aarch64-linux-gnu-nm")
-    if not nm or not shutil.which("qemu-system-aarch64"):
-        print("partition-b-check: needs qemu-system-aarch64 and an aarch64 nm")
+    have_lists = os.path.isfile(os.path.join(build, "guest_b.nm"))
+    if not (nm or have_lists) or not shutil.which("qemu-system-aarch64"):
+        print("partition-b-check: needs qemu-system-aarch64, and an aarch64 nm or prebuilt .nm lists")
         return 2
 
     status_pa = symbol(nm, os.path.join(build, "guest_b.elf"), "guest_b_status") - PART_B_IPA_BASE + PART_B_PA_BASE
