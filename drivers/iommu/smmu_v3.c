@@ -53,6 +53,9 @@
 #define SMMU_CMDQ_PTR_MASK ((SMMU_CMDQ_ENTRIES << 1) - 1U) /* index + wrap */
 #define SMMU_CMDQ_IDX_MASK (SMMU_CMDQ_ENTRIES - 1U)
 
+#define SMMU_EVTQ_LOG2 6U /* 64 events x 32 bytes = 2 KiB */
+#define SMMU_EVTQ_ENTRIES (1U << SMMU_EVTQ_LOG2)
+
 /* -----------------------------------------------------------------------
  * Driver state
  * ----------------------------------------------------------------------- */
@@ -63,6 +66,11 @@ static struct {
 	/* The queue base must be aligned to the queue size. */
 	uint64_t cmdq[SMMU_CMDQ_ENTRIES * CMDQ_ENT_DWORDS]
 		__attribute__((aligned(SMMU_CMDQ_ENTRIES * 16)));
+	/* Event queue: the SMMU records faults here (e.g. DMA outside a
+	 * window).  Haven does not consume events yet; they stay in memory
+	 * for external read-back. */
+	uint64_t evtq[SMMU_EVTQ_ENTRIES * EVTQ_ENT_DWORDS]
+		__attribute__((aligned(SMMU_EVTQ_ENTRIES * 32)));
 	uintptr_t base;
 	uint32_t cmdq_prod; /* software copy of SMMU_CMDQ_PROD */
 	uint16_t ste_vmid[SMMU_MAX_STREAMS]; /* VMID of an S2 STE, 0 = none */
@@ -241,9 +249,10 @@ static hv_status_t smmu_invalidate_ste(uint32_t sid, uint32_t old_vmid,
  * smmu_v3_init - initialize the SMMUv3: stream table, command queue, enable.
  *
  * Order (as Linux arm_smmu_device_reset): disable, program CR1 and the
- * stream table, program and enable the command queue, invalidate cached
- * configuration and TLBs, then enable translation.  All STEs start as
- * ABORT (fail-closed).
+ * stream table, program and enable the command and event queues,
+ * invalidate cached configuration and TLBs, then enable translation.  All
+ * STEs start as ABORT (fail-closed).  The event queue is enabled when the
+ * SMMU supports at least SMMU_EVTQ_ENTRIES events (SMMU_IDR1.EVENTQS).
  *
  * CR1 makes the SMMU's own table and queue accesses write-back cacheable
  * and inner shareable, as Linux does.  This is valid for a coherent SMMU;
@@ -266,6 +275,7 @@ hv_status_t smmu_v3_init(uintptr_t base, uint32_t nr_streams)
 	uint64_t strtab_base;
 	uint32_t strtab_cfg;
 	uint32_t cmdqs;
+	uint32_t queues;
 	uint64_t cmds[2][2];
 
 	if (!base || nr_streams == 0 || nr_streams > SMMU_MAX_STREAMS)
@@ -322,9 +332,25 @@ hv_status_t smmu_v3_init(uintptr_t base, uint32_t nr_streams)
 	smmu_write32(base, SMMU_CMDQ_PROD, 0);
 	smmu_write32(base, SMMU_CMDQ_CONS, 0);
 	smmu.cmdq_prod = 0;
+	queues = CR0_CMDQ_ENABLE;
 
-	smmu_write32(base, SMMU_CR0, CR0_CMDQ_ENABLE);
-	if (smmu_wait_cr0ack(base, CR0_CMDQ_ENABLE) != 0)
+	if (((smmu_read32(base, SMMU_IDR1) & IDR1_EVTQS_MASK) >>
+	     IDR1_EVTQS_SHIFT) >= SMMU_EVTQ_LOG2) {
+		for (uint32_t i = 0; i < SMMU_EVTQ_ENTRIES * EVTQ_ENT_DWORDS;
+		     i++)
+			smmu.evtq[i] = 0;
+		__asm__ volatile("dsb sy" ::: "memory");
+		smmu_write64(base, SMMU_EVTQ_BASE,
+			     Q_BASE_RWA |
+				     ((uintptr_t)smmu.evtq & Q_BASE_ADDR_MASK) |
+				     (SMMU_EVTQ_LOG2 & Q_BASE_LOG2SIZE_MASK));
+		smmu_write32(base, SMMU_EVTQ_PROD, 0);
+		smmu_write32(base, SMMU_EVTQ_CONS, 0);
+		queues |= CR0_EVTQ_ENABLE;
+	}
+
+	smmu_write32(base, SMMU_CR0, queues);
+	if (smmu_wait_cr0ack(base, queues) != 0)
 		return HV_EIO;
 
 	/* Nothing cached from before Haven may survive */
@@ -336,8 +362,8 @@ hv_status_t smmu_v3_init(uintptr_t base, uint32_t nr_streams)
 		return HV_EIO;
 
 	/* Enable SMMU translation */
-	smmu_write32(base, SMMU_CR0, CR0_CMDQ_ENABLE | CR0_SMMU_ENABLE);
-	if (smmu_wait_cr0ack(base, CR0_CMDQ_ENABLE | CR0_SMMU_ENABLE) != 0)
+	smmu_write32(base, SMMU_CR0, queues | CR0_SMMU_ENABLE);
+	if (smmu_wait_cr0ack(base, queues | CR0_SMMU_ENABLE) != 0)
 		return HV_EIO;
 
 	smmu.initialized = 1;

@@ -418,6 +418,15 @@ static void test_smmu_assign_streamid(void)
 	assert(hv_smmu_revoke_dma_access(8) == HV_OK);
 	assert(hv_smmu_assign_streamid(1, 8) == HV_OK);
 	TEST_PASS("smmu_assign_streamid: rebinding after revoke");
+
+	/* Release frees a bound StreamID without a window, not one with. */
+	assert(hv_smmu_release_streamid(200) == HV_OK);
+	assert(hv_smmu_release_streamid(200) == HV_EPERM);
+	assert(hv_smmu_configure_dma_window(8, 0xc0000000, 0x100000, 0xc0000000,
+					    HV_DMA_RW) == HV_OK);
+	assert(hv_smmu_release_streamid(8) == HV_EPERM);
+	assert(hv_smmu_release_streamid(HV_MAX_SMMU_STREAMS) == HV_EINVAL);
+	TEST_PASS("smmu_release_streamid: frees only unconfigured StreamIDs");
 }
 
 /**

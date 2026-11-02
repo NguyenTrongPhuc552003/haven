@@ -44,4 +44,23 @@
 #define PART_A_RO_PA_BASE (SHARED_PA_BASE + SHARED_SIZE)
 #define PART_A_RO_SIZE 0x00200000UL
 
+/* DMA device granted to partition A: the PCIe function at 00:01.0 (the first
+ * -device on the PCIe root bus, e.g. virtio-rng-pci).  QEMU virt facts, from
+ * its device tree (dumpdtb, QEMU 11.1): ECAM at 0x40_1000_0000 (reg of
+ * pcie@10000000), 32-bit memory window 0x1000_0000 to 0x3EFF_0000, and
+ * iommu-map <0 &smmu 0 0x10000>, so the StreamID is the requester ID
+ * (bus << 8 | device << 3 | function).
+ *   StreamID 8; config page PA 0x40_1000_8000 (4 KB, this function only);
+ *   memory BAR placed by partition A at PA 0x1000_0000 (16 KB);
+ *   DMA window: IPA [0x5F000000, 0x5F100000) -> PA [0x9F800000, ...), RW,
+ *   the last MiB but one of partition A's RAM (the top MiB holds its stack). */
+#define QEMU_PCIE_ECAM_BASE 0x4010000000UL
+#define PART_A_DMA_SID 8U
+#define PART_A_DMA_CFG_PA (QEMU_PCIE_ECAM_BASE + (1UL << 15))
+#define PART_A_DMA_BAR_PA 0x10000000UL
+#define PART_A_DMA_BAR_SIZE 0x4000UL
+#define PART_A_DMA_IPA (PART_A_IPA_BASE + 0x1F000000UL)
+#define PART_A_DMA_PA (PART_A_PA_BASE + 0x1F000000UL)
+#define PART_A_DMA_SIZE 0x100000UL
+
 #endif /* HAVEN_PLATFORM_QEMU_VIRT_MEMORY_H */

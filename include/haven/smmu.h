@@ -129,6 +129,16 @@ hv_status_t hv_smmu_allocate_streamid(hv_u32 partition, hv_u16 *streamid);
 hv_status_t hv_smmu_assign_streamid(hv_u32 partition, hv_u16 hw_streamid);
 
 /**
+ * Release a bound StreamID that has no DMA window (e.g. after configure
+ * failed).  A configured StreamID is released with
+ * hv_smmu_revoke_dma_access() instead.
+ *
+ * @return HV_OK, HV_EINVAL if out of range, HV_EPERM if not bound or
+ *         still configured
+ */
+hv_status_t hv_smmu_release_streamid(hv_u16 streamid);
+
+/**
  * Configure DMA window for a device.
  *
  * Sets up IOMMU translation tables to map a device's DMA address space (IOVA)

@@ -22,6 +22,7 @@
 
 #include <haven/budget_sched.h>
 #include <haven/irq_ownership.h>
+#include <haven/smmu.h>
 #include <haven/stage2.h>
 #include <haven/types.h>
 #include <stdint.h>
@@ -90,6 +91,114 @@ static const struct hv_partition_mem part_a_mem_cfg = {
 	.regions = part_a_regions,
 	.region_count = 3U, /* DRAM + UART MMIO + read-only region */
 };
+
+/* -----------------------------------------------------------------------
+ * DMA grants
+ *
+ * A grant gives a partition one device: its hardware StreamID gets a DMA
+ * window (device address -> physical address inside the partition, with
+ * access rights), and only once the SMMU enforces that window are the
+ * device's registers mapped into the partition.  If the SMMU cannot
+ * enforce it (e.g. no stage 2), the device is withheld: its stream stays
+ * aborted and its registers stay unmapped.  The partition learns which
+ * grants are in force from a bit mask in x0 at entry.
+ *
+ * The window uses the partition's own addresses (IOVA = IPA), so a device
+ * and the partition name the same buffer the same way.
+ * ----------------------------------------------------------------------- */
+
+#define GUEST_ARG_DMA0 (1UL << 0) /* x0 bit: grant 0 is in force */
+
+struct part_dma_grant {
+	hv_u32 partition_id;
+	hv_u16 streamid;
+	hv_u64 iova;
+	hv_u64 size;
+	hv_u64 pa;
+	hv_dma_access_t access;
+	const struct hv_mem_region *mmio;
+	hv_u32 mmio_count;
+	hv_u64 guest_flag;
+};
+
+static const struct hv_mem_region part_a_dma_mmio[] = {
+	{
+		.ipa_base = PART_A_DMA_CFG_PA,
+		.pa_base = PART_A_DMA_CFG_PA,
+		.size = 0x1000UL, /* config space of 00:01.0 only */
+		.attrs = HV_MEM_DEVICE_RW,
+	},
+	{
+		.ipa_base = PART_A_DMA_BAR_PA,
+		.pa_base = PART_A_DMA_BAR_PA,
+		.size = PART_A_DMA_BAR_SIZE,
+		.attrs = HV_MEM_DEVICE_RW,
+	},
+};
+
+static const struct part_dma_grant dma_grants[] = {
+	{
+		.partition_id = PARTITION_A_ID,
+		.streamid = PART_A_DMA_SID,
+		.iova = PART_A_DMA_IPA,
+		.size = PART_A_DMA_SIZE,
+		.pa = PART_A_DMA_PA,
+		.access = HV_DMA_RW,
+		.mmio = part_a_dma_mmio,
+		.mmio_count = 2U,
+		.guest_flag = GUEST_ARG_DMA0,
+	},
+};
+
+/* Apply every DMA grant; returns the x0 bits for partition_id. */
+static hv_u64 apply_dma_grants(hv_u32 partition_id)
+{
+	extern void hv_printk(const char *fmt, ...);
+	hv_u64 flags = 0U;
+
+	for (hv_u32 i = 0U; i < sizeof(dma_grants) / sizeof(dma_grants[0]);
+	     ++i) {
+		const struct part_dma_grant *g = &dma_grants[i];
+		struct hv_partition_mem mmio = {
+			.partition_id = g->partition_id,
+			.regions = g->mmio,
+			.region_count = g->mmio_count,
+		};
+		hv_status_t rc;
+
+		if (g->partition_id != partition_id) {
+			continue;
+		}
+		rc = hv_smmu_assign_streamid(g->partition_id, g->streamid);
+		if (rc == HV_OK) {
+			rc = hv_smmu_configure_dma_window(g->streamid, g->iova,
+							  g->size, g->pa,
+							  g->access);
+			if (rc == HV_OK) {
+				rc = hv_stage2_add_regions(&mmio);
+				if (rc != HV_OK) {
+					(void)hv_smmu_revoke_dma_access(
+						g->streamid);
+				}
+			} else {
+				(void)hv_smmu_release_streamid(g->streamid);
+			}
+		}
+		if (rc != HV_OK) {
+			hv_printk("HAVEN: DMA grant SID %u -> partition %u "
+				  "withheld (rc=%d)\n",
+				  (unsigned)g->streamid,
+				  (unsigned)g->partition_id, (int)rc);
+			continue;
+		}
+		hv_printk("HAVEN: DMA grant SID %u -> partition %u: "
+			  "IOVA 0x%lx size 0x%lx\n",
+			  (unsigned)g->streamid, (unsigned)g->partition_id,
+			  (unsigned long)g->iova, (unsigned long)g->size);
+		flags |= g->guest_flag;
+	}
+	return flags;
+}
 
 static const struct hv_partition_mem part_b_mem_cfg = {
 	.partition_id = PARTITION_B_ID,
@@ -201,6 +310,7 @@ void partitions_launch(void)
 {
 	hv_u32 i;
 	hv_status_t st;
+	hv_u64 part_a_arg;
 	extern void hv_printk(const char *fmt, ...);
 
 	hv_printk("HAVEN: launching 2-partition configuration\n");
@@ -224,6 +334,11 @@ void partitions_launch(void)
 	hv_printk("HAVEN: partition B mapped PA=0x%lx IPA=0x%lx size=%uMB\n",
 		  (unsigned long)PART_B_PA_BASE, (unsigned long)PART_B_IPA_BASE,
 		  (unsigned)(PART_B_SIZE >> 20));
+
+	/* ----- DMA grants (after both partitions own their memory) -------- */
+
+	part_a_arg = apply_dma_grants(PARTITION_A_ID);
+	(void)part_a_arg; /* used on ARM64 only */
 
 	/* ----- IRQ ownership ---------------------------------------------- */
 
@@ -278,7 +393,8 @@ void partitions_launch(void)
 		  (unsigned long)PART_A_IPA_BASE);
 	hv_arch_start_partition(
 		(uintptr_t)PART_A_IPA_BASE,
-		(uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL), 0UL);
+		(uintptr_t)(PART_A_IPA_BASE + PART_A_SIZE - 0x1000UL),
+		(uintptr_t)part_a_arg);
 
 	/* Unreachable - ERET transfers control permanently */
 #endif

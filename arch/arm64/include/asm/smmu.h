@@ -151,6 +151,16 @@
 #define Q_BASE_ADDR_MASK (0x000fffffffffffe0UL) /* Bits [51:5] */
 #define Q_BASE_LOG2SIZE_MASK (0x1fUL) /* Bits [4:0]: log2(entries) */
 
+/* Event queue: base in page 0, PROD and CONS in page 1 (base + 0x10000).
+ * Entries are 32 bytes; ID in dw0 [7:0], StreamID in dw0 [63:32], input
+ * address in dw2 (Linux EVTQ_* fields). */
+#define SMMU_EVTQ_BASE 0x00a0
+#define SMMU_EVTQ_PROD 0x100a8
+#define SMMU_EVTQ_CONS 0x100ac
+#define EVTQ_ENT_DWORDS 4
+#define IDR1_EVTQS_SHIFT 16
+#define IDR1_EVTQS_MASK (0x1fU << IDR1_EVTQS_SHIFT)
+
 /* SMMU_CMDQ_CONS.ERR [30:24]: reason the queue stopped (0 = none) */
 #define CMDQ_CONS_ERR_SHIFT 24
 #define CMDQ_CONS_ERR_MASK (0x7fU << CMDQ_CONS_ERR_SHIFT)

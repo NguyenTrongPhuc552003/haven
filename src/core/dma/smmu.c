@@ -141,6 +141,25 @@ hv_status_t hv_smmu_assign_streamid(hv_u32 partition, hv_u16 hw_streamid)
 	return HV_OK;
 }
 
+hv_status_t hv_smmu_release_streamid(hv_u16 streamid)
+{
+	if (streamid >= HV_MAX_SMMU_STREAMS) {
+		return HV_EINVAL;
+	}
+
+	if (!smmu_state.streamid_allocated[streamid] ||
+	    device_dma_config[streamid].configured) {
+		return HV_EPERM;
+	}
+
+	smmu_state.streamid_allocated[streamid] = 0;
+	smmu_state.streamid_to_partition[streamid] = 0U;
+	if (smmu_state.streamid_count != 0U) {
+		smmu_state.streamid_count--;
+	}
+	return HV_OK;
+}
+
 /* Take a free DMA VMID slot; returns the VMID, or 0 if none is free. */
 static hv_u32 dma_vmid_take(void)
 {
