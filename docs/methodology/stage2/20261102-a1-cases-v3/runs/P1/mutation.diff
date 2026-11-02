@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 13:16:21
++++ /tmp/v3-P1-z6qkwe8c/src/core/partition.c	2026-11-02 13:40:50
+@@ -159,7 +159,7 @@
+ 		.access = HV_DMA_RW,
+ 		.cfg_pa = PART_A_DMA_CFG_PA,
+ 		.bar = PART_A_DMA_BAR,
+-		.bar_pa = PART_A_DMA_BAR_PA,
++		.bar_pa = PART_A_DMA_BAR_PA + 0x4000UL,
+ 		.bar_size = PART_A_DMA_BAR_SIZE,
+ 		.mmio = part_a_dma_mmio,
+ 		.mmio_count = 2U,

@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:25:23
++++ /tmp/v3-M4-hnpo0rvu/arch/arm64/include/asm/s2_attrs.h	2026-11-02 13:39:59
+@@ -19,7 +19,7 @@
+ 	uint64_t hw;
+ 
+ 	if ((attrs & HV_MEM_DEVICE) != 0U) {
+-		hw = (uint64_t)(S2_MEMATTR_DEVICE_nGnRE | S2_SH_NS);
++		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);
+ 	} else {
+ 		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);
+ 	}

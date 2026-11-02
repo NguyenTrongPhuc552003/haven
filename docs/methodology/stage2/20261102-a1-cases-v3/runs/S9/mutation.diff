@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/dma/smmu.c	2026-11-02 12:14:21
++++ /tmp/v3-S9-mlzs_ubr/src/core/dma/smmu.c	2026-11-02 13:40:25
+@@ -166,7 +166,7 @@
+ 	for (hv_u32 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+ 		if (!smmu_state.dma_vmid_used[i]) {
+ 			smmu_state.dma_vmid_used[i] = 1;
+-			return HV_SMMU_DMA_VMID_BASE + i;
++			return 1U;
+ 		}
+ 	}
+ 	return 0;

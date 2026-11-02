@@ -1,0 +1,12 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-11-02 13:13:58
++++ /tmp/v3-I8-2kbty9yo/drivers/irqchip/gic_v3.c	2026-11-02 13:40:41
+@@ -85,8 +85,7 @@
+ 	/* Enable affinity routing and Group 1 (Non-secure layout, as Linux
+ 	 * gic_dist_init: disabled with 0 above, then ARE_NS | G1A | G1). */
+ 	gic_write32(gic.gicd_base, GICD_CTLR,
+-		    GICD_CTLR_ARE_NS | GICD_CTLR_ENABLE_G1A |
+-			    GICD_CTLR_ENABLE_G1);
++		    GICD_CTLR_ARE_NS);
+ 	gicd_wait_rwp(gic.gicd_base);
+ }
+ 

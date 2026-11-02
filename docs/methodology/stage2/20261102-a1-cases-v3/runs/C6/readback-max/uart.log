@@ -1,0 +1,31 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  2 2026 13:41:53
+  CPU: PARange=6 GIC=v3 - features OK
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: PSCI CPU_ON error -1 (NOT_SUPPORTED)
+HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
+HAVEN: ERET -> partition A entry IPA=0x40000000
+PARTITION_A: Hello from partition A (EL1 guest)
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0x60000000 ESR=0x93c08006
+PARTITION_A: Post-fault check OK
+HAVEN: Denied stage-2 violation IPA=0x4010008000 FAR=0x4010008020 ESR=0x9382004f
+PARTITION_A: config page read-only
+PARTITION_A: DMA inside window OK, bytes written 0x40
+HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write
+HAVEN: SMMU event 0x10 SID 8 addr 0x5e000000 write
+HAVEN: SMMU event 0x10 SID 8 addr 0x5e000004 write
+HAVEN: SMMU event 0x10 SID 8 addr 0x5e000008 write
+HAVEN: SMMU events so far: 8
+HAVEN: SMMU events so far: 16
+PARTITION_A: DMA outside window blocked, buffer unchanged, completed 0x1
+PARTITION_A: DMA test done
+PARTITION_A: waiting for the UART interrupt
+PARTITION_A: UART interrupt delivered (INTID 33)
+PARTITION_A: IRQ test done

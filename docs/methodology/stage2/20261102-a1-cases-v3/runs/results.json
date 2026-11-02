@@ -1,0 +1,362 @@
+{
+ "haven_commit": "4174daf",
+ "results": {
+  "M3": {
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "execute drift"
+     ],
+     [
+      "B RAM",
+      "execute drift"
+     ]
+    ],
+    "trigger": "time limit (20 s, partition A did not print 'IRQ test done')"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 1,
+    "findings": [
+     [
+      "A RAM",
+      "execute drift"
+     ],
+     [
+      "B RAM",
+      "execute drift"
+     ]
+    ],
+    "trigger": "time limit (20 s, partition A did not print 'IRQ test done')"
+   },
+   "case": "M3",
+   "predicted": [
+    "fail",
+    "fail"
+   ]
+  },
+  "M4": {
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A UART",
+      "memory-type drift"
+     ],
+     [
+      "A UART",
+      "shareability drift"
+     ],
+     [
+      "A PCI config",
+      "memory-type drift"
+     ],
+     [
+      "A PCI config",
+      "shareability drift"
+     ],
+     [
+      "A PCI BAR",
+      "memory-type drift"
+     ],
+     [
+      "A PCI BAR",
+      "shareability drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A UART",
+      "memory-type drift"
+     ],
+     [
+      "A UART",
+      "shareability drift"
+     ],
+     [
+      "A PCI config",
+      "memory-type drift"
+     ],
+     [
+      "A PCI config",
+      "shareability drift"
+     ],
+     [
+      "A PCI BAR",
+      "memory-type drift"
+     ],
+     [
+      "A PCI BAR",
+      "shareability drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "case": "M4",
+   "predicted": [
+    "fail",
+    "pass"
+   ]
+  },
+  "M5": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RO",
+      "association drift"
+     ],
+     [
+      "B RAM",
+      "extent drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A RO",
+      "association drift"
+     ],
+     [
+      "B RAM",
+      "extent drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "case": "M5",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "S8": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA access drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "SID 8",
+      "DMA access drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "case": "S8",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "S9": {
+   "unit_rc": 8,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "pci-1af4:1044",
+      "DMA enforcement drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "case": "S9",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "I7": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "I7",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "I8": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "GIC",
+      "GIC distributor drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "GIC",
+      "GIC distributor drift"
+     ]
+    ],
+    "trigger": "marker"
+   },
+   "case": "I8",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "P1": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "P1",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "P2": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A PCI BAR",
+      "missing binding"
+     ]
+    ],
+    "trigger": "time limit (20 s, partition A did not print 'IRQ test done')"
+   },
+   "max": {
+    "readback_rc": 1,
+    "boot_rc": 0,
+    "findings": [
+     [
+      "A PCI BAR",
+      "missing binding"
+     ]
+    ],
+    "trigger": "time limit (20 s, partition A did not print 'IRQ test done')"
+   },
+   "case": "P2",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "C6": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "C6",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  },
+  "C7": {
+   "unit_rc": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "max": {
+    "readback_rc": 0,
+    "boot_rc": 0,
+    "findings": [],
+    "trigger": "marker"
+   },
+   "case": "C7",
+   "predicted": [
+    "pass",
+    "pass"
+   ]
+  }
+ }
+}

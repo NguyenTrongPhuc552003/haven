@@ -584,3 +584,24 @@ Both fixed on 2026-11-02 after owner approval
   `3fbafae` disables an SPI that cannot be delivered. Partition A receives
   its UART interrupt (checks J1-J4). Open: physical interrupts on CPUs
   other than the boot CPU.
+
+## 8. Stage 2 additions (2026-11-02): SMMU, from case set v3
+
+### SM4 - A DMA window's VMID leaks into its stage-2 table address
+
+- **Status:** observed in QEMU (case set v3, S9) + source-derived. No code
+  change yet (fix needs owner approval).
+- **Expected contract / source:** STE.S2TTB holds the table base, bits
+  [51:4] (Linux `STRTAB_STE_3_S2TTB_MASK GENMASK_ULL(51, 4)`); the VMID goes
+  in STE.S2VMID (word 2).
+- **Observed / evidence:** `smmu_v3_set_ste_partition()` receives a
+  VTTBR-format value (`vttbr_encode`: VMID in bits [63:48]) and writes
+  `ste[3] = vttbr & STE_3_S2TTB_MASK`. With VMID 1 (S9) S2TTB read back as
+  `0x1000080010000` and the SMMU reported 4 "bad STE" events; DMA failed.
+- **Consequence:** any DMA VMID with bits [3:0] non-zero corrupts the table
+  address. HAVEN allocates `0xC0`, `0xC1`, ...: the first window works, the
+  second and every odd one would be rejected.
+- **Smallest correction (proposal):** pass the table base, not a VTTBR value,
+  to the driver (or clear the VMID with `VTTBR_BADDR_MASK` before applying
+  `STE_3_S2TTB_MASK`), and add a unit-level check that S2TTB equals the
+  table base for VMIDs `0xC0` to `0xFF`.

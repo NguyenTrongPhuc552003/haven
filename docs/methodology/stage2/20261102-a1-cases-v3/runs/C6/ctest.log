@@ -1,0 +1,46 @@
+$ ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation
+Test project /private/tmp/v3-C6-wrramoev/build-host
+      Start  1: test_core_stubs
+ 1/20 Test  #1: test_core_stubs ..................   Passed    0.37 sec
+      Start  2: test_smmu_dma
+ 2/20 Test  #2: test_smmu_dma ....................   Passed    0.27 sec
+      Start  3: test_stage2_attrs
+ 3/20 Test  #3: test_stage2_attrs ................   Passed    0.27 sec
+      Start  4: test_el2_exceptions
+ 4/20 Test  #4: test_el2_exceptions ..............   Passed    0.27 sec
+      Start  5: test_timer
+ 5/20 Test  #5: test_timer .......................   Passed    0.27 sec
+      Start  6: test_iommu_policy
+ 6/20 Test  #6: test_iommu_policy ................   Passed    0.28 sec
+      Start  7: test_guest_uart
+ 7/20 Test  #7: test_guest_uart ..................   Passed    0.28 sec
+      Start  8: test_freertos_integration
+ 8/20 Test  #8: test_freertos_integration ........   Passed    0.27 sec
+      Start  9: test_isolation_flow
+ 9/20 Test  #9: test_isolation_flow ..............   Passed    0.28 sec
+      Start 10: test_isolation_negative
+10/20 Test #10: test_isolation_negative ..........   Passed    0.27 sec
+      Start 11: test_fault_injection
+11/20 Test #11: test_fault_injection .............   Passed    0.27 sec
+      Start 12: test_secondary_cpu_isolation
+12/20 Test #12: test_secondary_cpu_isolation .....   Passed    0.26 sec
+      Start 13: test_smmu_hardware
+13/20 Test #13: test_smmu_hardware ...............   Passed    0.27 sec
+      Start 14: test_spatial_isolation
+14/20 Test #14: test_spatial_isolation ...........   Passed    0.27 sec
+      Start 15: test_temporal_isolation
+15/20 Test #15: test_temporal_isolation ..........   Passed    0.27 sec
+      Start 16: test_hypervisor_invariants
+16/20 Test #16: test_hypervisor_invariants .......   Passed    0.28 sec
+      Start 17: demo_two_partition
+17/20 Test #17: demo_two_partition ...............   Passed    0.27 sec
+      Start 18: bench_isolation_latency
+18/20 Test #18: bench_isolation_latency ..........   Passed    0.29 sec
+      Start 19: bench_stage2_fault
+19/20 Test #19: bench_stage2_fault ...............   Passed    0.28 sec
+      Start 20: bench_smmu_policy
+20/20 Test #20: bench_smmu_policy ................   Passed    0.30 sec
+
+100% tests passed out of 20
+
+Total Test time (real) =   5.59 sec

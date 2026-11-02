@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-11-02 13:13:58
++++ /tmp/v3-I7-2wxvrrmw/drivers/irqchip/gic_v3.c	2026-11-02 13:40:33
+@@ -76,7 +76,7 @@
+ 	/* Default priority: Linux-level for all SPIs */
+ 	for (uint32_t i = 8; i < (gic.nr_irqs / 4); i++)
+ 		gic_write32(gic.gicd_base, GICD_IPRIORITYR(i),
+-			    GIC_PRIO_LINUX * 0x01010101U);
++			    GIC_PRIO_LOWEST * 0x01010101U);
+ 
+ 	/* Route all SPIs as 1-of-N until explicitly assigned */
+ 	for (uint32_t i = GIC_SPI_BASE; i < gic.nr_irqs; i++)
