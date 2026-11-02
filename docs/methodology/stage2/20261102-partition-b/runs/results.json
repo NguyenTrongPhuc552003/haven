@@ -1,0 +1,204 @@
+{
+ "haven_commit": "4c740a5",
+ "results": {
+  "K1": {
+   "check": "K1",
+   "expect_pass": true,
+   "expect_missing": [],
+   "expect_readback": [],
+   "expect_readback_v3": [
+    [
+     "CPU 2 PPIs",
+     "interrupt enable drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "partb_rc": 0,
+    "missing": [],
+    "status": "partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=8, other_irqs=0, last_intid=27, result=1",
+    "readback_rc": 0,
+    "findings": [],
+    "readback_v3_rc": 1,
+    "findings_v3": [
+     [
+      "CPU 2 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   },
+   "max": {
+    "partb_rc": 0,
+    "missing": [],
+    "status": "partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=8, other_irqs=0, last_intid=27, result=1",
+    "readback_rc": 0,
+    "findings": [],
+    "readback_v3_rc": 1,
+    "findings_v3": [
+     [
+      "CPU 2 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   }
+  },
+  "K2": {
+   "check": "K2",
+   "expect_pass": false,
+   "expect_missing": [
+    "B's read of A's IPA denied on CPU 2",
+    "B status magic",
+    "B reached stage 5 (done)"
+   ],
+   "expect_readback": [],
+   "expect_readback_v3": [
+    [
+     "CPU 2 PPIs",
+     "interrupt enable drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "partb_rc": 1,
+    "missing": [
+     "B's read of A's IPA denied on CPU 2",
+     "B status magic",
+     "B reached stage 5 (done)",
+     "B timer interrupts >= 8",
+     "B result: none"
+    ],
+    "status": "partition B status @PA 0xa08011d8: magic=0x0, stage=0, timer_irqs=0, other_irqs=0, last_intid=0, result=0",
+    "readback_rc": 0,
+    "findings": [],
+    "readback_v3_rc": 1,
+    "findings_v3": [
+     [
+      "CPU 2 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   },
+   "max": {
+    "partb_rc": 1,
+    "missing": [
+     "B's read of A's IPA denied on CPU 2",
+     "B status magic",
+     "B reached stage 5 (done)",
+     "B timer interrupts >= 8",
+     "B result: none"
+    ],
+    "status": "partition B status @PA 0xa08011d8: magic=0x0, stage=0, timer_irqs=0, other_irqs=0, last_intid=0, result=0",
+    "readback_rc": 0,
+    "findings": [],
+    "readback_v3_rc": 1,
+    "findings_v3": [
+     [
+      "CPU 2 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   }
+  },
+  "K3": {
+   "check": "K3",
+   "expect_pass": false,
+   "expect_missing": [
+    "B timer interrupts >= 8",
+    "no undelivered interrupt"
+   ],
+   "expect_readback": [],
+   "expect_readback_v3": [],
+   "build_rc": 0,
+   "cortex-a72": {
+    "partb_rc": 1,
+    "missing": [
+     "B timer interrupts >= 8",
+     "B result: too few timer interrupts",
+     "no undelivered interrupt"
+    ],
+    "status": "partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=0, other_irqs=0, last_intid=0, result=2",
+    "readback_rc": 0,
+    "findings": [],
+    "readback_v3_rc": 0,
+    "findings_v3": []
+   },
+   "max": {
+    "partb_rc": 1,
+    "missing": [
+     "B timer interrupts >= 8",
+     "B result: too few timer interrupts",
+     "no undelivered interrupt"
+    ],
+    "status": "partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=0, other_irqs=0, last_intid=0, result=2",
+    "readback_rc": 0,
+    "findings": [],
+    "readback_v3_rc": 0,
+    "findings_v3": []
+   }
+  },
+  "K4": {
+   "check": "K4",
+   "expect_pass": false,
+   "expect_missing": [
+    "B timer interrupts >= 8"
+   ],
+   "expect_readback": [
+    [
+     "CPU 0 PPIs",
+     "interrupt enable drift"
+    ]
+   ],
+   "expect_readback_v3": [
+    [
+     "CPU 0 PPIs",
+     "interrupt enable drift"
+    ]
+   ],
+   "build_rc": 0,
+   "cortex-a72": {
+    "partb_rc": 1,
+    "missing": [
+     "B timer interrupts >= 8",
+     "B result: too few timer interrupts"
+    ],
+    "status": "partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=0, other_irqs=0, last_intid=0, result=2",
+    "readback_rc": 1,
+    "findings": [
+     [
+      "CPU 0 PPIs",
+      "interrupt enable drift"
+     ]
+    ],
+    "readback_v3_rc": 1,
+    "findings_v3": [
+     [
+      "CPU 0 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   },
+   "max": {
+    "partb_rc": 1,
+    "missing": [
+     "B timer interrupts >= 8",
+     "B result: too few timer interrupts"
+    ],
+    "status": "partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=0, other_irqs=0, last_intid=0, result=2",
+    "readback_rc": 1,
+    "findings": [
+     [
+      "CPU 0 PPIs",
+      "interrupt enable drift"
+     ]
+    ],
+    "readback_v3_rc": 1,
+    "findings_v3": [
+     [
+      "CPU 0 PPIs",
+      "interrupt enable drift"
+     ]
+    ]
+   }
+  }
+ }
+}

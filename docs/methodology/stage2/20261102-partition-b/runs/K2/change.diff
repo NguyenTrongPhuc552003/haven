@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 14:45:21
++++ /tmp/partb-K2-e5rllrm9/src/core/partition.c	2026-11-02 14:46:47
+@@ -334,8 +334,6 @@
+ 	 * values: in QEMU HCR_EL2.RW = 0 made the ERET below an illegal
+ 	 * exception return, and CPU 2 looped on undefined-instruction
+ 	 * exceptions at VBAR_EL2 = 0 without ever running partition B. */
+-	hv_arch_cpu_init();
+-	hv_arch_phys_irq_cpu_init();
+ 
+ 	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
+ 	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);

@@ -77,6 +77,17 @@ These define obligations and interfaces; the archive logs establish observations
 
 ### B2 - Secondary guest entry omits per-CPU initialization
 
+- **Status (2026-11-02):** resolved for QEMU in haven `9102099` (owner
+  approval "finish partition B"). Observed before the fix with `-d int`:
+  illegal exception return at EL2 (HCR_EL2.RW = 0), then an endless
+  undefined-instruction loop on CPU 2 at VBAR_EL2 = 0; B never ran. After
+  the fix CPU 2 runs `hv_arch_cpu_init()` and `hv_arch_phys_irq_cpu_init()`
+  before stage-2 activation; partition B's denial is logged from CPU 2 and B
+  takes its own timer interrupt. Control K2 (setup removed) fails as
+  expected. Record: `docs/methodology/stage2/20261102-partition-b/`. Still
+  open from the regression list below: a ready acknowledgment (B3) and a
+  complete virtual-state reset (I1).
+
 - **Expected contract / source:** `hv_arch_cpu_init` explicitly requires one
   invocation per CPU before guest activity. Architecturally, register state is
   per PE; firmware startup state does not replace HAVEN's chosen guest state.
@@ -225,6 +236,14 @@ These define obligations and interfaces; the archive logs establish observations
 ## 3. Per-CPU PPI configuration and CNTHP
 
 ### T1 - The private-interrupt API cannot identify CPU2
+
+- **Status (2026-11-02):** resolved in haven `9102099`.
+  `gic_v3_enable_ppi(cpu, irq)` and `gic_v3_disable_ppi(cpu, irq)` target
+  one redistributor (disable waits for its RWP); `gic_v3_enable_irq` and
+  `gic_v3_disable_irq` take SPIs only. Ownership keys a PPI by (INTID,
+  CPU). Partition B's PPI 27 is enabled on CPU 2 only (read-back: CPU 2
+  PPIs [27]); control K4 (granted on CPU 0) is reported by read-back as
+  enable drift on CPU 0.
 
 - **Expected contract / source:** T and GIC per-PE redistributors. A private
   IRQ operation needs a specified PE; enable and disable must target that PE.
@@ -627,3 +646,15 @@ Both fixed on 2026-11-02 after owner approval
 - **Smallest correction (proposal):** treat a zero root as a probe result
   ("HAVEN halted before stage-2 setup", exit 2) and make the runner require
   a report file before counting findings.
+
+### RB2 - Read-back does not flag a granted PPI that is disabled
+
+- **Status:** observed in QEMU (partition B control K3, 2026-11-02). Tool
+  gap, not a HAVEN defect; for a future read-back version.
+- **Observed / evidence:** with PPI 27 on CPU 2 given to partition A in
+  HAVEN's table, HAVEN disables it after refusing delivery; read-back
+  against the grant (PPI 27 on CPU 2 for B) reports no finding.
+  `compare_gic` checks SPIs both ways (granted but disabled, enabled
+  without grant) but PPIs only one way.
+- **Smallest correction (proposal):** report "missing interrupt binding"
+  for each granted PPI not enabled on its CPU, as for SPIs.

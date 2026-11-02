@@ -1,0 +1,3448 @@
+[
+ {
+  "QMP": {
+   "version": {
+    "qemu": {
+     "micro": 3,
+     "minor": 1,
+     "major": 11
+    },
+    "package": ""
+   },
+   "capabilities": [
+    "oob"
+   ]
+  }
+ },
+ {
+  "cmd": {
+   "execute": "qmp_capabilities"
+  },
+  "reply": {
+   "return": {}
+  }
+ },
+ {
+  "cmd": {
+   "execute": "stop"
+  },
+  "reply": {
+   "return": {}
+  }
+ },
+ {
+  "cmd": {
+   "execute": "pmemsave",
+   "arguments": {
+    "val": 2147483648,
+    "size": 8388608,
+    "filename": "/Users/trongphucnguyen/Documents/workspace/haven/docs/methodology/stage2/20261102-partition-b/runs/K2/readback-v3-cortex-a72/haven-image.bin"
+   }
+  },
+  "reply": {
+   "return": {}
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050020"
+   }
+  },
+  "reply": {
+   "return": "09050020: 0x0000000d\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050024"
+   }
+  },
+  "reply": {
+   "return": "09050024: 0x0000000d\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050044"
+   }
+  },
+  "reply": {
+   "return": "09050044: 0x00001000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x9050080"
+   }
+  },
+  "reply": {
+   "return": "09050080: 0x4000000080418000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050088"
+   }
+  },
+  "reply": {
+   "return": "09050088: 0x00000008\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050000"
+   }
+  },
+  "reply": {
+   "return": "09050000: 0x0d44101b\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050060"
+   }
+  },
+  "reply": {
+   "return": "09050060: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x9050090"
+   }
+  },
+  "reply": {
+   "return": "09050090: 0x400000008041c008\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x9050098"
+   }
+  },
+  "reply": {
+   "return": "09050098: 0x00000006\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x905009c"
+   }
+  },
+  "reply": {
+   "return": "0905009c: 0x00000006\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x90500a0"
+   }
+  },
+  "reply": {
+   "return": "090500a0: 0x400000008041d006\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x90600a8"
+   }
+  },
+  "reply": {
+   "return": "090600a8: 0x00000011\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x90600ac"
+   }
+  },
+  "reply": {
+   "return": "090600ac: 0x00000011\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "pmemsave",
+   "arguments": {
+    "val": 2151776256,
+    "size": 16384,
+    "filename": "/Users/trongphucnguyen/Documents/workspace/haven/docs/methodology/stage2/20261102-partition-b/runs/K2/readback-v3-cortex-a72/stream-table.bin"
+   }
+  },
+  "reply": {
+   "return": {}
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000000"
+   }
+  },
+  "reply": {
+   "return": "08000000: 0x00000053\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000004"
+   }
+  },
+  "reply": {
+   "return": "08000004: 0x037a0008\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000080"
+   }
+  },
+  "reply": {
+   "return": "08000080: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000084"
+   }
+  },
+  "reply": {
+   "return": "08000084: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000088"
+   }
+  },
+  "reply": {
+   "return": "08000088: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x800008c"
+   }
+  },
+  "reply": {
+   "return": "0800008c: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000090"
+   }
+  },
+  "reply": {
+   "return": "08000090: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000094"
+   }
+  },
+  "reply": {
+   "return": "08000094: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000098"
+   }
+  },
+  "reply": {
+   "return": "08000098: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x800009c"
+   }
+  },
+  "reply": {
+   "return": "0800009c: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80000a0"
+   }
+  },
+  "reply": {
+   "return": "080000a0: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000100"
+   }
+  },
+  "reply": {
+   "return": "08000100: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000104"
+   }
+  },
+  "reply": {
+   "return": "08000104: 0x00000002\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000108"
+   }
+  },
+  "reply": {
+   "return": "08000108: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x800010c"
+   }
+  },
+  "reply": {
+   "return": "0800010c: 0x00000400\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000110"
+   }
+  },
+  "reply": {
+   "return": "08000110: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000114"
+   }
+  },
+  "reply": {
+   "return": "08000114: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000118"
+   }
+  },
+  "reply": {
+   "return": "08000118: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x800011c"
+   }
+  },
+  "reply": {
+   "return": "0800011c: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8000120"
+   }
+  },
+  "reply": {
+   "return": "08000120: 0x00000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006100"
+   }
+  },
+  "reply": {
+   "return": "08006100: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006108"
+   }
+  },
+  "reply": {
+   "return": "08006108: 0x0000000000000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006110"
+   }
+  },
+  "reply": {
+   "return": "08006110: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006118"
+   }
+  },
+  "reply": {
+   "return": "08006118: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006120"
+   }
+  },
+  "reply": {
+   "return": "08006120: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006128"
+   }
+  },
+  "reply": {
+   "return": "08006128: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006130"
+   }
+  },
+  "reply": {
+   "return": "08006130: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006138"
+   }
+  },
+  "reply": {
+   "return": "08006138: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006140"
+   }
+  },
+  "reply": {
+   "return": "08006140: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006148"
+   }
+  },
+  "reply": {
+   "return": "08006148: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006150"
+   }
+  },
+  "reply": {
+   "return": "08006150: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006158"
+   }
+  },
+  "reply": {
+   "return": "08006158: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006160"
+   }
+  },
+  "reply": {
+   "return": "08006160: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006168"
+   }
+  },
+  "reply": {
+   "return": "08006168: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006170"
+   }
+  },
+  "reply": {
+   "return": "08006170: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006178"
+   }
+  },
+  "reply": {
+   "return": "08006178: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006180"
+   }
+  },
+  "reply": {
+   "return": "08006180: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006188"
+   }
+  },
+  "reply": {
+   "return": "08006188: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006190"
+   }
+  },
+  "reply": {
+   "return": "08006190: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006198"
+   }
+  },
+  "reply": {
+   "return": "08006198: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061a0"
+   }
+  },
+  "reply": {
+   "return": "080061a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061a8"
+   }
+  },
+  "reply": {
+   "return": "080061a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061b0"
+   }
+  },
+  "reply": {
+   "return": "080061b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061b8"
+   }
+  },
+  "reply": {
+   "return": "080061b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061c0"
+   }
+  },
+  "reply": {
+   "return": "080061c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061c8"
+   }
+  },
+  "reply": {
+   "return": "080061c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061d0"
+   }
+  },
+  "reply": {
+   "return": "080061d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061d8"
+   }
+  },
+  "reply": {
+   "return": "080061d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061e0"
+   }
+  },
+  "reply": {
+   "return": "080061e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061e8"
+   }
+  },
+  "reply": {
+   "return": "080061e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061f0"
+   }
+  },
+  "reply": {
+   "return": "080061f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80061f8"
+   }
+  },
+  "reply": {
+   "return": "080061f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006200"
+   }
+  },
+  "reply": {
+   "return": "08006200: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006208"
+   }
+  },
+  "reply": {
+   "return": "08006208: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006210"
+   }
+  },
+  "reply": {
+   "return": "08006210: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006218"
+   }
+  },
+  "reply": {
+   "return": "08006218: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006220"
+   }
+  },
+  "reply": {
+   "return": "08006220: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006228"
+   }
+  },
+  "reply": {
+   "return": "08006228: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006230"
+   }
+  },
+  "reply": {
+   "return": "08006230: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006238"
+   }
+  },
+  "reply": {
+   "return": "08006238: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006240"
+   }
+  },
+  "reply": {
+   "return": "08006240: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006248"
+   }
+  },
+  "reply": {
+   "return": "08006248: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006250"
+   }
+  },
+  "reply": {
+   "return": "08006250: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006258"
+   }
+  },
+  "reply": {
+   "return": "08006258: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006260"
+   }
+  },
+  "reply": {
+   "return": "08006260: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006268"
+   }
+  },
+  "reply": {
+   "return": "08006268: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006270"
+   }
+  },
+  "reply": {
+   "return": "08006270: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006278"
+   }
+  },
+  "reply": {
+   "return": "08006278: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006280"
+   }
+  },
+  "reply": {
+   "return": "08006280: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006288"
+   }
+  },
+  "reply": {
+   "return": "08006288: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006290"
+   }
+  },
+  "reply": {
+   "return": "08006290: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006298"
+   }
+  },
+  "reply": {
+   "return": "08006298: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062a0"
+   }
+  },
+  "reply": {
+   "return": "080062a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062a8"
+   }
+  },
+  "reply": {
+   "return": "080062a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062b0"
+   }
+  },
+  "reply": {
+   "return": "080062b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062b8"
+   }
+  },
+  "reply": {
+   "return": "080062b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062c0"
+   }
+  },
+  "reply": {
+   "return": "080062c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062c8"
+   }
+  },
+  "reply": {
+   "return": "080062c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062d0"
+   }
+  },
+  "reply": {
+   "return": "080062d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062d8"
+   }
+  },
+  "reply": {
+   "return": "080062d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062e0"
+   }
+  },
+  "reply": {
+   "return": "080062e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062e8"
+   }
+  },
+  "reply": {
+   "return": "080062e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062f0"
+   }
+  },
+  "reply": {
+   "return": "080062f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80062f8"
+   }
+  },
+  "reply": {
+   "return": "080062f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006300"
+   }
+  },
+  "reply": {
+   "return": "08006300: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006308"
+   }
+  },
+  "reply": {
+   "return": "08006308: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006310"
+   }
+  },
+  "reply": {
+   "return": "08006310: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006318"
+   }
+  },
+  "reply": {
+   "return": "08006318: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006320"
+   }
+  },
+  "reply": {
+   "return": "08006320: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006328"
+   }
+  },
+  "reply": {
+   "return": "08006328: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006330"
+   }
+  },
+  "reply": {
+   "return": "08006330: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006338"
+   }
+  },
+  "reply": {
+   "return": "08006338: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006340"
+   }
+  },
+  "reply": {
+   "return": "08006340: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006348"
+   }
+  },
+  "reply": {
+   "return": "08006348: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006350"
+   }
+  },
+  "reply": {
+   "return": "08006350: 0x0000000000000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006358"
+   }
+  },
+  "reply": {
+   "return": "08006358: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006360"
+   }
+  },
+  "reply": {
+   "return": "08006360: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006368"
+   }
+  },
+  "reply": {
+   "return": "08006368: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006370"
+   }
+  },
+  "reply": {
+   "return": "08006370: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006378"
+   }
+  },
+  "reply": {
+   "return": "08006378: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006380"
+   }
+  },
+  "reply": {
+   "return": "08006380: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006388"
+   }
+  },
+  "reply": {
+   "return": "08006388: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006390"
+   }
+  },
+  "reply": {
+   "return": "08006390: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006398"
+   }
+  },
+  "reply": {
+   "return": "08006398: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063a0"
+   }
+  },
+  "reply": {
+   "return": "080063a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063a8"
+   }
+  },
+  "reply": {
+   "return": "080063a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063b0"
+   }
+  },
+  "reply": {
+   "return": "080063b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063b8"
+   }
+  },
+  "reply": {
+   "return": "080063b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063c0"
+   }
+  },
+  "reply": {
+   "return": "080063c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063c8"
+   }
+  },
+  "reply": {
+   "return": "080063c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063d0"
+   }
+  },
+  "reply": {
+   "return": "080063d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063d8"
+   }
+  },
+  "reply": {
+   "return": "080063d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063e0"
+   }
+  },
+  "reply": {
+   "return": "080063e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063e8"
+   }
+  },
+  "reply": {
+   "return": "080063e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063f0"
+   }
+  },
+  "reply": {
+   "return": "080063f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80063f8"
+   }
+  },
+  "reply": {
+   "return": "080063f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006400"
+   }
+  },
+  "reply": {
+   "return": "08006400: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006408"
+   }
+  },
+  "reply": {
+   "return": "08006408: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006410"
+   }
+  },
+  "reply": {
+   "return": "08006410: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006418"
+   }
+  },
+  "reply": {
+   "return": "08006418: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006420"
+   }
+  },
+  "reply": {
+   "return": "08006420: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006428"
+   }
+  },
+  "reply": {
+   "return": "08006428: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006430"
+   }
+  },
+  "reply": {
+   "return": "08006430: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006438"
+   }
+  },
+  "reply": {
+   "return": "08006438: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006440"
+   }
+  },
+  "reply": {
+   "return": "08006440: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006448"
+   }
+  },
+  "reply": {
+   "return": "08006448: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006450"
+   }
+  },
+  "reply": {
+   "return": "08006450: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006458"
+   }
+  },
+  "reply": {
+   "return": "08006458: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006460"
+   }
+  },
+  "reply": {
+   "return": "08006460: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006468"
+   }
+  },
+  "reply": {
+   "return": "08006468: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006470"
+   }
+  },
+  "reply": {
+   "return": "08006470: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006478"
+   }
+  },
+  "reply": {
+   "return": "08006478: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006480"
+   }
+  },
+  "reply": {
+   "return": "08006480: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006488"
+   }
+  },
+  "reply": {
+   "return": "08006488: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006490"
+   }
+  },
+  "reply": {
+   "return": "08006490: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006498"
+   }
+  },
+  "reply": {
+   "return": "08006498: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064a0"
+   }
+  },
+  "reply": {
+   "return": "080064a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064a8"
+   }
+  },
+  "reply": {
+   "return": "080064a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064b0"
+   }
+  },
+  "reply": {
+   "return": "080064b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064b8"
+   }
+  },
+  "reply": {
+   "return": "080064b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064c0"
+   }
+  },
+  "reply": {
+   "return": "080064c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064c8"
+   }
+  },
+  "reply": {
+   "return": "080064c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064d0"
+   }
+  },
+  "reply": {
+   "return": "080064d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064d8"
+   }
+  },
+  "reply": {
+   "return": "080064d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064e0"
+   }
+  },
+  "reply": {
+   "return": "080064e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064e8"
+   }
+  },
+  "reply": {
+   "return": "080064e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064f0"
+   }
+  },
+  "reply": {
+   "return": "080064f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80064f8"
+   }
+  },
+  "reply": {
+   "return": "080064f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006500"
+   }
+  },
+  "reply": {
+   "return": "08006500: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006508"
+   }
+  },
+  "reply": {
+   "return": "08006508: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006510"
+   }
+  },
+  "reply": {
+   "return": "08006510: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006518"
+   }
+  },
+  "reply": {
+   "return": "08006518: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006520"
+   }
+  },
+  "reply": {
+   "return": "08006520: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006528"
+   }
+  },
+  "reply": {
+   "return": "08006528: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006530"
+   }
+  },
+  "reply": {
+   "return": "08006530: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006538"
+   }
+  },
+  "reply": {
+   "return": "08006538: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006540"
+   }
+  },
+  "reply": {
+   "return": "08006540: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006548"
+   }
+  },
+  "reply": {
+   "return": "08006548: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006550"
+   }
+  },
+  "reply": {
+   "return": "08006550: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006558"
+   }
+  },
+  "reply": {
+   "return": "08006558: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006560"
+   }
+  },
+  "reply": {
+   "return": "08006560: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006568"
+   }
+  },
+  "reply": {
+   "return": "08006568: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006570"
+   }
+  },
+  "reply": {
+   "return": "08006570: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006578"
+   }
+  },
+  "reply": {
+   "return": "08006578: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006580"
+   }
+  },
+  "reply": {
+   "return": "08006580: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006588"
+   }
+  },
+  "reply": {
+   "return": "08006588: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006590"
+   }
+  },
+  "reply": {
+   "return": "08006590: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006598"
+   }
+  },
+  "reply": {
+   "return": "08006598: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065a0"
+   }
+  },
+  "reply": {
+   "return": "080065a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065a8"
+   }
+  },
+  "reply": {
+   "return": "080065a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065b0"
+   }
+  },
+  "reply": {
+   "return": "080065b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065b8"
+   }
+  },
+  "reply": {
+   "return": "080065b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065c0"
+   }
+  },
+  "reply": {
+   "return": "080065c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065c8"
+   }
+  },
+  "reply": {
+   "return": "080065c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065d0"
+   }
+  },
+  "reply": {
+   "return": "080065d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065d8"
+   }
+  },
+  "reply": {
+   "return": "080065d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065e0"
+   }
+  },
+  "reply": {
+   "return": "080065e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065e8"
+   }
+  },
+  "reply": {
+   "return": "080065e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065f0"
+   }
+  },
+  "reply": {
+   "return": "080065f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80065f8"
+   }
+  },
+  "reply": {
+   "return": "080065f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006600"
+   }
+  },
+  "reply": {
+   "return": "08006600: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006608"
+   }
+  },
+  "reply": {
+   "return": "08006608: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006610"
+   }
+  },
+  "reply": {
+   "return": "08006610: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006618"
+   }
+  },
+  "reply": {
+   "return": "08006618: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006620"
+   }
+  },
+  "reply": {
+   "return": "08006620: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006628"
+   }
+  },
+  "reply": {
+   "return": "08006628: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006630"
+   }
+  },
+  "reply": {
+   "return": "08006630: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006638"
+   }
+  },
+  "reply": {
+   "return": "08006638: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006640"
+   }
+  },
+  "reply": {
+   "return": "08006640: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006648"
+   }
+  },
+  "reply": {
+   "return": "08006648: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006650"
+   }
+  },
+  "reply": {
+   "return": "08006650: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006658"
+   }
+  },
+  "reply": {
+   "return": "08006658: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006660"
+   }
+  },
+  "reply": {
+   "return": "08006660: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006668"
+   }
+  },
+  "reply": {
+   "return": "08006668: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006670"
+   }
+  },
+  "reply": {
+   "return": "08006670: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006678"
+   }
+  },
+  "reply": {
+   "return": "08006678: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006680"
+   }
+  },
+  "reply": {
+   "return": "08006680: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006688"
+   }
+  },
+  "reply": {
+   "return": "08006688: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006690"
+   }
+  },
+  "reply": {
+   "return": "08006690: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006698"
+   }
+  },
+  "reply": {
+   "return": "08006698: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066a0"
+   }
+  },
+  "reply": {
+   "return": "080066a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066a8"
+   }
+  },
+  "reply": {
+   "return": "080066a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066b0"
+   }
+  },
+  "reply": {
+   "return": "080066b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066b8"
+   }
+  },
+  "reply": {
+   "return": "080066b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066c0"
+   }
+  },
+  "reply": {
+   "return": "080066c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066c8"
+   }
+  },
+  "reply": {
+   "return": "080066c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066d0"
+   }
+  },
+  "reply": {
+   "return": "080066d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066d8"
+   }
+  },
+  "reply": {
+   "return": "080066d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066e0"
+   }
+  },
+  "reply": {
+   "return": "080066e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066e8"
+   }
+  },
+  "reply": {
+   "return": "080066e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066f0"
+   }
+  },
+  "reply": {
+   "return": "080066f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80066f8"
+   }
+  },
+  "reply": {
+   "return": "080066f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006700"
+   }
+  },
+  "reply": {
+   "return": "08006700: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006708"
+   }
+  },
+  "reply": {
+   "return": "08006708: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006710"
+   }
+  },
+  "reply": {
+   "return": "08006710: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006718"
+   }
+  },
+  "reply": {
+   "return": "08006718: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006720"
+   }
+  },
+  "reply": {
+   "return": "08006720: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006728"
+   }
+  },
+  "reply": {
+   "return": "08006728: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006730"
+   }
+  },
+  "reply": {
+   "return": "08006730: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006738"
+   }
+  },
+  "reply": {
+   "return": "08006738: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006740"
+   }
+  },
+  "reply": {
+   "return": "08006740: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006748"
+   }
+  },
+  "reply": {
+   "return": "08006748: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006750"
+   }
+  },
+  "reply": {
+   "return": "08006750: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006758"
+   }
+  },
+  "reply": {
+   "return": "08006758: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006760"
+   }
+  },
+  "reply": {
+   "return": "08006760: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006768"
+   }
+  },
+  "reply": {
+   "return": "08006768: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006770"
+   }
+  },
+  "reply": {
+   "return": "08006770: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006778"
+   }
+  },
+  "reply": {
+   "return": "08006778: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006780"
+   }
+  },
+  "reply": {
+   "return": "08006780: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006788"
+   }
+  },
+  "reply": {
+   "return": "08006788: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006790"
+   }
+  },
+  "reply": {
+   "return": "08006790: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006798"
+   }
+  },
+  "reply": {
+   "return": "08006798: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067a0"
+   }
+  },
+  "reply": {
+   "return": "080067a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067a8"
+   }
+  },
+  "reply": {
+   "return": "080067a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067b0"
+   }
+  },
+  "reply": {
+   "return": "080067b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067b8"
+   }
+  },
+  "reply": {
+   "return": "080067b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067c0"
+   }
+  },
+  "reply": {
+   "return": "080067c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067c8"
+   }
+  },
+  "reply": {
+   "return": "080067c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067d0"
+   }
+  },
+  "reply": {
+   "return": "080067d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067d8"
+   }
+  },
+  "reply": {
+   "return": "080067d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067e0"
+   }
+  },
+  "reply": {
+   "return": "080067e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067e8"
+   }
+  },
+  "reply": {
+   "return": "080067e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067f0"
+   }
+  },
+  "reply": {
+   "return": "080067f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80067f8"
+   }
+  },
+  "reply": {
+   "return": "080067f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006800"
+   }
+  },
+  "reply": {
+   "return": "08006800: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006808"
+   }
+  },
+  "reply": {
+   "return": "08006808: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006810"
+   }
+  },
+  "reply": {
+   "return": "08006810: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006818"
+   }
+  },
+  "reply": {
+   "return": "08006818: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006820"
+   }
+  },
+  "reply": {
+   "return": "08006820: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006828"
+   }
+  },
+  "reply": {
+   "return": "08006828: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006830"
+   }
+  },
+  "reply": {
+   "return": "08006830: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006838"
+   }
+  },
+  "reply": {
+   "return": "08006838: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006840"
+   }
+  },
+  "reply": {
+   "return": "08006840: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006848"
+   }
+  },
+  "reply": {
+   "return": "08006848: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006850"
+   }
+  },
+  "reply": {
+   "return": "08006850: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006858"
+   }
+  },
+  "reply": {
+   "return": "08006858: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006860"
+   }
+  },
+  "reply": {
+   "return": "08006860: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006868"
+   }
+  },
+  "reply": {
+   "return": "08006868: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006870"
+   }
+  },
+  "reply": {
+   "return": "08006870: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006878"
+   }
+  },
+  "reply": {
+   "return": "08006878: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006880"
+   }
+  },
+  "reply": {
+   "return": "08006880: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006888"
+   }
+  },
+  "reply": {
+   "return": "08006888: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006890"
+   }
+  },
+  "reply": {
+   "return": "08006890: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8006898"
+   }
+  },
+  "reply": {
+   "return": "08006898: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068a0"
+   }
+  },
+  "reply": {
+   "return": "080068a0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068a8"
+   }
+  },
+  "reply": {
+   "return": "080068a8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068b0"
+   }
+  },
+  "reply": {
+   "return": "080068b0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068b8"
+   }
+  },
+  "reply": {
+   "return": "080068b8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068c0"
+   }
+  },
+  "reply": {
+   "return": "080068c0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068c8"
+   }
+  },
+  "reply": {
+   "return": "080068c8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068d0"
+   }
+  },
+  "reply": {
+   "return": "080068d0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068d8"
+   }
+  },
+  "reply": {
+   "return": "080068d8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068e0"
+   }
+  },
+  "reply": {
+   "return": "080068e0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068e8"
+   }
+  },
+  "reply": {
+   "return": "080068e8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068f0"
+   }
+  },
+  "reply": {
+   "return": "080068f0: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80068f8"
+   }
+  },
+  "reply": {
+   "return": "080068f8: 0x0000000080000000\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80a0008"
+   }
+  },
+  "reply": {
+   "return": "080a0008: 0x0000000001000001\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80b0080"
+   }
+  },
+  "reply": {
+   "return": "080b0080: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80b0100"
+   }
+  },
+  "reply": {
+   "return": "080b0100: 0x0000ffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80c0008"
+   }
+  },
+  "reply": {
+   "return": "080c0008: 0x0000000101000101\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80d0080"
+   }
+  },
+  "reply": {
+   "return": "080d0080: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80d0100"
+   }
+  },
+  "reply": {
+   "return": "080d0100: 0x0000ffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x80e0008"
+   }
+  },
+  "reply": {
+   "return": "080e0008: 0x0000000201000201\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80f0080"
+   }
+  },
+  "reply": {
+   "return": "080f0080: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x80f0100"
+   }
+  },
+  "reply": {
+   "return": "080f0100: 0x0800ffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1gx 0x8100008"
+   }
+  },
+  "reply": {
+   "return": "08100008: 0x0000000301000311\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8110080"
+   }
+  },
+  "reply": {
+   "return": "08110080: 0xffffffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "xp /1wx 0x8110100"
+   }
+  },
+  "reply": {
+   "return": "08110100: 0x0000ffff\r\n"
+  }
+ },
+ {
+  "cmd": {
+   "execute": "query-pci"
+  },
+  "reply": {
+   "return": [
+    {
+     "bus": 0,
+     "devices": [
+      {
+       "irq_pin": 0,
+       "bus": 0,
+       "qdev_id": "",
+       "slot": 0,
+       "class_info": {
+        "class": 1536,
+        "desc": "Host bridge"
+       },
+       "id": {
+        "device": 8,
+        "subsystem-vendor": 6900,
+        "vendor": 6966,
+        "subsystem": 4352
+       },
+       "function": 0,
+       "regions": []
+      },
+      {
+       "irq_pin": 1,
+       "bus": 0,
+       "qdev_id": "",
+       "irq": 0,
+       "slot": 1,
+       "class_info": {
+        "class": 255
+       },
+       "id": {
+        "device": 4164,
+        "subsystem-vendor": 6900,
+        "vendor": 6900,
+        "subsystem": 4352
+       },
+       "function": 0,
+       "regions": [
+        {
+         "prefetch": false,
+         "mem_type_64": false,
+         "bar": 1,
+         "size": 4096,
+         "address": 0,
+         "type": "memory"
+        },
+        {
+         "prefetch": true,
+         "mem_type_64": true,
+         "bar": 4,
+         "size": 16384,
+         "address": 268435456,
+         "type": "memory"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "cmd": {
+   "execute": "human-monitor-command",
+   "arguments": {
+    "command-line": "info qtree"
+   }
+  },
+  "reply": {
+   "return": "bus: main-system-bus\r\n  type System\r\n  dev: platform-bus-device, id \"platform-bus-device\"\r\n    gpio-out \"sysbus-irq\" 64\r\n    num_irqs = 64 (0x40)\r\n    mmio_size = 33554432 (0x2000000)\r\n    mmio ffffffffffffffff/0000000002000000\r\n  dev: fw_cfg_mem, id \"\"\r\n    data_width = 8 (0x8)\r\n    dma_enabled = true\r\n    x-file-slots = 32 (0x20)\r\n    acpi-mr-restore = true\r\n    mmio 0000000009020008/0000000000000002\r\n    mmio 0000000009020000/0000000000000008\r\n    mmio 0000000009020010/0000000000000008\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003e00/0000000000000200\r\n    bus: virtio-mmio-bus.31\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003c00/0000000000000200\r\n    bus: virtio-mmio-bus.30\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003a00/0000000000000200\r\n    bus: virtio-mmio-bus.29\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003800/0000000000000200\r\n    bus: virtio-mmio-bus.28\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003600/0000000000000200\r\n    bus: virtio-mmio-bus.27\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003400/0000000000000200\r\n    bus: virtio-mmio-bus.26\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003200/0000000000000200\r\n    bus: virtio-mmio-bus.25\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a003000/0000000000000200\r\n    bus: virtio-mmio-bus.24\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002e00/0000000000000200\r\n    bus: virtio-mmio-bus.23\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002c00/0000000000000200\r\n    bus: virtio-mmio-bus.22\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002a00/0000000000000200\r\n    bus: virtio-mmio-bus.21\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002800/0000000000000200\r\n    bus: virtio-mmio-bus.20\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002600/0000000000000200\r\n    bus: virtio-mmio-bus.19\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002400/0000000000000200\r\n    bus: virtio-mmio-bus.18\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002200/0000000000000200\r\n    bus: virtio-mmio-bus.17\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a002000/0000000000000200\r\n    bus: virtio-mmio-bus.16\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001e00/0000000000000200\r\n    bus: virtio-mmio-bus.15\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001c00/0000000000000200\r\n    bus: virtio-mmio-bus.14\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001a00/0000000000000200\r\n    bus: virtio-mmio-bus.13\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001800/0000000000000200\r\n    bus: virtio-mmio-bus.12\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001600/0000000000000200\r\n    bus: virtio-mmio-bus.11\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001400/0000000000000200\r\n    bus: virtio-mmio-bus.10\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001200/0000000000000200\r\n    bus: virtio-mmio-bus.9\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a001000/0000000000000200\r\n    bus: virtio-mmio-bus.8\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000e00/0000000000000200\r\n    bus: virtio-mmio-bus.7\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000c00/0000000000000200\r\n    bus: virtio-mmio-bus.6\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000a00/0000000000000200\r\n    bus: virtio-mmio-bus.5\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000800/0000000000000200\r\n    bus: virtio-mmio-bus.4\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000600/0000000000000200\r\n    bus: virtio-mmio-bus.3\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000400/0000000000000200\r\n    bus: virtio-mmio-bus.2\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000200/0000000000000200\r\n    bus: virtio-mmio-bus.1\r\n      type virtio-mmio-bus\r\n  dev: virtio-mmio, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    force-legacy = true\r\n    ioeventfd = true\r\n    x-override-queue-size = 0 (0x0)\r\n    mmio 000000000a000000/0000000000000200\r\n    bus: virtio-mmio-bus.0\r\n      type virtio-mmio-bus\r\n  dev: gpio-key, id \"\"\r\n    gpio-in \"\" 1\r\n    gpio-out \"sysbus-irq\" 1\r\n  dev: pl061, id \"\"\r\n    gpio-in \"\" 8\r\n    gpio-out \"\" 8\r\n    gpio-out \"sysbus-irq\" 1\r\n    pullups = 0 (0x0)\r\n    pulldowns = 255 (0xff)\r\n    mmio ffffffffffffffff/0000000000001000\r\n  dev: arm-smmuv3, id \"\"\r\n    gpio-out \"sysbus-irq\" 4\r\n    stage = \"nested\"\r\n    identifier = 0 (0x0)\r\n    accel = false\r\n    msi-gpa = 0 (0x0)\r\n    ril = \"auto\"\r\n    ats = \"auto\"\r\n    oas = \"auto\"\r\n    ssidsize = \"auto\"\r\n    cmdqv = \"auto\"\r\n    bus_num = 0 (0x0)\r\n    smmu_per_bus = false\r\n    primary-bus = \"/machine/unattached/device[8]/pcie.0\"\r\n    memory = \"/machine/unattached/system[0]\"\r\n    secure-memory = \"\"\r\n    mmio 0000000009050000/0000000000020000\r\n  dev: gpex-pcihost, id \"\"\r\n    gpio-out \"sysbus-irq\" 4\r\n    allow-unmapped-accesses = true\r\n    x-ecam-base = 0 (0x0)\r\n    x-ecam-size = 0 (0 B)\r\n    x-pio-base = 0 (0x0)\r\n    x-pio-size = 0 (0 B)\r\n    x-below-4g-mmio-base = 0 (0x0)\r\n    x-below-4g-mmio-size = 0 (0 B)\r\n    x-above-4g-mmio-base = 0 (0x0)\r\n    x-above-4g-mmio-size = 0 (0 B)\r\n    num-irqs = 4 (0x4)\r\n    x-config-reg-migration-enabled = true\r\n    bypass-iommu = false\r\n    mmio ffffffffffffffff/0000000010000000\r\n    mmio ffffffffffffffff/ffffffffffffffff\r\n    mmio 000000003eff0000/0000000000010000\r\n    bus: pcie.0\r\n      type PCIE\r\n      dev: virtio-rng-pci, id \"\"\r\n        disable-legacy = \"on\"\r\n        disable-modern = false\r\n        ioeventfd = true\r\n        vectors = 2 (0x2)\r\n        virtio-pci-bus-master-bug-migration = false\r\n        modern-pio-notify = false\r\n        page-per-vq = false\r\n        ats = false\r\n        x-ats-page-aligned = true\r\n        x-pcie-pm-no-soft-reset = false\r\n        x-pcie-flr-init = true\r\n        aer = false\r\n        addr = 01.0\r\n        romfile = \"\"\r\n        romsize = 4294967295 (0xffffffff)\r\n        rombar = -1 (0xffffffffffffffff)\r\n        multifunction = false\r\n        x-pcie-lnksta-dllla = true\r\n        failover_pair_id = \"\"\r\n        acpi-index = 0 (0x0)\r\n        x-pcie-err-unc-mask = true\r\n        x-pcie-ari-nextfn-1 = false\r\n        x-max-bounce-buffer-size = 4096 (4 KiB)\r\n        sriov-pf = \"\"\r\n        x-pcie-ext-tag = true\r\n        busnr = 0 (0x0)\r\n        class Class 00ff, addr 00:01.0, pci id 1af4:1044 (sub 1af4:1100)\r\n        bar 1: mem at 0x0 [0xfff]\r\n        bar 4: mem at 0x10000000 [0x10003fff]\r\n        bus: virtio-bus\r\n          type virtio-pci-bus\r\n          dev: virtio-rng-device, id \"\"\r\n            max-bytes = 9223372036854775807 (0x7fffffffffffffff)\r\n            period = 65536 (0x10000)\r\n            rng = \"/machine/peripheral-anon/device[0]/virtio-backend/default-backend\"\r\n            indirect_desc = true\r\n            event_idx = true\r\n            notify_on_empty = true\r\n            any_layout = true\r\n            iommu_platform = true\r\n            packed = false\r\n            queue_reset = true\r\n            in_order = false\r\n            use-started = true\r\n            use-disabled-flag = true\r\n            x-disable-legacy-check = false\r\n      dev: gpex-root, id \"\"\r\n        addr = 00.0\r\n        romfile = \"\"\r\n        romsize = 4294967295 (0xffffffff)\r\n        rombar = -1 (0xffffffffffffffff)\r\n        multifunction = false\r\n        x-pcie-lnksta-dllla = true\r\n        failover_pair_id = \"\"\r\n        acpi-index = 0 (0x0)\r\n        x-pcie-err-unc-mask = true\r\n        x-pcie-ari-nextfn-1 = false\r\n        x-max-bounce-buffer-size = 4096 (4 KiB)\r\n        sriov-pf = \"\"\r\n        x-pcie-ext-tag = true\r\n        busnr = 0 (0x0)\r\n        class Host bridge, addr 00:00.0, pci id 1b36:0008 (sub 1af4:1100)\r\n  dev: pl031, id \"\"\r\n    gpio-out \"sysbus-irq\" 1\r\n    mmio 0000000009010000/0000000000001000\r\n  dev: pl011, id \"\"\r\n    gpio-out \"sysbus-irq\" 6\r\n    clock-in \"clk\" freq_hz=0 Hz\r\n    chardev = \"serial0\"\r\n    migrate-clk = true\r\n    mmio ffffffffffffffff/0000000000001000\r\n  dev: arm-gicv3-its, id \"\"\r\n    parent-gicv3 = \"/machine/unattached/device[4]\"\r\n    mmio 0000000008080000/0000000000020000\r\n  dev: arm-gicv3, id \"\"\r\n    gpio-out \"sysbus-irq\" 24\r\n    gpio-in \"\" 384\r\n    num-cpu = 4 (0x4)\r\n    num-irq = 288 (0x120)\r\n    revision = 3 (0x3)\r\n    has-lpi = true\r\n    has-nmi = false\r\n    has-security-extensions = false\r\n    maintenance-interrupt-id = 0 (0x0)\r\n    force-8-bit-prio = false\r\n    redist-region-count = 4 (0x4)\r\n    sysmem = \"/machine/unattached/system[0]\"\r\n    first-cpu-index = 0 (0x0)\r\n    mmio 0000000008000000/0000000000010000\r\n    mmio 00000000080a0000/0000000000080000\r\n  dev: cfi.pflash01, id \"\"\r\n    drive = \"\"\r\n    num-blocks = 256 (0x100)\r\n    sector-length = 262144 (0x40000)\r\n    width = 4 (0x4)\r\n    device-width = 2 (0x2)\r\n    max-device-width = 2 (0x2)\r\n    big-endian = false\r\n    secure = false\r\n    id0 = 137 (0x89)\r\n    id1 = 24 (0x18)\r\n    id2 = 0 (0x0)\r\n    id3 = 0 (0x0)\r\n    name = \"virt.flash1\"\r\n    mmio ffffffffffffffff/0000000004000000\r\n  dev: cfi.pflash01, id \"\"\r\n    drive = \"\"\r\n    num-blocks = 256 (0x100)\r\n    sector-length = 262144 (0x40000)\r\n    width = 4 (0x4)\r\n    device-width = 2 (0x2)\r\n    max-device-width = 2 (0x2)\r\n    big-endian = false\r\n    secure = false\r\n    id0 = 137 (0x89)\r\n    id1 = 24 (0x18)\r\n    id2 = 0 (0x0)\r\n    id3 = 0 (0x0)\r\n    name = \"virt.flash0\"\r\n    mmio ffffffffffffffff/0000000004000000\r\n"
+  }
+ }
+]

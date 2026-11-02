@@ -1,0 +1,11 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 14:45:21
++++ /tmp/partb-K4-a_p860wf/src/core/partition.c	2026-11-02 14:47:54
+@@ -274,7 +274,7 @@
+ static const struct hv_irq_route part_b_irqs[] = {
+ 	{.irq_id = PART_B_VTIMER_PPI,
+ 	 .owner_partition_id = PARTITION_B_ID,
+-	 .target_cpu = PART_B_CPU},
++	 .target_cpu = 0U},
+ };
+ 
+ /* -----------------------------------------------------------------------
