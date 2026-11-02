@@ -39,7 +39,6 @@ without growing Haven's trusted code?
 | CPU time budgets | Enforced per CPU with the EL2 timer (A 8 ms, B 2 ms per 10 ms); partitions measure their own duty cycle | `stage2/20261102-budgets/` |
 | Haven's own memory | EL2 stage-1 identity map: Haven's image cacheable, MMIO device, partition RAM unmapped; read back | `stage2/20261102-el2-memory/` |
 | Read-back v6 | Stage-2, SMMU, GIC (including Haven's own timer interrupt) and Haven's EL2 map compared with a grant; seeded-fault case sets and randomly drawn held-out faults | `tools/readback/`, `stage2/20261102-a1-cases-v3/`, `stage2/20261102-readback-v4/` |
-
 | Interference pipeline | Both demo guests cacheable; partition B measures timer latency, partition A runs CPU or memory load; checked in QEMU (numbers host-bound) | `stage2/20261102-interference/` |
 
 **Not done yet:** interference measurements (they need the board, see
