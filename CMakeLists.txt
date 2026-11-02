@@ -179,10 +179,15 @@ if(HAVEN_ARCH_ARM64)
         COMPILE_FLAGS
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
     )
-    add_executable(guest_a tests/demos/guest_a_entry.S)
+    add_executable(guest_a tests/demos/guest_a_entry.S tests/demos/guest_a_dma.c)
     target_include_directories(guest_a PRIVATE
         ${CMAKE_SOURCE_DIR}/arch/arm64/include
         ${CMAKE_SOURCE_DIR}/include
+    )
+    # Stage-1 MMU off at EL1: all accesses are Device memory, so no
+    # unaligned accesses may be generated.
+    set_source_files_properties(tests/demos/guest_a_dma.c PROPERTIES
+        COMPILE_OPTIONS "${HAVEN_ARM64_CFLAGS};-mstrict-align;-O2"
     )
     target_link_options(guest_a PRIVATE
         -T ${CMAKE_SOURCE_DIR}/linker-guest.ld

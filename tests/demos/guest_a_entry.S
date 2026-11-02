@@ -16,7 +16,9 @@
  *      a stage-2 fault which Haven catches, logs, skips, and returns here.
  *   4. Prints "PARTITION_A: Post-fault check OK\r\n" to confirm Haven handled
  *      the fault and resumed execution.
- *   5. Halts with WFI loop.
+ *   5. Runs the DMA test (guest_a_dma.c) with the entry argument Haven
+ *      passed in x0 (bit 0: the DMA grant is in force).
+ *   6. Halts with WFI loop.
  *
  * PL011 UART at IPA 0x09000000 (identity-mapped from partition.c).
  * PL011 data register is at offset 0x00; busy flag at UARTFR (offset 0x18)
@@ -35,6 +37,10 @@
         .type   _guest_start, %function
 
 _guest_start:
+        /* Keep Haven's entry argument (x0) */
+        adr     x1, _guest_arg
+        str     x0, [x1]
+
         /* Set up a local stack in case the linker SP_EL1 is 0 */
         adr     x0, _guest_stack_top
         mov     sp, x0
@@ -51,6 +57,11 @@ _guest_start:
         /* If Haven advanced ELR_EL2 by 4 we resume here */
         adr     x0, msg_post_fault
         bl      uart_puts
+
+        /* DMA through the SMMU, if granted */
+        adr     x1, _guest_arg
+        ldr     x0, [x1]
+        bl      guest_a_dma_test
 
 _guest_halt:
         wfi
@@ -87,6 +98,11 @@ msg_post_fault:
 /* -----------------------------------------------------------------------
  * 4 KB stack for the guest stub
  * ----------------------------------------------------------------------- */
+        .section ".bss", "aw"
+        .align  3
+_guest_arg:
+        .space  8
+
         .section ".bss.stack", "aw"
         .align  12
 _guest_stack:
