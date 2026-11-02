@@ -119,6 +119,16 @@ These define obligations and interfaces; the archive logs establish observations
 
 ### B3 - Affinity, stack bounds, publication and readiness are implicit
 
+- **Status (2026-11-02):** resolved for QEMU in haven `91daeb8` and
+  `be4eb32` (owner approval 2026-11-02). Logical CPUs come from a
+  per-platform MPIDR table, boot CPU first (CIX P1 map recorded in
+  `docs/porting/cix-p1-ledger.md`); `secondary_entry` checks EL2 and parks
+  an unknown CPU before any indexed access; CPU 2 enters partition B only
+  after a bounded ready handshake (100 ms); no CPU_ON for a CPU missing
+  from the map. Controls L1-L5 all as expected
+  (`docs/methodology/stage2/20261102-secondary-cpu/`). Not covered: more
+  than one secondary, repeated start or reset, a real firmware's PSCI.
+
 - **Expected contract / source:** B; PSCI §6.4 supplies context and startup
   state, while HAVEN owns logical CPU mapping and safe memory publication.
 - **Observed / evidence:** `secondary_entry` discards firmware context, indexes
@@ -306,6 +316,13 @@ These define obligations and interfaces; the archive logs establish observations
 ## 4. Compiler alignment and runtime ABI
 
 ### A1 - Layout-sensitive EL2 alignment faults, enabling cause unresolved
+
+- **Status (2026-11-02):** analysed, option choice pending with the owner:
+  `docs/methodology/stage2/20261102-el2-memory/DECISION.md`. Beyond the
+  alignment faults, Haven writes stage-2 tables and SMMU structures as
+  Device memory while the table walker and the SMMU read them as
+  write-back cacheable (mismatched attributes, inference; invisible in
+  QEMU).
 
 - **Expected contract / source:** A. Compiler access assumptions must match
   effective EL2 memory attributes and alignment rules. Clearing SCTLR.A does

@@ -1,0 +1,17 @@
+--- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 22:39:37
++++ /tmp/b3-L3-f41jz1xa/src/core/partition.c	2026-11-02 22:40:52
+@@ -343,6 +343,14 @@
+ 	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
+ 	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);
+ 
++	{ /* control: report ready 300 ms late */
++		uint64_t t0, t, f;
++		__asm__ volatile("mrs %0, cntfrq_el0" : "=r"(f));
++		__asm__ volatile("mrs %0, cntpct_el0" : "=r"(t0));
++		do {
++			__asm__ volatile("isb\n\tmrs %0, cntpct_el0" : "=r"(t));
++		} while (t - t0 < (f / 10U) * 3U);
++	}
+ 	/* FINDINGS B3: enter B only on the primary's go; a CPU that is not
+ 	 * B's, or that reports after the primary gave up, parks here. */
+ 	if (cpu_id != PART_B_CPU || hv_arch_cpu_id() != PART_B_CPU ||

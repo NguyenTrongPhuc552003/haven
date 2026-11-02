@@ -1,0 +1,21 @@
+---- UART (/tmp/b3-L4-frlwizo6/build/evidence/partition-b-max-uart.log) ----
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  2 2026 22:41:34
+
+*** HAVEN PANIC ***
+  boot CPU is not entry 0 of the CPU map
+  Halting.
+---------------------
+partition B status @PA 0xa08011d8: magic=0x0, stage=0, timer_irqs=0, other_irqs=0, last_intid=0, result=0
+MISSING CPU 2 ready, partition B started
+MISSING partition B IRQs assigned
+MISSING partition A: IRQ test done
+MISSING B's read of A's IPA denied on CPU 2
+MISSING B status magic
+MISSING B reached stage 5 (done)
+MISSING B timer interrupts >= 8
+ok      B saw no other interrupts
+MISSING B result: none
+ok      no undelivered interrupt
+partition-b-check: FAIL (max)

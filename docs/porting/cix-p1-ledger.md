@@ -118,6 +118,20 @@ All carry the same IORT, byte for byte: the PCIe SMMUv3 at `0x0B010000`
 entry. So on either board, with the vendor firmware, PCIe devices are behind
 an SMMU and the GPU is not (row 1).
 
+## CPU numbering (source-derived, 2026-11-02)
+
+CIX BIOS source (`data/common/cix-bios/edk2-platforms/Platform/CIX/Sky1/`):
+`Drivers/AcpiSocTables/Madt.aslc` lists 12 GICC entries with
+`GET_MPID(core, 0)`, which `edk2/ArmPkg/Include/Library/ArmLib.h` defines as
+`(core << 8) | 0`: every core has Aff0 = 0 and its core number (0 to 11) in
+Aff1. `Sky1Common.dsc.inc` sets `PcdArmPrimaryCore` to `0x400` (core 4) for
+boards and `0x000` for the FPGA, and `PcdCoreCount` to 12; the MADT lists
+core 4 first. Haven's CPU map for a CIX platform therefore starts
+`{0x400, 0x000, 0x100, 0x200, 0x300, 0x500, ...}` (boot CPU first). The old
+Haven rules (stack index from Aff0, logical id `Aff1 * 4 + Aff0`) would give
+every core stack 0 and ids up to 44. To check on the board: MPIDR read on
+each core, and which core firmware boots.
+
 ## GPU facts used by the thesis (source-derived)
 
 - GPU: Arm Immortalis-G720 MC10 (arch v12, CSF). Upstream Panthor knows it

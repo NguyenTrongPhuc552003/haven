@@ -1,0 +1,38 @@
+---- UART (/tmp/b3-L1-tlpqskoj/build/evidence/partition-b-max-uart.log) ----
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  2 2026 22:35:02
+  CPU: PARange=6 GIC=v3 - features OK
+HAVEN: GIC virtual interface: 4 list registers
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1 withheld: device absent
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: CPU 2 ready, partition B started (VMID=2)
+HAVEN: ERET -> partition A entry IPA=0x40000000
+PARTITION_A: Hello from partition A (EL1 guest)
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0x60000000 ESR=0x93c08006 cpu=0
+PARTITION_A: Post-fault check OK
+PARTITION_A: no DMA device granted
+PARTITION_A: DMA test done
+PARTITION_A: waiting for the UART interrupt
+PARTITION_A: UART interrupt delivered (INTID 33)
+PARTITION_A: IRQ test done
+HAVEN: Denied stage-2 violation IPA=0x40000000 FAR=0x40000000 ESR=0x93c08006 cpu=2
+---------------------
+partition B status @PA 0xa08011d8: magic=0x48564e42, stage=5, timer_irqs=8, other_irqs=0, last_intid=27, result=1
+ok      CPU 2 ready, partition B started
+ok      partition B IRQs assigned
+ok      partition A: IRQ test done
+ok      B's read of A's IPA denied on CPU 2
+ok      B status magic
+ok      B reached stage 5 (done)
+ok      B timer interrupts >= 8
+ok      B saw no other interrupts
+ok      B result: pass
+ok      no undelivered interrupt
+partition-b-check: PASS (max)

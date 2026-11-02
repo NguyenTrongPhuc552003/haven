@@ -1,0 +1,156 @@
+{
+ "haven_commit": "be4eb32",
+ "results": {
+  "L1": {
+   "check": "L1",
+   "want": [
+    "CPU 2 ready, partition B started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 not ready within 100 ms - partition B not started",
+    "PSCI CPU_ON failed for CPU 2 - partition B inactive"
+   ],
+   "stage": 5,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 5,
+    "present": [
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 5,
+    "present": [
+     "CPU 2 ready, partition B started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   }
+  },
+  "L2": {
+   "check": "L2",
+   "want": [
+    "CPU 2 not ready within 100 ms - partition B not started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 ready, partition B started"
+   ],
+   "stage": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 0,
+    "present": [
+     "CPU 2 not ready within 100 ms - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 0,
+    "present": [
+     "CPU 2 not ready within 100 ms - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   }
+  },
+  "L3": {
+   "check": "L3",
+   "want": [
+    "CPU 2 not ready within 100 ms - partition B not started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 ready, partition B started"
+   ],
+   "stage": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 0,
+    "present": [
+     "CPU 2 not ready within 100 ms - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 0,
+    "present": [
+     "CPU 2 not ready within 100 ms - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   }
+  },
+  "L4": {
+   "check": "L4",
+   "want": [
+    "boot CPU is not entry 0 of the CPU map"
+   ],
+   "forbid": [
+    "CPU 2 ready, partition B started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "stage": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 0,
+    "present": [
+     "boot CPU is not entry 0 of the CPU map"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 0,
+    "present": [
+     "boot CPU is not entry 0 of the CPU map"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   }
+  },
+  "L5": {
+   "check": "L5",
+   "want": [
+    "no CPU 2 in the CPU map - partition B not started",
+    "PARTITION_A: IRQ test done"
+   ],
+   "forbid": [
+    "CPU 2 ready, partition B started",
+    "CPU 2 not ready within 100 ms - partition B not started",
+    "PSCI CPU_ON failed for CPU 2 - partition B inactive"
+   ],
+   "stage": 0,
+   "build_rc": 0,
+   "cortex-a72": {
+    "stage": 0,
+    "present": [
+     "no CPU 2 in the CPU map - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   },
+   "max": {
+    "stage": 0,
+    "present": [
+     "no CPU 2 in the CPU map - partition B not started",
+     "PARTITION_A: IRQ test done"
+    ],
+    "forbidden_seen": [],
+    "ok": true
+   }
+  }
+ }
+}
