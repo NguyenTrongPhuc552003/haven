@@ -1,5 +1,9 @@
 # Vercel Deployment Guide
 
+> **Legacy (2026-11-02).** Written for an earlier plan (NXP i.MX95 board, month-based
+> releases). The thesis now targets CIX P1 only. Kept for history, not maintained.
+> Current state: [docs/README.md](../README.md).
+
 The documentation portal is an **Astro Starlight** site located under `website/`.
 It is deployed to `https://haven-tau-eight.vercel.app/`.
 

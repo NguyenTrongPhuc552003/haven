@@ -8,10 +8,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-- i.MX95 physical board bring-up and EL2 boot validation (requires hardware).
-- SMMUv3 stream table population wired to real SMMUv3 MMIO.
-- Budget scheduler timer interrupt integration with GICv3 virtual timer.
-- Secondary-CPU ERET for Partition B (Phase 3 multi-CPU bring-up).
+Target changed to the CIX P1 SoC only (owner decision 2026-11-02); i.MX95 and
+i.MX8QM code is kept as legacy. Detailed records: `docs/methodology/stage0`
+to `stage2`, defects in `docs/methodology/stage0/20261025-corrections/FINDINGS.md`.
+
+### Added
+- External read-back of enforced state (`tools/readback/`, now v4): stage-2,
+  SMMUv3 stream tables and GICv3 routing, enables and priorities against a grant.
+- SMMUv3 command and event queues; one stage-2 table per granted DMA stream;
+  blocked DMA logged from the event-queue interrupt; PCI BARs placed by Haven.
+- Interrupt delivery to partitions as hardware-linked virtual interrupts; PPIs
+  owned per CPU; partition B's virtual timer.
+- `qemu-psci` boot profile; partition B runs on CPU 2
+  (`scripts/qemu/partition-b-check.py`, also in CI).
+- `tools/fwscan/` IORT scanner for CIX UEFI images.
+
+### Fixed
+- Stage-2 permissions honoured (MM1); SMMU register offsets and STE layout
+  (SM1-SM4); GICD_CTLR Non-secure layout (GI1); secondary-CPU EL2 setup (B2);
+  per-CPU PPI enable (T1); list registers bounded by ICH_VTR_EL2 (I1).
+
+### Removed
+- Placeholder and GitHub-specific documents; an AI-tool workflow note.
+
+### Still open
+- Budget enforcement (EL2 timer), secondary-CPU ready handshake (B3), EL2 MMU
+  and cache handoff (A1), board bring-up.
 
 ---
 

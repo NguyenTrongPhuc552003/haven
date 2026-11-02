@@ -1,5 +1,9 @@
 # Benchmark Baseline - Haven Isolation Latency
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 This document records the quantitative acceptance thresholds for Haven's
 isolation mechanisms and the baseline measurements from the most recent
 benchmark run (QEMU `virt`, AArch64, GCC 13, `-O2`).  It also describes

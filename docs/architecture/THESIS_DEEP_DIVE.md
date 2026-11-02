@@ -1,5 +1,9 @@
 # Thesis Deep Dive
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 Title:
 Static Partition Hypervisor for Asymmetric Multiprocessing: Enforcing Spatial and Temporal Isolation Between Linux and RTOS on a Heterogeneous SoC
 

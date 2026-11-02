@@ -1,5 +1,9 @@
 # Haven Architecture Overview
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 ## Research Question
 
 Can a minimal EL2 hypervisor - with a TCB under 5,000 lines of C - provide

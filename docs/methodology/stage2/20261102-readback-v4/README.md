@@ -4,7 +4,7 @@
 owner (2026-11-02). Expectations by Claude, committed with the runner in
 `a9bf185` before the run. These are regression checks, not held-out cases:
 Claude knew the earlier outcomes of R2, R3, I7 and K3 when writing them.
-The priority values in both v4 grants are pending owner approval.
+The priority values in both v4 grants were delegated to Claude by the owner (2026-11-02); the decision is below.
 
 ## Changes (`tools/readback/readback.py`, haven `a9bf185`)
 
@@ -18,14 +18,20 @@ Read-back v3 stays reproducible from haven `ce220bb` (case set v3 freeze).
 The runner here takes findings only from `readback.json`; an exit status
 without a report is shown as "no report".
 
-## Grants (pending owner approval of the priority values)
+## Grants (priority values decided by Claude, delegated 2026-11-02)
 
 `grant-v4.json` is the v3 grant and `grant-partb-v4.json` the partition B
 grant, each plus `"priority": {"haven": "0x40", "partition": "0xa0"}`: what
 HAVEN programs today (GIC_PRIO_HYPERVISOR for its own SMMU interrupt,
-GIC_PRIO_LINUX for every partition interrupt). Open policy question for
-the owner: `gic.h` also defines GIC_PRIO_RTOS_HIGH (0x60) for a real-time
-partition; partition B's timer currently uses 0xa0.
+GIC_PRIO_LINUX for every partition interrupt).
+
+Why one value for both partitions, including real-time partition B: each
+partition has CPUs of its own, so a physical priority only has to order a
+partition's interrupts below HAVEN's own on the same CPU; ordering between
+partitions never happens in one CPU interface. Inside a partition the guest
+sets its own virtual priorities. `GIC_PRIO_RTOS_HIGH` (0x60) becomes
+meaningful only when two partitions share a CPU, which the timing stage may
+introduce; the grant will be revisited then.
 
 ## Results (`run_v4.py`, `runs/results.md`; 16 of 16 as expected, both CPUs identical)
 

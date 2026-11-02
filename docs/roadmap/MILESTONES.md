@@ -1,5 +1,9 @@
 # Milestones
 
+> **Legacy (2026-11-02).** Written for an earlier plan (NXP i.MX95 board, month-based
+> releases). The thesis now targets CIX P1 only. Kept for history, not maintained.
+> Current state: [docs/README.md](../README.md).
+
 M1: Repository and architecture baseline ✅
 - Deliver full structure, governance, and initial docs.
 - **Status:** Complete - repo structure, CMake build system, CI workflows, architecture docs.

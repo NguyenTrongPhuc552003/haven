@@ -2,179 +2,128 @@
 
 **Hypervisor for Asymmetric Virtualization ENforcement and isolation**
 
-[![CI](https://codeberg.org/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml/badge.svg)](https://codeberg.org/NguyenTrongPhuc552003/haven/actions/workflows/ci.yml)
-[![Docs](https://codeberg.org/NguyenTrongPhuc552003/haven/actions/workflows/vercel.yml/badge.svg)](https://haven-tau-eight.vercel.app/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.6.0-green.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.6.2-green.svg)](VERSION)
 [![Platform](https://img.shields.io/badge/platform-ARM64%20AArch64-lightgrey.svg)](configs/arm64/)
 
-> **Master's Thesis** - Computer Engineering  
-> *Static Partition Hypervisor for Asymmetric Multiprocessing: Enforcing Spatial and Temporal Isolation Between Linux and RTOS on a Heterogeneous SoC*
+> Master's thesis artifact, Computer Engineering (UIT). Defense planned
+> around mid-2028.
 
-**Live documentation → [haven-tau-eight.vercel.app](https://haven-tau-eight.vercel.app/)**
+Haven is a small static-partitioning hypervisor that runs at EL2 on ARM64.
+Each partition gets its own CPUs, memory, interrupts and DMA-capable devices,
+fixed at build time. The thesis studies whether the hardware really enforces
+what Haven grants: an external **read-back** tool reads the enforced state
+(stage-2 tables, SMMUv3 stream tables, GICv3 routing and priorities) from
+outside Haven and compares it with the grant.
 
----
+**Target SoC: CIX P1 (Sky1) only.** Twelve Cortex-A720 and A520 cores, an
+Immortalis-G720 GPU, an NPU, and two SMMUv3 instances (PCIe and multimedia).
+Thesis board: Orange Pi 6 Plus (planned, end of 2026); the Orange Pi 6 and
+Radxa Orion O6 / O6N are reference variants. All current evidence comes from
+QEMU; no board result exists yet.
 
-## Overview
+## Working research question
 
-Haven is a static partition hypervisor research artifact that runs at **EL2** on ARM64 SoCs. It enforces hard spatial and temporal isolation between a Linux domain and an RTOS domain on heterogeneous SoCs where application-class cores (Cortex-A) and microcontroller cores (Cortex-M) coexist on a single die.
+Can independent read-back of enforced hardware state (stage-2, SMMU, GIC)
+find enforcement drift that policy tests and configuration checks cannot,
+without growing Haven's trusted code?
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  Guest Partitions (EL1/EL0)                 │
-│  ┌───────────────────────┐   ┌───────────────────────────┐  │
-│  │   Linux  (A55 × 4)    │   │  FreeRTOS  (M7 / A55)     │  │
-│  └───────────┬───────────┘   └─────────────┬─────────────┘  │
-├──────────────┼─────────────────────────────┼────────────────┤
-│              │          EL2 - Haven        │                │
-│  ┌───────────▼─────────────────────────────▼─────────────┐  │
-│  │  Stage-2 MMU │ IRQ Ownership   │ Budget Scheduler     │  │
-│  │  SMMU Policy │ EL2 Exc Handler │ Time Accounting      │  │
-│  └───────────────────────────────────────────────────────┘  │
-├─────────────────────────────────────────────────────────────┤
-│              Hardware - NXP i.MX95 (ARM64 SoC)              │
-│     Cortex-A55 × 4  │  Cortex-M7  │  GIC-700  │  SMMU-700   │
-└─────────────────────────────────────────────────────────────┘
-```
+## What works today (QEMU `virt`, observed)
 
-### Core Guarantees
+| Area | State | Records |
+| - | - | - |
+| Stage-2 memory isolation | Per-partition tables with permissions and memory types; cross-partition access denied and logged | `docs/methodology/stage1/` |
+| DMA isolation | SMMUv3 with one stage-2 table per granted stream (own VMID); real virtio DMA allowed inside its window, blocked outside; blocked DMA logged from the event queue | `stage2/20261102-g2-dma/`, `stage2/20261102-dma-hardening/` |
+| Interrupts | SPIs and per-CPU PPIs owned per partition; delivered as hardware-linked virtual interrupts; undeliverable interrupts disabled | `stage2/20261102-irq-delivery/`, `stage2/20261102-partition-b/` |
+| Two partitions, two CPUs | Partition A on CPU 0; partition B on CPU 2, started through PSCI, with its own virtual timer | `stage2/20261102-partition-b/` |
+| Read-back v4 | Stage-2, SMMU and GIC state compared with a grant; seeded-fault case sets and randomly drawn held-out faults | `tools/readback/`, `stage2/20261102-a1-cases-v3/`, `stage2/20261102-readback-v4/` |
 
-| Property               | Mechanism                                     | Status                       |
-| ---------------------- | --------------------------------------------- | ---------------------------- |
-| **Spatial isolation**  | Stage-2 page tables, SMMU stream policy       | Implemented - QEMU-validated |
-| **Temporal isolation** | Budget-based EL2 scheduler, overrun detection | Implemented - QEMU-validated |
-| **IRQ ownership**      | Deny-by-default interrupt routing table       | Implemented - QEMU-validated |
-| **DMA isolation**      | Per-partition SMMU context                    | Implemented - QEMU-validated |
-| **Minimal TCB**        | No dynamic alloc, no FP, bounded loops        | By design                    |
+**Not done yet:** CPU time budgets are configured but not enforced (the EL2
+timer is never armed); no secondary-CPU ready handshake; EL2 runs with its MMU
+off; no Linux guest; no board bring-up. Every known defect and its status is
+in [`FINDINGS.md`](docs/methodology/stage0/20261025-corrections/FINDINGS.md).
 
----
+## Quick start
 
-## Quick Start
-
-**Prerequisites:** `gcc` or `clang`, `cmake` ≥ 3.22, `ninja-build`, `python3`, `qemu-system-aarch64` (optional)
+Prerequisites: `cmake` 3.22 or later, `ninja`, a host C compiler, `python3`;
+for ARM64 builds an `aarch64-linux-gnu` (or `aarch64-unknown-linux-gnu`)
+toolchain and `qemu-system-aarch64` (9.2 or later for SMMU stage 2).
 
 ```sh
 git clone https://codeberg.org/NguyenTrongPhuc552003/haven.git
 cd haven
+
+# Host unit and integration tests
+cmake --preset host-tests && cmake --build build-host
+ctest --test-dir build-host --output-on-failure -E bench_temporal_isolation
+
+# ARM64, partition A only (QEMU provides no PSCI in this profile)
+cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build
+./scripts/qemu/qemu-direct-check.sh build cortex-a72
+
+# ARM64, both partitions (QEMU's built-in PSCI starts CPU 2)
+cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci
+cmake --build build-psci
+python3 scripts/qemu/partition-b-check.py build-psci cortex-a72
+
+# Read back the enforced state and compare it with a grant
+python3 tools/readback/readback.py build-psci \
+    docs/methodology/stage2/20261102-readback-v4/grant-partb-v4.json /tmp/rb \
+    --device virtio-rng-pci,disable-legacy=on,iommu_platform=on --marker "IRQ test done"
 ```
 
-**Host unit + integration tests:**
+`bench_temporal_isolation` is excluded because of a known, undiagnosed
+timeout. Boot profiles (`HAVEN_BOOT_PROFILE`, qemu-virt only): `qemu-direct`
+(QEMU loads Haven at EL2, no PSCI), `qemu-psci` (QEMU answers PSCI over
+SMC), `qemu-tfa` (TF-A provides PSCI at EL3).
+[ELMOS](https://codeberg.org/NguyenTrongPhuc552003/elmos) wraps these steps
+on macOS (`task haven:all`).
 
-```sh
-cmake --preset host-tests
-cmake --build build-host
-ctest --test-dir build-host --output-on-failure
-```
-
-**ARM64 cross-compile (QEMU):**
-
-```sh
-# Requires: aarch64-linux-gnu-gcc or aarch64-elf-gcc
-cmake --preset arm64-qemu
-cmake --build build
-# → build/haven.elf, build/haven.bin, build/guest_a.bin, build/guest_b.bin
-```
-
-**ARM64 cross-compile (i.MX95 - thesis primary board):**
-
-```sh
-cmake --preset arm64-imx95
-cmake --build build-imx95
-```
-
-**Other targets:**
-
-```sh
-cmake --build <dir> --target style-check   # style + config checks
-cmake --build <dir> --target verification  # Coq isolation proofs
-cmake --build <dir> --target evidence      # package evaluation artifacts
-cmake --build <dir> --target qemu-run      # launch Haven on QEMU (ARM64 build only)
-```
-
-See [CMakePresets.json](CMakePresets.json) for all available presets.
-
----
-
-## Repository Structure
+## Repository layout
 
 ```
-haven/
-├── src/core/           # EL2 hypervisor core (mm, irq, sched, dma, exc)
-├── src/guest/          # Guest-side drivers (UART, FreeRTOS integration)
-├── src/platform/       # Board-specific bring-up (i.MX95, QEMU)
-├── include/haven/      # Public API headers
-├── configs/arm64/      # Static partition configs (YAML)
-├── drivers/            # Linux and guest tool drivers
-├── tests/              # Unit, integration, and isolation tests
-├── docs/               # Architecture, methodology, roadmap, safety docs
-├── docs/thesis/        # Master thesis working documents
-├── verification/       # Formal verification artifacts (Coq, Isabelle)
-├── website/            # Astro Starlight documentation portal
-├── scripts/            # Build, test, CI, and release automation
-└── .forgejo/workflows/ # Codeberg CI (host tests, ARM64 build, QEMU boot)
+arch/arm64/        EL2 entry, vectors, stage-2, GIC virtual interface, timer
+src/core/          portable policy: memory regions, IRQ ownership, DMA grants, budgets, partitions
+src/platform/      qemu-virt (current); imx95-devkit, imx8qm-mek (legacy, not maintained)
+drivers/           GICv3, SMMUv3, PCI ECAM
+tests/             host unit, integration and isolation tests; demo guests A and B
+tools/readback/    external read-back of enforced state (QEMU)
+tools/fwscan/      IORT scanner for CIX UEFI images
+scripts/           build, test and QEMU checks
+docs/              see docs/README.md
+verification/      Coq and Isabelle models from an earlier project phase (not current evidence)
+website/           documentation portal source (not deployed by the Codeberg CI)
 ```
 
-**Key source modules:**
+## Documentation
 
-| Module           | File                                    | Purpose                                     |
-| ---------------- | --------------------------------------- | ------------------------------------------- |
-| Stage-2 MMU      | `src/core/mm/stage2.c`                  | Partition memory mapping and access control |
-| IRQ Ownership    | `src/core/irq/ownership.c`              | Interrupt routing table, deny-by-default    |
-| Budget Scheduler | `src/core/sched/budget.c`               | CPU time budget tracking and enforcement    |
-| SMMU / DMA       | `src/core/dma/smmu.c`                   | Stream-ID-based DMA partition isolation     |
-| EL2 Exceptions   | `src/core/exc/el2_exceptions.c`         | EL2 exception dispatch and fault handling   |
-| Guest UART       | `src/guest/drivers/uart.c`              | Isolated guest UART port abstraction        |
-| FreeRTOS Port    | `src/guest/rtos/freertos_integration.c` | FreeRTOS partition state management         |
+- [`docs/README.md`](docs/README.md): which documents are current and which
+  are kept only for history.
+- [`docs/porting/cix-p1-ledger.md`](docs/porting/cix-p1-ledger.md): CIX P1
+  platform facts and weaknesses (IORT, SMMU, GPU, boards).
+- [`docs/architecture/gpu-partition.md`](docs/architecture/gpu-partition.md):
+  GPU partition design and board experiments.
+- `docs/methodology/stage0` to `stage2`: dated experiment records, each with
+  its changes, expectations, raw runs and limits.
 
----
+## Platforms
 
-## Validation Platforms
+| Platform | Role |
+| - | - |
+| QEMU `virt` (cortex-a72, max) | All current evidence; CI on every push |
+| CIX P1: Orange Pi 6 Plus | Thesis board (planned purchase, end of 2026) |
+| CIX P1: Orange Pi 6, Radxa Orion O6 / O6N | Reference variants (schematics, firmware) |
+| NXP i.MX95, i.MX8QM | Legacy from an earlier plan: code and presets kept, not maintained or tested |
 
-| Board                  | SoC     | CPU Topology               | Role                      |
-| ---------------------- | ------- | -------------------------- | ------------------------- |
-| **NXP i.MX95 Dev Kit** | i.MX95  | Cortex-A55 × 4 + Cortex-M7 | Primary - thesis evidence |
-| **QEMU virt (arm64)**  | virtual | Cortex-A57 (emulated)      | CI gating - reproducible  |
-| **NXP i.MX8QM-MEK**    | i.MX8QM | Cortex-A53 × 4 + Cortex-M4 | Secondary validation      |
+## Related repositories
 
----
+- [ELMOS](https://codeberg.org/NguyenTrongPhuc552003/elmos): macOS toolkit
+  that builds and runs Haven and Linux images.
+- [KDAL](https://codeberg.org/NguyenTrongPhuc552003/kdal): device abstraction
+  layer for the Linux partition.
 
-## CI / CD
+## Contributing and license
 
-| Workflow            | Trigger      | Purpose                                                    |
-| ------------------- | ------------ | ---------------------------------------------------------- |
-| `ci.yml`            | push / PR    | Build (gcc + clang), style check, unit + integration tests |
-| `nightly.yml`       | nightly      | Extended test matrix                                       |
-| `benchmark.yml`     | push to main | Baseline performance capture                               |
-| `cross-os.yml`      | push / PR    | QEMU smoke test on ubuntu/macos                            |
-| `evidence-pack.yml` | manual       | Package thesis evidence archive                            |
-| `vercel.yml`        | push to main | Build and deploy documentation portal                      |
-
----
-
-## Thesis Context
-
-**Research questions:**
-1. Can stage-2 page tables and SMMU stream policy enforce hard spatial isolation between Linux and FreeRTOS on a real AMP SoC under deliberate violation attempts?
-2. Can a budget-based EL2 scheduler bound RTOS latency under worst-case Linux load on shared cores?
-
-**Chapter-to-artifact traceability:** [`docs/methodology/CHAPTER_TRACEABILITY.md`](docs/methodology/CHAPTER_TRACEABILITY.md)  
-**Evaluation plan:** [`docs/methodology/EVALUATION_PLAN.md`](docs/methodology/EVALUATION_PLAN.md)  
-**One-year roadmap:** [`docs/roadmap/ONE_YEAR_RELEASE_PLAN.md`](docs/roadmap/ONE_YEAR_RELEASE_PLAN.md)
-
----
-
-## Governance
-
-| Document                                                     | Purpose                             |
-| ------------------------------------------------------------ | ----------------------------------- |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md)                         | Contribution workflow and DCO       |
-| [`SECURITY.md`](SECURITY.md)                                 | Vulnerability reporting             |
-| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)                   | Community standards                 |
-| [`docs/safety/THREAT_MODEL.md`](docs/safety/THREAT_MODEL.md) | Adversary model and security claims |
-| [`docs/safety/ASSUMPTIONS.md`](docs/safety/ASSUMPTIONS.md)   | Hardware and platform assumptions   |
-
----
-
-## License
-
-[Apache License 2.0](LICENSE) - see the file for full terms.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CODING_STYLE.md`](CODING_STYLE.md)
+and [`SECURITY.md`](SECURITY.md). Licensed under the
+[Apache License 2.0](LICENSE).

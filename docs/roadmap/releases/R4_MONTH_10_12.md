@@ -1,5 +1,9 @@
 # Release 4 (Month 10-12)
 
+> **Legacy (2026-11-02).** Written for an earlier plan (NXP i.MX95 board, month-based
+> releases). The thesis now targets CIX P1 only. Kept for history, not maintained.
+> Current state: [docs/README.md](../../README.md).
+
 Theme:
 - Thesis lock, quality freeze, and submission-grade packaging.
 

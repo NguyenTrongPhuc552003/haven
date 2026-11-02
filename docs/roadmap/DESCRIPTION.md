@@ -1,5 +1,9 @@
 # Haven: One-Year Master's Thesis Implementation Plan
 
+> **Legacy (2026-11-02).** Written for an earlier plan (NXP i.MX95 board, month-based
+> releases). The thesis now targets CIX P1 only. Kept for history, not maintained.
+> Current state: [docs/README.md](../README.md).
+
 > Historical plan, written while the project was hosted on GitHub. The project
 > now lives on Codeberg; CI is in `.forgejo/workflows/ci.yml`. GitHub-specific
 > items below (workflows, templates, Pages, advisories) are not current.

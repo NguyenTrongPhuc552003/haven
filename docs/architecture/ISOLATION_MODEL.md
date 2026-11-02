@@ -1,5 +1,9 @@
 # Haven Isolation Model
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 Haven enforces isolation through five orthogonal mechanisms arranged in two
 categories: *spatial* (who can access which physical addresses and devices) and
 *temporal* (who can use the CPU and for how long).  This document describes

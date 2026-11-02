@@ -1,5 +1,9 @@
 # Development Guide
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 Haven is an EL2 static-partition hypervisor written in C11 (core TCB) with
 supporting scripts and documentation. This guide covers everything needed to
 build, run, and extend the project on macOS and Linux.

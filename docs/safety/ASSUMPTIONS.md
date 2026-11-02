@@ -1,5 +1,9 @@
 # Assumptions and Constraints
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 This document records the system-level assumptions under which Haven's isolation
 claims hold. Any claim made in the thesis is conditioned on these assumptions.
 

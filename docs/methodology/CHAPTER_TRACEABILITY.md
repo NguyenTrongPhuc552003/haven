@@ -1,5 +1,9 @@
 # Chapter to Milestone Traceability
 
+> **Predates the current research question (2026-11-02).** Written before the A1
+> read-back direction (2026-11-01) and not yet revised: statements here may not match
+> the code. Current state: [docs/README.md](../README.md).
+
 This matrix maps every thesis chapter to implementation artifacts, test files,
 evidence artifacts, and measured results.  All file paths are relative to the
 repository root.
@@ -324,7 +328,6 @@ verification depth.
 | Threat model       | `docs/safety/THREAT_MODEL.md`              |
 | Roadmap            | `docs/roadmap/DESCRIPTION.md`              |
 | Evaluation plan    | `docs/methodology/EVALUATION_PLAN.md`      |
-| AI workflow notes  | `docs/methodology/AI_WORKFLOW_PLAYBOOK.md` |
 
 **Acceptance criteria:** Gap analysis complete; roadmap milestones linked to
 chapter claims; future-work section references open issues.

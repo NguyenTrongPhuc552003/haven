@@ -1,5 +1,9 @@
 # i.MX95 Hardware Setup
 
+> **Legacy (2026-11-02).** Written for an earlier plan (NXP i.MX95 board, month-based
+> releases). The thesis now targets CIX P1 only. Kept for history, not maintained.
+> Current state: [docs/README.md](../README.md).
+
 Primary target board:
 - NXP i.MX95 Dev Kit
 

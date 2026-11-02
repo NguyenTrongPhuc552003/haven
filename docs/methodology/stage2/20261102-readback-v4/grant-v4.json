@@ -1,5 +1,5 @@
 {
- "source": "PROPOSED by Claude 2026-11-02, priority values pending owner approval: the A1 case set v3 grant (owner-approved) plus interrupt priorities: HAVEN's own interrupts 0x40 (GIC_PRIO_HYPERVISOR), every partition interrupt 0xa0 (GIC_PRIO_LINUX, what HAVEN programs today for both partitions)",
+ "source": "Approved 2026-11-02 (priority values delegated by the owner to Claude): the A1 case set v3 grant (owner-approved) plus interrupt priorities: HAVEN's own interrupts 0x40 (GIC_PRIO_HYPERVISOR), every partition interrupt 0xa0 (GIC_PRIO_LINUX, what HAVEN programs today for both partitions)",
  "partitions": {
   "1": [
    {

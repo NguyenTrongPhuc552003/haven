@@ -1,5 +1,9 @@
 # Release 1 (Month 1-3)
 
+> **Legacy (2026-11-02).** Written for an earlier plan (NXP i.MX95 board, month-based
+> releases). The thesis now targets CIX P1 only. Kept for history, not maintained.
+> Current state: [docs/README.md](../../README.md).
+
 Theme:
 - Foundation and engineering rigor.
 
