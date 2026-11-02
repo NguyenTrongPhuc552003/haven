@@ -27,6 +27,10 @@
 #include <haven/types.h>
 #include <stdint.h>
 
+#ifdef HAVEN_ARCH_ARM64
+#include "drivers/pci/ecam.h"
+#endif
+
 /* Platform memory layout - QEMU virt default.
  * The -I. flag in ARM64_CFLAGS makes the root the first extra search
  * directory, so "src/platform/..." resolves from the repository root. */
@@ -99,9 +103,14 @@ static const struct hv_partition_mem part_a_mem_cfg = {
  * window (device address -> physical address inside the partition, with
  * access rights), and only once the SMMU enforces that window are the
  * device's registers mapped into the partition.  If the SMMU cannot
- * enforce it (e.g. no stage 2), the device is withheld: its stream stays
- * aborted and its registers stay unmapped.  The partition learns which
- * grants are in force from a bit mask in x0 at entry.
+ * enforce it (e.g. no stage 2), or the device is absent, the device is
+ * withheld: its stream stays aborted and its registers stay unmapped.  The
+ * partition learns which grants are in force from a bit mask in x0 at entry.
+ *
+ * For a PCI function Haven places the memory BAR itself and turns on bus
+ * mastering only once the window is enforced; the partition gets the
+ * function's config page read-only, so it cannot move the BAR or change the
+ * command register (writes fault at stage 2).
  *
  * The window uses the partition's own addresses (IOVA = IPA), so a device
  * and the partition name the same buffer the same way.
@@ -116,6 +125,10 @@ struct part_dma_grant {
 	hv_u64 size;
 	hv_u64 pa;
 	hv_dma_access_t access;
+	hv_u64 cfg_pa; /* PCI config page (0: not a PCI function) */
+	hv_u32 bar; /* memory BAR Haven places */
+	hv_u64 bar_pa;
+	hv_u64 bar_size;
 	const struct hv_mem_region *mmio;
 	hv_u32 mmio_count;
 	hv_u64 guest_flag;
@@ -126,7 +139,7 @@ static const struct hv_mem_region part_a_dma_mmio[] = {
 		.ipa_base = PART_A_DMA_CFG_PA,
 		.pa_base = PART_A_DMA_CFG_PA,
 		.size = 0x1000UL, /* config space of 00:01.0 only */
-		.attrs = HV_MEM_DEVICE_RW,
+		.attrs = HV_MEM_DEVICE | HV_MEM_R, /* read-only */
 	},
 	{
 		.ipa_base = PART_A_DMA_BAR_PA,
@@ -144,6 +157,10 @@ static const struct part_dma_grant dma_grants[] = {
 		.size = PART_A_DMA_SIZE,
 		.pa = PART_A_DMA_PA,
 		.access = HV_DMA_RW,
+		.cfg_pa = PART_A_DMA_CFG_PA,
+		.bar = PART_A_DMA_BAR,
+		.bar_pa = PART_A_DMA_BAR_PA,
+		.bar_size = PART_A_DMA_BAR_SIZE,
 		.mmio = part_a_dma_mmio,
 		.mmio_count = 2U,
 		.guest_flag = GUEST_ARG_DMA0,
@@ -169,12 +186,36 @@ static hv_u64 apply_dma_grants(hv_u32 partition_id)
 		if (g->partition_id != partition_id) {
 			continue;
 		}
-		rc = hv_smmu_assign_streamid(g->partition_id, g->streamid);
+		rc = HV_OK;
+#ifdef HAVEN_ARCH_ARM64
+		if (g->cfg_pa != 0U) {
+			if (!pci_ecam_present((uintptr_t)g->cfg_pa)) {
+				hv_printk(
+					"HAVEN: DMA grant SID %u -> partition "
+					"%u withheld: device absent\n",
+					(unsigned)g->streamid,
+					(unsigned)g->partition_id);
+				continue;
+			}
+			rc = pci_ecam_place_bar((uintptr_t)g->cfg_pa, g->bar,
+						g->bar_pa, g->bar_size);
+		}
+#endif
+		if (rc == HV_OK) {
+			rc = hv_smmu_assign_streamid(g->partition_id,
+						     g->streamid);
+		}
 		if (rc == HV_OK) {
 			rc = hv_smmu_configure_dma_window(g->streamid, g->iova,
 							  g->size, g->pa,
 							  g->access);
 			if (rc == HV_OK) {
+#ifdef HAVEN_ARCH_ARM64
+				/* Window enforced: now the device may master. */
+				if (g->cfg_pa != 0U) {
+					pci_ecam_enable((uintptr_t)g->cfg_pa);
+				}
+#endif
 				rc = hv_stage2_add_regions(&mmio);
 				if (rc != HV_OK) {
 					(void)hv_smmu_revoke_dma_access(

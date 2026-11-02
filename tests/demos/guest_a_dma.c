@@ -6,7 +6,9 @@
  * all accesses below are naturally aligned (built with -mstrict-align).
  *
  * If HAVEN enforces the partition's DMA grant (bit 0 of the entry argument),
- * this drives the PCIe function at 00:01.0 as a modern virtio device
+ * this checks that HAVEN placed the function's BAR and that its config page
+ * is read-only, then drives the PCIe function at 00:01.0 as a modern virtio
+ * device
  * (virtio-rng-pci in QEMU) and asks it for random bytes twice:
  *   1. into a buffer inside the granted DMA window: must complete;
  *   2. into a buffer in partition A's RAM but outside the window: the SMMU
@@ -22,7 +24,7 @@
  * not start the device.
  *
  * Addresses (QEMU virt, see src/platform/qemu-virt/memory.h): config page
- * of 00:01.0 at 0x40_1000_8000, memory BAR placed at 0x1000_0000, DMA
+ * of 00:01.0 at 0x40_1000_8000 (read-only), memory BAR at 0x1000_0000, DMA
  * window at IPA 0x5F00_0000 (1 MiB).  Virtio PCI layout: virtio
  * specification 1.2, section 4.1.4 (capabilities) and 2.7 (split queues).
  */
@@ -35,7 +37,6 @@
 
 #define CFG_BASE 0x4010008000UL /* ECAM page of 00:01.0 */
 #define BAR_BASE 0x10000000UL
-#define BAR_MAX 0x4000UL
 #define WIN_BASE 0x5F000000UL /* granted DMA window, 1 MiB */
 #define OUTSIDE_BUF 0x5E000000UL /* partition A RAM, outside the window */
 
@@ -145,24 +146,20 @@ static uint32_t cfg32(uint32_t off)
 	return r32(CFG_BASE + off);
 }
 
-/* Place the memory BAR the virtio capabilities use at BAR_BASE.
- * Returns 0, or -1 if the BAR is missing, I/O or larger than BAR_MAX. */
-static int place_bar(uint32_t bar)
+/* Haven places the memory BAR and enables the function; the config page is
+ * read-only here.  Check that the BAR the virtio capabilities use is at
+ * BAR_BASE and that memory decoding and bus mastering are on.
+ * Returns 0, or -1 if not. */
+static int check_bar(uint32_t bar)
 {
 	uint32_t off = 0x10U + 4U * bar;
-	uint32_t orig = cfg32(off);
-	uint32_t size;
+	uint32_t lo = cfg32(off);
 
-	if (orig & 1U)
-		return -1; /* I/O BAR */
-	w32(CFG_BASE + off, 0xffffffffU);
-	size = ~(cfg32(off) & ~0xfU) + 1U;
-	if (size == 0U || size > BAR_MAX)
+	if ((lo & ~0xfU) != (uint32_t)BAR_BASE)
 		return -1;
-	w32(CFG_BASE + off, (uint32_t)BAR_BASE);
-	if ((orig & 0x6U) == 0x4U) /* 64-bit BAR: upper half */
-		w32(CFG_BASE + off + 4U, 0U);
-	return 0;
+	if ((lo & 0x6U) == 0x4U && cfg32(off + 4U) != 0U)
+		return -1;
+	return (cfg32(0x04) & 0x6U) == 0x6U ? 0 : -1;
 }
 
 /* Wait until used->idx reaches want. Returns 1 if it did. */
@@ -242,12 +239,17 @@ static void dma_test(uint64_t arg)
 		}
 		cap = cfg8(cap + 1U) & 0xfcU;
 	}
-	if (!common || !notify || bar > 5 || place_bar(bar) != 0) {
+	if (!common || !notify || bar > 5 || check_bar(bar) != 0) {
 		puts_("PARTITION_A: DMA device not usable\r\n");
 		return;
 	}
-	/* Command register: memory space and bus master. */
-	w32(CFG_BASE + 0x04, 0x6U);
+	/* The config page is read-only: this write must not land. */
+	w32(CFG_BASE + 0x10U + 4U * bar, 0x20000000U);
+	if (check_bar(bar) != 0) {
+		puts_("PARTITION_A: config write landed\r\n");
+		return;
+	}
+	puts_("PARTITION_A: config page read-only\r\n");
 
 	/* Device initialisation (virtio 1.2, 3.1.1). */
 	w8(common + CC_STATUS, 0);

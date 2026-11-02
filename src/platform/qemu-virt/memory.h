@@ -50,13 +50,15 @@
  * pcie@10000000), 32-bit memory window 0x1000_0000 to 0x3EFF_0000, and
  * iommu-map <0 &smmu 0 0x10000>, so the StreamID is the requester ID
  * (bus << 8 | device << 3 | function).
- *   StreamID 8; config page PA 0x40_1000_8000 (4 KB, this function only);
- *   memory BAR placed by partition A at PA 0x1000_0000 (16 KB);
+ *   StreamID 8; config page PA 0x40_1000_8000 (4 KB, this function only,
+ *   mapped read-only); memory BAR 4 (where QEMU's virtio-pci keeps its
+ *   modern registers) placed by Haven at PA 0x1000_0000 (16 KB);
  *   DMA window: IPA [0x5F000000, 0x5F100000) -> PA [0x9F800000, ...), RW,
  *   the last MiB but one of partition A's RAM (the top MiB holds its stack). */
 #define QEMU_PCIE_ECAM_BASE 0x4010000000UL
 #define PART_A_DMA_SID 8U
 #define PART_A_DMA_CFG_PA (QEMU_PCIE_ECAM_BASE + (1UL << 15))
+#define PART_A_DMA_BAR 4U
 #define PART_A_DMA_BAR_PA 0x10000000UL
 #define PART_A_DMA_BAR_SIZE 0x4000UL
 #define PART_A_DMA_IPA (PART_A_IPA_BASE + 0x1F000000UL)

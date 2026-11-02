@@ -111,6 +111,7 @@ if(HAVEN_ARCH_ARM64)
     set(HAVEN_DRIVER_SRCS
         drivers/irqchip/gic_v3.c
         drivers/iommu/smmu_v3.c
+        drivers/pci/ecam.c
     )
     if(PLATFORM STREQUAL "imx95-devkit")
         list(APPEND HAVEN_DRIVER_SRCS drivers/uart/imx_uart.c)
