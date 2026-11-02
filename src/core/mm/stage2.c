@@ -99,30 +99,18 @@ hv_status_t hv_stage2_init(void)
 	return HV_OK;
 }
 
-hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
+/* Check regions about to be added to a partition: valid attributes, page
+ * alignment, no wrap, no IPA overlap with each other or with the
+ * partition's existing regions, and no PA overlap with another partition. */
+static hv_status_t validate_new_regions(hv_u32 partition_id,
+					const struct hv_mem_region *regions,
+					hv_u32 count)
 {
 	hv_u32 i;
 	hv_u32 j;
 
-	if (cfg == NULL || cfg->regions == NULL || cfg->region_count == 0U ||
-	    cfg->partition_id == 0U) {
-		return HV_EINVAL;
-	}
-
-	if (cfg->partition_id >= HV_MAX_PARTITIONS) {
-		return HV_ENOSPC;
-	}
-
-	if (cfg->region_count > HV_MAX_PARTITION_REGIONS) {
-		return HV_ENOSPC;
-	}
-
-	if (stage2_partition_mapped[cfg->partition_id] != 0U) {
-		return HV_EPERM;
-	}
-
-	for (i = 0U; i < cfg->region_count; ++i) {
-		const struct hv_mem_region *region = &cfg->regions[i];
+	for (i = 0U; i < count; ++i) {
+		const struct hv_mem_region *region = &regions[i];
 
 		if (region->size == 0U) {
 			return HV_EINVAL;
@@ -143,8 +131,17 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
 			return HV_EINVAL;
 		}
 
-		for (j = i + 1U; j < cfg->region_count; ++j) {
-			if (hv_region_overlaps_ipa(region, &cfg->regions[j]) !=
+		for (j = i + 1U; j < count; ++j) {
+			if (hv_region_overlaps_ipa(region, &regions[j]) != 0U) {
+				return HV_EINVAL;
+			}
+		}
+
+		for (j = 0U; j < stage2_partition_region_count[partition_id];
+		     ++j) {
+			if (hv_region_overlaps_ipa(
+				    region,
+				    &stage2_partition_regions[partition_id][j]) !=
 			    0U) {
 				return HV_EINVAL;
 			}
@@ -153,7 +150,7 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
 		for (j = 1U; j < HV_MAX_PARTITIONS; ++j) {
 			hv_u32 k;
 
-			if (j == cfg->partition_id ||
+			if (j == partition_id ||
 			    stage2_partition_mapped[j] == 0U) {
 				continue;
 			}
@@ -167,6 +164,38 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
 					return HV_EPERM;
 				}
 			}
+		}
+	}
+
+	return HV_OK;
+}
+
+hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
+{
+	hv_u32 i;
+
+	if (cfg == NULL || cfg->regions == NULL || cfg->region_count == 0U ||
+	    cfg->partition_id == 0U) {
+		return HV_EINVAL;
+	}
+
+	if (cfg->partition_id >= HV_MAX_PARTITIONS) {
+		return HV_ENOSPC;
+	}
+
+	if (cfg->region_count > HV_MAX_PARTITION_REGIONS) {
+		return HV_ENOSPC;
+	}
+
+	if (stage2_partition_mapped[cfg->partition_id] != 0U) {
+		return HV_EPERM;
+	}
+
+	{
+		hv_status_t rc = validate_new_regions(
+			cfg->partition_id, cfg->regions, cfg->region_count);
+		if (rc != HV_OK) {
+			return rc;
 		}
 	}
 
@@ -214,6 +243,69 @@ hv_status_t hv_stage2_map_partition(const struct hv_partition_mem *cfg)
 	}
 #endif
 
+	return HV_OK;
+}
+
+/* Add regions to a partition that is already mapped, e.g. the registers of
+ * a device whose DMA grant has been enforced.  Same checks as
+ * hv_stage2_map_partition(); on failure nothing is added. */
+hv_status_t hv_stage2_add_regions(const struct hv_partition_mem *cfg)
+{
+	hv_u32 i;
+	hv_u32 base;
+	hv_status_t rc;
+
+	if (cfg == NULL || cfg->regions == NULL || cfg->region_count == 0U ||
+	    cfg->partition_id == 0U) {
+		return HV_EINVAL;
+	}
+
+	if (cfg->partition_id >= HV_MAX_PARTITIONS) {
+		return HV_ENOSPC;
+	}
+
+	if (stage2_partition_mapped[cfg->partition_id] == 0U) {
+		return HV_EPERM;
+	}
+
+	base = stage2_partition_region_count[cfg->partition_id];
+	if (cfg->region_count > HV_MAX_PARTITION_REGIONS - base) {
+		return HV_ENOSPC;
+	}
+
+	rc = validate_new_regions(cfg->partition_id, cfg->regions,
+				  cfg->region_count);
+	if (rc != HV_OK) {
+		return rc;
+	}
+
+#ifdef HAVEN_ARCH_ARM64
+	for (i = 0U; i < cfg->region_count; ++i) {
+		const struct hv_mem_region *region = &cfg->regions[i];
+
+		rc = hv_arch_stage2_map(cfg->partition_id, region->ipa_base,
+					region->pa_base, region->size,
+					(hv_u32)region->attrs);
+		if (rc != HV_OK) {
+			hv_u32 k;
+
+			for (k = 0U; k < i; ++k) {
+				hv_arch_stage2_unmap(cfg->partition_id,
+						     cfg->regions[k].ipa_base,
+						     cfg->regions[k].size);
+			}
+			hv_arch_stage2_flush_tlb();
+			return rc;
+		}
+	}
+#endif
+
+	for (i = 0U; i < cfg->region_count; ++i) {
+		stage2_partition_regions[cfg->partition_id][base + i] =
+			cfg->regions[i];
+	}
+	stage2_partition_region_count[cfg->partition_id] =
+		base + cfg->region_count;
 	return HV_OK;
 }
 

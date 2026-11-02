@@ -149,9 +149,87 @@ static void test_budget_contract(void)
 	assert(hv_budget_consume(1, 200000) == HV_OK);
 }
 
+static void test_stage2_add_regions(void)
+{
+	struct hv_mem_region ram[1] = {{.ipa_base = 0x40000000,
+					.pa_base = 0x80000000,
+					.size = 0x100000,
+					.attrs = HV_MEM_RWX}};
+	struct hv_mem_region other_ram[1] = {{.ipa_base = 0x40000000,
+					      .pa_base = 0x90000000,
+					      .size = 0x100000,
+					      .attrs = HV_MEM_RWX}};
+	struct hv_mem_region mmio[2] = {{.ipa_base = 0x10000000,
+					 .pa_base = 0x10000000,
+					 .size = 0x4000,
+					 .attrs = HV_MEM_DEVICE_RW},
+					{.ipa_base = 0x4010008000ULL,
+					 .pa_base = 0x4010008000ULL,
+					 .size = 0x1000,
+					 .attrs = HV_MEM_DEVICE_RW}};
+	struct hv_mem_region ipa_clash[1] = {{.ipa_base = 0x40080000,
+					      .pa_base = 0x20000000,
+					      .size = 0x1000,
+					      .attrs = HV_MEM_DEVICE_RW}};
+	struct hv_mem_region pa_clash[1] = {{.ipa_base = 0x30000000,
+					     .pa_base = 0x90000000,
+					     .size = 0x1000,
+					     .attrs = HV_MEM_DEVICE_RW}};
+	struct hv_mem_region bad_attrs[1] = {
+		{.ipa_base = 0x30000000,
+		 .pa_base = 0x30000000,
+		 .size = 0x1000,
+		 .attrs = HV_MEM_DEVICE | HV_MEM_R | HV_MEM_X}};
+
+	assert(hv_stage2_init() == HV_OK);
+	/* The partition must be mapped first. */
+	assert(hv_stage2_add_regions(&(struct hv_partition_mem){
+		       .partition_id = 1, .regions = mmio, .region_count = 2}) ==
+	       HV_EPERM);
+	assert(hv_stage2_map_partition(&(struct hv_partition_mem){
+		       .partition_id = 1, .regions = ram, .region_count = 1}) ==
+	       HV_OK);
+	assert(hv_stage2_map_partition(
+		       &(struct hv_partition_mem){.partition_id = 2,
+						  .regions = other_ram,
+						  .region_count = 1}) == HV_OK);
+	/* Rejected: IPA overlap with an existing region, PA owned by another
+	 * partition, invalid attributes, NULL. */
+	assert(hv_stage2_add_regions(&(struct hv_partition_mem){
+		       .partition_id = 1,
+		       .regions = ipa_clash,
+		       .region_count = 1}) == HV_EINVAL);
+	assert(hv_stage2_add_regions(&(struct hv_partition_mem){
+		       .partition_id = 1,
+		       .regions = pa_clash,
+		       .region_count = 1}) == HV_EPERM);
+	assert(hv_stage2_add_regions(&(struct hv_partition_mem){
+		       .partition_id = 1,
+		       .regions = bad_attrs,
+		       .region_count = 1}) == HV_EINVAL);
+	assert(hv_stage2_add_regions(NULL) == HV_EINVAL);
+	/* Accepted: device registers; they then count as the partition's. */
+	assert(hv_stage2_add_regions(
+		       &(struct hv_partition_mem){.partition_id = 1,
+						  .regions = mmio,
+						  .region_count = 2}) == HV_OK);
+	assert(hv_stage2_partition_contains_pa(1, 0x10000000, 0x4000) == HV_OK);
+	/* Adding the same registers again overlaps in IPA. */
+	assert(hv_stage2_add_regions(&(struct hv_partition_mem){
+		       .partition_id = 1, .regions = mmio, .region_count = 2}) ==
+	       HV_EINVAL);
+	/* Another partition cannot take them. */
+	assert(hv_stage2_add_regions(&(struct hv_partition_mem){
+		       .partition_id = 2, .regions = mmio, .region_count = 1}) ==
+	       HV_EPERM);
+	assert(hv_stage2_unmap_partition(1) == HV_OK);
+	assert(hv_stage2_unmap_partition(2) == HV_OK);
+}
+
 int main(void)
 {
 	test_stage2_contract();
+	test_stage2_add_regions();
 	test_irq_contract();
 	test_budget_contract();
 	return 0;
