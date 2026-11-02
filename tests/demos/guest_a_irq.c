@@ -43,7 +43,7 @@ static void puts_(const char *s)
 	}
 }
 
-void guest_a_irq_handler(void)
+void guest_irq_handler(void)
 {
 	uint64_t iar;
 
@@ -60,10 +60,10 @@ void guest_a_irq_handler(void)
 
 void guest_a_irq_test(void)
 {
-	extern char guest_a_vectors[];
+	extern char guest_vectors[];
 	uint64_t sre;
 
-	__asm__ volatile("msr vbar_el1, %0\n\tisb" ::"r"(guest_a_vectors));
+	__asm__ volatile("msr vbar_el1, %0\n\tisb" ::"r"(guest_vectors));
 	__asm__ volatile("mrs %0, icc_sre_el1" : "=r"(sre));
 	__asm__ volatile("msr icc_sre_el1, %0\n\tisb" ::"r"(sre | 1U));
 	__asm__ volatile("msr icc_pmr_el1, %0" ::"r"(0xffUL));

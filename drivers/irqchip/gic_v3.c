@@ -173,33 +173,50 @@ hv_status_t gic_v3_configure_irq(uint32_t irq, uint8_t priority, int edge)
 	return HV_OK;
 }
 
+/* SPIs only.  A PPI is private to one CPU's redistributor, so it goes
+ * through gic_v3_enable_ppi(cpu, irq); enabling it here used to reach CPU 0
+ * whatever CPU owned it. */
 hv_status_t gic_v3_enable_irq(uint32_t irq)
 {
-	if (!gic.initialized || irq >= gic.nr_irqs)
+	if (!gic.initialized || irq < GIC_SPI_BASE || irq >= gic.nr_irqs)
 		return HV_EINVAL;
 
-	if (irq < GIC_SPI_BASE) {
-		/* PPI: enable via boot CPU redistributor */
-		gic_write32(gicr_cpu_base(0), GICR_ISENABLER0, 1U << irq);
-	} else {
-		gic_write32(gic.gicd_base, GICD_ISENABLER(irq / 32),
-			    1U << (irq % 32));
-	}
+	gic_write32(gic.gicd_base, GICD_ISENABLER(irq / 32), 1U << (irq % 32));
 	return HV_OK;
 }
 
 hv_status_t gic_v3_disable_irq(uint32_t irq)
 {
-	if (!gic.initialized || irq >= gic.nr_irqs)
+	if (!gic.initialized || irq < GIC_SPI_BASE || irq >= gic.nr_irqs)
 		return HV_EINVAL;
 
-	if (irq < GIC_SPI_BASE) {
-		gic_write32(gicr_cpu_base(0), GICR_ICENABLER0, 1U << irq);
-	} else {
-		gic_write32(gic.gicd_base, GICD_ICENABLER(irq / 32),
-			    1U << (irq % 32));
-	}
+	gic_write32(gic.gicd_base, GICD_ICENABLER(irq / 32), 1U << (irq % 32));
 	gicd_wait_rwp(gic.gicd_base);
+	return HV_OK;
+}
+
+static int ppi_valid(uint32_t cpu, uint32_t irq)
+{
+	return gic.initialized && cpu < gic.nr_cpus && irq >= GIC_PPI_BASE &&
+	       irq < GIC_SPI_BASE;
+}
+
+hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq)
+{
+	if (!ppi_valid(cpu, irq))
+		return HV_EINVAL;
+
+	gic_write32(gicr_cpu_base(cpu), GICR_ISENABLER0, 1U << irq);
+	return HV_OK;
+}
+
+hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq)
+{
+	if (!ppi_valid(cpu, irq))
+		return HV_EINVAL;
+
+	gic_write32(gicr_cpu_base(cpu), GICR_ICENABLER0, 1U << irq);
+	gicr_wait_rwp(gicr_cpu_base(cpu));
 	return HV_OK;
 }
 

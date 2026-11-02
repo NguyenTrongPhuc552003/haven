@@ -153,9 +153,10 @@ hv_arch_secondary_start:
  *
  * ARM64 PSCI 0.2 SMC64 calling convention. The conduit comes from the build's
  * PSCI boot profile (FINDINGS B1): HAVEN_PSCI_CONDUIT_SMC for qemu-tfa (EL3
- * BL31 service), HAVEN_PSCI_CONDUIT_NONE for qemu-direct (no provider: return
- * NOT_SUPPORTED without any firmware call), HAVEN_PSCI_CONDUIT_HVC for the
- * other platforms (historical, unverified). An HVC issued at EL2 traps to EL2
+ * BL31 service) and qemu-psci (QEMU's built-in PSCI), HAVEN_PSCI_CONDUIT_NONE
+ * for qemu-direct (no provider: return NOT_SUPPORTED without any firmware
+ * call), HAVEN_PSCI_CONDUIT_HVC for the other platforms (historical,
+ * unverified). An HVC issued at EL2 traps to EL2
  * itself and cannot reach an EL3 service.
  *   Function ID : 0xC4000003  (PSCI_CPU_ON, SMC64)
  *   x0          = function ID

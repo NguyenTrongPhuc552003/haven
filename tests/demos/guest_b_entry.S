@@ -10,11 +10,11 @@
  *   SP_EL1   = top of partition B IPA space
  *
  * Partition B has NO UART MMIO mapped in its stage-2 page table (the PL011
- * at 0x09000000 is exclusively owned by Partition A).  All per-partition
- * activity is visible through Haven's own serial output:
+ * at 0x09000000 is exclusively owned by Partition A).  It reports through
+ * a status record in its own RAM (guest_b_status, tests/demos/guest_b_timer.c)
+ * that the host reads over the QEMU monitor, and through Haven's log:
  *
- *   "HAVEN: partition B mapped PA=..."  -- emitted during haven_init()
- *   "HAVEN: Denied stage-2 violation IPA=0x40000000 from cpu=2"
+ *   "HAVEN: Denied stage-2 violation IPA=0x40000000 ... cpu=2"
  *                                       -- when B reads from A's IPA
  *
  * What this stub demonstrates:
@@ -22,9 +22,13 @@
  *   2. Deliberately reads IPA 0x40000000 (Partition A's IPA base) to prove
  *      cross-partition memory is blocked: Haven catches the stage-2 DABT,
  *      logs the denial, and advances ELR_EL2 by 4 so execution resumes.
- *   3. Writes a "done" sentinel (0xDEADBEEF) to offset 0x100 in its own
- *      IPA space so Haven can verify B completed via a stage-2 read.
+ *   3. Runs the virtual timer test (PPI 27, injected by Haven on CPU 2).
  *   4. Halts with a WFI loop.
+ *
+ * Each step advances guest_b_status.stage (1 to 5).  An earlier version
+ * wrote a 0xDEADBEEF sentinel at IPA 0x60000100, which lies inside B's own
+ * code once the image is larger than 256 bytes; the status record replaces
+ * it.
  *
  * No UART for B preserves the spatial isolation invariant: Partition B
  * cannot read or write any PA owned by Partition A (including UART MMIO).
@@ -42,14 +46,15 @@ _guest_b_start:
         adr     x0, _guest_b_stack_top
         mov     sp, x0
 
-        /* --- RTOS period 1 ------------------------------------------- */
-        bl      rtos_task_body
+        mov     w0, #1                  /* stage 1: started */
+        bl      guest_b_stage
 
-        /* --- RTOS period 2 ------------------------------------------- */
+        /* --- RTOS periods 1-3 ---------------------------------------- */
         bl      rtos_task_body
-
-        /* --- RTOS period 3 ------------------------------------------- */
         bl      rtos_task_body
+        bl      rtos_task_body
+        mov     w0, #2                  /* stage 2: periods done */
+        bl      guest_b_stage
 
         /* Deliberate cross-partition access: read from Partition A's IPA.
          * This triggers a stage-2 DABT (FSC=0x04, EC=0x24).
@@ -58,15 +63,11 @@ _guest_b_start:
         mov     x1, #0x4000
         lsl     x1, x1, #16             /* x1 = 0x40000000 = PART_A_IPA_BASE */
         ldr     x0, [x1]               /* -> stage-2 fault, Haven skips and resumes */
+        mov     w0, #3                  /* stage 3: resumed after the fault */
+        bl      guest_b_stage
 
-        /* Write done sentinel to own IPA base + 0x100.
-         * A future health-check pass in Haven can read this back via
-         * hv_stage2_read() to confirm Partition B executed successfully. */
-        mov     x2, #0x6000
-        lsl     x2, x2, #16             /* x2 = 0x60000000 = PART_B_IPA_BASE */
-        mov     w3, #0xBEEF
-        movk    w3, #0xDEAD, lsl #16    /* w3 = 0xDEADBEEF */
-        str     w3, [x2, #0x100]
+        /* Virtual timer test: stages 4 and 5, result in guest_b_status. */
+        bl      guest_b_timer_test
 
 _guest_b_halt:
         wfi

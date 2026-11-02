@@ -212,8 +212,9 @@ static void selftest_reinit_idempotency(void)
 				  .attrs = HV_MEM_RWX};
 	struct hv_partition_mem pm = {
 		.partition_id = 1, .regions = &r, .region_count = 1};
+	/* An SPI: SGIs (0-15) are Haven's own and cannot be assigned. */
 	struct hv_irq_route route = {
-		.irq_id = 10, .owner_partition_id = 1, .target_cpu = 0};
+		.irq_id = 42, .owner_partition_id = 1, .target_cpu = 0};
 	struct hv_budget b = {.partition_id = 1,
 			      .period_ns = 1000000ULL,
 			      .budget_ns = 50000ULL};
@@ -235,7 +236,7 @@ static void selftest_reinit_idempotency(void)
 
 	/* All state must be clean again. */
 	assert(hv_stage2_unmap_partition(1) == HV_EPERM);
-	assert(hv_irq_is_owned_by(10, 1) == HV_EPERM);
+	assert(hv_irq_is_owned_by(42, 1) == HV_EPERM);
 	assert(hv_budget_consume(1, 1) == HV_EPERM);
 	int exp = 0;
 	assert(hv_timer_check_deadline(1, 6000ULL, &exp) == HV_EPERM);

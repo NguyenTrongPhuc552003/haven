@@ -26,11 +26,16 @@ hv_status_t gic_v3_init(uintptr_t gicd_pa, uintptr_t gicr_pa, uint32_t nr_cpus);
  */
 hv_status_t gic_v3_configure_irq(uint32_t irq, uint8_t priority, int edge);
 
-/* Enable an IRQ at the distributor/redistributor level. */
+/* Enable an SPI at the distributor (PPIs: gic_v3_enable_ppi). */
 hv_status_t gic_v3_enable_irq(uint32_t irq);
 
 /* Disable an IRQ - used by hv_irq_revoke() to enforce isolation. */
 hv_status_t gic_v3_disable_irq(uint32_t irq);
+
+/* Enable or disable PPI irq (16-31) in CPU cpu's redistributor only.
+ * gic_v3_enable_irq and gic_v3_disable_irq take SPIs only. */
+hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq);
+hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
 
 /*
  * gic_v3_route_irq - affinity-route SPI to a physical CPU.

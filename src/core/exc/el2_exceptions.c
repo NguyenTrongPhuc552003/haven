@@ -13,6 +13,9 @@
 /* External: ARM64 arch layer - weak so host unit-test builds link cleanly. */
 extern void hv_install_vectors(void) __attribute__((weak));
 extern void hv_arch_gic_el2_setup(void) __attribute__((weak));
+#ifdef HAVEN_ARCH_ARM64
+extern uint32_t hv_arch_cpu_id(void);
+#endif
 extern void hv_arch_handle_phys_irq(void) __attribute__((weak));
 extern hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 	__attribute__((weak));
@@ -322,10 +325,12 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 
 			if (hv_printk)
 				hv_printk("HAVEN: Denied stage-2 violation "
-					  "IPA=0x%lx FAR=0x%lx ESR=0x%lx\n",
+					  "IPA=0x%lx FAR=0x%lx ESR=0x%lx "
+					  "cpu=%u\n",
 					  (unsigned long)ipa,
 					  (unsigned long)far,
-					  (unsigned long)esr);
+					  (unsigned long)esr,
+					  (unsigned)hv_arch_cpu_id());
 
 			if (action == HV_S2F_STOP) {
 				/* Minimal stop: never return to the guest; park this

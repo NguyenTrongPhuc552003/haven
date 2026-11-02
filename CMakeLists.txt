@@ -35,18 +35,24 @@ set(HAVEN_PLATFORM_DEFINE "HAVEN_PLATFORM_${_plat_sym}")
 #   qemu-direct : QEMU loads HAVEN directly at EL2. No PSCI provider exists, so
 #                 CPU_ON is declared unavailable and no HVC/SMC is executed.
 #   qemu-tfa    : TF-A BL1/BL2/BL31 provides PSCI at EL3; CPU_ON uses SMC.
+#   qemu-psci   : QEMU loads HAVEN directly at EL2 and answers PSCI itself.
+#                 With virtualization=on, secure=off and no firmware, the virt
+#                 machine selects the SMC conduit for its built-in PSCI
+#                 emulation (QEMU hw/arm/virt.c), so CPU_ON uses SMC and
+#                 partition B starts on CPU 2 (owner approval 2026-11-02).
 set(HAVEN_BOOT_PROFILE "qemu-direct" CACHE STRING
-    "qemu-virt PSCI boot profile: qemu-direct | qemu-tfa")
-set_property(CACHE HAVEN_BOOT_PROFILE PROPERTY STRINGS qemu-direct qemu-tfa)
+    "qemu-virt PSCI boot profile: qemu-direct | qemu-tfa | qemu-psci")
+set_property(CACHE HAVEN_BOOT_PROFILE PROPERTY STRINGS qemu-direct qemu-tfa qemu-psci)
 if(PLATFORM STREQUAL "qemu-virt")
     if(HAVEN_BOOT_PROFILE STREQUAL "qemu-direct")
         set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_NONE)
-    elseif(HAVEN_BOOT_PROFILE STREQUAL "qemu-tfa")
+    elseif(HAVEN_BOOT_PROFILE STREQUAL "qemu-tfa" OR
+           HAVEN_BOOT_PROFILE STREQUAL "qemu-psci")
         set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_SMC)
     else()
         message(FATAL_ERROR
             "Unknown HAVEN_BOOT_PROFILE '${HAVEN_BOOT_PROFILE}' "
-            "(expected qemu-direct or qemu-tfa)")
+            "(expected qemu-direct, qemu-tfa or qemu-psci)")
     endif()
 else()
     set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_HVC)
@@ -177,11 +183,11 @@ if(HAVEN_ARCH_ARM64)
 
     # ── Guest A - bare-metal EL1 stub at PA 0x80800000 ───────────────────────
     set_source_files_properties(tests/demos/guest_a_entry.S
-        tests/demos/guest_a_vectors.S PROPERTIES
+        tests/demos/guest_vectors.S PROPERTIES
         COMPILE_FLAGS
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
     )
-    add_executable(guest_a tests/demos/guest_a_entry.S tests/demos/guest_a_vectors.S
+    add_executable(guest_a tests/demos/guest_a_entry.S tests/demos/guest_vectors.S
         tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c)
     target_include_directories(guest_a PRIVATE
         ${CMAKE_SOURCE_DIR}/arch/arm64/include
@@ -189,7 +195,8 @@ if(HAVEN_ARCH_ARM64)
     )
     # Stage-1 MMU off at EL1: all accesses are Device memory, so no
     # unaligned accesses may be generated.
-    set_source_files_properties(tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c PROPERTIES
+    set_source_files_properties(tests/demos/guest_a_dma.c tests/demos/guest_a_irq.c
+        tests/demos/guest_b_timer.c PROPERTIES
         COMPILE_OPTIONS "${HAVEN_ARM64_CFLAGS};-mstrict-align;-O2"
     )
     target_link_options(guest_a PRIVATE
@@ -213,7 +220,8 @@ if(HAVEN_ARCH_ARM64)
         COMPILE_FLAGS
         "${HAVEN_ARM64_ASFLAGS} -Iarch/arm64/include -Iinclude"
     )
-    add_executable(guest_b tests/demos/guest_b_entry.S)
+    add_executable(guest_b tests/demos/guest_b_entry.S tests/demos/guest_vectors.S
+        tests/demos/guest_b_timer.c)
     target_include_directories(guest_b PRIVATE
         ${CMAKE_SOURCE_DIR}/arch/arm64/include
         ${CMAKE_SOURCE_DIR}/include

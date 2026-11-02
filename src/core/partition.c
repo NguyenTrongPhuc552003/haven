@@ -250,13 +250,15 @@ static const struct hv_partition_mem part_b_mem_cfg = {
 /* -----------------------------------------------------------------------
  * IRQ routing
  *
- * GIC SPI numbers (QEMU virt, aarch64):
- *   IRQ 33 - PL011 UART0  (SPI, routable to Partition A)
- *   IRQ 26 - virtual RTOS timer (SPI, routable to Partition B, CPU 2)
+ * QEMU virt, aarch64 (INTIDs):
+ *   33 - PL011 UART0, SPI 1: partition A, routed to CPU 0
+ *   27 - EL1 virtual timer, PPI: partition B, on CPU 2 only
  *
- * IRQ 27 (arch timer PPI) is NOT listed: PPIs (16-31) are per-CPU and
- * cannot be routed via GICD_IROUTER; they fire on whichever CPU the
- * partition runs and need no explicit ownership entry.
+ * A PPI is private to one CPU: it is owned per (INTID, CPU) and enabled in
+ * that CPU's redistributor only.  It still needs an ownership entry: with
+ * HCR_EL2.IMO set the physical interrupt traps to Haven, which injects it
+ * only into the partition that owns it on that CPU (earlier versions of
+ * this comment said a PPI needed none; the timer then never reached B).
  *
  * Interrupt ownership is exclusive: once assigned to a partition no
  * other partition can claim the same IRQ (hv_irq_assign contract).
@@ -266,9 +268,14 @@ static const struct hv_irq_route part_a_irqs[] = {
 	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
 };
 
-/* Partition B: no SPI IRQ assignments for the QEMU demo.
- * The RTOS partition uses its per-CPU virtual timer PPI (IRQ 27)
- * which fires automatically on CPU 2 without explicit GIC routing. */
+#define PART_B_CPU 2U
+#define PART_B_VTIMER_PPI 27U
+
+static const struct hv_irq_route part_b_irqs[] = {
+	{.irq_id = PART_B_VTIMER_PPI,
+	 .owner_partition_id = PARTITION_B_ID,
+	 .target_cpu = PART_B_CPU},
+};
 
 /* -----------------------------------------------------------------------
  * CPU time budgets  (10 ms period, static allocation)
@@ -305,6 +312,8 @@ extern void hv_arch_secondary_start(uint32_t cpu_id,
 				    void (*entry_fn)(uint64_t cpu_id));
 extern int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
 extern void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition);
+extern void hv_arch_cpu_init(void);
+extern void hv_arch_phys_irq_cpu_init(void);
 extern uint32_t hv_arch_cpu_id(void);
 /* Symbol defined in arch/arm64/boot.S - the secondary CPU spin-loop entry */
 extern void secondary_entry(void);
@@ -319,6 +328,14 @@ __attribute__((noreturn)) static void
 partition_b_secondary_cpu_init(uint64_t cpu_id)
 {
 	(void)cpu_id;
+
+	/* Per-CPU EL2 state first (FINDINGS B2).  A CPU started by PSCI
+	 * CPU_ON enters EL2 with HCR_EL2, VTCR_EL2 and VBAR_EL2 at their reset
+	 * values: in QEMU HCR_EL2.RW = 0 made the ERET below an illegal
+	 * exception return, and CPU 2 looped on undefined-instruction
+	 * exceptions at VBAR_EL2 = 0 without ever running partition B. */
+	hv_arch_cpu_init();
+	hv_arch_phys_irq_cpu_init();
 
 	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
 	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);
@@ -394,7 +411,13 @@ void partitions_launch(void)
 	}
 	hv_printk("HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)\n");
 
-	/* Partition B has no SPI IRQs to assign in the QEMU demo. */
+	for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
+		st = hv_irq_assign(&part_b_irqs[i]);
+		if (st != HV_OK) {
+			hv_panic("partition B IRQ assignment failed");
+		}
+	}
+	hv_printk("HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)\n");
 
 	/* ----- Scheduler budgets ------------------------------------------ */
 
@@ -424,8 +447,9 @@ void partitions_launch(void)
 	 * The PSCI CPU_ON call is asynchronous: CPU 2 may still be waking up
 	 * when we write the mailbox, so the SEV in hv_arch_secondary_start
 	 * guarantees the wake-up is observed. */
-	if (hv_arch_psci_cpu_on(2U, (uintptr_t)secondary_entry) == 0) {
-		hv_arch_secondary_start(2U, partition_b_secondary_cpu_init);
+	if (hv_arch_psci_cpu_on(PART_B_CPU, (uintptr_t)secondary_entry) == 0) {
+		hv_arch_secondary_start(PART_B_CPU,
+					partition_b_secondary_cpu_init);
 		hv_printk("HAVEN: CPU 2 woken for partition B (VMID=%u)\n",
 			  PARTITION_B_ID);
 	} else {

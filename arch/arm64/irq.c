@@ -213,10 +213,12 @@ void hv_arch_gic_el2_setup(void)
 /* -----------------------------------------------------------------------
  * Physical interrupts taken at EL2 (HCR_EL2.IMO = 1).
  *
- * hv_arch_phys_irq_init opens the boot CPU's interface for Group 1
+ * hv_arch_phys_irq_cpu_init opens the calling CPU's interface for Group 1
  * interrupts (ICC_PMR_EL1 = 0xF0 lets every priority above the lowest
  * through; ICC_IGRPEN1_EL1 = 1) and sets ICC_CTLR_EL1.EOImode = 1, so that
- * ICC_EOIR1_EL1 only drops priority and deactivation is separate.
+ * ICC_EOIR1_EL1 only drops priority and deactivation is separate.  The boot
+ * CPU calls it through hv_arch_phys_irq_init; a secondary CPU calls it
+ * before entering its partition.
  *
  * hv_arch_handle_phys_irq acknowledges each pending interrupt:
  *   - Haven's own (the SMMU event queue): handled, then EOI and DIR;
@@ -229,7 +231,9 @@ void hv_arch_gic_el2_setup(void)
  *   - anything else, or no free list register: EOI and DIR.  An SPI that
  *     cannot be delivered is also disabled in the distributor: a level
  *     interrupt nobody clears would otherwise fire again at once and keep
- *     the CPU in Haven (observed in QEMU before this rule).
+ *     the CPU in Haven (observed in QEMU before this rule).  A PPI is
+ *     private to its CPU, so its owner is looked up for (INTID, this CPU)
+ *     and an undeliverable PPI is disabled on this CPU only.
  * ----------------------------------------------------------------------- */
 
 static uint32_t smmu_evtq_intid;
@@ -247,14 +251,21 @@ void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition)
 
 #define ICC_CTLR_EOIMODE (1UL << 1)
 
-void hv_arch_phys_irq_init(uint32_t smmu_intid)
+/* Open this CPU's physical interface: EOImode 1, every priority above the
+ * lowest, Group 1 enabled.  Each CPU that runs a partition calls it. */
+void hv_arch_phys_irq_cpu_init(void)
 {
-	smmu_evtq_intid = smmu_intid;
 	write_sysreg(read_sysreg(icc_ctlr_el1) | ICC_CTLR_EOIMODE,
 		     icc_ctlr_el1);
 	write_sysreg(0xF0UL, icc_pmr_el1);
 	write_sysreg(1UL, icc_igrpen1_el1);
 	isb();
+}
+
+void hv_arch_phys_irq_init(uint32_t smmu_intid)
+{
+	smmu_evtq_intid = smmu_intid;
+	hv_arch_phys_irq_cpu_init();
 }
 
 /* Queue a virtual interrupt linked to physical intid (same number) in a free
@@ -280,13 +291,13 @@ void hv_arch_handle_phys_irq(void)
 	extern void hv_printk(const char *fmt, ...);
 	extern void smmu_v3_service_irq(void);
 	extern uint32_t hv_arch_cpu_id(void);
-	extern hv_u32 hv_irq_owner(hv_u32 irq_id, hv_u32 * target_cpu);
+	extern hv_u32 hv_irq_owner_on(hv_u32 irq_id, hv_u32 cpu);
 	extern hv_status_t gic_v3_disable_irq(uint32_t irq);
+	extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
 
 	for (;;) {
 		uint64_t iar = read_sysreg(icc_iar1_el1);
 		uint32_t intid = (uint32_t)(iar & 0xffffffU);
-		hv_u32 cpu = 0U;
 		hv_u32 owner;
 		uint32_t here = hv_arch_cpu_id();
 
@@ -295,7 +306,7 @@ void hv_arch_handle_phys_irq(void)
 		if (intid == smmu_evtq_intid && intid != 0U) {
 			smmu_v3_service_irq();
 		} else {
-			owner = hv_irq_owner(intid, &cpu);
+			owner = hv_irq_owner_on(intid, here);
 			if (owner != 0U && here < HV_ARCH_IRQ_MAX_CPUS &&
 			    owner == cpu_partition[here] &&
 			    inject_hw(intid, 0xa0U) == HV_OK) {
@@ -309,6 +320,13 @@ void hv_arch_handle_phys_irq(void)
 				hv_printk("HAVEN: IRQ %u not delivered, "
 					  "disabled\n",
 					  (unsigned)intid);
+			} else if (intid >= 16U) {
+				/* A PPI is private: disable it on this
+				 * CPU only (a level timer would storm). */
+				(void)gic_v3_disable_ppi(here, intid);
+				hv_printk("HAVEN: PPI %u on CPU %u not "
+					  "delivered, disabled\n",
+					  (unsigned)intid, (unsigned)here);
 			}
 		}
 		write_sysreg(iar, icc_eoir1_el1);

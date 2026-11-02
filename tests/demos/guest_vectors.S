@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * tests/demos/guest_a_vectors.S - EL1 exception vectors for partition A.
+ * tests/demos/guest_vectors.S - EL1 exception vectors for the demo guests.
  *
- * Only "current EL with SP_ELx, IRQ" (offset 0x280) is handled: it saves the
- * caller-saved registers, calls guest_a_irq_handler() and returns.  Every
- * other entry parks the CPU, which a test sees as a missing UART line.
+ * Linked into both partition A and partition B.  Only "current EL with
+ * SP_ELx, IRQ" (offset 0x280) is handled: it saves the caller-saved
+ * registers, calls the guest's guest_irq_handler() and returns.  Every
+ * other entry parks the CPU, which a test sees as a missing marker.
  */
 
         .macro  park
@@ -15,8 +16,8 @@
 
         .section ".text", "ax"
         .align  11
-        .global guest_a_vectors
-guest_a_vectors:
+        .global guest_vectors
+guest_vectors:
         park                    /* 0x000 current EL, SP_EL0: sync */
         park                    /* 0x080 IRQ */
         park                    /* 0x100 FIQ */
@@ -36,7 +37,7 @@ guest_a_vectors:
         stp     x16, x17, [sp, #128]
         stp     x18, x29, [sp, #144]
         str     x30, [sp, #160]
-        bl      guest_a_irq_handler
+        bl      guest_irq_handler
         ldr     x30, [sp, #160]
         ldp     x18, x29, [sp, #144]
         ldp     x16, x17, [sp, #128]

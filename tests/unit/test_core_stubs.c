@@ -130,6 +130,43 @@ static void test_irq_contract(void)
 	assert(hv_irq_is_owned_by(32, 1) == HV_EPERM);
 }
 
+/* PPIs are private to a CPU: owned per (INTID, CPU).  SGIs stay Haven's. */
+static void test_irq_ppi_contract(void)
+{
+	struct hv_irq_route b_timer = {
+		.irq_id = 27, .owner_partition_id = 2, .target_cpu = 2};
+	struct hv_irq_route a_timer = {
+		.irq_id = 27, .owner_partition_id = 1, .target_cpu = 0};
+	struct hv_irq_route steal = {
+		.irq_id = 27, .owner_partition_id = 1, .target_cpu = 2};
+	struct hv_irq_route sgi = {
+		.irq_id = 5, .owner_partition_id = 1, .target_cpu = 0};
+	struct hv_irq_route far_cpu = {
+		.irq_id = 27, .owner_partition_id = 2, .target_cpu = 16};
+
+	assert(hv_irq_owner_init() == HV_OK);
+	assert(hv_irq_assign(&sgi) == HV_EINVAL);
+	assert(hv_irq_assign(&far_cpu) == HV_ENOSPC);
+	assert(hv_irq_assign(&b_timer) == HV_OK);
+	assert(hv_irq_assign(&b_timer) == HV_OK); /* idempotent */
+	assert(hv_irq_owner_on(27, 2) == 2U);
+	assert(hv_irq_owner_on(27, 0) == 0U);
+	assert(hv_irq_owner_on(27, 99) == 0U);
+	assert(hv_irq_owner(27, NULL) == 0U);
+	assert(hv_irq_assign(&steal) == HV_EPERM);
+	assert(hv_irq_assign(&a_timer) == HV_OK); /* same INTID, other CPU */
+	assert(hv_irq_owner_on(27, 0) == 1U);
+	assert(hv_irq_is_owned_by(27, 2) == HV_OK);
+	assert(hv_irq_is_owned_by(26, 2) == HV_EPERM);
+	assert(hv_irq_revoke(27, 2) == HV_OK);
+	assert(hv_irq_owner_on(27, 2) == 0U);
+	assert(hv_irq_owner_on(27, 0) == 1U);
+	assert(hv_irq_revoke(27, 2) == HV_EPERM);
+	assert(hv_irq_is_owned_by(27, 2) == HV_EPERM);
+	assert(hv_irq_owner_init() == HV_OK);
+	assert(hv_irq_owner_on(27, 0) == 0U);
+}
+
 static void test_budget_contract(void)
 {
 	struct hv_budget good = {
@@ -240,6 +277,7 @@ int main(void)
 	test_stage2_contract();
 	test_stage2_add_regions();
 	test_irq_contract();
+	test_irq_ppi_contract();
 	test_budget_contract();
 	return 0;
 }
