@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* ARM64 EL2 CPU initialization for the Haven hypervisor. */
 
+#include <asm/cpu_map.h>
 #include <asm/sysregs.h>
 #include <stdint.h>
 
@@ -75,28 +76,32 @@ void hv_arch_cpu_init(void)
 }
 
 /* -----------------------------------------------------------------------
- * hv_arch_cpu_id - return the current CPU logical index.
+ * Logical CPU map (FINDINGS B3, asm/cpu_map.h).
  *
- * Reads MPIDR_EL1 Aff0 field (CPU number within cluster).
- * Assumes linear CPU numbering (Aff1=cluster, Aff0=cpu within cluster).
+ * Weak default: four CPUs numbered in Aff0, the historical assumption, kept
+ * for the legacy i.MX platforms (unverified there).  A platform overrides
+ * both symbols with its own table, boot CPU first.
  * ----------------------------------------------------------------------- */
+__attribute__((weak)) const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
+__attribute__((weak)) const uint32_t hv_cpu_count = 4U;
+
 uint32_t hv_arch_cpu_id(void)
 {
-	uint64_t mpidr = read_sysreg(mpidr_el1);
-	/* Return (Aff1 * 4 + Aff0) as logical CPU index */
-	uint32_t aff0 = (mpidr >> 0) & 0xff;
-	uint32_t aff1 = (mpidr >> 8) & 0xff;
-	return (aff1 << 2) | (aff0 & 0x3);
+	uint64_t mpidr = read_sysreg(mpidr_el1) & HV_MPIDR_AFF_MASK;
+	uint32_t n = hv_cpu_count < HV_MAX_CPUS ? hv_cpu_count : HV_MAX_CPUS;
+
+	for (uint32_t i = 0; i < n; i++) {
+		if (hv_cpu_mpidr[i] == mpidr)
+			return i;
+	}
+	return HV_CPU_INVALID;
 }
 
-/* -----------------------------------------------------------------------
- * hv_arch_cpu_mpidr - return raw MPIDR value for this CPU.
- *
- * Used when programming GICD_IROUTER for direct IRQ routing.
- * ----------------------------------------------------------------------- */
-uint64_t hv_arch_cpu_mpidr(void)
+uint64_t hv_arch_logical_mpidr(uint32_t cpu)
 {
-	return read_sysreg(mpidr_el1) & 0x00ffffffU;
+	if (cpu >= hv_cpu_count || cpu >= HV_MAX_CPUS)
+		return HV_CPU_INVALID;
+	return hv_cpu_mpidr[cpu];
 }
 
 /* -----------------------------------------------------------------------

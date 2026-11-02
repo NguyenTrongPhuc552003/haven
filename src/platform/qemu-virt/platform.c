@@ -22,6 +22,13 @@
  * drivers/uart/pl011.c
  * ----------------------------------------------------------------------- */
 
+/* -----------------------------------------------------------------------
+ * Logical CPU map (asm/cpu_map.h): QEMU virt with -smp 4 numbers its CPUs
+ * in MPIDR Aff0 (0 to 3, Aff1 = 0); CPU 0 boots.
+ * ----------------------------------------------------------------------- */
+const uint64_t hv_cpu_mpidr[] = {0x0, 0x1, 0x2, 0x3};
+const uint32_t hv_cpu_count = 4U;
+
 static void qemu_uart_putchar(char c)
 {
 	uart_putchar(QEMU_UART_BASE, c);

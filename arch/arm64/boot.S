@@ -26,12 +26,10 @@
 /* -----------------------------------------------------------------------
  * Build-time constants (define before first use)
  * ----------------------------------------------------------------------- */
-#ifndef HV_MAX_CPUS
-#define HV_MAX_CPUS     8
+#ifndef __ASSEMBLY__
+#define __ASSEMBLY__
 #endif
-#ifndef HV_STACK_SIZE
-#define HV_STACK_SIZE   4096
-#endif
+#include <asm/cpu_map.h>        /* HV_MAX_CPUS, HV_STACK_SIZE, CPU states */
 
 /* -----------------------------------------------------------------------
  * Primary CPU entry point - symbol must match linker script entry
@@ -95,18 +93,54 @@ _mailbox_done:
         .global secondary_entry
         .align  3
 secondary_entry:
-        /* Read MPIDR to get CPU logical index */
-        mrs     x0, mpidr_el1
-        and     x0, x0, #0xff     /* Aff0 (CPU within cluster) */
+        /* FINDINGS B3: check the entry state before any indexed access.
+         * x0 holds PSCI's context_id (0, unused). */
+        mrs     x4, CurrentEL
+        lsr     x4, x4, #2
+        and     x4, x4, #3
+        cmp     x4, #2
+        b.ne    _secondary_park          /* not EL2 */
 
-        /* Use Aff0 as stack index (up to HV_MAX_CPUS per cluster) */
+        /* MPIDR affinity: Aff3 [39:32] and Aff2..Aff0 [23:0]. */
+        mrs     x1, mpidr_el1
+        ubfx    x4, x1, #32, #8
+        and     x1, x1, #0xffffff
+        orr     x1, x1, x4, lsl #32
+
+        /* Logical index = position in the platform's CPU map. */
+        adrp    x2, hv_cpu_mpidr
+        add     x2, x2, :lo12:hv_cpu_mpidr
+        adrp    x3, hv_cpu_count
+        add     x3, x3, :lo12:hv_cpu_count
+        ldr     w3, [x3]
+        mov     x4, #HV_MAX_CPUS
+        cmp     x3, x4
+        csel    x3, x3, x4, lo           /* never past the stack array */
+        mov     x0, #0
+1:      cmp     x0, x3
+        b.hs    _secondary_park          /* MPIDR not in the map */
+        ldr     x5, [x2, x0, lsl #3]
+        cmp     x5, x1
+        b.eq    2f
+        add     x0, x0, #1
+        b       1b
+2:      cbz     x0, _secondary_park      /* entry 0 is the boot CPU's */
+
+        /* This CPU's stack: top of slot x0. */
         adrp    x1, cpu_stacks
         add     x1, x1, :lo12:cpu_stacks
         mov     x2, #HV_STACK_SIZE
         mul     x3, x0, x2
         add     x1, x1, x3
-        add     x1, x1, x2        /* Top of this CPU's stack */
+        add     x1, x1, x2
         mov     sp, x1
+
+        /* Record that this CPU reached Haven (hv_cpu_state, smp.c). */
+        adrp    x1, hv_cpu_state
+        add     x1, x1, :lo12:hv_cpu_state
+        mov     w2, #HV_CPU_ENTERED
+        add     x1, x1, x0, lsl #2
+        stlr    w2, [x1]
 
         /* Spin until primary CPU provides entry address in mailbox */
         adrp    x1, secondary_entry_addrs
@@ -120,8 +154,12 @@ _secondary_spin:
         dsb     sy
         isb
 
-        /* Jump to provided entry with x0 = cpu_id */
+        /* Jump to provided entry with x0 = logical cpu index */
         br      x2
+
+_secondary_park:
+        wfe
+        b       _secondary_park
 
 
 /* -----------------------------------------------------------------------
@@ -149,7 +187,7 @@ hv_arch_secondary_start:
  * hv_arch_psci_cpu_on - bring a secondary CPU online via PSCI CPU_ON.
  *
  * C prototype:
- *   int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
+ *   int hv_arch_psci_cpu_on(uint64_t target_mpidr, uintptr_t entry_pa);
  *
  * ARM64 PSCI 0.2 SMC64 calling convention. The conduit comes from the build's
  * PSCI boot profile (FINDINGS B1): HAVEN_PSCI_CONDUIT_SMC for qemu-tfa (EL3
@@ -164,7 +202,8 @@ hv_arch_secondary_start:
  *   x2          = entry_point_address (PA)
  *   x3          = context_id (0; passed back as x0 on secondary entry)
  *
- * For a single-cluster board: MPIDR = cpu_id (Aff0 = cpu_id, Aff1/2 = 0).
+ * The caller passes the target's MPIDR affinity from the CPU map
+ * (hv_arch_logical_mpidr); no MPIDR is derived from a logical index here.
  *
  * Returns: 0 = PSCI_SUCCESS, non-zero = error code.
  * ----------------------------------------------------------------------- */
@@ -172,10 +211,10 @@ hv_arch_secondary_start:
         .global hv_arch_psci_cpu_on
         .align  3
 hv_arch_psci_cpu_on:
-        /* x0 = cpu_id (uint32_t), x1 = entry_pa (uintptr_t) */
+        /* x0 = target MPIDR (from the CPU map), x1 = entry_pa */
         mov     x2, x1              /* x2 = entry_point_address          */
         mov     x3, #0              /* x3 = context_id (0)               */
-        mov     x1, x0              /* x1 = MPIDR (Aff0 = cpu_id)        */
+        mov     x1, x0              /* x1 = target_cpu (MPIDR affinity)  */
         /* Load PSCI_CPU_ON (0xC4000003) using two 16-bit halves */
         mov     x0, #0x0003
         movk    x0, #0xC400, lsl #16

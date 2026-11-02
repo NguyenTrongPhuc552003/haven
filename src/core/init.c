@@ -59,6 +59,18 @@ void haven_init(uintptr_t dtb_pa)
 	/* Print banner now that UART is available */
 	hv_print_banner();
 
+#ifdef HAVEN_ARCH_ARM64
+	/* FINDINGS B3: logical CPU 0 is entry 0 of the platform CPU map; the
+	 * boot CPU uses stack slot 0, so it must be that entry. */
+	{
+		extern uint32_t hv_arch_cpu_id(void);
+		extern void hv_panic(const char *msg);
+
+		if (hv_arch_cpu_id() != 0U)
+			hv_panic("boot CPU is not entry 0 of the CPU map");
+	}
+#endif
+
 	/* Step 3: Verify hardware supports all required features */
 	hv_check_hardware_features();
 

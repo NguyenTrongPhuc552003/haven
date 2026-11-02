@@ -128,7 +128,7 @@ def main():
         f"{k}={status[k]:#x}" if k == "magic" else f"{k}={status[k]}" for k in FIELDS)))
     denied_b = [l for l in log.splitlines() if "Denied stage-2 violation" in l and "IPA=0x40000000" in l]
     checks = [
-        ("CPU 2 woken for partition B", "CPU 2 woken for partition B" in log),
+        ("CPU 2 ready, partition B started", "CPU 2 ready, partition B started" in log),
         ("partition B IRQs assigned", "partition B IRQs assigned" in log),
         ("partition A: IRQ test done", "PARTITION_A: IRQ test done" in log),
         ("B's read of A's IPA denied on CPU 2", any("cpu=2" in l for l in denied_b)),

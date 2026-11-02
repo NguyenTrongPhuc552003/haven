@@ -104,6 +104,7 @@ if(HAVEN_ARCH_ARM64)
         arch/arm64/mm.c
         arch/arm64/timer.c
         arch/arm64/irq.c
+        arch/arm64/smp.c
     )
     set(HAVEN_ARCH_ASM_SRCS
         arch/arm64/entry.S

@@ -3,11 +3,12 @@
 #include "drivers/irqchip/gic_v3.h"
 #include <asm/sysregs.h>
 
-/* Compute MPIDR from logical CPU index.
- * For single-cluster SoCs: MPIDR Aff0 = cpu_id, Aff1..3 = 0. */
+#include <asm/cpu_map.h>
+
+/* MPIDR affinity of a logical CPU, from the platform's CPU map (B3). */
 static inline uint64_t cpu_to_mpidr(uint32_t cpu)
 {
-	return (uint64_t)cpu;
+	return hv_arch_logical_mpidr(cpu);
 }
 #endif
 
@@ -111,7 +112,12 @@ hv_status_t hv_irq_assign(const struct hv_irq_route *route)
 	/* Wire hardware: route IRQ to target CPU via GICv3 affinity routing */
 	{
 		uint64_t mpidr = cpu_to_mpidr(route->target_cpu);
-		hv_status_t st = gic_v3_route_irq(route->irq_id, mpidr);
+		hv_status_t st;
+
+		if (mpidr == HV_CPU_INVALID) {
+			return HV_EINVAL; /* no such CPU on this platform */
+		}
+		st = gic_v3_route_irq(route->irq_id, mpidr);
 		if (st != HV_OK) {
 			return st;
 		}

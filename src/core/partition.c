@@ -269,6 +269,7 @@ static const struct hv_irq_route part_a_irqs[] = {
 };
 
 #define PART_B_CPU 2U
+#define PART_B_READY_US 100000U /* CPU 2 ready deadline after CPU_ON */
 #define PART_B_VTIMER_PPI 27U
 
 static const struct hv_irq_route part_b_irqs[] = {
@@ -310,7 +311,10 @@ extern void hv_arch_start_partition(uintptr_t entry, uintptr_t sp,
 extern void hv_arch_stage2_enable(uint32_t partition_id, uint32_t vmid);
 extern void hv_arch_secondary_start(uint32_t cpu_id,
 				    void (*entry_fn)(uint64_t cpu_id));
-extern int hv_arch_psci_cpu_on(uint32_t cpu_id, uintptr_t entry_pa);
+extern int hv_arch_psci_cpu_on(uint64_t target_mpidr, uintptr_t entry_pa);
+extern uint64_t hv_arch_logical_mpidr(uint32_t cpu);
+extern int hv_arch_cpu_wait_ready(uint32_t cpu, uint64_t timeout_us);
+extern int hv_arch_cpu_report_ready(uint32_t cpu);
 extern void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition);
 extern void hv_arch_cpu_init(void);
 extern void hv_arch_phys_irq_cpu_init(void);
@@ -327,8 +331,6 @@ extern void secondary_entry(void);
 __attribute__((noreturn)) static void
 partition_b_secondary_cpu_init(uint64_t cpu_id)
 {
-	(void)cpu_id;
-
 	/* Per-CPU EL2 state first (FINDINGS B2).  A CPU started by PSCI
 	 * CPU_ON enters EL2 with HCR_EL2, VTCR_EL2 and VBAR_EL2 at their reset
 	 * values: in QEMU HCR_EL2.RW = 0 made the ERET below an illegal
@@ -339,6 +341,15 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
 
 	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
 	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);
+
+	/* FINDINGS B3: enter B only on the primary's go; a CPU that is not
+	 * B's, or that reports after the primary gave up, parks here. */
+	if (cpu_id != PART_B_CPU || hv_arch_cpu_id() != PART_B_CPU ||
+	    !hv_arch_cpu_report_ready(PART_B_CPU)) {
+		hv_arch_set_cpu_partition(hv_arch_cpu_id(), 0U);
+		for (;;)
+			__asm__ volatile("wfe");
+	}
 
 	/* ERET to Partition B entry at its IPA base. */
 	hv_arch_start_partition(
@@ -447,11 +458,20 @@ void partitions_launch(void)
 	 * The PSCI CPU_ON call is asynchronous: CPU 2 may still be waking up
 	 * when we write the mailbox, so the SEV in hv_arch_secondary_start
 	 * guarantees the wake-up is observed. */
-	if (hv_arch_psci_cpu_on(PART_B_CPU, (uintptr_t)secondary_entry) == 0) {
+	if (hv_arch_psci_cpu_on(hv_arch_logical_mpidr(PART_B_CPU),
+				(uintptr_t)secondary_entry) == 0) {
 		hv_arch_secondary_start(PART_B_CPU,
 					partition_b_secondary_cpu_init);
-		hv_printk("HAVEN: CPU 2 woken for partition B (VMID=%u)\n",
-			  PARTITION_B_ID);
+		/* PSCI success only means the CPU was switched on; partition B
+		 * starts when CPU 2 reports its EL2 setup done (B3). */
+		if (hv_arch_cpu_wait_ready(PART_B_CPU, PART_B_READY_US))
+			hv_printk("HAVEN: CPU 2 ready, partition B started "
+				  "(VMID=%u)\n",
+				  PARTITION_B_ID);
+		else
+			hv_printk("HAVEN: CPU 2 not ready within %u ms - "
+				  "partition B not started\n",
+				  (unsigned)(PART_B_READY_US / 1000U));
 	} else {
 		hv_printk(
 			"HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive\n");
