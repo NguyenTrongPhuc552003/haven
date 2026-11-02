@@ -45,7 +45,7 @@ value (VMID in bits [63:48]) and stores `vttbr & STE_3_S2TTB_MASK`, whose
 mask covers bits [51:4]. VMID bits [51:48] therefore end up in the table
 address. HAVEN's own VMIDs start at `0xC0`, which has those bits clear, so
 the first window works; the second (`0xC1`) has bit 48 set and would be
-rejected exactly as in S9. Recorded as SM4 in the finding ledger; fix
+rejected exactly as in S9 (only `0xC0`, `0xD0`, `0xE0` and `0xF0` are safe). Recorded as SM4 in the finding ledger; fix
 proposed, not applied.
 
 ## Observations

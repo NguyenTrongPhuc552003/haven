@@ -599,8 +599,9 @@ Both fixed on 2026-11-02 after owner approval
   `ste[3] = vttbr & STE_3_S2TTB_MASK`. With VMID 1 (S9) S2TTB read back as
   `0x1000080010000` and the SMMU reported 4 "bad STE" events; DMA failed.
 - **Consequence:** any DMA VMID with bits [3:0] non-zero corrupts the table
-  address. HAVEN allocates `0xC0`, `0xC1`, ...: the first window works, the
-  second and every odd one would be rejected.
+  address. HAVEN allocates `0xC0`, `0xC1`, ...: only `0xC0`, `0xD0`, `0xE0`
+  and `0xF0` are safe, so the first window works and the second (`0xC1`)
+  would already be rejected.
 - **Smallest correction (proposal):** pass the table base, not a VTTBR value,
   to the driver (or clear the VMID with `VTTBR_BADDR_MASK` before applying
   `STE_3_S2TTB_MASK`), and add a unit-level check that S2TTB equals the
