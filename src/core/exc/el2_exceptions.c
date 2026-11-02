@@ -13,6 +13,7 @@
 /* External: ARM64 arch layer - weak so host unit-test builds link cleanly. */
 extern void hv_install_vectors(void) __attribute__((weak));
 extern void hv_arch_gic_el2_setup(void) __attribute__((weak));
+extern void hv_arch_handle_phys_irq(void) __attribute__((weak));
 extern hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 	__attribute__((weak));
 
@@ -362,8 +363,14 @@ void hv_handle_irq(hv_u64 esr, hv_u64 far, hv_u64 sp)
 	(void)far;
 	exception_counts[HV_EXC_IRQ]++;
 
-	if (global_handlers[HV_EXC_IRQ])
+	if (global_handlers[HV_EXC_IRQ]) {
 		global_handlers[HV_EXC_IRQ](&current_exc_context);
+		return;
+	}
+#ifdef HAVEN_ARCH_ARM64
+	if (hv_arch_handle_phys_irq != NULL)
+		hv_arch_handle_phys_irq();
+#endif
 }
 
 void hv_handle_fiq(hv_u64 esr, hv_u64 far, hv_u64 sp)

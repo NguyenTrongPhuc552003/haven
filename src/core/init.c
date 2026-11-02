@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #ifdef HAVEN_ARCH_ARM64
+#include <asm/gic.h>
 #include "drivers/iommu/smmu_v3.h"
 #include "drivers/irqchip/gic_v3.h"
 #endif
@@ -90,6 +91,24 @@ void haven_init(uintptr_t dtb_pa)
 	hv_iommu_init();
 	hv_timer_init();
 	hv_el2_exceptions_init();
+
+#ifdef HAVEN_ARCH_ARM64
+	/* Haven's own interrupt: the SMMU event queue, on the boot CPU.  If
+	 * the platform names none or the SMMU has no event queue, events stay
+	 * in memory for external read-back. */
+	if (platform->smmu_evtq_irq != NULL) {
+		extern void hv_arch_phys_irq_init(uint32_t smmu_intid);
+		uint32_t irq = platform->smmu_evtq_irq();
+
+		if (irq != 0U && smmu_v3_enable_event_irq() == HV_OK &&
+		    gic_v3_configure_irq(irq, GIC_PRIO_HYPERVISOR, 1) ==
+			    HV_OK &&
+		    gic_v3_route_irq(irq, 0U) == HV_OK &&
+		    gic_v3_enable_irq(irq) == HV_OK) {
+			hv_arch_phys_irq_init(irq);
+		}
+	}
+#endif
 
 	/* Step 6: Load partition configuration from DTB or built-in table.
    * For Phase 1, a minimal built-in config is used (no DTB parsing). */

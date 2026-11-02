@@ -211,6 +211,52 @@ void hv_arch_gic_el2_setup(void)
 }
 
 /* -----------------------------------------------------------------------
+ * Physical interrupts taken at EL2 (HCR_EL2.IMO = 1).
+ *
+ * hv_arch_phys_irq_init opens the boot CPU's interface for Group 1
+ * interrupts (ICC_PMR_EL1 = 0xF0 lets every priority above the lowest
+ * through; ICC_IGRPEN1_EL1 = 1).  hv_arch_handle_phys_irq acknowledges and
+ * completes each pending interrupt (EOImode 0: one write drops priority and
+ * deactivates).  Haven's own interrupt today is the SMMU event queue; an
+ * interrupt owned by a partition is completed without delivery, because
+ * virtual injection is not wired yet.
+ * ----------------------------------------------------------------------- */
+
+static uint32_t smmu_evtq_intid;
+
+void hv_arch_phys_irq_init(uint32_t smmu_intid)
+{
+	smmu_evtq_intid = smmu_intid;
+	write_sysreg(0xF0UL, icc_pmr_el1);
+	write_sysreg(1UL, icc_igrpen1_el1);
+	isb();
+}
+
+void hv_arch_handle_phys_irq(void)
+{
+	extern void hv_printk(const char *fmt, ...);
+	extern void smmu_v3_service_irq(void);
+	static uint32_t undelivered;
+
+	for (;;) {
+		uint64_t iar = read_sysreg(icc_iar1_el1);
+		uint32_t intid = (uint32_t)(iar & 0xffffffU);
+
+		if (intid >= 1020U && intid <= 1023U)
+			break; /* spurious or none pending */
+		if (intid == smmu_evtq_intid && intid != 0U) {
+			smmu_v3_service_irq();
+		} else if (undelivered++ == 0U) {
+			hv_printk("HAVEN: IRQ %u not delivered (no virtual "
+				  "injection yet)\n",
+				  (unsigned)intid);
+		}
+		write_sysreg(iar, icc_eoir1_el1);
+		isb();
+	}
+}
+
+/* -----------------------------------------------------------------------
  * hv_arch_inject_virtual_irq - inject a virtual IRQ into the current guest.
  *
  * Scans ICH_LR0_EL2 .. ICH_LR15_EL2 for an Invalid slot, writes the LR

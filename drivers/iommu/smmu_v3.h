@@ -47,4 +47,19 @@ hv_status_t smmu_v3_set_ste_abort(uint32_t sid);
  */
 hv_status_t smmu_v3_set_ste_bypass(uint32_t sid);
 
+/*
+ * smmu_v3_enable_event_irq - raise the wired event (and gerror) interrupt
+ * when the SMMU records events.
+ */
+hv_status_t smmu_v3_enable_event_irq(void);
+
+/*
+ * smmu_v3_drain_events - pass each new event (4 x 64-bit words) to fn and
+ * consume it; returns the number of events.
+ */
+uint32_t smmu_v3_drain_events(void (*fn)(const uint64_t ev[4]));
+
+/* smmu_v3_service_irq - event interrupt handler: drain and log events. */
+void smmu_v3_service_irq(void);
+
 #endif /* HAVEN_DRIVERS_SMMU_V3_H */

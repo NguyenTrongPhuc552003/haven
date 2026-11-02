@@ -113,6 +113,13 @@
 	 (CR1_CACHE_WB << CR1_TABLE_OC_SHIFT) | \
 	 (CR1_SH_ISH << CR1_TABLE_SH_SHIFT))
 
+/* SMMU_IRQ_CTRL: wired interrupt enables (acknowledged in IRQ_CTRLACK) */
+#define IRQ_CTRL_GERROR_IRQEN (1U << 0)
+#define IRQ_CTRL_EVTQ_IRQEN (1U << 2)
+
+/* SMMU_EVTQ_PROD.OVFLG [31]: events were lost; mirrored into CONS to ack */
+#define Q_OVERFLOW_FLAG (1U << 31)
+
 /* SMMU_GERROR bits */
 #define GERROR_CMDQ_ERR (1U << 0)
 

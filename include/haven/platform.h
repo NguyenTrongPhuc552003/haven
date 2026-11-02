@@ -22,6 +22,7 @@ struct hv_platform_ops {
 	uint64_t (*gic_dist_base)(void); /* GIC Distributor MMIO base */
 	uint64_t (*gic_redist_base)(void); /* GIC Redistributor MMIO base */
 	uint64_t (*smmu_base)(void); /* SMMUv3 MMIO base */
+	uint32_t (*smmu_evtq_irq)(void); /* SMMU event-queue INTID (0: none) */
 
 	/* CPU / timer parameters */
 	uint64_t (*timer_freq)(void); /* Counter-timer frequency (Hz) */

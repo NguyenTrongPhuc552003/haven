@@ -67,8 +67,8 @@ static struct {
 	uint64_t cmdq[SMMU_CMDQ_ENTRIES * CMDQ_ENT_DWORDS]
 		__attribute__((aligned(SMMU_CMDQ_ENTRIES * 16)));
 	/* Event queue: the SMMU records faults here (e.g. DMA outside a
-	 * window).  Haven does not consume events yet; they stay in memory
-	 * for external read-back. */
+	 * window).  Haven drains it on the event interrupt; consumed entries
+	 * stay in memory, so external read-back still sees them. */
 	uint64_t evtq[SMMU_EVTQ_ENTRIES * EVTQ_ENT_DWORDS]
 		__attribute__((aligned(SMMU_EVTQ_ENTRIES * 32)));
 	uintptr_t base;
@@ -368,6 +368,80 @@ hv_status_t smmu_v3_init(uintptr_t base, uint32_t nr_streams)
 
 	smmu.initialized = 1;
 	return HV_OK;
+}
+
+/*
+ * smmu_v3_enable_event_irq - signal new events on the SMMU's wired event
+ * interrupt (and global errors on its gerror interrupt).
+ * Returns HV_OK, HV_ENOTSUP without an event queue, or HV_EIO.
+ */
+hv_status_t smmu_v3_enable_event_irq(void)
+{
+	uint32_t want = IRQ_CTRL_EVTQ_IRQEN | IRQ_CTRL_GERROR_IRQEN;
+
+	if (!smmu.initialized)
+		return HV_EINVAL;
+	if (!(smmu_read32(smmu.base, SMMU_CR0ACK) & CR0_EVTQ_ENABLE))
+		return HV_ENOTSUP;
+	smmu_write32(smmu.base, SMMU_IRQ_CTRL, want);
+	for (uint32_t spin = 0; spin < SMMU_POLL_LIMIT; spin++) {
+		if (smmu_read32(smmu.base, SMMU_IRQ_CTRLACK) == want)
+			return HV_OK;
+	}
+	return HV_EIO;
+}
+
+/*
+ * smmu_v3_drain_events - hand every new event to fn, then move CONS past
+ * them (acknowledging an overflow if the SMMU reported one).
+ * Returns the number of events consumed.
+ */
+uint32_t smmu_v3_drain_events(void (*fn)(const uint64_t ev[EVTQ_ENT_DWORDS]))
+{
+	const uint32_t ptr = (SMMU_EVTQ_ENTRIES << 1) - 1U;
+	uint32_t prod, cons, n = 0;
+
+	if (!smmu.initialized)
+		return 0;
+	prod = smmu_read32(smmu.base, SMMU_EVTQ_PROD);
+	cons = smmu_read32(smmu.base, SMMU_EVTQ_CONS) & ptr;
+	__asm__ volatile("dsb sy" ::: "memory");
+	while (cons != (prod & ptr)) {
+		fn(&smmu.evtq[(cons & (SMMU_EVTQ_ENTRIES - 1U)) *
+			      EVTQ_ENT_DWORDS]);
+		cons = (cons + 1U) & ptr;
+		n++;
+	}
+	smmu_write32(smmu.base, SMMU_EVTQ_CONS,
+		     cons | (prod & Q_OVERFLOW_FLAG));
+	return n;
+}
+
+/* Log the first few events and then running totals; called per event by
+ * smmu_v3_service_irq(). */
+static uint32_t smmu_events_seen;
+
+static void smmu_log_event(const uint64_t ev[EVTQ_ENT_DWORDS])
+{
+	extern void hv_printk(const char *fmt, ...);
+	uint32_t n = ++smmu_events_seen;
+
+	if (n <= 4U) {
+		hv_printk("HAVEN: SMMU event 0x%x SID %u addr 0x%lx %s\n",
+			  (unsigned)(ev[0] & 0xffU), (unsigned)(ev[0] >> 32),
+			  (unsigned long)ev[2],
+			  ((ev[1] >> 35) & 1U) ? "read" : "write");
+	} else if ((n & (n - 1U)) == 0U) {
+		hv_printk("HAVEN: SMMU events so far: %u\n", (unsigned)n);
+	}
+}
+
+/*
+ * smmu_v3_service_irq - event interrupt handler: drain and log the events.
+ */
+void smmu_v3_service_irq(void)
+{
+	(void)smmu_v3_drain_events(smmu_log_event);
 }
 
 /*

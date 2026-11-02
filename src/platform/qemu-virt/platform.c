@@ -49,6 +49,13 @@ static uint64_t qemu_smmu_base(void)
 	return QEMU_SMMU_BASE;
 }
 
+/* SMMU event-queue interrupt: QEMU virt device tree, smmuv3@9050000,
+ * interrupt-names "eventq" = SPI 74 (0x4a), edge -> INTID 32 + 74. */
+static uint32_t qemu_smmu_evtq_irq(void)
+{
+	return 32U + 74U;
+}
+
 /* -----------------------------------------------------------------------
  * Timer frequency (read from CNTFRQ_EL0 programmed by QEMU)
  * ----------------------------------------------------------------------- */
@@ -74,6 +81,7 @@ static const struct hv_platform_ops qemu_virt_ops = {
 	.gic_dist_base = qemu_gic_dist_base,
 	.gic_redist_base = qemu_gic_redist_base,
 	.smmu_base = qemu_smmu_base,
+	.smmu_evtq_irq = qemu_smmu_evtq_irq,
 	.timer_freq = qemu_timer_freq,
 	.nr_cpus = qemu_nr_cpus,
 	.name = "qemu-virt-arm64",
