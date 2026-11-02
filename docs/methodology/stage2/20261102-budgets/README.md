@@ -36,6 +36,17 @@ Why the six misses are prediction errors, not enforcement failures
    expected). Both are true; the second is redundant. Candidate tool
    change RB3: skip the priority check for a disabled granted interrupt.
 
+## Rerun of P2 to P4 with read-back v7 (RB3 fixed, 2026-11-03, `runs-v7/`)
+
+Read-back now gives exactly the expected findings in all 6 runs (missing
+binding only where PPI 26 was never set up; priority drift only where it
+is enabled at 0xf0). The unthrottled duty band still fails in 5 of 6 runs:
+the Mac was busier, and the guests saw up to 25 short gaps (up to 2.6 ms)
+and 946 to 1000 per mille without enforcement, against 527 to 627 for a
+throttled partition A. QEMU on a shared host cannot give a clean "no gap"
+baseline; the board run will use dedicated cores and the gap distribution
+rather than a gap count.
+
 ## Observations
 
 - **Budgets work, but QEMU's timer is late.** Haven's statistics show the

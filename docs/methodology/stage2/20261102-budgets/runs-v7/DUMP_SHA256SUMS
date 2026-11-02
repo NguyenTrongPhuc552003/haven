@@ -1,0 +1,12 @@
+ff0e5b06d1bf6e8b96ac1fa595a802921b27e6212032434d17457924743c2dd5  ./P2/readback-cortex-a72/haven-image.bin
+a280f994b889806732e2284938b1102784763ebafa2b9f7f766a950c03d0d9b8  ./P2/readback-cortex-a72/stream-table.bin
+60188ab0522a7261b8cdd980117388dbb44250ad16c484cd78ed8b3e486b7fb7  ./P2/readback-max/haven-image.bin
+a280f994b889806732e2284938b1102784763ebafa2b9f7f766a950c03d0d9b8  ./P2/readback-max/stream-table.bin
+7b224bc4cfa44b1afd886593d4fc1196570d2e1891fdd10c5c795ae54e552219  ./P3/readback-cortex-a72/haven-image.bin
+a280f994b889806732e2284938b1102784763ebafa2b9f7f766a950c03d0d9b8  ./P3/readback-cortex-a72/stream-table.bin
+416833076184238a749d205d5434c9c6bc492b76244f7538d3c90b8abf3de937  ./P3/readback-max/haven-image.bin
+a280f994b889806732e2284938b1102784763ebafa2b9f7f766a950c03d0d9b8  ./P3/readback-max/stream-table.bin
+a08a789752fa8e0465d39d0ff27bdd5d3f9f8be6cf6f2c4078305d0a4e49e67e  ./P4/readback-cortex-a72/haven-image.bin
+a280f994b889806732e2284938b1102784763ebafa2b9f7f766a950c03d0d9b8  ./P4/readback-cortex-a72/stream-table.bin
+8dcef192e8751c32f8f55c5dc8e614e692c09ce1f6d693742635fff9a0798097  ./P4/readback-max/haven-image.bin
+a280f994b889806732e2284938b1102784763ebafa2b9f7f766a950c03d0d9b8  ./P4/readback-max/stream-table.bin
