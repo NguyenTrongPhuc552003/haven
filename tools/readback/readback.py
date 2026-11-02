@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""External read-back of HAVEN's enforced state in QEMU (probe v2).
+"""External read-back of HAVEN's enforced state in QEMU (probe v4).
 
 Boots a qemu-direct HAVEN build, stops the machine and reads, from outside
 HAVEN:
@@ -16,6 +16,18 @@ HAVEN:
     compared with the window the grant gives the device. Which buses sit
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
+
+Changes in v4 (2026-11-02, after the random held-out cases and partition B):
+  - RB1: a partition whose stage-2 root is zero or outside HAVEN's image
+    (HAVEN halted before stage-2 setup) is a probe failure (exit 2) with a
+    report, not a crash;
+  - RB2: a granted PPI that is not enabled on its CPU is a missing interrupt
+    binding, as for SPIs;
+  - priorities: when the grant's "gic" section has "priority" ({"haven": P,
+    "partition": P}), every granted SPI and PPI is checked against it
+    (GICD_IPRIORITYR, GICR_IPRIORITYR); a partition interrupt that does not
+    match is interrupt priority drift. This covers the I7 and R2 blind spot.
+v3 is reproducible from haven ce220bb (frozen in case set v3).
 
 Changes in v3 (after the SM1 to SM3 fixes): stream tables that are not a
 partition root are walked and attributed by memory ownership; window
@@ -211,12 +223,19 @@ def read_gic(m):
     g = {"ctlr": ctlr, "typer": typer, "nirq": nirq,
          "igroupr": m.read_words(GICD_BASE + 0x80, nirq // 32),
          "isenabler": m.read_words(GICD_BASE + 0x100, nirq // 32),
-         "irouter": m.read_words(GICD_BASE + 0x6000 + 8 * 32, nirq - 32, "g"), "cpus": []}
+         "irouter": m.read_words(GICD_BASE + 0x6000 + 8 * 32, nirq - 32, "g"),
+         "ipriorityr": m.read_words(GICD_BASE + 0x400, nirq // 4), "cpus": []}
     for c in range(NCPUS):
         base = GICR_BASE + c * GICR_STRIDE
         g["cpus"].append({"typer": m.read64(base + 0x8), "igroupr0": m.read32(base + 0x10080),
-                          "isenabler0": m.read32(base + 0x10100)})
+                          "isenabler0": m.read32(base + 0x10100),
+                          "ipriorityr": m.read_words(base + 0x10400, 8)})
     return g
+
+
+def prio(words, irq):
+    """Priority byte of irq from IPRIORITYR words (4 interrupts per word)."""
+    return (words[irq // 4] >> (8 * (irq % 4))) & 0xFF
 
 
 # ---------------------------------------------------------------- stage-2
@@ -573,6 +592,28 @@ def compare_gic(g, expected):
         bad = [b for b in en if b not in ppis.get(i, set())]
         if bad:
             f.append((f"CPU {i} PPIs", "interrupt enable drift", f"enabled without a grant: {ranges(bad)}"))
+        for b in sorted(ppis.get(i, set())):  # v4, RB2
+            if b not in en:
+                f.append((f"CPU {i} PPI {b}", "missing interrupt binding", "granted but disabled"))
+    pr = expected.get("priority")
+    if pr and "ipriorityr" in g:  # v4: priorities of granted interrupts
+        want_h, want_p = int(str(pr["haven"]), 0), int(str(pr["partition"]), 0)
+        report["priorities"] = []
+        for irq, want in sorted(spis.items()):
+            got = prio(g["ipriorityr"], irq)
+            exp = want_h if want["partition"] == 0 else want_p
+            report["priorities"].append({"irq": irq, "priority": hex(got), "expected": hex(exp)})
+            if got != exp:
+                why = " (outranks HAVEN)" if want["partition"] != 0 and got <= want_h else ""
+                f.append((f"SPI {irq}", "interrupt priority drift", f"priority {got:#x}, granted {exp:#x}{why}"))
+        for i, cpu in enumerate(g["cpus"]):
+            for b in sorted(ppis.get(i, set())):
+                got = prio(cpu["ipriorityr"], b)
+                report["priorities"].append({"irq": b, "cpu": i, "priority": hex(got), "expected": hex(want_p)})
+                if got != want_p:
+                    why = " (outranks HAVEN)" if got <= want_h else ""
+                    f.append((f"CPU {i} PPI {b}", "interrupt priority drift",
+                              f"priority {got:#x}, granted {want_p:#x}{why}"))
     return f, report
 
 
@@ -603,7 +644,16 @@ def main():
         root = rd64(snap["image"], roots_pa + 8 * int(pid))
         roots[int(pid)] = root
         leaves = []
-        walk(snap["image"], root, 1, 0, leaves)
+        try:  # v4, RB1: no usable root means HAVEN stopped before stage-2 setup
+            if root == 0:
+                raise ValueError("root is zero")
+            walk(snap["image"], root, 1, 0, leaves)
+        except ValueError as e:
+            msg = f"HAVEN halted before stage-2 setup: partition {pid} root {root:#x} ({e})"
+            report.update({"findings": [], "probe_failure": msg})
+            json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
+            print(f"probe failure: {msg}")
+            return 2
         h = coalesce(leaves)
         f = compare_stage2(h, grants)
         findings += f
@@ -652,6 +702,9 @@ def main():
             print(f"  SPI {x['irq']}: enabled={x['enabled']} group1={x['group1']} -> CPU {x['cpu']} (IROUTER {x['irouter']})")
         for c in rep["cpus"]:
             print(f"  CPU {c['cpu']} (affinity {c['affinity']}): PPIs enabled {c['ppis_enabled'] or 'none'}")
+        for x in rep.get("priorities", []):
+            where = f"CPU {x['cpu']} PPI" if "cpu" in x else "SPI"
+            print(f"  {where} {x['irq']}: priority {x['priority']} (granted {x['expected']})")
     report["findings"] = findings
     json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
     for name, cls, detail in findings:
