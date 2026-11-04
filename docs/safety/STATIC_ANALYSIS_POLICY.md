@@ -166,7 +166,7 @@ At each milestone sign-off, the following coverage targets must be met:
 
 ## 8. CI Workflow Integration
 
-Static analysis runs locally with `scripts/ci/static-analysis.sh`; it is not yet part of Codeberg CI.
+Static analysis runs locally with `scripts/ci/static-analysis.sh`; it is not yet part of CI.
 
 ### Current gate configuration
 

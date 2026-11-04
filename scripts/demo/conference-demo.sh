@@ -278,7 +278,7 @@ printf '\n%b%b Demo complete in %ds %b\n' \
 	"$C_BOLD" "$C_GREEN" "$ELAPSED" "$C_RESET"
 printf '%b  Haven v%s - Static Partition Hypervisor for AMP on ARM64 %b\n' \
 	"$C_CYAN" "$(cat VERSION 2>/dev/null || echo "0.6.0")" "$C_RESET"
-printf '%b  https://codeberg.org/NguyenTrongPhuc552003/haven %b\n\n' \
+printf '%b  https://github.com/NguyenTrongPhuc552003/haven %b\n\n' \
 	"$C_CYAN" "$C_RESET"
 
 exit 0

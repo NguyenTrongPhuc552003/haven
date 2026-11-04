@@ -5,7 +5,7 @@
 > Current state: [docs/README.md](../README.md).
 
 > Historical plan, written while the project was hosted on GitHub. The project
-> now lives on Codeberg; CI is in `.forgejo/workflows/ci.yml`. GitHub-specific
+> lives on GitHub; CI is in `.github/workflows/ci.yml`. GitHub-specific
 > items below (workflows, templates, Pages, advisories) are not current.
 
 ## Context

@@ -51,6 +51,6 @@ configuration checks miss?
 ## Build it yourself
 
 Source, build instructions and every experiment record:
-<https://codeberg.org/NguyenTrongPhuc552003/haven>. On macOS,
-[ELMOS](https://codeberg.org/NguyenTrongPhuc552003/elmos) installs the
+<https://github.com/NguyenTrongPhuc552003/haven>. On macOS,
+[ELMOS](https://github.com/NguyenTrongPhuc552003/elmos) installs the
 toolchain and runs the same checks (`task haven:all`).

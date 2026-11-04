@@ -21,11 +21,11 @@ export default defineConfig({
         Head: "./src/components/Head.astro",
       },
       social: {
-        codeberg: "https://codeberg.org/NguyenTrongPhuc552003/haven",
+        github: "https://github.com/NguyenTrongPhuc552003/haven",
       },
       editLink: {
         baseUrl:
-          "https://codeberg.org/NguyenTrongPhuc552003/haven/_edit/main/website/",
+          "https://github.com/NguyenTrongPhuc552003/haven/_edit/main/website/",
       },
       customCss: ["./src/styles/custom.css"],
       head: [

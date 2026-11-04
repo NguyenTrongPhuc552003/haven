@@ -1,6 +1,6 @@
 [submodule "docs/wiki"]
 	path = docs/wiki
-	url = https://codeberg.org/NguyenTrongPhuc552003/haven-wiki.git
+	url = https://github.com/NguyenTrongPhuc552003/haven-wiki.git
 [submodule "docs/thesis"]
 	path = docs/thesis
-	url = https://codeberg.org/NguyenTrongPhuc552003/haven-thesis.git
+	url = https://github.com/NguyenTrongPhuc552003/haven-thesis.git

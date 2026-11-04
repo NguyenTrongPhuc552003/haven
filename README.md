@@ -54,7 +54,7 @@ anywhere, `./try.sh` needs only `qemu-system-aarch64`, `python3` and `dtc`:
 it boots both partitions, reads back the enforced state, then boots a
 deliberately faulty image that passes the boot check and is caught only
 by read-back. Download it from the
-[try-20261103 release](https://codeberg.org/NguyenTrongPhuc552003/haven/releases/tag/try-20261103)
+[try-20261103 release](https://github.com/NguyenTrongPhuc552003/haven/releases/tag/try-20261103)
 or build it yourself; see `scripts/release/try/README.md`.
 
 ## Quick start
@@ -64,7 +64,7 @@ for ARM64 builds an `aarch64-linux-gnu` (or `aarch64-unknown-linux-gnu`)
 toolchain and `qemu-system-aarch64` (9.2 or later for SMMU stage 2).
 
 ```sh
-git clone https://codeberg.org/NguyenTrongPhuc552003/haven.git
+git clone https://github.com/NguyenTrongPhuc552003/haven.git
 cd haven
 
 # Host unit and integration tests
@@ -90,7 +90,7 @@ python3 tools/readback/readback.py build-psci \
 timeout. Boot profiles (`HAVEN_BOOT_PROFILE`, qemu-virt only): `qemu-direct`
 (QEMU loads Haven at EL2, no PSCI), `qemu-psci` (QEMU answers PSCI over
 SMC), `qemu-tfa` (TF-A provides PSCI at EL3).
-[ELMOS](https://codeberg.org/NguyenTrongPhuc552003/elmos) wraps these steps
+[ELMOS](https://github.com/NguyenTrongPhuc552003/elmos) wraps these steps
 on macOS (`task haven:all`).
 
 ## Repository layout
@@ -106,7 +106,7 @@ tools/fwscan/      IORT scanner for CIX UEFI images
 scripts/           build, test and QEMU checks
 docs/              see docs/README.md
 verification/      Coq and Isabelle models from an earlier project phase (not current evidence)
-website/           documentation portal source (not deployed by the Codeberg CI)
+website/           documentation portal source (not deployed by CI)
 ```
 
 ## Documentation
@@ -131,9 +131,9 @@ website/           documentation portal source (not deployed by the Codeberg CI)
 
 ## Related repositories
 
-- [ELMOS](https://codeberg.org/NguyenTrongPhuc552003/elmos): macOS toolkit
+- [ELMOS](https://github.com/NguyenTrongPhuc552003/elmos): macOS toolkit
   that builds and runs Haven and Linux images.
-- [KDAL](https://codeberg.org/NguyenTrongPhuc552003/kdal): device abstraction
+- [KDAL](https://github.com/NguyenTrongPhuc552003/kdal): device abstraction
   layer for the Linux partition.
 
 ## Contributing and license

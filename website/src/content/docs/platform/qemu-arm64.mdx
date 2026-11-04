@@ -69,7 +69,7 @@ Full partition boot in QEMU is a Release 2 deliverable.
 
 ## CI Matrix
 
-QEMU validation runs in Codeberg CI (`.forgejo/workflows/ci.yml`) on every
+QEMU validation runs in GitHub Actions (`.github/workflows/ci.yml`) on every
 push: a qemu-direct build boots on `cortex-a72` and `max`, and
 `scripts/qemu/qemu-direct-check.sh` checks the partition markers. The excerpt
 below is from the earlier GitHub workflow.

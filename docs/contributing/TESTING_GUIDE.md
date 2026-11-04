@@ -112,12 +112,12 @@ To add a new benchmark:
 
 ## CI matrix explanation
 
-Codeberg CI (`.forgejo/workflows/ci.yml`) runs on every push:
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push:
 
 | Job            | Runner          | What it does                                                    |
 | -------------- | --------------- | --------------------------------------------------------------- |
-| `host-tests`   | codeberg-small  | CMake `host-tests` preset - builds and runs the tests via CTest |
-| `arm64-qemu`   | codeberg-medium | `arm64-qemu` preset (qemu-direct), then `scripts/qemu/qemu-direct-check.sh` on cortex-a72 and max |
+| `host-tests`   | ubuntu-latest   | CMake `host-tests` preset - builds and runs the tests via CTest |
+| `arm64-qemu`   | ubuntu-latest   | `arm64-qemu` preset (qemu-direct), then `scripts/qemu/qemu-direct-check.sh` on cortex-a72 and max |
 
 All jobs must pass for a PR to be mergeable. The `arm64-build` job does
 **not** run the test binaries (cross-compiled) - that is the role of

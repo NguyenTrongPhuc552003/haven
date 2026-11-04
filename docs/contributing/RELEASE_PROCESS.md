@@ -180,7 +180,7 @@ If a release tag is incorrect, create a new patch version and tag.
 After the release tag is pushed:
 
 ```
-[ ] Create a Codeberg release from the tag with the CHANGELOG.md entry as body
+[ ] Create a GitHub release from the tag with the CHANGELOG.md entry as body
 [ ] Attach the build/releases/<version>/ evidence archive to the release
 [ ] Update docs/roadmap/MILESTONES.md: set milestone as ✅ with release tag
 [ ] Update website (website/src/) with new version if applicable
@@ -193,7 +193,7 @@ After the release tag is pushed:
 # The evidence archive is created by the release script at:
 ls build/releases/<version>/
 
-# Zip, then attach it to the Codeberg release in the web interface:
+# Zip, then attach it to the GitHub release in the web interface:
 cd build/releases
 zip -r haven-<version>-evidence.zip <version>/
 ```

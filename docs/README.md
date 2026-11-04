@@ -47,7 +47,7 @@ built or tested by CI.
   `IMX95_EVIDENCE_CAPTURE.md`, `methodology/IMX95_EVIDENCE_TEMPLATE.md`
 - `roadmap/` (all files)
 - `methodology/VERCEL_DEPLOYMENT.md` (the documentation portal is not
-  deployed by the Codeberg CI)
+  deployed by CI)
 
 ## Evidence conventions
 
