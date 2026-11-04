@@ -50,3 +50,29 @@ Both grants, against both try-bundle images:
 - `pages-count` assumes 4 KiB pages.
 - This is a JSON rendering of the binding's properties, not a device
   tree; a DT form (for a board's firmware or for KDAL) is a later step.
+
+## KDAL's demand against a grant (2026-11-04)
+
+KDAL now reports each device's resource demand in the same vocabulary
+(`/sys/kernel/debug/kdal/demand`, kdal `6701e5a`), and
+`tools/readback/demand_check.py` checks a demand against a grant (unmet
+MMIO, insufficient access, unmet interrupt, unmet DMA; granted regions
+nothing demands are listed as information). Unit tests:
+`tools/readback/test_demand_check.py` (CI).
+
+Observation, QEMU `virt` (Linux v6.18 arm64, KDAL's CI run): a
+`kdal,device` node over the PL061 GPIO produced
+`kdal-demand-qemu.json` (MMIO 0x9030000, 1 page, read and write; INTID
+39). Checked against two example grants for a Linux partition 3 (Claude's
+examples; HAVEN has no Linux partition yet, so neither grant is
+enforced):
+
+| Grant | Result |
+| - | - |
+| `grant-linux-gpio.json` (GPIO MMIO and SPI 39 granted) | every demand met, exit 0 |
+| `grant-linux-gpio-noirq.json` (MMIO only) | 1 finding: unmet interrupt demand (INTID 39), exit 1 |
+
+This closes the D side of the charter's E/D/G/T/H chain in QEMU at the
+level of files: demand (D) and grant (G) are now comparable. What is
+still missing is the live chain: KDAL running inside a HAVEN Linux
+partition, with read-back (H) on the same grant.

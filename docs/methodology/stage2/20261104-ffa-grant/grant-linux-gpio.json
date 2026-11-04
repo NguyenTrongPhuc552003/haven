@@ -1,0 +1,19 @@
+{
+ "format": "haven-grant/2",
+ "vocabulary": "FF-A partition manifest binding; haven,* are HAVEN extensions",
+ "source": "Example (Claude, 2026-11-04): a Linux partition that owns QEMU virt's PL061 GPIO, for checking KDAL's demand. Not a grant HAVEN enforces today (no Linux partition yet).",
+ "partitions": [
+  {
+   "id": 3,
+   "haven,cpus": [1],
+   "memory-regions": [
+    {"description": "Linux RAM", "base-address": "0x40000000", "pages-count": 65536, "haven,pa": "0xC0000000", "attributes": "0x7"}
+   ],
+   "device-regions": [
+    {"description": "GPIO (PL061)", "base-address": "0x09030000", "pages-count": 1, "attributes": "0x3",
+     "interrupts": [{"id": 39, "attributes": "0xAA0", "haven,target-cpu": 1}]}
+   ]
+  }
+ ],
+ "haven": {"unassigned-cpus": [], "priorities": {"haven": "0x40", "partition": "0xa0"}, "no-smmu": true}
+}
