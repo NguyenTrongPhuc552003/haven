@@ -17,7 +17,7 @@
 #include "arch/arm64/include/asm/s2_attrs.h"
 #include "haven/stage2.h"
 
-#define XN_FIELD(hw) (((hw) >> 53) & 3U)
+#define XN_FIELD(hw) (((hv_u64)(hw) >> 53) & 3U)
 
 static void test_validator(void)
 {

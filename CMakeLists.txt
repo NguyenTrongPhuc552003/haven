@@ -281,8 +281,9 @@ else()
     enable_testing()
     add_subdirectory(tests)
 
-    # Native haven_tool (drivers/guest-tools)
-    if(EXISTS ${CMAKE_SOURCE_DIR}/drivers/guest-tools/CMakeLists.txt)
+    # Native haven_tool (drivers/guest-tools). It talks to the Linux guest
+    # driver through ioctl(), so it is not built on Windows hosts.
+    if(NOT WIN32 AND EXISTS ${CMAKE_SOURCE_DIR}/drivers/guest-tools/CMakeLists.txt)
         add_subdirectory(drivers/guest-tools)
     endif()
 
