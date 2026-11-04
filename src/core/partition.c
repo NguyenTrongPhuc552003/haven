@@ -417,6 +417,12 @@ void partitions_launch(void)
 	/* ----- DMA grants (after both partitions own their memory) -------- */
 
 	part_a_arg = apply_dma_grants(PARTITION_A_ID);
+#ifdef HAVEN_PART_A_DTB_IPA
+	/* Linux guest: x0 carries the device tree's IPA (arm64 boot protocol). */
+	part_a_arg = (uintptr_t)HAVEN_PART_A_DTB_IPA;
+	hv_printk("HAVEN: partition A boots with device tree at IPA 0x%lx\n",
+		  (unsigned long)part_a_arg);
+#endif
 	(void)part_a_arg; /* used on ARM64 only */
 
 	/* ----- IRQ ownership ---------------------------------------------- */

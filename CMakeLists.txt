@@ -156,6 +156,13 @@ if(HAVEN_ARCH_ARM64)
         ${HAVEN_PLATFORM_DEFINE}
         ${HAVEN_PSCI_CONDUIT_DEFINE}
     )
+    # Linux in partition A (docs/methodology/stage2/20261104-linux-partition):
+    # partition A gets the device tree's IPA in x0 instead of the demo
+    # guest's DMA grant bits. 0 = demo guest.
+    set(HAVEN_PART_A_DTB_IPA 0 CACHE STRING "Partition A device tree IPA for a Linux guest (0: demo guest)")
+    if(NOT HAVEN_PART_A_DTB_IPA STREQUAL "0")
+        target_compile_definitions(haven PRIVATE HAVEN_PART_A_DTB_IPA=${HAVEN_PART_A_DTB_IPA})
+    endif()
     message(STATUS "Haven PSCI conduit: ${HAVEN_PSCI_CONDUIT_DEFINE}"
                    " (profile ${HAVEN_BOOT_PROFILE})")
     target_link_options(haven PRIVATE
