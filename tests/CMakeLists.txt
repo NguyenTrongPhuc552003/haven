@@ -54,6 +54,10 @@ haven_test(test_el2_exceptions
     SRCS ${_T}/unit/test_el2_exceptions.c
          ${CORE_EL2}
 )
+haven_test(test_psci
+    SRCS ${_T}/unit/test_psci.c
+         ${_S}/core/exc/psci.c
+)
 haven_test(test_timer
     SRCS ${_T}/unit/test_timer.c
          ${CORE_TIMER}

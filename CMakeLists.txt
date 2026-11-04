@@ -78,6 +78,7 @@ set(HAVEN_CORE_SRCS
     src/core/iommu/iommu_policy.c
     src/core/time/timer.c
     src/core/exc/el2_exceptions.c
+    src/core/exc/psci.c
     src/core/partition.c
     src/core/init.c
 )

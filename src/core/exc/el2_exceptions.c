@@ -5,6 +5,7 @@
  */
 
 #include <haven/el2_exceptions.h>
+#include <haven/psci.h>
 #include <haven/string.h>
 #ifdef HAVEN_ARCH_ARM64
 #include <haven/platform.h>
@@ -35,6 +36,8 @@ extern void hv_printk(const char *fmt, ...) __attribute__((weak));
 #define ESR_EC_MASK 0x3FU
 #define ESR_EC_IABT_LOW 0x20U /* Instruction Abort from lower EL */
 #define ESR_EC_DABT_LOW 0x24U /* Data Abort from lower EL          */
+#define ESR_EC_HVC64 0x16U /* HVC from AArch64; ELR = next insn */
+#define ESR_EC_SMC64 0x17U /* SMC trapped by HCR_EL2.TSC; ELR = the SMC */
 #define ESR_FSC_MASK 0x3FU /* Fault Status Code: bits [5:0] */
 
 /* DFSC / IFSC field: bits [5:0] - fault status code.
@@ -300,6 +303,49 @@ hv_s2_fault_action_t hv_s2_fault_action(hv_u64 esr)
 	return (ec == ESR_EC_IABT_LOW) ? HV_S2F_STOP : HV_S2F_SKIP;
 }
 
+#ifdef HAVEN_ARCH_ARM64
+/* PSCI over HVC, or over SMC trapped by HCR_EL2.TSC. The caller's x0..x3
+ * are at frame+0..24 (save_minimal layout); the result goes back in x0.
+ * A trapped SMC returns to the SMC itself, so ELR is moved past it. */
+static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
+{
+	volatile hv_u64 *frame = (volatile hv_u64 *)sp;
+	hv_u64 x[4] = {frame[0], frame[1], frame[2], frame[3]};
+	hv_u64 mpidr;
+	hv_u64 ret = 0;
+	hv_psci_action_t action;
+
+	__asm__ volatile("mrs %0, vmpidr_el2" : "=r"(mpidr));
+	action = hv_psci_call(x, mpidr, &ret);
+
+	if (hv_printk)
+		hv_printk("HAVEN: PSCI %s fid=0x%lx x1=0x%lx -> 0x%lx cpu=%u\n",
+			  hv_psci_name((hv_u32)x[0]), (unsigned long)x[0],
+			  (unsigned long)x[1],
+			  (unsigned long)(action == HV_PSCI_RESUME ? ret : 0U),
+			  (unsigned)hv_arch_cpu_id());
+
+	if (action != HV_PSCI_RESUME) {
+		/* Stop the partition: park this CPU at EL2 with exceptions
+		 * masked, as for a stage-2 instruction abort. A restart for
+		 * SYSTEM_RESET is not implemented yet. */
+		if (hv_printk)
+			hv_printk("HAVEN: partition stopped by PSCI %s; "
+				  "CPU parked\n",
+				  action == HV_PSCI_STOP_RESET ?
+					  "SYSTEM_RESET" :
+					  "OFF");
+		for (;;) {
+			__asm__ volatile("wfe");
+		}
+	}
+
+	frame[0] = ret;
+	if (ec == ESR_EC_SMC64)
+		frame[21] += 4ULL; /* saved ELR at frame+168 */
+}
+#endif
+
 void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 {
 	current_exc_context.esr = esr;
@@ -308,6 +354,14 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 	exception_counts[HV_EXC_SYNC]++;
 
 #ifdef HAVEN_ARCH_ARM64
+	{
+		hv_u32 ec = (hv_u32)((esr >> ESR_EC_SHIFT) & ESR_EC_MASK);
+
+		if (ec == ESR_EC_HVC64 || ec == ESR_EC_SMC64) {
+			hv_handle_psci_call(ec, sp);
+			return;
+		}
+	}
 	{
 		hv_s2_fault_action_t action = hv_s2_fault_action(esr);
 
