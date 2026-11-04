@@ -85,6 +85,8 @@ import subprocess
 import sys
 import time
 
+import grant as grant_file  # tools/readback/grant.py
+
 IMG_PA, IMG_SIZE = 0x80000000, 0x800000
 SMMU_BASE = 0x09050000
 GICD_BASE, GICR_BASE, GICR_STRIDE, NCPUS = 0x08000000, 0x080A0000, 0x20000, 4  # QEMU virt, -smp 4
@@ -713,7 +715,7 @@ def main():
     ap.add_argument("--marker", default=MARKER, help="UART line after which the memory is read")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
-    grant = json.load(open(a.grant))
+    grant = grant_file.load(a.grant)  # format 1 or 2 (FF-A vocabulary)
     snap = capture(a, a.out)
     if snap is None or len(snap.get("image", b"")) != IMG_SIZE:
         print("probe failure: QEMU exited before the memory could be read")

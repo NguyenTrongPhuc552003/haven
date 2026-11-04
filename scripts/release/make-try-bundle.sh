@@ -42,7 +42,7 @@ assert s.count(old) == 1, 'fault edit does not apply'
 open(p, 'w').write(s.replace(old, old + '\t{0xA0800000UL, 0x200000UL, HV_EL2_NORMAL},\n'))
 "
 
-cp "$REPO/tools/readback/readback.py" "$STAGE/tools/"
+cp "$REPO/tools/readback/readback.py" "$REPO/tools/readback/grant.py" "$STAGE/tools/"
 cp "$REPO/scripts/qemu/partition-b-check.py" "$STAGE/tools/"
 cp "$REPO/docs/methodology/stage2/20261102-budgets/grant-budget.json" "$STAGE/grant.json"
 cp "$REPO/scripts/release/try/try.sh" "$REPO/scripts/release/try/README.md" "$STAGE/"

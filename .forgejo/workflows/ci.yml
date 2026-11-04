@@ -24,6 +24,8 @@ jobs:
       # the Stage 1 evidence); it is excluded here until it is fixed.
       - name: Run tests
         run: ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation
+      - name: Read-back grant formats (format 1 <-> FF-A vocabulary round trip)
+        run: python3 -m unittest discover -s tools/readback -p 'test_*.py' -v
 
   arm64-qemu:
     name: ARM64 build and QEMU boot

@@ -17,7 +17,11 @@ tools/readback/readback.py build grant.json out/ --cpu cortex-a72 \
   (`{"<SID>": {"partition": N, "window": {"ipa": ..., "size": ...},
   "access": "R" | "W" | "RW"}}`, window optional, access default `RW`; the
   window is in the partition's address space) and `allowed_unenforced`
-  devices.
+  devices. The same grant can be written in Arm's FF-A partition manifest
+  vocabulary (format 2, `"format": "haven-grant/2"`: `memory-regions`,
+  `device-regions`, `stream-ids`, `interrupts`); `grant.py` converts
+  format 1 to format 2 and read-back accepts both. See
+  `docs/methodology/stage2/20261104-ffa-grant/`.
 - `--smmu-stage`: QEMU's SMMU model. `nested` (default) is what QEMU 9.2
   and later give the `virt` machine (stage 1 and stage 2); `1` and `2` run
   the `virt-9.1` machine, whose SMMU has stage 1 only unless `2` is given.

@@ -1,0 +1,123 @@
+{
+ "format": "haven-grant/2",
+ "vocabulary": "FF-A partition manifest binding; haven,* are HAVEN extensions",
+ "partitions": [
+  {
+   "id": 1,
+   "memory-regions": [
+    {
+     "description": "A RAM",
+     "base-address": "0x40000000",
+     "pages-count": 131072,
+     "haven,pa": "0x80800000",
+     "attributes": "0x7"
+    },
+    {
+     "description": "A RO",
+     "base-address": "0x70000000",
+     "pages-count": 512,
+     "haven,pa": "0xA4C00000",
+     "attributes": "0x1"
+    },
+    {
+     "description": "DMA window, stream 8",
+     "base-address": "0x5F000000",
+     "pages-count": 256,
+     "attributes": "0x3",
+     "smmu-id": 0,
+     "stream-ids": [
+      8
+     ],
+     "stream-ids-access-permissions": [
+      "0x3"
+     ]
+    }
+   ],
+   "device-regions": [
+    {
+     "description": "A UART",
+     "base-address": "0x09000000",
+     "pages-count": 1,
+     "attributes": "0x3"
+    },
+    {
+     "description": "A PCI config",
+     "base-address": "0x4010008000",
+     "pages-count": 1,
+     "attributes": "0x1"
+    },
+    {
+     "description": "A PCI BAR",
+     "base-address": "0x10000000",
+     "pages-count": 4,
+     "attributes": "0x3"
+    },
+    {
+     "description": "interrupts",
+     "pages-count": 0,
+     "attributes": "0x0",
+     "interrupts": [
+      {
+       "id": 33,
+       "attributes": "0xAA0",
+       "haven,target-cpu": 0
+      }
+     ]
+    }
+   ],
+   "haven,cpus": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": 2,
+   "memory-regions": [
+    {
+     "description": "B RAM",
+     "base-address": "0x60000000",
+     "pages-count": 16384,
+     "haven,pa": "0xA0800000",
+     "attributes": "0x7"
+    }
+   ],
+   "device-regions": [],
+   "haven,cpus": [
+    2
+   ],
+   "haven,ppis": {
+    "2": [
+     27
+    ]
+   }
+  }
+ ],
+ "haven": {
+  "interrupts": [
+   {
+    "id": 106,
+    "haven,target-cpu": 0
+   }
+  ],
+  "ppis": {
+   "0": [
+    26
+   ],
+   "2": [
+    26
+   ]
+  },
+  "unassigned-cpus": [
+   3
+  ],
+  "priorities": {
+   "haven": "0x40",
+   "partition": "0xa0"
+  },
+  "smmu": {
+   "enabled": true,
+   "allowed-unenforced": []
+  }
+ },
+ "source": "Owner-approved 2026-11-03 (proposed by Claude 2026-11-02): grant-partb-v4.json (approved) plus HAVEN's EL2 timer (PPI 26) enabled at HAVEN's priority on every CPU that runs a partition with a budget (CPU 0: A 8 ms per 10 ms; CPU 2: B 2 ms per 10 ms)"
+}
