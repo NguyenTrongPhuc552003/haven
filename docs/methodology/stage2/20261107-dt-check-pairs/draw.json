@@ -1,0 +1,294 @@
+{
+ "seed_text": "haven 6fb4751 | owner 2026-11-07 02:31: 1. Approve 2. Approve 3. Approve, we have our own data/ directory for your discovery and investigation about our SBC's specifications.",
+ "seed_sha256": "eca52b23d6f7de3d9278b35c3cff4491525e79b31ce9c4ba0d0e5e0c65f67e32",
+ "pairs": [
+  {
+   "name": "P01",
+   "faults": [
+    {
+     "group": "timer node",
+     "op": "O7",
+     "index": 3,
+     "operator": "timer node entries",
+     "parameter": "secure timer PPI 9",
+     "label": false,
+     "reason": "only the virtual timer entry is used by an EL1 guest (spec)"
+    },
+    {
+     "group": "CPU nodes",
+     "op": "O8",
+     "index": 0,
+     "operator": "extra CPU nodes",
+     "parameter": "1 more (2 CPUs)",
+     "label": false,
+     "reason": "gic.cpus gives partition 1 CPUs 0 and 1"
+    }
+   ],
+   "label": false
+  },
+  {
+   "name": "P02",
+   "faults": [
+    {
+     "group": "timer node",
+     "op": "O7",
+     "index": 2,
+     "operator": "timer node entries",
+     "parameter": "virtual timer PPI 15",
+     "label": true,
+     "reason": "INTID 31 not granted"
+    },
+    {
+     "group": "CPU nodes",
+     "op": "O8",
+     "index": 1,
+     "operator": "extra CPU nodes",
+     "parameter": "2 more (3 CPUs)",
+     "label": true,
+     "reason": "partition 1 has 2 CPUs"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P03",
+   "faults": [
+    {
+     "group": "initramfs range",
+     "op": "O3",
+     "index": 0,
+     "operator": "initramfs range shifted",
+     "parameter": "-0x09000000",
+     "label": true,
+     "reason": "starts at 0x3F000000, below granted RAM"
+    },
+    {
+     "group": "extra node",
+     "op": "O9",
+     "index": 0,
+     "operator": "extra device node",
+     "parameter": "GPIO 0x09030000, okay",
+     "label": true,
+     "reason": "PL061 not granted"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P04",
+   "faults": [
+    {
+     "group": "CPU nodes",
+     "op": "O8",
+     "index": 2,
+     "operator": "extra CPU nodes",
+     "parameter": "3 more (4 CPUs)",
+     "label": true,
+     "reason": "partition 1 has 2 CPUs"
+    },
+    {
+     "group": "initramfs range",
+     "op": "O3",
+     "index": 2,
+     "operator": "initramfs range shifted",
+     "parameter": "+0x17000000",
+     "label": false,
+     "reason": "ends below 0x60000000"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P05",
+   "faults": [
+    {
+     "group": "extra node",
+     "op": "O9",
+     "index": 1,
+     "operator": "extra device node",
+     "parameter": "GPIO 0x09030000, disabled",
+     "label": false,
+     "reason": "disabled nodes are not used"
+    },
+    {
+     "group": "memory node",
+     "op": "O2",
+     "index": 0,
+     "operator": "memory node base and size",
+     "parameter": "0x40000000 + 511 MiB",
+     "label": false,
+     "reason": "inside"
+    }
+   ],
+   "label": false
+  },
+  {
+   "name": "P06",
+   "faults": [
+    {
+     "group": "initramfs range",
+     "op": "O3",
+     "index": 1,
+     "operator": "initramfs range shifted",
+     "parameter": "+0x01000000",
+     "label": false,
+     "reason": "inside"
+    },
+    {
+     "group": "memory node",
+     "op": "O1",
+     "index": 3,
+     "operator": "memory node size",
+     "parameter": "768 MiB",
+     "label": true,
+     "reason": "past granted RAM"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P07",
+   "faults": [
+    {
+     "group": "CPU nodes",
+     "op": "O8",
+     "index": 1,
+     "operator": "extra CPU nodes",
+     "parameter": "2 more (3 CPUs)",
+     "label": true,
+     "reason": "partition 1 has 2 CPUs"
+    },
+    {
+     "group": "KDAL node",
+     "op": "O10",
+     "index": 3,
+     "operator": "neutral edit",
+     "parameter": "KDAL node removed",
+     "label": false,
+     "reason": "fewer resources"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P08",
+   "faults": [
+    {
+     "group": "timer node",
+     "op": "O7",
+     "index": 2,
+     "operator": "timer node entries",
+     "parameter": "virtual timer PPI 15",
+     "label": true,
+     "reason": "INTID 31 not granted"
+    },
+    {
+     "group": "extra node",
+     "op": "O9",
+     "index": 1,
+     "operator": "extra device node",
+     "parameter": "GPIO 0x09030000, disabled",
+     "label": false,
+     "reason": "disabled nodes are not used"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P09",
+   "faults": [
+    {
+     "group": "memory node",
+     "op": "O2",
+     "index": 1,
+     "operator": "memory node base and size",
+     "parameter": "0x40100000 + 511 MiB",
+     "label": false,
+     "reason": "ends exactly at 0x60000000"
+    },
+    {
+     "group": "CPU nodes",
+     "op": "O8",
+     "index": 2,
+     "operator": "extra CPU nodes",
+     "parameter": "3 more (4 CPUs)",
+     "label": true,
+     "reason": "partition 1 has 2 CPUs"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P10",
+   "faults": [
+    {
+     "group": "memory node",
+     "op": "O1",
+     "index": 3,
+     "operator": "memory node size",
+     "parameter": "768 MiB",
+     "label": true,
+     "reason": "past granted RAM"
+    },
+    {
+     "group": "timer node",
+     "op": "O7",
+     "index": 0,
+     "operator": "timer node entries",
+     "parameter": "virtual timer PPI 10",
+     "label": true,
+     "reason": "INTID 26 is HAVEN's, not partition A's"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P11",
+   "faults": [
+    {
+     "group": "timer node",
+     "op": "O7",
+     "index": 3,
+     "operator": "timer node entries",
+     "parameter": "secure timer PPI 9",
+     "label": false,
+     "reason": "only the virtual timer entry is used by an EL1 guest (spec)"
+    },
+    {
+     "group": "memory node",
+     "op": "O1",
+     "index": 2,
+     "operator": "memory node size",
+     "parameter": "512 MiB + 4 KiB",
+     "label": true,
+     "reason": "one page past granted RAM"
+    }
+   ],
+   "label": true
+  },
+  {
+   "name": "P12",
+   "faults": [
+    {
+     "group": "memory node",
+     "op": "O1",
+     "index": 1,
+     "operator": "memory node size",
+     "parameter": "496 MiB",
+     "label": false,
+     "reason": "inside"
+    },
+    {
+     "group": "initramfs range",
+     "op": "O3",
+     "index": 3,
+     "operator": "initramfs range shifted",
+     "parameter": "+0x17F00000",
+     "label": true,
+     "reason": "crosses 0x60000000"
+    }
+   ],
+   "label": true
+  }
+ ]
+}
