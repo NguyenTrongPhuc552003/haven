@@ -96,3 +96,40 @@ Expectations for the L1 run (same images and device tree as L0):
    longer prints `Reboot failed -- System halted`. HAVEN stays up. (In
    the qemu-direct profile partition B is not started at all: HAVEN's
    own CPU_ON to firmware fails, as the L0 log shows.)
+
+## 6. L2 design and expectations (Claude's, before the run)
+
+Observed in L1: the GIC driver's first access is a stage-2 data abort with
+`ESR=0x93880006` at IPA 0x800f000 (FAR ends in 0xfe8, so the register is
+GICD_PIDR2 at offset 0xffe8). HAVEN logs it, skips the instruction and
+leaves the destination register as it was.
+
+Design (source for the syndrome fields: Arm ARM, ESR_EL2 ISS encoding for a
+data abort; ISV bit 24, SAS 23:22, SSE 21, SRT 20:16, SF 15, WnR 6):
+
+- The exception frame saves all general registers: x19 to x28 are added
+  at frame+192..264 (the frame grows from 192 to 272 bytes; the existing
+  offsets, ELR at +168 and SPSR at +176, do not move). A load can then
+  write any destination register, and a store can read any source.
+- A pure decoder `hv_mmio_decode()` (`src/core/exc/mmio.c`, host-tested)
+  turns the ESR into size, sign extension, register number and direction,
+  and computes the value a load writes back (zero- or sign-extended,
+  32-bit when SF is 0; register 31 is XZR).
+- Emulated regions are registered with `hv_mmio_register()` (IPA range,
+  owning CPU, handler). L2 registers none; L3 registers the GIC.
+- A decodable access to an unregistered address is still denied and
+  logged, with the decoded fields; a load now reads as zero (RAZ) instead
+  of leaving the register unchanged, and a store is ignored (WI). An access
+  with ISV = 0 (for example a load pair) cannot be emulated and is handled
+  as before.
+
+Expectations for the L2 run (same images and device tree as L1):
+
+1. HAVEN logs the GICD_PIDR2 access decoded as a 4-byte read into w8,
+   predicted from L1's syndrome 0x93880006 (SAS = 2, SRT = 8, SF = 0,
+   WnR = 0), at IPA 0x800ffe8.
+2. Linux still prints `no distributor detected, giving up` (PIDR2 now reads
+   0, which is not GICv3), and the rest of the boot is as in L1: no timer
+   interrupt, root-mount panic, SYSTEM_RESET stops partition A.
+3. All host tests pass, including new decoder tests; partitions that never
+   fault (qemu-psci profile boot check in CI) behave as before.
