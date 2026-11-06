@@ -17,6 +17,13 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v10 (2026-11-07, dt_check blind test, M01): HAVEN's per-CPU
+partition table (symbol cpu_partition in arch/arm64/irq.c: the partition
+each CPU runs, 0 for none, used to decide which partition an interrupt is
+injected into) is read and compared with the grant's gic.cpus. A CPU
+granted to one partition but run for another, or for none, is CPU
+assignment drift. Without the symbol the check is skipped.
+
 Changes in v9 (2026-11-07, read-back v8 result V6): --break ADDR reads
 at a fixed instruction instead of after a UART line. QEMU starts paused
 with its GDB stub on a local socket; read-back sets a breakpoint at ADDR
@@ -726,6 +733,30 @@ def read_vgic_enables(mem, nm, elf):
     return out
 
 
+def read_cpu_partitions(mem, nm, elf):
+    """v10: HAVEN's partition per CPU (0 = none) for the NCPUS CPUs, or None."""
+    try:
+        table = symbol(nm, elf, "cpu_partition")
+    except SystemExit:
+        return None
+    return [struct.unpack_from("<I", mem, table + 4 * c - IMG_PA)[0] for c in range(NCPUS)]
+
+
+def compare_cpus(served, expected):
+    """v10: CPU assignment drift between gic.cpus and HAVEN's table."""
+    granted = {int(c): int(p) for c, p in expected.get("cpus", {}).items()}
+    f, rep = [], []
+
+    def who(p):
+        return f"partition {p}" if p else "no partition"
+    for c, got in enumerate(served):
+        want = granted.get(c, 0)
+        rep.append({"cpu": c, "granted": want, "served": got})
+        if got != want:
+            f.append((f"CPU {c}", "CPU assignment drift", f"granted to {who(want)}, HAVEN runs {who(got)}"))
+    return f, rep
+
+
 def compare_gic(g, expected, model=None):
     """Interrupt ownership as enforced by the GIC against the grant: every
     enabled SPI must be granted, routed (affinity, not 1-of-N) to the granted
@@ -934,6 +965,13 @@ def main():
         for x in rep.get("priorities", []):
             where = f"CPU {x['cpu']} PPI" if "cpu" in x else "SPI"
             print(f"  {where} {x['irq']}: priority {x['priority']} (granted {x['expected']})")
+        served = read_cpu_partitions(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))  # v10
+        if served is not None and "cpus" in grant["gic"]:
+            f, rep = compare_cpus(served, grant["gic"])
+            findings += f
+            report["cpu_assignment"] = rep
+            for x in rep:
+                print(f"  CPU {x['cpu']}: granted to partition {x['granted']}, HAVEN runs partition {x['served']}")
     report["findings"] = findings
     json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
     for name, cls, detail in findings:

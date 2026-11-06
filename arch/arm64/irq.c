@@ -254,6 +254,8 @@ static uint32_t smmu_evtq_intid;
  * it.  An interrupt is injected only into its owner. */
 #define HV_ARCH_IRQ_MAX_CPUS 16U
 static hv_u32 cpu_partition[HV_ARCH_IRQ_MAX_CPUS];
+_Static_assert(sizeof(cpu_partition[0]) == 4,
+	       "readback.py reads cpu_partition as 32-bit words");
 
 void hv_arch_set_cpu_partition(uint32_t cpu, hv_u32 partition)
 {

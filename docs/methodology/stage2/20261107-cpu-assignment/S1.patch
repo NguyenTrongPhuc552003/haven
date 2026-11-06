@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -560,7 +560,7 @@
+ 
+ 	hv_printk("HAVEN: ERET -> partition A entry IPA=0x%lx\n",
+ 		  (unsigned long)PART_A_IPA_BASE);
+-	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_A_ID);
++	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);
+ 	if (hv_arch_budget_start(hv_arch_cpu_id(), part_a_budget.budget_ns,
+ 				 part_a_budget.period_ns))
+ 		hv_printk("HAVEN: CPU 0 budget enforced by the EL2 timer "
