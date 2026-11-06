@@ -17,6 +17,15 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v9 (2026-11-07, read-back v8 result V6): --break ADDR reads
+at a fixed instruction instead of after a UART line. QEMU starts paused
+with its GDB stub on a local socket; read-back sets a breakpoint at ADDR
+(for example partition A's entry, IPA 0x40000000) over the GDB remote
+protocol, resumes, and reads when a CPU stops there. A UART marker is
+seen some time after the guest printed it (V6: about 90 ms of guest time);
+a breakpoint has no such delay. The emulation in QEMU only; on hardware
+the same read point needs a debugger.
+
 Changes in v8 (2026-11-07, Linux chain case set v1, finding 3): the
 grant's "gic" section may list "guest_enabled" per CPU: interrupts HAVEN
 enables only when the guest enables them in its emulated GIC (Linux
@@ -81,7 +90,7 @@ SMMU read-back; extra QEMU devices; command-line options.
 Usage:
   readback.py BUILD GRANT.json OUT [--cpu CPU] [--nm NM] [--wait SECONDS]
               [--device QEMU-DEVICE ...] [--smmu-stage nested|1|2] [--marker TEXT]
-              [--guest-a FILE] [--load FILE@ADDR ...]
+              [--guest-a FILE] [--load FILE@ADDR ...] [--break ADDR]
 Exit status: 0 = enforced state matches the grant, 1 = findings, 2 = probe failure.
 Needs qemu-system-aarch64, an aarch64 nm and dtc on PATH (or --nm).
 """
@@ -120,6 +129,52 @@ MACHINE = "virt,virtualization=on,gic-version=3,iommu=smmuv3"
 
 
 # ---------------------------------------------------------------- QEMU access
+class GDB:
+    """Minimal GDB remote protocol client for QEMU's stub (v9): enough to
+    set a breakpoint, resume and wait for the stop."""
+
+    def __init__(self, path):
+        self.s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.s.connect(path)
+        self.buf = b""
+        self.log = []
+
+    def _recv(self, timeout):
+        self.s.settimeout(timeout)
+        while True:
+            m = re.search(rb"\$([^#]*)#[0-9a-fA-F]{2}", self.buf)
+            if m:
+                self.buf = self.buf[m.end():]
+                self.s.sendall(b"+")
+                return m.group(1).decode()
+            chunk = self.s.recv(4096)
+            if not chunk:
+                raise ConnectionError("GDB stub closed the connection")
+            self.buf += chunk
+
+    def send(self, data, timeout=10.0):
+        pkt = f"${data}#{sum(data.encode()) % 256:02x}".encode()
+        self.s.sendall(pkt)
+        reply = self._recv(timeout)
+        self.log.append({"send": data, "reply": reply})
+        return reply
+
+    def break_and_run(self, addr, timeout):
+        """Breakpoint at addr, continue; returns (stop reply, reached)."""
+        if self.send(f"Z1,{addr:x},4") != "OK" and self.send(f"Z0,{addr:x},4") != "OK":
+            raise RuntimeError("the GDB stub refused the breakpoint")
+        self.s.sendall(f"$c#{ord('c'):02x}".encode())
+        try:
+            reply = self._recv(timeout)
+            reached = True
+        except socket.timeout:
+            self.s.sendall(b"\x03")  # interrupt: stop where it is
+            reply = self._recv(10.0)
+            reached = False
+        self.log.append({"send": "c", "reply": reply, "reached": reached})
+        return reply, reached
+
+
 class QMP:
     def __init__(self, path):
         self.s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -204,9 +259,14 @@ def capture(args_ns, out):
     for p in (sock, uart):
         if os.path.exists(p):
             os.remove(p)
+    gsock = f"/tmp/readback-{os.getpid()}.gdb"
     cmd = qemu_args(args_ns.build, args_ns.cpu, args_ns.device, "", args_ns.smmu_stage,
                     args_ns.guest_a, args_ns.load) + [
         "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait"]
+    if args_ns.break_at is not None:  # v9: start paused, GDB stub on a socket
+        if os.path.exists(gsock):
+            os.remove(gsock)
+        cmd += ["-S", "-chardev", f"socket,id=gdb0,path={gsock},server=on,wait=off", "-gdb", "chardev:gdb0"]
     open(os.path.join(out, "qemu-command.txt"), "w").write(" ".join(cmd) + "\n")
     q = subprocess.Popen(cmd)
     snap = {"trigger": None}
@@ -214,7 +274,15 @@ def capture(args_ns, out):
         t0 = time.time()
         while not os.path.exists(sock) and time.time() - t0 < 10:
             time.sleep(0.05)
-        while time.time() - t0 < args_ns.wait:
+        if args_ns.break_at is not None:
+            while not os.path.exists(gsock) and time.time() - t0 < 10:
+                time.sleep(0.05)
+            g = GDB(gsock)
+            reply, reached = g.break_and_run(args_ns.break_at, args_ns.wait)
+            snap["gdb"] = g.log
+            snap["trigger"] = (f"breakpoint at {args_ns.break_at:#x} (stop reply {reply})" if reached else
+                               f"time limit ({args_ns.wait:g} s, breakpoint at {args_ns.break_at:#x} not reached)")
+        while args_ns.break_at is None and time.time() - t0 < args_ns.wait:
             if os.path.exists(uart) and args_ns.marker in open(uart, errors="replace").read():
                 snap["trigger"] = "marker"
                 break
@@ -222,7 +290,8 @@ def capture(args_ns, out):
                 break
             time.sleep(0.2)
         else:
-            snap["trigger"] = f"time limit ({args_ns.wait:g} s, partition A did not print {args_ns.marker!r})"
+            if args_ns.break_at is None:
+                snap["trigger"] = f"time limit ({args_ns.wait:g} s, partition A did not print {args_ns.marker!r})"
         if q.poll() is not None:
             return None
         m = QMP(sock)
@@ -249,6 +318,8 @@ def capture(args_ns, out):
         snap["pci"] = m.cmd("query-pci") or []
         snap["qtree"] = m.hmp("info qtree")
         json.dump(m.log, open(os.path.join(out, "qmp.json"), "w"), indent=1)
+        if "gdb" in snap:
+            json.dump(snap["gdb"], open(os.path.join(out, "gdb.json"), "w"), indent=1)
         m.cmd("quit")
         q.wait(timeout=10)
     finally:
@@ -779,6 +850,8 @@ def main():
     ap.add_argument("--guest-a", help="file loaded at partition A's base instead of BUILD/guest_a.bin")
     ap.add_argument("--load", action="append", default=[], type=parse_load, metavar="FILE@ADDR",
                     help="extra file at a physical address (repeatable)")
+    ap.add_argument("--break", dest="break_at", type=lambda x: int(x, 0), metavar="ADDR",
+                    help="read when a CPU reaches this instruction address (v9; QEMU GDB stub)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     grant = grant_file.load(a.grant)  # format 1 or 2 (FF-A vocabulary)
