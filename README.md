@@ -110,7 +110,7 @@ verification/      Coq and Isabelle models from an earlier project phase (not cu
 
 ## Documentation
 
-- Website: [haven-docs-five.vercel.app](https://haven-docs-five.vercel.app/)
+- Website: [docs-haven.vercel.app](https://docs-haven.vercel.app/)
   (source: [haven-docs](https://github.com/NguyenTrongPhuc552003/haven-docs)),
   with the overview, guides and these records rendered.
 - [`docs/README.md`](docs/README.md): which documents are current and which

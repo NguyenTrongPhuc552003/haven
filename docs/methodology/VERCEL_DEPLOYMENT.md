@@ -7,7 +7,7 @@
 > **Moved (2026-11-06).** `website/` and `vercel.json` were removed from this
 > repository. The website is now the `haven-docs` repository
 > (https://github.com/NguyenTrongPhuc552003/haven-docs), deployed by Vercel
-> at https://haven-docs-five.vercel.app/. Its HAVEN pages took in this site
+> at https://docs-haven.vercel.app/. Its HAVEN pages took in this site
 > and the former haven-wiki. The text below describes the old setup.
 
 The documentation portal is an **Astro Starlight** site located under `website/`.
