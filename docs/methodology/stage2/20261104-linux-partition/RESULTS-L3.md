@@ -72,7 +72,7 @@ a shell and KDAL.
 - Pending and active state are not emulated (read as zero); a driver that
   sets an interrupt pending through the distributor will not see it.
 - One vCPU; SGIs to other CPUs are dropped. 64 interrupt IDs.
-- The emulation adds to HAVEN's trusted code: `vgic.c` (about 250 lines),
-  `mmio.c` (about 140 lines) and `psci.c` (about 130 lines). This needs
+- The emulation adds to HAVEN's trusted code: `vgic.c` (284 lines with comments),
+  `mmio.c` (142) and `psci.c` (129). This needs
   measuring against the "without growing HAVEN's trusted code" part of
   the research question.
