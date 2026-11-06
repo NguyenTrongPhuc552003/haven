@@ -186,3 +186,53 @@ Expectations for the L3 run (same images and device tree as L0 to L2):
    SYSTEM_RESET stops partition A. No stage-2 access is denied.
 5. All host tests pass on the three CI operating systems; the qemu-psci
    profile (partition B with its timer) is unchanged.
+
+## 8. L4 design and expectations (Claude's, before the run)
+
+Goal: the E/D/G/T/H chain on a real Linux partition. KDAL runs in partition
+A, reports its demand (D); `demand_check.py` compares it with partition A's
+grant (G); read-back compares the enforced state (H) with the same grant.
+
+Design:
+
+- **Initramfs instead of a shell** (refines step L4 of section 3): KDAL's
+  CI init (`kdal/scripts/ci/kunit-init.c`, freestanding, raw system calls)
+  loads `/kdal.ko`, prints KDAL's demand between `KDAL-DEMAND-BEGIN` and
+  `KDAL-DEMAND-END`, and powers off. Deterministic and scriptable; an
+  interactive shell is left for a later demo. The initramfs is written by
+  `kdal/scripts/ci/mkcpio.py`; `kdal.ko` comes from the same ELMOS release
+  as the kernel (kdal `6701e5a`, built against it).
+- **Device tree (T)**: `partition-a.dts` plus `/chosen` initrd bounds
+  (initramfs at IPA 0x48000000) and one `kdal,device` node over QEMU's PL061
+  GPIO (0x09030000, SPI 7 = INTID 39), the node ELMOS's demo uses. Partition
+  A is **not** granted the GPIO: the guest description asks for more than
+  the grant, on purpose.
+- **Grant (G)**: `grant-l4.json`, written by Claude from `partition.c` for
+  this profile (qemu-direct, Linux build): the owner-approved
+  `grant-budget.json` plus PPI 27 on CPU 0 for partition A, and without
+  HAVEN's PPI 26 on CPU 2 (partition B is configured but not started in
+  qemu-direct). Not owner-approved; it is the expected configuration.
+- **Read-back (H)**: `readback.py` gains `--guest-a FILE` (load a file
+  instead of `guest_a.bin` at partition A's base) and `--load FILE@ADDR`
+  (further files, here the device tree and the initramfs). Comparison
+  logic is unchanged. QEMU gets the try bundle's virtio device so the DMA
+  grant applies as in that grant.
+
+Expectations:
+
+1. KDAL loads (`KDAL-CI: insmod ok`) and its demand lists exactly one
+   device region, `kdal-gpio@9030000`: base 0x9030000, 1 page, attributes
+   0x3, interrupt 39 (the same as `../20261104-ffa-grant/kdal-demand-qemu.json`,
+   which came from the same node outside HAVEN).
+2. `demand_check.py grant-l4.json demand.json --partition 1` exits 1 with
+   two findings, unmet MMIO demand (0x9030000) and unmet interrupt demand
+   (39); the granted UART and PCI regions are listed as not demanded.
+3. HAVEN logs **no** denied access: KDAL's device-tree backend only
+   `ioremap`s the region and records the interrupt (source:
+   `kdal/src/backends/generic/devicetree.c`, no register read, no
+   `request_irq`). The mismatch is visible in D against G before any
+   access happens.
+4. Linux powers off: PSCI SYSTEM_OFF stops partition A, and HAVEN prints
+   its delivered-interrupt counts (27 above zero).
+5. Read-back, read at `KDAL-DEMAND-END`, matches `grant-l4.json`: no
+   finding. In particular SPI 39 is not enabled in the distributor.
