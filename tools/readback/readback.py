@@ -71,6 +71,7 @@ SMMU read-back; extra QEMU devices; command-line options.
 Usage:
   readback.py BUILD GRANT.json OUT [--cpu CPU] [--nm NM] [--wait SECONDS]
               [--device QEMU-DEVICE ...] [--smmu-stage nested|1|2] [--marker TEXT]
+              [--guest-a FILE] [--load FILE@ADDR ...]
 Exit status: 0 = enforced state matches the grant, 1 = findings, 2 = probe failure.
 Needs qemu-system-aarch64, an aarch64 nm and dtc on PATH (or --nm).
 """
@@ -153,7 +154,7 @@ class QMP:
         return [(self.read32 if size == "w" else self.read64)(pa + i * step) for i in range(n)]
 
 
-def qemu_args(build, cpu, devices, extra, smmu_stage="nested"):
+def qemu_args(build, cpu, devices, extra, smmu_stage="nested", guest_a=None, loads=()):
     machine = MACHINE if smmu_stage == "nested" else MACHINE.replace("virt,", "virt-9.1,", 1)
     args = ["qemu-system-aarch64", "-machine", machine + extra, "-cpu", cpu, "-smp", "4",
             "-m", "2G", "-display", "none", "-nic", "none"]
@@ -163,8 +164,19 @@ def qemu_args(build, cpu, devices, extra, smmu_stage="nested"):
         args += ["-device", d]
     return args + [
         "-device", f"loader,file={build}/haven.bin,addr=0x80000000,force-raw=on,cpu-num=0",
-        "-device", f"loader,file={build}/guest_a.bin,addr=0x80800000,force-raw=on",
-        "-device", f"loader,file={build}/guest_b.bin,addr=0xA0800000,force-raw=on"]
+        "-device", f"loader,file={guest_a or build + '/guest_a.bin'},addr=0x80800000,force-raw=on",
+        "-device", f"loader,file={build}/guest_b.bin,addr=0xA0800000,force-raw=on"] + [
+        a for f, addr in loads for a in ("-device", f"loader,file={f},addr={addr},force-raw=on")]
+
+
+def parse_load(spec):
+    """--load FILE@ADDR: an extra file at a physical address (for example a
+    Linux guest's device tree and initramfs inside partition A's RAM)."""
+    f, sep, addr = spec.rpartition("@")
+    if not sep or not f:
+        raise argparse.ArgumentTypeError(f"--load wants FILE@ADDR, got {spec!r}")
+    int(addr, 0)
+    return f, addr
 
 
 def device_tree(build, cpu, devices, out, smmu_stage):
@@ -182,7 +194,8 @@ def capture(args_ns, out):
     for p in (sock, uart):
         if os.path.exists(p):
             os.remove(p)
-    cmd = qemu_args(args_ns.build, args_ns.cpu, args_ns.device, "", args_ns.smmu_stage) + [
+    cmd = qemu_args(args_ns.build, args_ns.cpu, args_ns.device, "", args_ns.smmu_stage,
+                    args_ns.guest_a, args_ns.load) + [
         "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait"]
     open(os.path.join(out, "qemu-command.txt"), "w").write(" ".join(cmd) + "\n")
     q = subprocess.Popen(cmd)
@@ -713,6 +726,9 @@ def main():
     ap.add_argument("--device", action="append", default=[])
     ap.add_argument("--smmu-stage", default="nested", choices=["nested", "1", "2"])
     ap.add_argument("--marker", default=MARKER, help="UART line after which the memory is read")
+    ap.add_argument("--guest-a", help="file loaded at partition A's base instead of BUILD/guest_a.bin")
+    ap.add_argument("--load", action="append", default=[], type=parse_load, metavar="FILE@ADDR",
+                    help="extra file at a physical address (repeatable)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     grant = grant_file.load(a.grant)  # format 1 or 2 (FF-A vocabulary)
