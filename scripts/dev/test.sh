@@ -62,6 +62,15 @@ mkdir -p build/tests
 ./build/tests/test_vgic
 
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/unit/test_sysreg_trap.c \
+	src/core/exc/sysreg_trap.c \
+	src/core/exc/mmio.c \
+	src/core/irq/vgic.c \
+	-o build/tests/test_sysreg_trap
+
+./build/tests/test_sysreg_trap
+
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_mmio.c \
 	src/core/exc/mmio.c \
 	-o build/tests/test_mmio

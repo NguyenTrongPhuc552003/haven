@@ -17,6 +17,10 @@
 
 #include <haven/types.h>
 
+/* Default GIC priority for virtual IRQ injection (lower number = higher
+ * priority); 0xA0 is in the non-secure range (0x80 to 0xFF). */
+#define HV_VIRT_IRQ_PRIORITY 0xA0U
+
 #ifdef __cplusplus
 extern "C" {
 #endif

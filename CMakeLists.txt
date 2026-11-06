@@ -81,6 +81,7 @@ set(HAVEN_CORE_SRCS
     src/core/exc/el2_exceptions.c
     src/core/exc/psci.c
     src/core/exc/mmio.c
+    src/core/exc/sysreg_trap.c
     src/core/partition.c
     src/core/init.c
 )

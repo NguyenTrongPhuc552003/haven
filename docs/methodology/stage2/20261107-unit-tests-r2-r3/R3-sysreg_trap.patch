@@ -1,0 +1,11 @@
+--- a/src/core/exc/sysreg_trap.c
++++ b/src/core/exc/sysreg_trap.c
+@@ -43,7 +43,7 @@
+ 	} else {
+ 		if (read)
+ 			hv_frame_set(frame, rt, 0U);
+-		if (logged < 4U && hv_printk) {
++		if (logged < 4U || hv_printk) {
+ 			logged++;
+ 			hv_printk("HAVEN: trapped system register access "
+ 				  "ISS=0x%x (%s) cpu=%u\n",

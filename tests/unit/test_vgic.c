@@ -148,6 +148,27 @@ static void test_sgi(struct hv_vgic *v)
 	printf("[PASS] self-targeted SGIs only\n");
 }
 
+/* A vCPU whose MPIDR has every affinity level non-zero: Aff3 4, Aff2 1,
+ * Aff1 2, Aff0 3. GICR_TYPER and SGI targeting must use all four. */
+static void test_affinity(void)
+{
+	static struct hv_vgic v1;
+	hv_u64 mpidr = (0x04ULL << 32) | 0x80000000ULL | (0x01U << 16) |
+		       (0x02U << 8) | 0x03U;
+	hv_u64 self = (1ULL << 24) | (1ULL << 3) | (0x02ULL << 16) |
+		      (0x01ULL << 32) | (0x04ULL << 48);
+
+	hv_vgic_init(&v1, 1, mpidr, &hooks);
+	assert(rd(R, &v1, 0x0008, 8) == ((0x04010203ULL << 32) | (1U << 4)));
+	assert(rd(R, &v1, 0x000C, 4) == 0x04010203U);
+	wr(R, &v1, SGI + 0x0100, 4, 1U << 1);
+	assert(hv_vgic_sgi(&v1, self) == 1);
+	assert(hv_vgic_sgi(&v1, self & ~(0xFFULL << 48)) == -1); /* Aff3 0 */
+	assert(hv_vgic_sgi(&v1, (self & ~0xFFFFULL) | 1U) == -1); /* Aff0 0 */
+	assert(hv_vgic_for_cpu(1) == &v1);
+	printf("[PASS] non-zero affinity in GICR_TYPER and SGI targets\n");
+}
+
 int main(void)
 {
 	static struct hv_vgic v;
@@ -157,6 +178,7 @@ int main(void)
 	test_dist_init(&v);
 	test_enable(&v);
 	test_sgi(&v);
+	test_affinity();
 	printf("test_vgic: all passed\n");
 	return 0;
 }
