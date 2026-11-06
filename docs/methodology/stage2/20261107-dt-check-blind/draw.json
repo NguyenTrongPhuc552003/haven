@@ -1,0 +1,114 @@
+{
+ "seed_text": "haven 9552d0e | owner 2026-11-07 01:51: 1. Approve 2. Approve 3. Approve 4. I had already deleted it on Github permanently",
+ "seed_sha256": "4b89bfd7eeaf5019df57311fad935e092d637c3e3d287202310c9f265e0a92dd",
+ "faults": [
+  {
+   "name": "M01",
+   "op": "O8",
+   "index": 0,
+   "operator": "extra CPU nodes",
+   "parameter": "1 more (2 CPUs)",
+   "label": false,
+   "reason": "gic.cpus gives partition 1 CPUs 0 and 1"
+  },
+  {
+   "name": "M02",
+   "op": "O3",
+   "index": 1,
+   "operator": "initramfs range shifted",
+   "parameter": "+0x01000000",
+   "label": false,
+   "reason": "inside"
+  },
+  {
+   "name": "M03",
+   "op": "O1",
+   "index": 1,
+   "operator": "memory node size",
+   "parameter": "496 MiB",
+   "label": false,
+   "reason": "inside"
+  },
+  {
+   "name": "M04",
+   "op": "O10",
+   "index": 1,
+   "operator": "neutral edit",
+   "parameter": "KDAL node renamed kdal@9000000",
+   "label": false,
+   "reason": "same content"
+  },
+  {
+   "name": "M05",
+   "op": "O5",
+   "index": 0,
+   "operator": "KDAL node register base",
+   "parameter": "0x09000800",
+   "label": true,
+   "reason": "ends 0x800 past the UART page"
+  },
+  {
+   "name": "M06",
+   "op": "O6",
+   "index": 3,
+   "operator": "KDAL node interrupt",
+   "parameter": "SPI 1 edge",
+   "label": false,
+   "reason": "same INTID 33, only the trigger differs"
+  },
+  {
+   "name": "M07",
+   "op": "O4",
+   "index": 2,
+   "operator": "KDAL node register size",
+   "parameter": "0x2000",
+   "label": true,
+   "reason": "second page not granted (as T2)"
+  },
+  {
+   "name": "M08",
+   "op": "O7",
+   "index": 0,
+   "operator": "timer node entries",
+   "parameter": "virtual timer PPI 10",
+   "label": true,
+   "reason": "INTID 26 is HAVEN's, not partition A's"
+  },
+  {
+   "name": "M09",
+   "op": "O7",
+   "index": 1,
+   "operator": "timer node entries",
+   "parameter": "virtual timer PPI 12",
+   "label": true,
+   "reason": "INTID 28 not granted (as T5)"
+  },
+  {
+   "name": "M10",
+   "op": "O8",
+   "index": 2,
+   "operator": "extra CPU nodes",
+   "parameter": "3 more (4 CPUs)",
+   "label": true,
+   "reason": "partition 1 has 2 CPUs"
+  },
+  {
+   "name": "M11",
+   "op": "O4",
+   "index": 0,
+   "operator": "KDAL node register size",
+   "parameter": "0x800",
+   "label": false,
+   "reason": "inside the granted UART page"
+  },
+  {
+   "name": "M12",
+   "op": "O10",
+   "index": 1,
+   "operator": "neutral edit",
+   "parameter": "KDAL node renamed kdal@9000000",
+   "label": false,
+   "reason": "same content"
+  }
+ ]
+}
