@@ -1,0 +1,63 @@
+Test project build-host
+      Start  1: test_core_stubs
+ 1/25 Test  #1: test_core_stubs ..................   Passed    0.28 sec
+      Start  2: test_smmu_dma
+ 2/25 Test  #2: test_smmu_dma ....................   Passed    0.29 sec
+      Start  3: test_stage2_attrs
+ 3/25 Test  #3: test_stage2_attrs ................   Passed    0.29 sec
+      Start  4: test_smmu_ste
+ 4/25 Test  #4: test_smmu_ste ....................   Passed    0.28 sec
+      Start  5: test_el2_exceptions
+ 5/25 Test  #5: test_el2_exceptions ..............   Passed    0.29 sec
+      Start  6: test_vgic
+ 6/25 Test  #6: test_vgic ........................   Passed    0.29 sec
+      Start  7: test_sysreg_trap
+ 7/25 Test  #7: test_sysreg_trap .................Subprocess aborted***Exception:   0.27 sec
+Assertion failed: (printk_calls == 4), function test_log_cap, file test_sysreg_trap.c, line 103.
+[PASS] self-targeted SGI injected, others dropped
+[PASS] unhandled registers read as zero, writes ignored
+
+      Start  8: test_mmio
+ 8/25 Test  #8: test_mmio ........................   Passed    0.28 sec
+      Start  9: test_psci
+ 9/25 Test  #9: test_psci ........................   Passed    0.28 sec
+      Start 10: test_timer
+10/25 Test #10: test_timer .......................   Passed    0.30 sec
+      Start 11: test_iommu_policy
+11/25 Test #11: test_iommu_policy ................   Passed    0.28 sec
+      Start 12: test_guest_uart
+12/25 Test #12: test_guest_uart ..................   Passed    0.28 sec
+      Start 13: test_freertos_integration
+13/25 Test #13: test_freertos_integration ........   Passed    0.28 sec
+      Start 14: test_isolation_flow
+14/25 Test #14: test_isolation_flow ..............   Passed    0.28 sec
+      Start 15: test_isolation_negative
+15/25 Test #15: test_isolation_negative ..........   Passed    0.27 sec
+      Start 16: test_fault_injection
+16/25 Test #16: test_fault_injection .............   Passed    0.28 sec
+      Start 17: test_secondary_cpu_isolation
+17/25 Test #17: test_secondary_cpu_isolation .....   Passed    0.28 sec
+      Start 18: test_smmu_hardware
+18/25 Test #18: test_smmu_hardware ...............   Passed    0.29 sec
+      Start 19: test_spatial_isolation
+19/25 Test #19: test_spatial_isolation ...........   Passed    0.29 sec
+      Start 20: test_temporal_isolation
+20/25 Test #20: test_temporal_isolation ..........   Passed    0.28 sec
+      Start 21: test_hypervisor_invariants
+21/25 Test #21: test_hypervisor_invariants .......   Passed    0.28 sec
+      Start 22: demo_two_partition
+22/25 Test #22: demo_two_partition ...............   Passed    0.29 sec
+      Start 23: bench_isolation_latency
+23/25 Test #23: bench_isolation_latency ..........   Passed    0.32 sec
+      Start 24: bench_stage2_fault
+24/25 Test #24: bench_stage2_fault ...............   Passed    0.31 sec
+      Start 25: bench_smmu_policy
+25/25 Test #25: bench_smmu_policy ................   Passed    0.33 sec
+
+96% tests passed, 1 tests failed out of 25
+
+Total Test time (real) =   7.20 sec
+
+The following tests FAILED:
+	  7 - test_sysreg_trap (Subprocess aborted)
+Errors while running CTest

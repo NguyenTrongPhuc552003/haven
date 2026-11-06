@@ -52,3 +52,29 @@ trap path Linux uses.
 
 If these hold, every one of the 15 faults of the case set is caught by at
 least one instrument.
+
+## Results (2026-11-07, macOS, haven `f39e28d`)
+
+| Run | Observed | Expectation |
+| - | - | - |
+| base | 25 of 25 pass | held |
+| H1 | 24 of 25; `test_vgic` aborts at line 24 (enable of a SPI the partition does not own) | held |
+| H3 | 24 of 25; `test_vgic` aborts at line 55 (two disable calls at start) | held |
+| R1 | 24 of 25; `test_vgic` aborts at line 135 (redistributor SPI group word) | held |
+| R2 | 24 of 25; `test_vgic` aborts at line 162, the first `GICR_TYPER` check of `test_affinity`, after the four earlier tests pass | held |
+| R3 | 24 of 25; `test_sysreg_trap` aborts at line 103 (`printk_calls == 4`) | held |
+| L4 boot | 264 UART lines as in L4, `KDAL-DEMAND-END`, demand check 2 findings, read-back matches | held |
+
+7 of 7 expectations held. Logs: `runs/*.log`, `runs/l4/`.
+
+**Observation.** The L4 log differs from the original L4 run only in the
+build time, the order of one audit line, and SGI 5 delivered 122 times
+instead of 120. SGI 5 reaches the guest through the moved trap handler
+(Linux sends it to itself through ICC_SGI1R_EL1), so the moved code ran
+about 120 times in the boot.
+
+**Result.** Each of the 15 faults of the Linux chain case set is now
+caught by at least one instrument (demand check, read-back, boot or HAVEN
+log, host unit tests). Limits: R3 was checked in the moved file, not the
+original one; and the new tests were written knowing the two faults, so
+they show the gap is closed, not that the tests find unknown faults.
