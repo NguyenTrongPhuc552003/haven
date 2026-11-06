@@ -133,3 +133,56 @@ Expectations for the L2 run (same images and device tree as L1):
    interrupt, root-mount panic, SYSTEM_RESET stops partition A.
 3. All host tests pass, including new decoder tests; partitions that never
    fault (qemu-psci profile boot check in CI) behave as before.
+
+## 7. L3 design and expectations (Claude's, before the run)
+
+What Linux v6.18's GICv3 driver needs (from
+`drivers/irqchip/irq-gic-v3.c`, inference until observed): GICD_PIDR2 and
+GICR_PIDR2 report architecture version 3; GICD_TYPER gives the number of
+interrupt lines; GICD_CTLR and GICR_CTLR read RWP = 0; GICR_TYPER (a
+64-bit read) carries the CPU's affinity and Last = 1; GICR_WAKER clears
+ChildrenAsleep when ProcessorSleep is cleared; the enable, priority,
+configuration, group and routing registers take writes. Interrupt
+delivery itself already exists: HAVEN injects an owned physical interrupt
+as a hardware-linked virtual one, and the guest acknowledges it through
+the virtual CPU interface (ICV system registers), not through MMIO.
+
+Design:
+
+- `src/core/irq/vgic.c`: a distributor and one redistributor (RD and SGI
+  frames) for one vCPU, registered on the L2 path at GICD 0x08000000
+  (64 KiB) and GICR 0x080a0000 (128 KiB), for the Linux profile only
+  (`HAVEN_PART_A_DTB_IPA`). It reports 64 interrupt IDs (32 SPIs),
+  security disabled (DS = 1), no LPIs, no extended SPIs. Pure state
+  machine with host tests; the hardware is reached through hooks.
+- Enable and disable of an interrupt that the partition owns on this CPU
+  go to the physical GIC; all other interrupt IDs read as zero and ignore
+  writes, except SGIs, which are kept as virtual state only. Owned
+  interrupts start physically disabled and are enabled when Linux enables
+  them. Priority, configuration, group and routing are stored and read
+  back but not applied to the hardware (injection keeps priority 0xa0,
+  the value Linux writes by default).
+- Partition A also owns the EL1 virtual timer PPI 27 on CPU 0 in the
+  Linux profile (partition B keeps PPI 27 on CPU 2; a PPI is owned per
+  CPU).
+- Writes to ICC_SGI1R_EL1 trap to EL2 (EC 0x18). A self-targeted SGI is
+  injected as a virtual SGI; other targets are dropped (one vCPU). Any
+  other trapped system register reads as zero and ignores writes, with
+  one log line. Without this, the first trapped access would trap again
+  forever (ELR is not advanced today).
+- HAVEN counts virtual interrupts delivered per interrupt ID and prints
+  the counts when the partition stops.
+
+Expectations for the L3 run (same images and device tree as L0 to L2):
+
+1. The GIC driver probes: Linux reports 32 SPIs and finds the
+   redistributor for CPU 0 at 0x080a0000; no `no distributor detected`.
+2. The architected timer registers (virtual timer) and printk timestamps
+   advance past 0.000000.
+3. At the stop, HAVEN reports more than zero deliveries of interrupt 27
+   (timer). Interrupt 33 (UART) may stay at zero: the kernel console
+   writes the UART by polling, and there is no user space to read it.
+4. Linux still panics at the root mount (no root file system yet) and
+   SYSTEM_RESET stops partition A. No stage-2 access is denied.
+5. All host tests pass on the three CI operating systems; the qemu-psci
+   profile (partition B with its timer) is unchanged.
