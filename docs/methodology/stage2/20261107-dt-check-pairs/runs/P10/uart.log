@@ -1,0 +1,323 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  7 2026 02:43:33
+HAVEN: EL2 stage-1 on (identity map, image Normal WB, MMIO Device)
+  CPU: PARange=4 GIC=v3 - features OK
+HAVEN: GIC virtual interface: 4 list registers
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000
+HAVEN: partition A boots with device tree at IPA 0x50000000
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: partition A GICv3 emulated (GICD 0x8000000, GICR 0x80a0000); owned interrupts wait for the guest
+HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: PSCI CPU_ON error -1 (NOT_SUPPORTED)
+HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
+HAVEN: ERET -> partition A entry IPA=0x40000000
+HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
+[    0.000000] Linux version 6.18.0-dirty (trongphucnguyen@Phucs-MacBook-Pro.local) (Homebrew clang version 23.1.5, Homebrew LLD 23.1.5) #1 SMP PREEMPT Wed Nov  4 21:39:14 +07 2026
+[    0.000000] KASLR disabled due to lack of seed
+[    0.000000] Machine model: linux,dummy-virt
+[    0.000000] earlycon: pl11 at MMIO 0x0000000009000000 (options '')
+[    0.000000] printk: legacy bootconsole [pl11] enabled
+[    0.000000] efi: UEFI not found.
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230000 ESR=0x92000046 cpu=0 n=1
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230040 ESR=0x92000046 cpu=0 n=2
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230080 ESR=0x92000046 cpu=0 n=3
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff2300c0 ESR=0x92000046 cpu=0 n=4
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230100 ESR=0x92000046 cpu=0 n=5
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230140 ESR=0x92000046 cpu=0 n=6
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230180 ESR=0x92000046 cpu=0 n=7
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff2301c0 ESR=0x92000046 cpu=0 n=8
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230200 ESR=0x92000046 cpu=0 n=9
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230240 ESR=0x92000046 cpu=0 n=10
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230280 ESR=0x92000046 cpu=0 n=11
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff2302c0 ESR=0x92000046 cpu=0 n=12
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230300 ESR=0x92000046 cpu=0 n=13
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230340 ESR=0x92000046 cpu=0 n=14
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff230380 ESR=0x92000046 cpu=0 n=15
+HAVEN: Denied stage-2 violation IPA=0x6ffff000 FAR=0xffffffffff2303c0 ESR=0x92000046 cpu=0 n=16
+HAVEN: Denied stage-2 violation IPA=0x6fffb000 FAR=0xffffffffff2329b0 ESR=0x93d28046 cpu=0 n=4096
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fffb9b0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fff8000 FAR=0xffffffffff232240 ESR=0x93d28006 cpu=0 n=8192
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fff8240; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fff6000 FAR=0xffffffffff232b88 ESR=0x93d28046 cpu=0 n=12288
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fff6b88; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fff3000 FAR=0xffffffffff232418 ESR=0x93d28006 cpu=0 n=16384
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fff3418; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fff1000 FAR=0xffffffffff232d60 ESR=0x93d28046 cpu=0 n=20480
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fff1d60; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffee000 FAR=0xffffffffff2325f0 ESR=0x93d28006 cpu=0 n=24576
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffee5f0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffec000 FAR=0xffffffffff232f38 ESR=0x93d28046 cpu=0 n=28672
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffecf38; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffe9000 FAR=0xffffffffff2327c8 ESR=0x93d28006 cpu=0 n=32768
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffe97c8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffe6000 FAR=0xffffffffff232060 ESR=0x93d18006 cpu=0 n=36864
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffe6060; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffe4000 FAR=0xffffffffff2329a0 ESR=0x93d28006 cpu=0 n=40960
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffe49a0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffe1000 FAR=0xffffffffff232238 ESR=0x93d18006 cpu=0 n=45056
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffe1238; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffdf000 FAR=0xffffffffff232b78 ESR=0x93d28006 cpu=0 n=49152
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffdfb78; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffdc000 FAR=0xffffffffff232410 ESR=0x93d18006 cpu=0 n=53248
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffdc410; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffda000 FAR=0xffffffffff232d50 ESR=0x93d28006 cpu=0 n=57344
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffdad50; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffd7000 FAR=0xffffffffff2325e8 ESR=0x93d18006 cpu=0 n=61440
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffd75e8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffd5000 FAR=0xffffffffff232f28 ESR=0x93d28006 cpu=0 n=65536
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffd5f28; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffd2000 FAR=0xffffffffff2327c0 ESR=0x93d18006 cpu=0 n=69632
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffd27c0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffcf000 FAR=0xffffffffff232050 ESR=0x93d28046 cpu=0 n=73728
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffcf050; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffcd000 FAR=0xffffffffff232998 ESR=0x93d18006 cpu=0 n=77824
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffcd998; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffca000 FAR=0xffffffffff232228 ESR=0x93d28046 cpu=0 n=81920
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffca228; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffc8000 FAR=0xffffffffff232b70 ESR=0x93d18006 cpu=0 n=86016
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffc8b70; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffc5000 FAR=0xffffffffff232400 ESR=0x93d28046 cpu=0 n=90112
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffc5400; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffc3000 FAR=0xffffffffff232d48 ESR=0x93d18006 cpu=0 n=94208
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffc3d48; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffc0000 FAR=0xffffffffff2325d8 ESR=0x93d28046 cpu=0 n=98304
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffc05d8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffbe000 FAR=0xffffffffff232f20 ESR=0x93d18006 cpu=0 n=102400
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffbef20; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffbb000 FAR=0xffffffffff2327b0 ESR=0x93d28046 cpu=0 n=106496
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffbb7b0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffb8000 FAR=0xffffffffff232040 ESR=0x93d28006 cpu=0 n=110592
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffb8040; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffb6000 FAR=0xffffffffff232988 ESR=0x93d28046 cpu=0 n=114688
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffb6988; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffb3000 FAR=0xffffffffff232218 ESR=0x93d28006 cpu=0 n=118784
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffb3218; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffb1000 FAR=0xffffffffff232b60 ESR=0x93d28046 cpu=0 n=122880
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffb1b60; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffae000 FAR=0xffffffffff2323f0 ESR=0x93d28006 cpu=0 n=126976
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffae3f0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffac000 FAR=0xffffffffff232d38 ESR=0x93d28046 cpu=0 n=131072
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffacd38; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffa9000 FAR=0xffffffffff2325c8 ESR=0x93d28006 cpu=0 n=135168
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffa95c8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffa7000 FAR=0xffffffffff232f10 ESR=0x93d28046 cpu=0 n=139264
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ffa7f10; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ffa4000 FAR=0xffffffffff2327a0 ESR=0x93d28006 cpu=0 n=143360
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ffa47a0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ffa1000 FAR=0xffffffffff232038 ESR=0x93d18006 cpu=0 n=147456
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ffa1038; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff9f000 FAR=0xffffffffff232978 ESR=0x93d28006 cpu=0 n=151552
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff9f978; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff9c000 FAR=0xffffffffff232210 ESR=0x93d18006 cpu=0 n=155648
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff9c210; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff9a000 FAR=0xffffffffff232b50 ESR=0x93d28006 cpu=0 n=159744
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff9ab50; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff97000 FAR=0xffffffffff2323e8 ESR=0x93d18006 cpu=0 n=163840
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff973e8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff95000 FAR=0xffffffffff232d28 ESR=0x93d28006 cpu=0 n=167936
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff95d28; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff92000 FAR=0xffffffffff2325c0 ESR=0x93d18006 cpu=0 n=172032
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff925c0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff90000 FAR=0xffffffffff232f00 ESR=0x93d28006 cpu=0 n=176128
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff90f00; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff8d000 FAR=0xffffffffff232798 ESR=0x93d18006 cpu=0 n=180224
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff8d798; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff8a000 FAR=0xffffffffff232028 ESR=0x93d28046 cpu=0 n=184320
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff8a028; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff88000 FAR=0xffffffffff232970 ESR=0x93d18006 cpu=0 n=188416
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff88970; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff85000 FAR=0xffffffffff232200 ESR=0x93d28046 cpu=0 n=192512
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff85200; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff83000 FAR=0xffffffffff232b48 ESR=0x93d18006 cpu=0 n=196608
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff83b48; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff80000 FAR=0xffffffffff2323d8 ESR=0x93d28046 cpu=0 n=200704
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff803d8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff7e000 FAR=0xffffffffff232d20 ESR=0x93d18006 cpu=0 n=204800
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff7ed20; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff7b000 FAR=0xffffffffff2325b0 ESR=0x93d28046 cpu=0 n=208896
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff7b5b0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff79000 FAR=0xffffffffff232ef8 ESR=0x93d18006 cpu=0 n=212992
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff79ef8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff76000 FAR=0xffffffffff232788 ESR=0x93d28046 cpu=0 n=217088
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff76788; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff73000 FAR=0xffffffffff232018 ESR=0x93d28006 cpu=0 n=221184
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff73018; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff71000 FAR=0xffffffffff232960 ESR=0x93d28046 cpu=0 n=225280
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff71960; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff6e000 FAR=0xffffffffff2321f0 ESR=0x93d28006 cpu=0 n=229376
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff6e1f0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff6c000 FAR=0xffffffffff232b38 ESR=0x93d28046 cpu=0 n=233472
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff6cb38; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff69000 FAR=0xffffffffff2323c8 ESR=0x93d28006 cpu=0 n=237568
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff693c8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff67000 FAR=0xffffffffff232d10 ESR=0x93d28046 cpu=0 n=241664
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff67d10; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff64000 FAR=0xffffffffff2325a0 ESR=0x93d28006 cpu=0 n=245760
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff645a0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff62000 FAR=0xffffffffff232ee8 ESR=0x93d28046 cpu=0 n=249856
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff62ee8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff5f000 FAR=0xffffffffff232778 ESR=0x93d28006 cpu=0 n=253952
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff5f778; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff5c000 FAR=0xffffffffff232010 ESR=0x93d18006 cpu=0 n=258048
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff5c010; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff5a000 FAR=0xffffffffff232950 ESR=0x93d28006 cpu=0 n=262144
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff5a950; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff57000 FAR=0xffffffffff2321e8 ESR=0x93d18006 cpu=0 n=266240
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff571e8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff55000 FAR=0xffffffffff232b28 ESR=0x93d28006 cpu=0 n=270336
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff55b28; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff52000 FAR=0xffffffffff2323c0 ESR=0x93d18006 cpu=0 n=274432
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff523c0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff50000 FAR=0xffffffffff232d00 ESR=0x93d28006 cpu=0 n=278528
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff50d00; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff4d000 FAR=0xffffffffff232598 ESR=0x93d18006 cpu=0 n=282624
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff4d598; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff4b000 FAR=0xffffffffff232ed8 ESR=0x93d28006 cpu=0 n=286720
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff4bed8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff48000 FAR=0xffffffffff232770 ESR=0x93d18006 cpu=0 n=290816
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff48770; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff45000 FAR=0xffffffffff232000 ESR=0x93d28046 cpu=0 n=294912
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff45000; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff43000 FAR=0xffffffffff232948 ESR=0x93d18006 cpu=0 n=299008
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff43948; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff40000 FAR=0xffffffffff2321d8 ESR=0x93d28046 cpu=0 n=303104
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff401d8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff3e000 FAR=0xffffffffff232b20 ESR=0x93d18006 cpu=0 n=307200
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff3eb20; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff3b000 FAR=0xffffffffff2323b0 ESR=0x93d28046 cpu=0 n=311296
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff3b3b0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff39000 FAR=0xffffffffff232cf8 ESR=0x93d18006 cpu=0 n=315392
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff39cf8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff36000 FAR=0xffffffffff232588 ESR=0x93d28046 cpu=0 n=319488
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff36588; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff34000 FAR=0xffffffffff232ed0 ESR=0x93d18006 cpu=0 n=323584
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff34ed0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff31000 FAR=0xffffffffff232760 ESR=0x93d28046 cpu=0 n=327680
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff31760; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff2e000 FAR=0xffffffffff232f40 ESR=0x92000046 cpu=0 n=331776
+HAVEN: Denied stage-2 violation IPA=0x6ff2c000 FAR=0xffffffffff232938 ESR=0x93d28046 cpu=0 n=335872
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff2c938; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff29000 FAR=0xffffffffff2321c8 ESR=0x93d28006 cpu=0 n=339968
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff291c8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff27000 FAR=0xffffffffff232b10 ESR=0x93d28046 cpu=0 n=344064
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff27b10; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff24000 FAR=0xffffffffff2323a0 ESR=0x93d28006 cpu=0 n=348160
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff243a0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff22000 FAR=0xffffffffff232ce8 ESR=0x93d28046 cpu=0 n=352256
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff22ce8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff1f000 FAR=0xffffffffff232578 ESR=0x93d28006 cpu=0 n=356352
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff1f578; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff1d000 FAR=0xffffffffff232ec0 ESR=0x93d28046 cpu=0 n=360448
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6ff1dec0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6ff1a000 FAR=0xffffffffff232750 ESR=0x93d28006 cpu=0 n=364544
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff1a750; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff17000 FAR=0xffffffffff232e00 ESR=0x92000046 cpu=0 n=368640
+HAVEN: Denied stage-2 violation IPA=0x6ff15000 FAR=0xffffffffff232928 ESR=0x93d28006 cpu=0 n=372736
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff15928; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff12000 FAR=0xffffffffff2321c0 ESR=0x93d18006 cpu=0 n=376832
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff121c0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff10000 FAR=0xffffffffff232b00 ESR=0x93d28006 cpu=0 n=380928
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff10b00; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff0d000 FAR=0xffffffffff232398 ESR=0x93d18006 cpu=0 n=385024
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff0d398; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff0b000 FAR=0xffffffffff232cd8 ESR=0x93d28006 cpu=0 n=389120
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff0bcd8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff08000 FAR=0xffffffffff232570 ESR=0x93d18006 cpu=0 n=393216
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff08570; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff06000 FAR=0xffffffffff232eb0 ESR=0x93d28006 cpu=0 n=397312
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6ff06eb0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff03000 FAR=0xffffffffff232748 ESR=0x93d18006 cpu=0 n=401408
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6ff03748; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6ff00000 FAR=0xffffffffff232cc0 ESR=0x92000046 cpu=0 n=405504
+HAVEN: Denied stage-2 violation IPA=0x6fefe000 FAR=0xffffffffff232920 ESR=0x93d18006 cpu=0 n=409600
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6fefe920; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fefb000 FAR=0xffffffffff2321b0 ESR=0x93d28046 cpu=0 n=413696
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fefb1b0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fef9000 FAR=0xffffffffff232af8 ESR=0x93d18006 cpu=0 n=417792
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6fef9af8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fef6000 FAR=0xffffffffff232388 ESR=0x93d28046 cpu=0 n=421888
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fef6388; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fef4000 FAR=0xffffffffff232cd0 ESR=0x93d18006 cpu=0 n=425984
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6fef4cd0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fef1000 FAR=0xffffffffff232560 ESR=0x93d28046 cpu=0 n=430080
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fef1560; ignored
+HAVEN: Denied stage-2 violation IPA=0x6feef000 FAR=0xffffffffff232ea8 ESR=0x93d18006 cpu=0 n=434176
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6feefea8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6feec000 FAR=0xffffffffff232738 ESR=0x93d28046 cpu=0 n=438272
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6feec738; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fee9000 FAR=0xffffffffff232b80 ESR=0x92000046 cpu=0 n=442368
+HAVEN: Denied stage-2 violation IPA=0x6fee7000 FAR=0xffffffffff232910 ESR=0x93d28046 cpu=0 n=446464
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fee7910; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fee4000 FAR=0xffffffffff2321a0 ESR=0x93d28006 cpu=0 n=450560
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fee41a0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fee2000 FAR=0xffffffffff232ae8 ESR=0x93d28046 cpu=0 n=454656
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fee2ae8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fedf000 FAR=0xffffffffff232378 ESR=0x93d28006 cpu=0 n=458752
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fedf378; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fedd000 FAR=0xffffffffff232cc0 ESR=0x93d28046 cpu=0 n=462848
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6feddcc0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6feda000 FAR=0xffffffffff232550 ESR=0x93d28006 cpu=0 n=466944
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6feda550; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fed8000 FAR=0xffffffffff232e98 ESR=0x93d28046 cpu=0 n=471040
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fed8e98; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fed5000 FAR=0xffffffffff232728 ESR=0x93d28006 cpu=0 n=475136
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fed5728; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fed2000 FAR=0xffffffffff232a40 ESR=0x92000046 cpu=0 n=479232
+HAVEN: Denied stage-2 violation IPA=0x6fed0000 FAR=0xffffffffff232900 ESR=0x93d28006 cpu=0 n=483328
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fed0900; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fecd000 FAR=0xffffffffff232198 ESR=0x93d18006 cpu=0 n=487424
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6fecd198; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fecb000 FAR=0xffffffffff232ad8 ESR=0x93d28006 cpu=0 n=491520
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fecbad8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fec8000 FAR=0xffffffffff232370 ESR=0x93d18006 cpu=0 n=495616
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6fec8370; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fec6000 FAR=0xffffffffff232cb0 ESR=0x93d28006 cpu=0 n=499712
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fec6cb0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fec3000 FAR=0xffffffffff232548 ESR=0x93d18006 cpu=0 n=503808
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6fec3548; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fec1000 FAR=0xffffffffff232e88 ESR=0x93d28006 cpu=0 n=507904
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fec1e88; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6febe000 FAR=0xffffffffff232720 ESR=0x93d18006 cpu=0 n=512000
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6febe720; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6febb000 FAR=0xffffffffff232900 ESR=0x92000046 cpu=0 n=516096
+HAVEN: Denied stage-2 violation IPA=0x6feb9000 FAR=0xffffffffff2328f8 ESR=0x93d18006 cpu=0 n=520192
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6feb98f8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6feb6000 FAR=0xffffffffff232188 ESR=0x93d28046 cpu=0 n=524288
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6feb6188; ignored
+HAVEN: Denied stage-2 violation IPA=0x6feb4000 FAR=0xffffffffff232ad0 ESR=0x93d18006 cpu=0 n=528384
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6feb4ad0; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6feb1000 FAR=0xffffffffff232360 ESR=0x93d28046 cpu=0 n=532480
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6feb1360; ignored
+HAVEN: Denied stage-2 violation IPA=0x6feaf000 FAR=0xffffffffff232ca8 ESR=0x93d18006 cpu=0 n=536576
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6feafca8; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6feac000 FAR=0xffffffffff232538 ESR=0x93d28046 cpu=0 n=540672
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6feac538; ignored
+HAVEN: Denied stage-2 violation IPA=0x6feaa000 FAR=0xffffffffff232e80 ESR=0x93d18006 cpu=0 n=544768
+HAVEN: decoded: read 8 bytes, reg x17, IPA=0x6feaae80; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fea7000 FAR=0xffffffffff232710 ESR=0x93d28046 cpu=0 n=548864
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fea7710; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fea4000 FAR=0xffffffffff2327c0 ESR=0x92000046 cpu=0 n=552960
+HAVEN: Denied stage-2 violation IPA=0x6fea2000 FAR=0xffffffffff2328e8 ESR=0x93d28046 cpu=0 n=557056
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fea28e8; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fe9f000 FAR=0xffffffffff232178 ESR=0x93d28006 cpu=0 n=561152
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fe9f178; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fe9d000 FAR=0xffffffffff232ac0 ESR=0x93d28046 cpu=0 n=565248
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fe9dac0; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fe9a000 FAR=0xffffffffff232350 ESR=0x93d28006 cpu=0 n=569344
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fe9a350; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fe98000 FAR=0xffffffffff232c98 ESR=0x93d28046 cpu=0 n=573440
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fe98c98; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fe95000 FAR=0xffffffffff232528 ESR=0x93d28006 cpu=0 n=577536
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fe95528; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fe93000 FAR=0xffffffffff232e70 ESR=0x93d28046 cpu=0 n=581632
+HAVEN: decoded: write 8 bytes, reg x18, IPA=0x6fe93e70; ignored
+HAVEN: Denied stage-2 violation IPA=0x6fe90000 FAR=0xffffffffff232700 ESR=0x93d28006 cpu=0 n=585728
+HAVEN: decoded: read 8 bytes, reg x18, IPA=0x6fe90700; reads as zero
+HAVEN: Denied stage-2 violation IPA=0x6fe8d000 FAR=0xffffffffff232680 ESR=0x92000046 cpu=0 n=589824

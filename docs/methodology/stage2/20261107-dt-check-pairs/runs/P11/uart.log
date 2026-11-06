@@ -1,0 +1,43 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  7 2026 02:43:33
+HAVEN: EL2 stage-1 on (identity map, image Normal WB, MMIO Device)
+  CPU: PARange=4 GIC=v3 - features OK
+HAVEN: GIC virtual interface: 4 list registers
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000
+HAVEN: partition A boots with device tree at IPA 0x50000000
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: partition A GICv3 emulated (GICD 0x8000000, GICR 0x80a0000); owned interrupts wait for the guest
+HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: PSCI CPU_ON error -1 (NOT_SUPPORTED)
+HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
+HAVEN: ERET -> partition A entry IPA=0x40000000
+HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
+[    0.000000] Linux version 6.18.0-dirty (trongphucnguyen@Phucs-MacBook-Pro.local) (Homebrew clang version 23.1.5, Homebrew LLD 23.1.5) #1 SMP PREEMPT Wed Nov  4 21:39:14 +07 2026
+[    0.000000] KASLR disabled due to lack of seed
+[    0.000000] Machine model: linux,dummy-virt
+[    0.000000] earlycon: pl11 at MMIO 0x0000000009000000 (options '')
+[    0.000000] printk: legacy bootconsole [pl11] enabled
+[    0.000000] efi: UEFI not found.
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230000 ESR=0x92000046 cpu=0 n=1
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230040 ESR=0x92000046 cpu=0 n=2
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230080 ESR=0x92000046 cpu=0 n=3
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff2300c0 ESR=0x92000046 cpu=0 n=4
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230100 ESR=0x92000046 cpu=0 n=5
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230140 ESR=0x92000046 cpu=0 n=6
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230180 ESR=0x92000046 cpu=0 n=7
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff2301c0 ESR=0x92000046 cpu=0 n=8
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230200 ESR=0x92000046 cpu=0 n=9
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230240 ESR=0x92000046 cpu=0 n=10
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230280 ESR=0x92000046 cpu=0 n=11
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff2302c0 ESR=0x92000046 cpu=0 n=12
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230300 ESR=0x92000046 cpu=0 n=13
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230340 ESR=0x92000046 cpu=0 n=14
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff230380 ESR=0x92000046 cpu=0 n=15
+HAVEN: Denied stage-2 violation IPA=0x60000000 FAR=0xffffffffff2303c0 ESR=0x92000046 cpu=0 n=16

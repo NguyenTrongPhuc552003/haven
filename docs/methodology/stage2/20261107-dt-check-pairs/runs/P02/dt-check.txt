@@ -1,0 +1,7 @@
+  FINDING /cpus: 3 CPU nodes, partition 1 has 2 CPU(s)
+  FINDING /timer: PPI 31 not granted to partition 1
+  info /timer: timer interrupt 29 (entry 0) not used by an EL1 guest
+  info /timer: timer interrupt 30 (entry 1) not used by an EL1 guest
+  info /timer: timer interrupt 26 (entry 3) not used by an EL1 guest
+RESULT 2 finding(s)
+exit 1

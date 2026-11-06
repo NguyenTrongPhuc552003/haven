@@ -1,0 +1,5 @@
+  info /timer: timer interrupt 25 (entry 0) not used by an EL1 guest
+  info /timer: timer interrupt 30 (entry 1) not used by an EL1 guest
+  info /timer: timer interrupt 26 (entry 3) not used by an EL1 guest
+RESULT the device tree matches the grant
+exit 0
