@@ -5,6 +5,7 @@
  */
 
 #include <haven/el2_exceptions.h>
+#include <haven/mmio.h>
 #include <haven/psci.h>
 #include <haven/string.h>
 #ifdef HAVEN_ARCH_ARM64
@@ -373,9 +374,26 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 		if (action != HV_S2F_NOT_S2) {
 			hv_u64 hpfar;
 			hv_u64 ipa;
+			hv_mmio_access_t acc;
+			int decoded = -1;
 
 			__asm__ volatile("mrs %0, hpfar_el2" : "=r"(hpfar));
 			ipa = (hpfar & ~0xFULL) << 8;
+
+			/* Data abort on an unmapped page (translation fault, so
+			 * HPFAR is valid): emulate it if a device model is
+			 * registered for this address (L2/L3). */
+			if (action == HV_S2F_SKIP) {
+				decoded = hv_mmio_decode(esr, &acc);
+				if (decoded == 0 && (esr & 0x3CU) == 0x04U &&
+				    hv_mmio_emulate(hv_arch_cpu_id(),
+						    ipa | (far & 0xFFFU), &acc,
+						    (hv_u64 *)sp) == 0) {
+					((volatile hv_u64 *)sp)[HV_FRAME_ELR] +=
+						4ULL;
+					return;
+				}
+			}
 
 			if (hv_printk)
 				hv_printk("HAVEN: Denied stage-2 violation "
@@ -398,6 +416,25 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 				for (;;) {
 					__asm__ volatile("wfe");
 				}
+			}
+
+			/* Denied access with a decodable syndrome: a load reads
+			 * as zero, a store is ignored (RAZ/WI). */
+			if (decoded == 0) {
+				if (hv_printk)
+					hv_printk(
+						"HAVEN: decoded: %s %u bytes, "
+						"reg %c%u, IPA=0x%lx; %s\n",
+						acc.write ? "write" : "read",
+						(unsigned)acc.size,
+						acc.reg64 ? 'x' : 'w',
+						(unsigned)acc.reg,
+						(unsigned long)(ipa |
+								(far & 0xFFFU)),
+						acc.write ? "ignored" :
+							    "reads as zero");
+				if (!acc.write)
+					hv_frame_set((hv_u64 *)sp, acc.reg, 0U);
 			}
 
 			/* Update saved ELR at frame+168 (see save_minimal layout) */

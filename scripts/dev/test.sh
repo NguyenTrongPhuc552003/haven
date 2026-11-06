@@ -55,6 +55,13 @@ mkdir -p build/tests
 ./build/tests/test_el2_exceptions
 
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
+	tests/unit/test_mmio.c \
+	src/core/exc/mmio.c \
+	-o build/tests/test_mmio
+
+./build/tests/test_mmio
+
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_psci.c \
 	src/core/exc/psci.c \
 	-o build/tests/test_psci

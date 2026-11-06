@@ -107,10 +107,13 @@ el2_exception_table:
  *   [sp+160] x30 (LR)
  *   [sp+168] ELR_EL2
  *   [sp+176] SPSR_EL2
- *   Total: 184 bytes
+ *   [sp+184] (unused, keeps 16-byte alignment)
+ *   [sp+192] x19 ... [sp+264] x28 (callee-saved; saved too so that MMIO
+ *            emulation can read or write any register the guest named)
+ *   Total: 272 bytes (HV_FRAME_SIZE in include/haven/mmio.h)
  */
 .macro save_minimal
-        sub     sp, sp, #192
+        sub     sp, sp, #272
         stp     x0,  x1,  [sp, #0]
         stp     x2,  x3,  [sp, #16]
         stp     x4,  x5,  [sp, #32]
@@ -122,6 +125,11 @@ el2_exception_table:
         stp     x16, x17, [sp, #128]
         stp     x18, x29, [sp, #144]
         stp     x30, xzr, [sp, #160]
+        stp     x19, x20, [sp, #192]
+        stp     x21, x22, [sp, #208]
+        stp     x23, x24, [sp, #224]
+        stp     x25, x26, [sp, #240]
+        stp     x27, x28, [sp, #256]
         mrs     x0, elr_el2
         mrs     x1, spsr_el2
         stp     x0,  x1,  [sp, #168]
@@ -131,6 +139,11 @@ el2_exception_table:
         ldp     x0,  x1,  [sp, #168]
         msr     elr_el2,  x0
         msr     spsr_el2, x1
+        ldp     x19, x20, [sp, #192]
+        ldp     x21, x22, [sp, #208]
+        ldp     x23, x24, [sp, #224]
+        ldp     x25, x26, [sp, #240]
+        ldp     x27, x28, [sp, #256]
         ldp     x30, xzr, [sp, #160]
         ldp     x18, x29, [sp, #144]
         ldp     x16, x17, [sp, #128]
@@ -142,7 +155,7 @@ el2_exception_table:
         ldp     x4,  x5,  [sp, #32]
         ldp     x2,  x3,  [sp, #16]
         ldp     x0,  x1,  [sp, #0]
-        add     sp, sp, #192
+        add     sp, sp, #272
 .endm
 
 
