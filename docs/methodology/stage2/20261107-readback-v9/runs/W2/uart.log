@@ -1,0 +1,20 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  7 2026 02:04:25
+HAVEN: EL2 stage-1 on (identity map, image Normal WB, MMIO Device)
+  CPU: PARange=4 GIC=v3 - features OK
+HAVEN: GIC virtual interface: 4 list registers
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000
+HAVEN: partition A boots with device tree at IPA 0x50000000
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: partition A GICv3 emulated (GICD 0x8000000, GICR 0x80a0000); owned interrupts wait for the guest
+HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: PSCI CPU_ON error -1 (NOT_SUPPORTED)
+HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
+HAVEN: ERET -> partition A entry IPA=0x40000000
+HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)

@@ -1,0 +1,10 @@
+# Read-back v9 runs
+
+| Run | Case | Read at | Read-back | Guest-enabled interrupts | Last UART line |
+| - | - | - | - | - | - |
+| W1 | B0 | breakpoint at 0x40000000 (stop reply T05thread:01;) | RESULT enforced state matches the grant | INTID 33 on CPU 0: waiting for the guest; INTID 27 on CPU 0: waiting for the guest | HAVEN: CPU 0 budget enforced by the EL2 timer (partition A) |
+| W2 | H3 | breakpoint at 0x40000000 (stop reply T05thread:01;) | RESULT 2 finding(s): FINDING SPI 33: interrupt enable drift (enabled in the GIC, never enabled by the guest); FINDING CPU 0 PPI 27: interrupt enable drift (enabled in the GIC, never enabled by the guest) | INTID 33 on CPU 0: guest 0, GIC 1; INTID 27 on CPU 0: guest 0, GIC 1 | HAVEN: CPU 0 budget enforced by the EL2 timer (partition A) |
+| W3 | H3 | breakpoint at 0x40000000 (stop reply T05thread:01;) | RESULT 2 finding(s): FINDING SPI 33: interrupt enable drift (enabled in the GIC, never enabled by the guest); FINDING CPU 0 PPI 27: interrupt enable drift (enabled in the GIC, never enabled by the guest) | INTID 33 on CPU 0: guest 0, GIC 1; INTID 27 on CPU 0: guest 0, GIC 1 | HAVEN: CPU 0 budget enforced by the EL2 timer (partition A) |
+| W4 | H3 | breakpoint at 0x40000000 (stop reply T05thread:01;) | RESULT 2 finding(s): FINDING SPI 33: interrupt enable drift (enabled in the GIC, never enabled by the guest); FINDING CPU 0 PPI 27: interrupt enable drift (enabled in the GIC, never enabled by the guest) | INTID 33 on CPU 0: guest 0, GIC 1; INTID 27 on CPU 0: guest 0, GIC 1 | HAVEN: CPU 0 budget enforced by the EL2 timer (partition A) |
+| W5 | H1 | breakpoint at 0x40000000 (stop reply T05thread:01;) | RESULT enforced state matches the grant | INTID 33 on CPU 0: waiting for the guest; INTID 27 on CPU 0: waiting for the guest | HAVEN: CPU 0 budget enforced by the EL2 timer (partition A) |
+| W6 | B0 | marker | RESULT enforced state matches the grant | INTID 33 on CPU 0: guest 1, GIC 1; INTID 27 on CPU 0: guest 1, GIC 1 | HAVEN: partition stopped by PSCI OFF; CPU parked |
