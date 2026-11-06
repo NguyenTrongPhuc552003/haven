@@ -1,0 +1,11 @@
+[
+ {
+  "send": "Z1,40000000,4",
+  "reply": "OK"
+ },
+ {
+  "send": "c",
+  "reply": "T05thread:01;",
+  "reached": true
+ }
+]
