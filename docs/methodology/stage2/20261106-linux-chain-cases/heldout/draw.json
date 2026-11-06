@@ -1,0 +1,30 @@
+{
+ "haven_commit": "9e2024eabd009c8190ea6d8feb5b8d1b96694b20",
+ "seed_text": "haven 9e2024e | owner 2026-11-06 23:14: I don't know any held-out cases else, could u please help me kindly do this in yourself?",
+ "seed_sha256": "9deaea35047b902fe05aa8dbc9d2f26bb781e48779cdc9f032bb66abf7afa871",
+ "mutants_total": 928,
+ "kept": [
+  {
+   "index": 73,
+   "file": "src/core/irq/vgic.c",
+   "line": 104,
+   "mutation": "logic || -> &&",
+   "name": "R1"
+  },
+  {
+   "index": 37,
+   "file": "src/core/irq/vgic.c",
+   "line": 61,
+   "mutation": "constant 0xFFFFFFU -> 0x1000000U",
+   "name": "R2"
+  },
+  {
+   "index": 503,
+   "file": "src/core/exc/el2_exceptions.c",
+   "line": 385,
+   "mutation": "logic && -> ||",
+   "name": "R3"
+  }
+ ],
+ "skipped": []
+}

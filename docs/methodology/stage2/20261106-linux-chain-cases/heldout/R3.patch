@@ -1,0 +1,11 @@
+--- a/src/core/exc/el2_exceptions.c
++++ b/src/core/exc/el2_exceptions.c
+@@ -382,7 +382,7 @@
+ 	} else {
+ 		if (read)
+ 			hv_frame_set(frame, rt, 0U);
+-		if (logged < 4U && hv_printk) {
++		if (logged < 4U || hv_printk) {
+ 			logged++;
+ 			hv_printk("HAVEN: trapped system register access "
+ 				  "ISS=0x%x (%s) cpu=%u\n",

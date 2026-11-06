@@ -1,0 +1,21 @@
+# Linux chain case set v1, frozen 2026-11-06T16:19Z at haven 9e2024e (+ this freeze), kdal 34d489b
+195d2c5e3b8ed5bbbed291e8ce4a8ae4e5c5b9297c6a19c2db107bbb7013c79c  docs/methodology/stage2/20261106-linux-chain-cases/CASES.md
+08058d69bc3aabb93f0f138ee226f99856611cc80d7d5058b6a9c683578adc2f  docs/methodology/stage2/20261106-linux-chain-cases/EXPECT-random.md
+2d416322694ab57dcd9c61a2ce62f8f5f93313fedf055405ac86345c616b9165  docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py
+9bf0a5468908de2b72d219f4105f9be1b104b2c104d5c82d2b0420c8aa9084a2  docs/methodology/stage2/20261106-linux-chain-cases/heldout_random_linux.py
+189e65b12ad2bb06f973fa5eeb1ae9f911328e1b05da2620274f1fb0c9f934a5  docs/methodology/stage2/20261106-linux-chain-cases/patches/H1.patch
+658f6fbd7e7bc30bd4dbe931bed5ad588bc2d4f6dd6ab2ac511f1e214de88f63  docs/methodology/stage2/20261106-linux-chain-cases/patches/H2.patch
+8377b0070ae9687cabb7d5e7f126e0c5b4e11ae0ccc24519aa3f47c07ab88017  docs/methodology/stage2/20261106-linux-chain-cases/patches/H3.patch
+75c487a21f3a3eac473fcb1773403311b5e6003ebf9d7e6fede507096ec393f0  docs/methodology/stage2/20261106-linux-chain-cases/heldout/R1.patch
+0e4ba5e761d2add26a089bd1392c3356a2840e935c1e6d502d48897680f60f53  docs/methodology/stage2/20261106-linux-chain-cases/heldout/R2.patch
+86b2d094df6b9cd3f930fc098e46e147d6232f5bb55e0d6e39f8e5c6e06a402a  docs/methodology/stage2/20261106-linux-chain-cases/heldout/R3.patch
+d5da30aef9cf0be8bdbb42beba44abb240a9e5d36f017d2f6ddc67a2abae6fa2  docs/methodology/stage2/20261106-linux-chain-cases/heldout/draw.json
+22bb1f514094da0b9bd5ab671bb71138819b24cef0a3fa479a9390630d184442  docs/methodology/stage2/20261104-linux-partition/partition-a.dts
+bf5bae1a37697976ca4262ca1259b330cff634039227360ae341f26059704234  docs/methodology/stage2/20261104-linux-partition/grant-l4.json
+7e18d5e6fa43e5d006b44b097b90df14473a625875b1b83e22ea296d11168941  tools/readback/readback.py
+dee6fb0133b4be7658f61137fbbec3cf0fe0f5cac11d244b9c0fcba5996a63f5  tools/readback/demand_check.py
+b48930409883101ecf2a9cfa4c1550984e6d500ed120a17ddfbe23de3c556a55  tools/readback/grant.py
+b382fffe81521f5511307d6ed8ee9a8d556b47bf587b49b8bc23135131ac4683  kdal/scripts/ci/kunit-init.c
+ac00176c6be5e8a0b1d967da1922b2fe212ed912f6fca951905f84e12fadf654  kdal/scripts/ci/mkcpio.py
+18879c9c345ecd8dd5cf576ef45fd2dbb62000a15e17772c2538c8d9cc738ac7  elmos-release/demo-linux-v6.18-1/Image
+fdd6e4000e0f65c15861dfa32d90c9e219d7e49e36f866aa6b587b2b4b773a01  elmos-release/demo-linux-v6.18-1/modules/kdal/kdal.ko

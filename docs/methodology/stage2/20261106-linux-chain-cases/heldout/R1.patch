@@ -1,0 +1,11 @@
+--- a/src/core/irq/vgic.c
++++ b/src/core/irq/vgic.c
+@@ -101,7 +101,7 @@
+ 	if (off < base || off >= base + 0x80U)
+ 		return 0;
+ 	n = (hv_u32)(off - base) / 4U;
+-	if (n < first || n > last) {
++	if (n < first && n > last) {
+ 		if (!write)
+ 			*val = 0; /* RAZ/WI outside the IDs this view owns */
+ 		return 1;

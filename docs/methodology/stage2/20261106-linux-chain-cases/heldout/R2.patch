@@ -1,0 +1,11 @@
+--- a/src/core/irq/vgic.c
++++ b/src/core/irq/vgic.c
+@@ -58,7 +58,7 @@
+ 		p[i] = 0;
+ 	v->cpu = cpu;
+ 	v->hooks = *hooks;
+-	v->affinity = (((mpidr >> 32) & 0xFFU) << 24) | (mpidr & 0xFFFFFFU);
++	v->affinity = (((mpidr >> 32) & 0xFFU) << 24) | (mpidr & 0x1000000U);
+ 	v->gicd_ctlr = GICD_CTLR_DS;
+ 	v->waker = GICR_WAKER_PS | GICR_WAKER_CA; /* asleep at reset */
+ 	v->cfg[0] = 0xAAAAAAAAU; /* SGIs are edge-triggered */
