@@ -266,6 +266,11 @@ static const struct hv_partition_mem part_b_mem_cfg = {
 
 static const struct hv_irq_route part_a_irqs[] = {
 	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
+#ifdef HAVEN_PART_A_DTB_IPA
+	/* Linux guest: its architected timer is the EL1 virtual timer on
+	 * CPU 0 (partition B owns the same PPI on CPU 2). */
+	{.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
+#endif
 };
 
 #define PART_B_CPU 2U
@@ -370,6 +375,61 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
 
 extern void hv_panic(const char *msg);
 
+#if defined(HAVEN_PART_A_DTB_IPA) && defined(HAVEN_ARCH_ARM64)
+/* -----------------------------------------------------------------------
+ * Linux guest (L3): emulated GICv3 distributor and redistributor for
+ * partition A's one vCPU, at the addresses of its device tree
+ * (docs/methodology/stage2/20261104-linux-partition/partition-a.dts).
+ * ----------------------------------------------------------------------- */
+#include <haven/mmio.h>
+#include <haven/vgic.h>
+
+#define PART_A_VGICD_IPA 0x08000000ULL
+#define PART_A_VGICR_IPA 0x080a0000ULL
+
+extern hv_status_t gic_v3_enable_irq(uint32_t irq);
+extern hv_status_t gic_v3_disable_irq(uint32_t irq);
+extern hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq);
+extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
+
+static struct hv_vgic part_a_vgic;
+
+static int part_a_owns(hv_u32 cpu, hv_u32 intid)
+{
+	return hv_irq_owner_on(intid, cpu) == PARTITION_A_ID;
+}
+
+static void part_a_hw_enable(hv_u32 cpu, hv_u32 intid, int on)
+{
+	if (intid < 32U)
+		(void)(on ? gic_v3_enable_ppi(cpu, intid) :
+			    gic_v3_disable_ppi(cpu, intid));
+	else
+		(void)(on ? gic_v3_enable_irq(intid) :
+			    gic_v3_disable_irq(intid));
+}
+
+static void part_a_vgic_setup(void)
+{
+	extern void hv_printk(const char *fmt, ...);
+	static const struct hv_vgic_hooks hooks = {part_a_owns,
+						   part_a_hw_enable};
+	hv_u64 mpidr;
+
+	__asm__ volatile("mrs %0, vmpidr_el2" : "=r"(mpidr));
+	hv_vgic_init(&part_a_vgic, 0U, mpidr, &hooks);
+	if (hv_mmio_register(0U, PART_A_VGICD_IPA, HV_VGIC_GICD_SIZE,
+			     hv_vgic_gicd_access, &part_a_vgic) != HV_OK ||
+	    hv_mmio_register(0U, PART_A_VGICR_IPA, HV_VGIC_GICR_SIZE,
+			     hv_vgic_gicr_access, &part_a_vgic) != HV_OK)
+		hv_panic("partition A GIC emulation setup failed");
+	hv_printk("HAVEN: partition A GICv3 emulated (GICD 0x%lx, GICR "
+		  "0x%lx); owned interrupts wait for the guest\n",
+		  (unsigned long)PART_A_VGICD_IPA,
+		  (unsigned long)PART_A_VGICR_IPA);
+}
+#endif
+
 /* -----------------------------------------------------------------------
  * partitions_launch - public API, called from haven_init()
  *
@@ -434,6 +494,9 @@ void partitions_launch(void)
 		}
 	}
 	hv_printk("HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)\n");
+#if defined(HAVEN_PART_A_DTB_IPA) && defined(HAVEN_ARCH_ARM64)
+	part_a_vgic_setup();
+#endif
 
 	for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
 		st = hv_irq_assign(&part_b_irqs[i]);

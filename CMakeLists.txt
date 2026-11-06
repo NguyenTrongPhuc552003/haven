@@ -73,6 +73,7 @@ set(HAVEN_HOST_INCLUDES
 set(HAVEN_CORE_SRCS
     src/core/mm/stage2.c
     src/core/irq/ownership.c
+    src/core/irq/vgic.c
     src/core/sched/budget.c
     src/core/dma/smmu.c
     src/core/iommu/iommu_policy.c

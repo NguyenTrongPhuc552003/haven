@@ -294,6 +294,35 @@ void hv_arch_phys_irq_init(uint32_t smmu_intid)
 		  nr_lrs());
 }
 
+/* Virtual interrupts delivered per CPU and INTID (0..63), reported when a
+ * partition stops (Linux partition evidence, L3). */
+#define HV_IRQ_COUNT_IDS 64U
+static uint32_t delivered[HV_ARCH_IRQ_MAX_CPUS][HV_IRQ_COUNT_IDS];
+
+static void count_delivery(uint32_t intid)
+{
+	extern uint32_t hv_arch_cpu_id(void);
+	uint32_t cpu = hv_arch_cpu_id();
+
+	if (cpu < HV_ARCH_IRQ_MAX_CPUS && intid < HV_IRQ_COUNT_IDS)
+		delivered[cpu][intid]++;
+}
+
+void hv_arch_irq_report(uint32_t cpu)
+{
+	extern void hv_printk(const char *fmt, ...);
+
+	if (cpu >= HV_ARCH_IRQ_MAX_CPUS)
+		return;
+	hv_printk("HAVEN: virtual interrupts delivered on CPU %u:",
+		  (unsigned)cpu);
+	for (uint32_t i = 0; i < HV_IRQ_COUNT_IDS; i++)
+		if (delivered[cpu][i] != 0U)
+			hv_printk(" %u x%u", (unsigned)i,
+				  (unsigned)delivered[cpu][i]);
+	hv_printk("\n");
+}
+
 /* Queue a virtual interrupt linked to physical intid (same number) in a free
  * list register.  Returns HV_OK or HV_ENOSPC. */
 static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
@@ -309,6 +338,7 @@ static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
 				     ((uint64_t)intid << ICH_LR_PINTID_SHIFT) |
 				     HV_LR_VINTID(intid));
 		isb();
+		count_delivery(intid);
 		return HV_OK;
 	}
 	return HV_ENOSPC;
@@ -392,6 +422,7 @@ hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 		if ((lr & HV_LR_STATE_MASK) == HV_LR_STATE_INVALID) {
 			write_ich_lr(i, make_lr(virq, priority));
 			isb();
+			count_delivery(virq);
 			return HV_OK;
 		}
 	}
