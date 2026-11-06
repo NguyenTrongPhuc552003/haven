@@ -22,3 +22,21 @@ patch, `cmake --preset host-tests && cmake --build build-host && ctest`
 
 If these hold, unit tests catch 3 of the 5 faults that no end-state check
 saw, and R2 and R3 are untested by both instruments.
+
+## Results (2026-11-07, macOS, haven `0035b62` plus each patch)
+
+| Fault | Host tests | Expectation |
+| - | - | - |
+| H1 | 23 of 24 pass; `test_vgic` fails after "probe sequence" and "distributor init writes" (in the enable test) | held |
+| H3 | 23 of 24 pass; `test_vgic` fails at line 55 (`hw_calls == 2 ...`) | held |
+| R1 | 23 of 24 pass; `test_vgic` fails after "distributor init writes" (in the enable test) | held |
+| R2 | 24 of 24 pass | held |
+| R3 | 24 of 24 pass | held |
+
+5 of 5 expectations held. Together with the case set: of the 15 faults,
+**13 are caught by at least one instrument** (demand check, read-back,
+boot or HAVEN log, host unit tests), and **R2 and R3 by none**. R2 needs a
+vCPU with a non-zero affinity (a second vCPU, or a unit test with such an
+MPIDR); R3 needs a test of the trap logger. Both are cheap unit tests to
+add; they are listed as follow-ups, not added here, so this record shows
+the gap as it was.
