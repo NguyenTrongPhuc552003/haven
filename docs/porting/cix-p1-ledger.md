@@ -32,6 +32,7 @@ sources), S = single source or disputed.
 | 21 | PCIe Gen4 freezes; x16 slot reportedly broken on some revisions | S | No discrete-GPU plans | n/a |
 | 22 | Firmware enters the OS at EL2 with VHE (`HCR_EL2.E2H` may be set) | S | Positive: HAVEN can start at EL2, but must handle E2H at entry | Dump `HCR_EL2`, `ID_AA64MMFR*` at HAVEN entry |
 | 23 | Armbian support alpha | S | Low | n/a |
+| 24 | External debug of the application cores may need Secure authorisation: the CIX firmware layout has a 4 KiB `SECURE_DEBUG` item in SPI NOR | V (firmware source; effect not documented) | Read-back at a fixed instruction on the board (as `--break` in QEMU) needs a working debugger; without one, HAVEN must record the moment itself | At bring-up: is J21 fitted; does a 1.8 V probe see the debug port; can it halt a core (section below) |
 
 ## Row 1 checked against vendor firmware source (2026-11-02)
 
@@ -98,6 +99,45 @@ Xunlong), sheets "SKY1 I2C/JTAG/GPIO/MISC" and "STRAP/UART DEBUG":
 Whether J21 is fitted on retail Plus boards, and whether the CIX P1 allows
 external debug of the application cores without Secure authorisation, is
 not shown by these documents; both are to be checked on the board.
+
+## External debug on the Orange Pi 6 Plus (2026-11-07)
+
+Checked for read-back v9 (`../methodology/stage2/20261107-readback-v9/`),
+which reads at a breakpoint through QEMU's GDB stub. Reference facts:
+
+- `data/orange-pi-6/plus/OPi 6 PLUS V11 DSN 0612.pdf`, sheet 12 ("SKY1
+  I2C/JTAG/GPIO/MISC"): SoC balls JTAG_TDI (AA7), JTAG_TDO (AB8, through a
+  33 ohm resistor), JTAG_TCK (AD8), JTAG_TMS (AD7), JTAG_TRST_L (AC7),
+  JTAG_GPIO_L (AB7) and SRST_L (AA6). J21 ("PDC JTAG CON", labelled for
+  Lauterbach or J-Link) carries TMS, TCK, TDO, TDI and reset, with its
+  reference pin on +1.8V_ALW through R814 (0 ohm): a probe must work at
+  1.8 V. The pull-ups on TMS, TCK and TDI (R2192, R2193, R2195) are marked
+  DNI; TDO and reset have 47 kohm fitted; a note asks for 10 kohm pull-ups
+  when a Lauterbach or J-Link is used. (This corrects "pull-ups to 1.8 V"
+  in the table above: three of the five are not fitted.)
+- Sheet 18: TRST_L is pulled up (R84, 10 kohm), so the TAP is not held in
+  reset; the "JTAG TRST SWITCH" and "MAIN TAP SWITCH" blocks have no
+  switch drawn, and a note on sheet 12 says a select input chooses between
+  the Lauterbach/J-Link path (default) and "PDC". Which TAP J21 reaches by
+  default is not shown.
+- `data/common/cix-bios` (`7799770`), `Silicon/CIX/Sky1/Include/
+  FirmwareLayout.h`: a `SECURE_DEBUG` item, 4 KiB, at SPI NOR offset
+  0x107000 (alternate 0x207000), which the BIOS update driver
+  (`FwUpdateProtocolDxe.c`, `CixFirmwareSecureDebugUpdate`) can write or
+  erase. Its format and effect are not in the source.
+- The Orange Pi 6 Plus release files in `data/` are not raw flash images
+  at those offsets (a 100 MiB disk image and two update packages of
+  0x5FF2CE bytes), so whether retail firmware carries a `SECURE_DEBUG`
+  item could not be read from them.
+
+Inference: the board has a JTAG header wired to the SoC, but whether a
+probe can halt an application core depends on three things the documents
+do not settle: J21 fitted on retail boards, debug authorisation (the
+`SECURE_DEBUG` item suggests a Secure gate), and probe support for the
+Cortex-A720/A520 debug port. Proposal (not yet approved): on the board, HAVEN records each owned
+interrupt's first enable itself (works without a debugger); JTAG, if it
+works, is a cross-check. Writing the `SECURE_DEBUG` item means writing
+the SPI NOR, which the standing rules forbid without the owner.
 
 ## Orange Pi 6 Plus firmware images checked (2026-11-02)
 
