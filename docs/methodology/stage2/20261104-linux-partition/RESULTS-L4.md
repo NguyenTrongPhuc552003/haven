@@ -71,9 +71,9 @@ becomes a fault, and read-back shows the isolation held regardless.
 - One mismatch class (an ungranted device in the guest description).
   Seeded cases for the other relations (D within E, T exactly G) are the
   next step and need owner-written expectations.
-- `grant-l4.json` is Claude's expected configuration, not owner-approved;
-  read-back agreeing with it shows HAVEN does what Claude expected from
-  `partition.c`, which is weaker than agreeing with an independent oracle.
+- `grant-l4.json` was Claude's expected configuration at the time of the
+  run; the owner approved it afterwards (2026-11-06). Read-back agreeing
+  with it shows HAVEN does what the approved grant says.
 - qemu-direct: partition B is configured but not started; the grant says so.
 - KDAL's simulated qemu-backend devices report no demand; whether they
   should is a KDAL design question.
