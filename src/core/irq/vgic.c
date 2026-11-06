@@ -42,6 +42,11 @@
 #define GICR_WAKER_CA (1U << 2) /* ChildrenAsleep */
 #define GICR_TYPER_LAST (1ULL << 4)
 
+/* Read-back (tools/readback/readback.py, v8) finds each model through the
+ * symbol by_cpu and reads enabled[] at this offset; keep them in step. */
+_Static_assert(__builtin_offsetof(struct hv_vgic, enabled) == 40,
+	       "readback.py reads hv_vgic.enabled at offset 40");
+
 static struct hv_vgic *by_cpu[16];
 
 struct hv_vgic *hv_vgic_for_cpu(hv_u32 cpu)

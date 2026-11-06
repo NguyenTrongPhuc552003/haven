@@ -1,0 +1,106 @@
+{
+ "source": "grant-l4.json (owner-approved 2026-11-06) plus gic.guest_enabled: SPI 33 and PPI 27 on CPU 0 are enabled by HAVEN only when partition A's guest enables them in its emulated GIC (L3 design). Grant rule approved by the owner 2026-11-07 (follow-up 1 of the Linux chain case set).",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x40000000",
+    "pa": "0x80800000",
+    "size": "0x20000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART",
+    "ipa": "0x09000000",
+    "pa": "0x09000000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A RO",
+    "ipa": "0x70000000",
+    "pa": "0xA4C00000",
+    "size": "0x200000",
+    "attrs": "R"
+   },
+   {
+    "name": "A PCI config",
+    "ipa": "0x4010008000",
+    "pa": "0x4010008000",
+    "size": "0x1000",
+    "attrs": "DEVICE_R"
+   },
+   {
+    "name": "A PCI BAR",
+    "ipa": "0x10000000",
+    "pa": "0x10000000",
+    "size": "0x4000",
+    "attrs": "DEVICE_RW"
+   }
+  ],
+  "2": [
+   {
+    "name": "B RAM",
+    "ipa": "0x60000000",
+    "pa": "0xA0800000",
+    "size": "0x04000000",
+    "attrs": "RWX"
+   }
+  ]
+ },
+ "smmu": {
+  "enabled": true,
+  "streams": {
+   "8": {
+    "partition": 1,
+    "window": {
+     "ipa": "0x5F000000",
+     "size": "0x100000"
+    },
+    "access": "RW"
+   }
+  },
+  "allowed_unenforced": []
+ },
+ "gic": {
+  "cpus": {
+   "0": 1,
+   "1": 1,
+   "2": 2,
+   "3": 0
+  },
+  "spis": {
+   "33": {
+    "partition": 1,
+    "cpu": 0
+   },
+   "106": {
+    "partition": 0,
+    "cpu": 0
+   }
+  },
+  "ppis": {
+   "2": [
+    27
+   ],
+   "0": [
+    27
+   ]
+  },
+  "priority": {
+   "haven": "0x40",
+   "partition": "0xa0"
+  },
+  "haven_ppis": {
+   "0": [
+    26
+   ]
+  },
+  "guest_enabled": {
+   "0": [
+    27,
+    33
+   ]
+  }
+ }
+}

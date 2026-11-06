@@ -106,6 +106,8 @@ def to_v2(v1, level_spis=()):
         "smmu": {"enabled": smmu.get("enabled", True),
                  "allowed-unenforced": smmu.get("allowed_unenforced", [])},
     }
+    if gic.get("guest_enabled"):  # interrupts HAVEN enables on the guest's request
+        haven["guest-enabled"] = {str(c): sorted(v) for c, v in gic["guest_enabled"].items()}
     out = {"format": "haven-grant/2", "vocabulary": "FF-A partition manifest binding; haven,* are HAVEN extensions",
            "partitions": parts, "haven": haven}
     if "source" in v1:
@@ -178,6 +180,8 @@ def to_v1(v2):
             gic["priority"] = haven["priorities"]
         if haven.get("ppis"):
             gic["haven_ppis"] = haven["ppis"]
+        if haven.get("guest-enabled"):
+            gic["guest_enabled"] = haven["guest-enabled"]
         v1["gic"] = gic
     return v1
 

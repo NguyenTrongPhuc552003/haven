@@ -17,6 +17,16 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v8 (2026-11-07, Linux chain case set v1, finding 3): the
+grant's "gic" section may list "guest_enabled" per CPU: interrupts HAVEN
+enables only when the guest enables them in its emulated GIC (Linux
+profile). For those, read-back reads the emulated GIC's own enable bits
+from HAVEN's memory (symbol by_cpu, hv_vgic.enabled) and compares them
+with the hardware: both off is "waiting for the guest" (information);
+enabled by the guest but off in the GIC is a missing binding; on in the
+GIC but never enabled by the guest is enable drift. Without the model
+(no symbol or no model on that CPU) the old rule applies.
+
 Changes in v7 (2026-11-03, RB3): the priority of a granted interrupt that
 is not enabled is no longer checked; its "missing interrupt binding" already
 says it is not set up (v6 reported both).
@@ -626,7 +636,26 @@ def compare_window(sid, grant, part, reach, kind, parts):
 
 
 # ---------------------------------------------------------------- GIC
-def compare_gic(g, expected):
+VGIC_ENABLED_OFFSET = 40  # offsetof(struct hv_vgic, enabled), asserted in vgic.c
+
+
+def read_vgic_enables(mem, nm, elf):
+    """Per CPU, the emulated GIC's enable bits for INTIDs 0-63 (v8), or {}."""
+    try:
+        table = symbol(nm, elf, "by_cpu")
+    except SystemExit:
+        return {}
+    out = {}
+    for cpu in range(16):
+        ptr = rd64(mem, table + 8 * cpu)
+        if ptr:
+            lo = struct.unpack_from("<I", mem, ptr + VGIC_ENABLED_OFFSET - IMG_PA)[0]
+            hi = struct.unpack_from("<I", mem, ptr + VGIC_ENABLED_OFFSET + 4 - IMG_PA)[0]
+            out[cpu] = lo | (hi << 32)
+    return out
+
+
+def compare_gic(g, expected, model=None):
     """Interrupt ownership as enforced by the GIC against the grant: every
     enabled SPI must be granted, routed (affinity, not 1-of-N) to the granted
     CPU of the granted partition, in Group 1 Non-secure; per CPU, only
@@ -640,6 +669,23 @@ def compare_gic(g, expected):
     cpu_part = {int(c): p for c, p in expected.get("cpus", {}).items()}
     aff_cpu = {cpu["typer"] >> 32: i for i, cpu in enumerate(g["cpus"])}
     spis = {int(k): v for k, v in expected.get("spis", {}).items()}
+    lazy = {int(c): set(v) for c, v in expected.get("guest_enabled", {}).items()}  # v8
+    model = model or {}
+    report["guest_enabled"] = []
+
+    def lazy_check(cpu, irq, hw_on):
+        """v8: an interrupt enabled on the guest's request. Returns True if
+        it was judged here (the caller skips its own enable rule)."""
+        if irq not in lazy.get(cpu, set()) or cpu not in model:
+            return False
+        asked = (model[cpu] >> irq) & 1
+        name = f"SPI {irq}" if irq >= 32 else f"CPU {cpu} PPI {irq}"
+        report["guest_enabled"].append({"irq": irq, "cpu": cpu, "guest": asked, "gic": hw_on})
+        if asked and not hw_on:
+            f.append((name, "missing interrupt binding", "enabled by the guest, disabled in the GIC"))
+        elif hw_on and not asked:
+            f.append((name, "interrupt enable drift", "enabled in the GIC, never enabled by the guest"))
+        return True
     extra = []
     for irq in range(32, g["nirq"]):
         en = (g["isenabler"][irq // 32] >> (irq % 32)) & 1
@@ -658,6 +704,8 @@ def compare_gic(g, expected):
             continue
         want = spis[irq]
         name = f"SPI {irq}"
+        if lazy_check(want["cpu"], irq, en) and not en:
+            continue
         if not en:
             f.append((name, "missing interrupt binding", "granted but disabled"))
             continue
@@ -685,6 +733,8 @@ def compare_gic(g, expected):
         if bad:
             f.append((f"CPU {i} PPIs", "interrupt enable drift", f"enabled without a grant: {ranges(bad)}"))
         for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):  # v4 RB2, v6
+            if lazy_check(i, b, b in en):
+                continue
             if b not in en:
                 f.append((f"CPU {i} PPI {b}", "missing interrupt binding", "granted but disabled"))
     pr = expected.get("priority")
@@ -795,7 +845,8 @@ def main():
             n = sum(1 for x in evs if (x['event'], x['sid'], x['addr'] & ~0xFFF, x['write']) == e)
             print(f"  EVENT {e[0]} SID {e[1]} page {e[2]:#x} {'write' if e[3] else 'read'} x{n}")
     if "gic" in grant:
-        f, rep = compare_gic(snap["gic"], grant["gic"])
+        model = read_vgic_enables(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))
+        f, rep = compare_gic(snap["gic"], grant["gic"], model)
         findings += f
         report["gic"] = rep
         g = snap["gic"]
@@ -804,6 +855,9 @@ def main():
             print(f"  SPI {x['irq']}: enabled={x['enabled']} group1={x['group1']} -> CPU {x['cpu']} (IROUTER {x['irouter']})")
         for c in rep["cpus"]:
             print(f"  CPU {c['cpu']} (affinity {c['affinity']}): PPIs enabled {c['ppis_enabled'] or 'none'}")
+        for x in rep.get("guest_enabled", []):
+            state = "waiting for the guest" if not x["guest"] and not x["gic"] else f"guest {x['guest']}, GIC {int(bool(x['gic']))}"
+            print(f"  guest-enabled INTID {x['irq']} on CPU {x['cpu']}: {state}")
         for x in rep.get("priorities", []):
             where = f"CPU {x['cpu']} PPI" if "cpu" in x else "SPI"
             print(f"  {where} {x['irq']}: priority {x['priority']} (granted {x['expected']})")

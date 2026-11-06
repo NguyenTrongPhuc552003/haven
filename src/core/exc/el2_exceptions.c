@@ -289,6 +289,26 @@ hv_u64 hv_el2_get_exception_count(hv_exc_type_t exc_type)
  * Data aborts are skipped (ELR += 4) as before. Instruction aborts stop the
  * partition: ELR is the address that could not be fetched, so skipping to
  * ELR + 4 would fault again on the next instruction of the same page. */
+/* Denied stage-2 accesses per CPU (log rate limit; Linux chain case set
+ * v1, T4: a guest using ungranted RAM caused 101,905 log lines in 45 s). */
+#define HV_DENIED_CPUS 16U
+static hv_u64 denied_count[HV_DENIED_CPUS];
+
+int hv_denied_note(hv_u32 cpu)
+{
+	hv_u64 n;
+
+	if (cpu >= HV_DENIED_CPUS)
+		return 1;
+	n = ++denied_count[cpu];
+	return n <= HV_DENIED_LOG_FIRST || (n % HV_DENIED_LOG_EVERY) == 0U;
+}
+
+hv_u64 hv_denied_count(hv_u32 cpu)
+{
+	return cpu < HV_DENIED_CPUS ? denied_count[cpu] : 0U;
+}
+
 hv_s2_fault_action_t hv_s2_fault_action(hv_u64 esr)
 {
 	hv_u32 ec = (hv_u32)((esr >> ESR_EC_SHIFT) & ESR_EC_MASK);
@@ -335,6 +355,12 @@ static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
 		 * SYSTEM_RESET is not implemented yet. */
 		if (hv_arch_irq_report != NULL)
 			hv_arch_irq_report(hv_arch_cpu_id());
+		if (hv_printk && hv_denied_count(hv_arch_cpu_id()) != 0U)
+			hv_printk("HAVEN: %lu denied stage-2 accesses on CPU "
+				  "%u\n",
+				  (unsigned long)hv_denied_count(
+					  hv_arch_cpu_id()),
+				  (unsigned)hv_arch_cpu_id());
 		if (hv_printk)
 			hv_printk("HAVEN: partition stopped by PSCI %s; "
 				  "CPU parked\n",
@@ -428,6 +454,7 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 			hv_u64 ipa;
 			hv_mmio_access_t acc;
 			int decoded = -1;
+			int logged;
 
 			__asm__ volatile("mrs %0, hpfar_el2" : "=r"(hpfar));
 			ipa = (hpfar & ~0xFULL) << 8;
@@ -447,14 +474,17 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 				}
 			}
 
-			if (hv_printk)
+			logged = hv_denied_note(hv_arch_cpu_id());
+			if (logged && hv_printk)
 				hv_printk("HAVEN: Denied stage-2 violation "
 					  "IPA=0x%lx FAR=0x%lx ESR=0x%lx "
-					  "cpu=%u\n",
+					  "cpu=%u n=%lu\n",
 					  (unsigned long)ipa,
 					  (unsigned long)far,
 					  (unsigned long)esr,
-					  (unsigned)hv_arch_cpu_id());
+					  (unsigned)hv_arch_cpu_id(),
+					  (unsigned long)hv_denied_count(
+						  hv_arch_cpu_id()));
 
 			if (action == HV_S2F_STOP) {
 				/* Minimal stop: never return to the guest; park this
@@ -473,7 +503,7 @@ void hv_handle_sync(hv_u64 esr, hv_u64 far, hv_u64 sp)
 			/* Denied access with a decodable syndrome: a load reads
 			 * as zero, a store is ignored (RAZ/WI). */
 			if (decoded == 0) {
-				if (hv_printk)
+				if (logged && hv_printk)
 					hv_printk(
 						"HAVEN: decoded: %s %u bytes, "
 						"reg %c%u, IPA=0x%lx; %s\n",

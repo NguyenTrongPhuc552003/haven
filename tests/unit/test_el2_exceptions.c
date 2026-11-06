@@ -347,8 +347,24 @@ static void test_s2_fault_action(void)
 /**
  * Main test runner.
  */
+
+static void test_denied_log_rate_limit(void)
+{
+	unsigned logged = 0;
+
+	for (unsigned k = 0; k < 10000U; k++)
+		logged += (unsigned)hv_denied_note(3U);
+	/* first 16, then the 4096th and 8192nd */
+	assert(logged == HV_DENIED_LOG_FIRST + 2U);
+	assert(hv_denied_count(3U) == 10000U);
+	assert(hv_denied_count(4U) == 0U);
+	assert(hv_denied_note(99U) == 1); /* unknown CPU: always logged */
+	printf("[PASS] denied-access log rate limit\n");
+}
+
 int main(void)
 {
+	test_denied_log_rate_limit();
 	printf("\n=== EL2 Exception Handling Unit Tests ===\n\n");
 
 	test_el2_init();

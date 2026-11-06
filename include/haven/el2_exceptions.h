@@ -77,6 +77,15 @@ typedef enum {
 
 hv_s2_fault_action_t hv_s2_fault_action(hv_u64 esr);
 
+/* Denied-access log rate limit: the first HV_DENIED_LOG_FIRST denials per
+ * CPU are logged, then every HV_DENIED_LOG_EVERY-th, with the running
+ * count. hv_denied_note() counts one denial on `cpu` and returns 1 if it
+ * should be logged; hv_denied_count() returns the total so far. */
+#define HV_DENIED_LOG_FIRST 16U
+#define HV_DENIED_LOG_EVERY 4096U
+int hv_denied_note(hv_u32 cpu);
+hv_u64 hv_denied_count(hv_u32 cpu);
+
 hv_status_t hv_el2_exceptions_init(void);
 
 /**
