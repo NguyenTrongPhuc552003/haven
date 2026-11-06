@@ -183,7 +183,7 @@ After the release tag is pushed:
 [ ] Create a GitHub release from the tag with the CHANGELOG.md entry as body
 [ ] Attach the build/releases/<version>/ evidence archive to the release
 [ ] Update docs/roadmap/MILESTONES.md: set milestone as ✅ with release tag
-[ ] Update website (website/src/) with new version if applicable
+[ ] Update the website (haven-docs repository) with the new version if applicable
 [ ] Announce on project channel / thesis supervisor (if milestone release)
 ```
 

@@ -30,11 +30,6 @@ coverage/
 CMakeUserPresets.json
 .vercel
 
-# Astro / website build outputs
-website/node_modules/
-website/dist/
-website/.astro/
-
 # QEMU device-tree dumps from read-back: 1 MiB each, hashed in DUMP_SHA256SUMS
 docs/methodology/**/machine.dtb
 

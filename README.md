@@ -106,11 +106,13 @@ tools/fwscan/      IORT scanner for CIX UEFI images
 scripts/           build, test and QEMU checks
 docs/              see docs/README.md
 verification/      Coq and Isabelle models from an earlier project phase (not current evidence)
-website/           documentation portal source (not deployed by CI)
 ```
 
 ## Documentation
 
+- Website: [haven-docs-five.vercel.app](https://haven-docs-five.vercel.app/)
+  (source: [haven-docs](https://github.com/NguyenTrongPhuc552003/haven-docs)),
+  with the overview, guides and these records rendered.
 - [`docs/README.md`](docs/README.md): which documents are current and which
   are kept only for history.
 - [`docs/porting/cix-p1-ledger.md`](docs/porting/cix-p1-ledger.md): CIX P1

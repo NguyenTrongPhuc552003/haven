@@ -46,8 +46,8 @@ built or tested by CI.
 - `porting/IMX95_HARDWARE_SETUP.md`, `IMX95_VALIDATION_RUNBOOK.md`,
   `IMX95_EVIDENCE_CAPTURE.md`, `methodology/IMX95_EVIDENCE_TEMPLATE.md`
 - `roadmap/` (all files)
-- `methodology/VERCEL_DEPLOYMENT.md` (the documentation portal is not
-  deployed by CI)
+- `methodology/VERCEL_DEPLOYMENT.md` (the old `website/` portal; the
+  website now lives in the `haven-docs` repository)
 
 ## Evidence conventions
 
