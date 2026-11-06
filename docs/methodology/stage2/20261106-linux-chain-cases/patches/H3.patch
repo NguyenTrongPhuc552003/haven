@@ -1,0 +1,12 @@
+--- a/src/core/irq/vgic.c
++++ b/src/core/irq/vgic.c
+@@ -62,9 +62,6 @@
+ 	v->gicd_ctlr = GICD_CTLR_DS;
+ 	v->waker = GICR_WAKER_PS | GICR_WAKER_CA; /* asleep at reset */
+ 	v->cfg[0] = 0xAAAAAAAAU; /* SGIs are edge-triggered */
+-	for (hv_u32 id = 16; id < HV_VGIC_NR_IRQS; id++)
+-		if (v->hooks.owned(cpu, id))
+-			v->hooks.hw_enable(cpu, id, 0);
+ 	if (cpu < 16U)
+ 		by_cpu[cpu] = v;
+ }

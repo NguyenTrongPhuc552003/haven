@@ -65,3 +65,15 @@ precise reading: the read-back tool itself adds nothing to the image
 For comparison (source-derived, Martins and Pinto, RTAS 2023, different
 counting tool): Bao 8,423 SLoC, Jailhouse 9,929 plus a 2,180-line Linux
 driver, Xen 67,342.
+
+## Decision (2026-11-06, Claude, delegated by the owner)
+
+Option 1. Read-back is measured separately (it adds 0 lines to the image:
+it runs outside HAVEN), and the Linux-guest support is reported as its own
+line item, the cost of a realistic guest: 759 code lines, 12.7 % of the
+image (this table). Option 2 was not taken because it changes code and
+adds a second image to test just before the Linux chain case set is
+frozen, for a reporting gain the table already gives. The thesis states
+the research question's "without growing HAVEN's trusted code" as
+"read-back adds no code to HAVEN's image", and reports the image's size
+by feature group with this tool.

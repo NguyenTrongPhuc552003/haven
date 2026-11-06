@@ -1,0 +1,11 @@
+--- a/src/core/irq/vgic.c
++++ b/src/core/irq/vgic.c
+@@ -79,8 +79,6 @@
+ 		if ((bits & m) == 0U || id >= HV_VGIC_NR_IRQS)
+ 			continue;
+ 		if (id >= 16U) {
+-			if (!v->hooks.owned(v->cpu, id))
+-				continue; /* not this partition's: WI */
+ 			if (((v->enabled[n] & m) != 0U) != on)
+ 				v->hooks.hw_enable(v->cpu, id, on);
+ 		}

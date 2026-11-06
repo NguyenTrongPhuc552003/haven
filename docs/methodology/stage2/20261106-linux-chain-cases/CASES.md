@@ -1,10 +1,12 @@
 # Linux chain case set v1 (proposal)
 
-**Status:** PROPOSAL, 2026-11-06, drafted by Claude (owner approval of the
-step: "Approve", item 3). Nothing below has been run. The owner marks each
-predicted verdict, adds held-out cases, and the set is frozen by SHA-256
-before the first run, as for A1 case set v3
-(`../20261102-a1-cases-v3/CASES-v3.md`).
+**Status:** owner-approved 2026-11-06 23:14 (all 12 predictions marked
+correct). Held-out cases: the owner asked Claude to write them; they are
+drawn at random instead (`heldout_random_linux.py`, as for v3), with
+Claude's expectations written after the draw and before the run
+(`EXPECT-random.md`). Everything is frozen by `freeze/SHA256SUMS` before
+the first run. Runner: `run_cases.py` (case B0, L4 unchanged, is an
+unscored reference; it was run once to test the runner).
 
 ## What this set tests
 

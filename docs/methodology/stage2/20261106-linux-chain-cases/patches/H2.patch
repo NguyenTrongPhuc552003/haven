@@ -1,0 +1,27 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -78,7 +78,15 @@
+ 		.pa_base = PART_A_RO_PA_BASE,
+ 		.size = PART_A_RO_SIZE,
+ 		.attrs = HV_MEM_R,
++	},
++#ifdef HAVEN_PART_A_DTB_IPA
++	{
++		.ipa_base = 0x09030000UL, /* PL061 GPIO */
++		.pa_base = 0x09030000UL,
++		.size = 0x1000UL,
++		.attrs = HV_MEM_DEVICE_RW,
+ 	},
++#endif
+ };
+ 
+ static const struct hv_mem_region part_b_regions[] = {
+@@ -93,7 +101,7 @@
+ static const struct hv_partition_mem part_a_mem_cfg = {
+ 	.partition_id = PARTITION_A_ID,
+ 	.regions = part_a_regions,
+-	.region_count = 3U, /* DRAM + UART MMIO + read-only region */
++	.region_count = sizeof(part_a_regions) / sizeof(part_a_regions[0]),
+ };
+ 
+ /* -----------------------------------------------------------------------
