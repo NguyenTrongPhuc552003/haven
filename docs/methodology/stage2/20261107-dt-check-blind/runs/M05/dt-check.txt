@@ -1,0 +1,6 @@
+  FINDING /kdal-uart@9000000: registers 0x9000800+0x1000 not granted to partition 1
+  info /timer: timer interrupt 29 (entry 0) not used by an EL1 guest
+  info /timer: timer interrupt 30 (entry 1) not used by an EL1 guest
+  info /timer: timer interrupt 26 (entry 3) not used by an EL1 guest
+RESULT 1 finding(s)
+exit 1
