@@ -1,0 +1,41 @@
+{
+ "case": "T4",
+ "kind": "T",
+ "change": "memory node 1 GiB",
+ "boot_seconds": 45.3,
+ "boot_completes": false,
+ "haven": {
+  "denied": 101905,
+  "decoded": [
+   "HAVEN: decoded: read 8 bytes, reg x11, IPA=0x7ffff000; reads as zero",
+   "HAVEN: decoded: read 8 bytes, reg x9, IPA=0x7ffff000; reads as zero",
+   "HAVEN: decoded: write 8 bytes, reg x8, IPA=0x7ffff000; ignored",
+   "HAVEN: decoded: read 8 bytes, reg x25, IPA=0x7fffe078; reads as zero",
+   "HAVEN: decoded: read 8 bytes, reg x9, IPA=0x7fffe078; reads as zero"
+  ],
+  "trapped": [],
+  "not_delivered": [],
+  "stopped": [],
+  "delivered": [],
+  "first_denied": [
+   "HAVEN: Denied stage-2 violation IPA=0x7ffff000 FAR=0xffffffffff230000 ESR=0x92000046 cpu=0",
+   "HAVEN: Denied stage-2 violation IPA=0x7ffff000 FAR=0xffffffffff230040 ESR=0x92000046 cpu=0",
+   "HAVEN: Denied stage-2 violation IPA=0x7ffff000 FAR=0xffffffffff230080 ESR=0x92000046 cpu=0"
+  ]
+ },
+ "demand_check": {
+  "exit": null,
+  "findings": [
+   "no demand printed (boot did not reach it)"
+  ]
+ },
+ "readback": {
+  "exit": 1,
+  "read_at": "read at: time limit (60 s, partition A did not print 'KDAL-DEMAND-END')",
+  "result": "RESULT 2 finding(s)",
+  "findings": [
+   "FINDING SPI 33: missing interrupt binding (granted but disabled)",
+   "FINDING CPU 0 PPI 27: missing interrupt binding (granted but disabled)"
+  ]
+ }
+}

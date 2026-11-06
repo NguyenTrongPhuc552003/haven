@@ -1,0 +1,31 @@
+{
+ "case": "T5",
+ "kind": "T",
+ "change": "virtual timer listed as PPI 12",
+ "boot_seconds": 45.1,
+ "boot_completes": false,
+ "haven": {
+  "denied": 0,
+  "decoded": [],
+  "trapped": [],
+  "not_delivered": [],
+  "stopped": [],
+  "delivered": [],
+  "first_denied": []
+ },
+ "demand_check": {
+  "exit": null,
+  "findings": [
+   "no demand printed (boot did not reach it)"
+  ]
+ },
+ "readback": {
+  "exit": 1,
+  "read_at": "read at: time limit (60 s, partition A did not print 'KDAL-DEMAND-END')",
+  "result": "RESULT 2 finding(s)",
+  "findings": [
+   "FINDING SPI 33: missing interrupt binding (granted but disabled)",
+   "FINDING CPU 0 PPI 27: missing interrupt binding (granted but disabled)"
+  ]
+ }
+}

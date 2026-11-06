@@ -1,0 +1,3 @@
+  info not demanded: A PCI config 0x4010008000+0x1000
+  info not demanded: A PCI BAR 0x10000000+0x4000
+RESULT every demand is met by the grant

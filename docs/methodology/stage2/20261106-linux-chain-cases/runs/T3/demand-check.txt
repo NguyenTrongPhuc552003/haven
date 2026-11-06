@@ -1,0 +1,5 @@
+  FINDING kdal-gpio@9030000: unmet MMIO demand (0x9030000-0x9031000 not granted to partition 1)
+  info not demanded: A UART 0x9000000+0x1000
+  info not demanded: A PCI config 0x4010008000+0x1000
+  info not demanded: A PCI BAR 0x10000000+0x4000
+RESULT 1 finding(s)

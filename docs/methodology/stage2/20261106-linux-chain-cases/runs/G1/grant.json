@@ -1,0 +1,111 @@
+{
+ "source": "Claude, 2026-11-06, expected configuration for L4 (qemu-direct, Linux build -DHAVEN_PART_A_DTB_IPA): grant-budget.json (owner-approved 2026-11-03) plus the EL1 virtual timer PPI 27 owned by partition A on CPU 0 (partition.c, Linux profile), and without HAVEN's PPI 26 on CPU 2 (partition B is configured but not started in qemu-direct). Approved by the owner on 2026-11-06 (after the L4 run, which matched it).",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x40000000",
+    "pa": "0x80800000",
+    "size": "0x20000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART",
+    "ipa": "0x09000000",
+    "pa": "0x09000000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A RO",
+    "ipa": "0x70000000",
+    "pa": "0xA4C00000",
+    "size": "0x200000",
+    "attrs": "R"
+   },
+   {
+    "name": "A PCI config",
+    "ipa": "0x4010008000",
+    "pa": "0x4010008000",
+    "size": "0x1000",
+    "attrs": "DEVICE_R"
+   },
+   {
+    "name": "A PCI BAR",
+    "ipa": "0x10000000",
+    "pa": "0x10000000",
+    "size": "0x4000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A GPIO",
+    "ipa": "0x09030000",
+    "pa": "0x09030000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   }
+  ],
+  "2": [
+   {
+    "name": "B RAM",
+    "ipa": "0x60000000",
+    "pa": "0xA0800000",
+    "size": "0x04000000",
+    "attrs": "RWX"
+   }
+  ]
+ },
+ "smmu": {
+  "enabled": true,
+  "streams": {
+   "8": {
+    "partition": 1,
+    "window": {
+     "ipa": "0x5F000000",
+     "size": "0x100000"
+    },
+    "access": "RW"
+   }
+  },
+  "allowed_unenforced": []
+ },
+ "gic": {
+  "cpus": {
+   "0": 1,
+   "1": 1,
+   "2": 2,
+   "3": 0
+  },
+  "spis": {
+   "33": {
+    "partition": 1,
+    "cpu": 0
+   },
+   "106": {
+    "partition": 0,
+    "cpu": 0
+   },
+   "39": {
+    "partition": 1,
+    "cpu": 0
+   }
+  },
+  "ppis": {
+   "2": [
+    27
+   ],
+   "0": [
+    27
+   ]
+  },
+  "priority": {
+   "haven": "0x40",
+   "partition": "0xa0"
+  },
+  "haven_ppis": {
+   "0": [
+    26
+   ]
+  }
+ }
+}

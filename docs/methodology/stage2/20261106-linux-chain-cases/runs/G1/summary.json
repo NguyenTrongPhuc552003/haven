@@ -1,0 +1,33 @@
+{
+ "case": "G1",
+ "kind": "G",
+ "change": "grant also gives A the GPIO page and SPI 39",
+ "boot_seconds": 1.3,
+ "boot_completes": true,
+ "haven": {
+  "denied": 0,
+  "decoded": [],
+  "trapped": [],
+  "not_delivered": [],
+  "stopped": [
+   "HAVEN: partition stopped by PSCI OFF; CPU parked"
+  ],
+  "delivered": [
+   "HAVEN: virtual interrupts delivered on CPU 0: 5 x122 27 x96"
+  ],
+  "first_denied": []
+ },
+ "demand_check": {
+  "exit": 0,
+  "findings": []
+ },
+ "readback": {
+  "exit": 1,
+  "read_at": "read at: marker",
+  "result": "RESULT 2 finding(s)",
+  "findings": [
+   "FINDING A GPIO: missing binding (0x0 of 0x1000 bytes mapped)",
+   "FINDING SPI 39: missing interrupt binding (granted but disabled)"
+  ]
+ }
+}

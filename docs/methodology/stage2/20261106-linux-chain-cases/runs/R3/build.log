@@ -1,0 +1,73 @@
+Preset CMake variables:
+
+  CMAKE_BUILD_TYPE="MinSizeRel"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="/tmp/chain-src-ofk20znx/cmake/arm64.cmake"
+  PLATFORM="qemu-virt"
+
+-- The C compiler identification is GNU 15.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/homebrew/bin/aarch64-linux-gnu-gcc
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/homebrew/bin/aarch64-linux-gnu-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Haven PSCI conduit: HAVEN_PSCI_CONDUIT_NONE (profile qemu-direct)
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/chain-work-hlzyw_81/build-_Users_trongphucnguyen_Documents_workspace_haven_docs_methodology_stage2_20261106_linux_chain_cases_heldout_R3_patch
+[1/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/boot.S.obj
+[2/47] Building C object CMakeFiles/haven.dir/arch/arm64/timer.c.obj
+[3/47] Building C object CMakeFiles/haven.dir/arch/arm64/smp.c.obj
+[4/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/entry.S.obj
+[5/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/context.S.obj
+[6/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/partition.S.obj
+[7/47] Building C object CMakeFiles/haven.dir/arch/arm64/cpu.c.obj
+[8/47] Building C object CMakeFiles/haven.dir/drivers/pci/ecam.c.obj
+[9/47] Building C object CMakeFiles/haven.dir/arch/arm64/budget_hw.c.obj
+[10/47] Building C object CMakeFiles/haven.dir/arch/arm64/irq.c.obj
+[11/47] Building C object CMakeFiles/haven.dir/arch/arm64/mmu_el2.c.obj
+[12/47] Building C object CMakeFiles/haven.dir/drivers/irqchip/gic_v3.c.obj
+[13/47] Building C object CMakeFiles/haven.dir/drivers/iommu/smmu_v3.c.obj
+[14/47] Building C object CMakeFiles/haven.dir/drivers/uart/pl011.c.obj
+[15/47] Building C object CMakeFiles/haven.dir/src/core/iommu/iommu_policy.c.obj
+[16/47] Building C object CMakeFiles/haven.dir/arch/arm64/mm.c.obj
+[17/47] Building C object CMakeFiles/haven.dir/src/core/sched/budget.c.obj
+[18/47] Building C object CMakeFiles/haven.dir/src/core/irq/ownership.c.obj
+[19/47] Building C object CMakeFiles/haven.dir/src/core/time/timer.c.obj
+[20/47] Building C object CMakeFiles/haven.dir/src/core/exc/psci.c.obj
+[21/47] Building C object CMakeFiles/haven.dir/src/core/irq/vgic.c.obj
+[22/47] Building C object CMakeFiles/haven.dir/src/core/mm/stage2.c.obj
+[23/47] Building C object CMakeFiles/haven.dir/src/core/dma/smmu.c.obj
+[24/47] Building C object CMakeFiles/haven.dir/src/common/panic.c.obj
+[25/47] Building C object CMakeFiles/haven.dir/src/common/spinlock.c.obj
+[26/47] Building C object CMakeFiles/haven.dir/src/core/exc/mmio.c.obj
+[27/47] Building C object CMakeFiles/haven.dir/src/core/partition.c.obj
+[28/47] Building C object CMakeFiles/haven.dir/src/core/exc/el2_exceptions.c.obj
+[29/47] Building C object CMakeFiles/haven.dir/src/platform/qemu-virt/platform.c.obj
+[30/47] Building C object CMakeFiles/haven.dir/src/core/init.c.obj
+[31/47] Building C object CMakeFiles/haven.dir/src/common/string.c.obj
+[32/47] Building C object CMakeFiles/haven.dir/src/common/printk.c.obj
+[33/47] Building ASM object CMakeFiles/guest_a.dir/tests/demos/guest_a_entry.S.obj
+[34/47] Building ASM object CMakeFiles/guest_a.dir/tests/demos/guest_vectors.S.obj
+[35/47] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_a_irq.c.obj
+[36/47] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_mmu.c.obj
+[37/47] Building ASM object CMakeFiles/guest_b.dir/tests/demos/guest_b_entry.S.obj
+[38/47] Building C object CMakeFiles/haven.dir/src/guest/drivers/uart.c.obj
+[39/47] Building ASM object CMakeFiles/guest_b.dir/tests/demos/guest_vectors.S.obj
+[40/47] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_a_duty.c.obj
+[41/47] Building C object CMakeFiles/guest_b.dir/tests/demos/guest_mmu.c.obj
+[42/47] Building C object CMakeFiles/guest_b.dir/tests/demos/guest_b_timer.c.obj
+[43/47] Building C object CMakeFiles/guest_a.dir/tests/demos/guest_a_dma.c.obj
+[44/47] Building C object CMakeFiles/haven.dir/src/guest/rtos/freertos_integration.c.obj
+[45/47] Linking C executable guest_b.elf
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: guest_b.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+[46/47] Linking C executable guest_a.elf
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: guest_a.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+[47/47] Linking C executable haven.elf
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: haven.elf has a LOAD segment with RWX permissions
+/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
+   text	   data	    bss	    dec	    hex	filename
+  39436	    104	5251560	5291100	 50bc5c	/tmp/chain-work-hlzyw_81/build-_Users_trongphucnguyen_Documents_workspace_haven_docs_methodology_stage2_20261106_linux_chain_cases_heldout_R3_patch/haven.elf
