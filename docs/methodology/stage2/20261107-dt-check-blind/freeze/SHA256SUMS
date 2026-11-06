@@ -1,0 +1,3 @@
+2d639d14d4f638ea37fcbfc916dd33708020b052165a05f258f7683f04f694d4  tools/readback/dt_check.py
+44e27b3a6dcc4896981cd419a0ba91170f527a6cd63935676a829c81aa384ece  docs/methodology/stage2/20261107-dt-check-blind/dt_faults.py
+d69f1b1d603c37f3b7d45ddb883323e60db2a1b8adce03065ccb4ccfddbd5844  docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py
