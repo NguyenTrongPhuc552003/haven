@@ -1,0 +1,2 @@
+| idle-Boff | idle | off | all 11 ok | 500, 309 / 1146, 499, 1, 0 | 0.508040 s |
+| cpu-Boff | cpu | off | all 11 ok | 500, 266 / 1280, 498, 2, 0 | 0.574452 s |

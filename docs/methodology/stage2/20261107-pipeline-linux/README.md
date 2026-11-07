@@ -53,7 +53,13 @@ undelivered interrupt.
 Any difference between the load cells is QEMU host contention, not
 evidence about hardware.
 
-Note on order: a first start of the runner was stopped during its first
-build, before any cell ran, because the commit of this README had failed
-(the format hook rejected `load-init.c`). No result was seen; the runs
-below start after this record's commit.
+Note on order (corrected): the expectations above were written before
+the runner was first started, but the commit of this README failed (the
+format hook rejected `load-init.c`) and the runner started anyway. When
+Claude stopped it, two cells had already finished (idle-Boff and
+cpu-Boff, all checks ok, averages 309 and 266 us); Claude saw that output
+only after stopping it. An earlier version of this note, committed in
+`5a8a0eb`, wrongly said no cell had run. The expectations text was not
+changed after that output was seen; all four cells are run again from
+this commit, and only that run is scored. The partial output is kept in
+`partial-first-start.txt`.
