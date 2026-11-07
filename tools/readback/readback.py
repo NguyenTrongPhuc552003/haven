@@ -17,6 +17,11 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v12a (2026-11-08, EL3 record case I1): a granted SPI's routing
+and group are checked also when it is disabled or waiting for the guest;
+before, a disabled SPI was reported as a missing binding and nothing else,
+which hid a wrong IROUTER.
+
 Changes in v11 (2026-11-08, board read-back fallback B): --tfa DIR boots
 HAVEN under TF-A (BL1 from DIR, BL2 and BL31 by semihosting, HAVEN
 preloaded at 0x80000000; the machine gets secure=on). With --el3 the state
@@ -916,11 +921,10 @@ def compare_gic(g, expected, model=None, groups_visible=True):
             continue
         want = spis[irq]
         name = f"SPI {irq}"
-        if lazy_check(want["cpu"], irq, en) and not en:
-            continue
-        if not en:
+        waiting = lazy_check(want["cpu"], irq, en) and not en
+        if not en and not waiting:
             f.append((name, "missing interrupt binding", "granted but disabled"))
-            continue
+        # v12a: routing and group are checked even when the SPI is disabled or waiting
         if want["partition"] == 0:  # HAVEN's own interrupt: CPU only
             if irm or cpu != want["cpu"]:
                 f.append((name, "interrupt routing drift", f"HAVEN interrupt routed to CPU {state['cpu']}, granted CPU {want['cpu']}"))
