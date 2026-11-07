@@ -92,7 +92,7 @@ Xunlong), sheets "SKY1 I2C/JTAG/GPIO/MISC" and "STRAP/UART DEBUG":
 
 | | Orange Pi 6 | Orange Pi 6 Plus |
 | - | - | - |
-| SoC JTAG | TDI/TDO/TCK/TMS/TRST to unfitted test points ("Dummy"); the Lauterbach/J-Link connector is not on the board | **J21**, 2x5 header (PH0205-100TM-SM-H10, 1.27 mm) with TMS, TCK, TDO, TDI and reset, pull-ups to 1.8 V; drawn without a "Dummy" mark |
+| SoC JTAG | TDI/TDO/TCK/TMS/TRST to unfitted test points ("Dummy"); the Lauterbach/J-Link connector is not on the board | **J21**, 2x5 header footprint (PH0205-100TM-SM-H10; pitch not stated, see the 2026-11-07 section) with TMS, TCK, TDO, TDI and reset at 1.8 V; drawn without a "Dummy" mark |
 | Debug UART header | J135, 2x2: UART2 (UEFI and kernel console) only; PM, SE and UART6 lines to unfitted test points | J135, 2x5: UART2 console, UART4 (power management), UART5 (security engine), UART6 |
 | Firmware image in `data/` | yes (IORT checked above) | yes, since 2026-11-02 (below) |
 
@@ -161,6 +161,45 @@ all external read-back on boards through a JTAG/SWD debugger. Proposal (not yet 
 interrupt's first enable itself (works without a debugger); JTAG, if it
 works, is a cross-check. Writing the `SECURE_DEBUG` item means writing
 the SPI NOR, which the standing rules forbid without the owner.
+
+### Can J21 be used after soldering a header? (2026-11-07)
+
+Asked by the owner after seeing the J21 pads beside the debug UART header
+on the board photo. Reference facts, then inference:
+
+- **Pinout** (schematic sheet 12): pin 1 reference voltage (+1.8V_ALW
+  through R814, 0 ohm), 2 TMS, 4 TCK, 6 TDO, 8 TDI, 10 SoC reset; pins 3,
+  5, 7 and 9 ground. This is the signal order of Arm's 10-pin Cortex
+  debug connector (1 VTref, 2 TMS, 4 TCK, 6 TDO, 8 TDI, 10 nRESET, odd
+  pins ground or key); inference from the Arm connector layout, so a
+  standard probe cable carries the right signals.
+- **Size:** J21 and the fitted debug UART header J135 have the same part
+  number (`PH0205-100TM-SM-H10`, sheets 12 and 18), and the manual
+  connects J135 with DuPont wires (section 2.9), the 2.54 mm kind. So J21
+  is most likely 2.54 mm, not the 1.27 mm of Arm's standard connector;
+  this corrects "1.27 mm" in the table above, which had no source.
+  Measure on the board before buying a header or cable. If it is 2.54 mm,
+  a 1.27 mm probe cable needs an adapter or jumper wires.
+- **Pull-ups:** the note on sheet 12 asks for 10 kohm pull-ups when a
+  Lauterbach or J-Link is used; R2192, R2193 and R2195 (TMS, TCK, TDI) are
+  not fitted, and they are 0201 parts (0.6 x 0.3 mm), hard to solder by
+  hand. Inference: the same pull-ups can sit on the cable side, from TMS,
+  TCK and TDI to pin 1.
+- **Voltage:** the port runs at 1.8 V. The probe must sense pin 1 and
+  drive 1.8 V. The 3.3 V USB-to-serial adapter used for the debug UART
+  must never be wired to J21.
+
+Inference: soldering a 2x5 header and adding pull-ups is ordinary work,
+and the wiring then matches a standard probe. Whether it then works
+depends on what soldering cannot change: whether the SoC lets an
+external debugger in (debug authentication; the `SECURE_DEBUG` firmware
+item), and whether the probe software knows the Cortex-A720/A520 debug
+blocks. A staged test on the board answers it without risk:
+(1) the probe reads the JTAG debug port's ID; (2) it lists the access
+ports and ROM table; (3) it reads a core's debug authentication status
+and tries to halt that core. Step 3 is the one that can fail on a locked
+part. Asking Orange Pi or CIX whether retail boards allow external debug
+would answer it before the purchase.
 
 ## Orange Pi 6 Plus firmware images checked (2026-11-02)
 
