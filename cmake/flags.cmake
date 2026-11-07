@@ -14,6 +14,9 @@ set(HAVEN_ARM64_CFLAGS
     -nostdlib
     -march=armv8-a
     -mgeneral-regs-only
+    # Read-modify-write atomics inline (LDXR/STXR), not calls to libgcc's
+    # outline helpers, which a freestanding image does not link.
+    -mno-outline-atomics
 )
 
 # ── ARM64 assembler flags (applied per-.S file) ───────────────────────────────

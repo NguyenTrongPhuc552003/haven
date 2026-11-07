@@ -346,6 +346,102 @@ static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
 	return HV_ENOSPC;
 }
 
+/* -----------------------------------------------------------------------
+ * Requests between CPUs (multi-vcpu.md).  A virtual SGI for a vCPU on
+ * another CPU, or a stop, is left in that CPU's request word and signalled
+ * by HAVEN's own physical SGI 1 (ICC_SGI1R_EL1 written at EL2).  The
+ * target CPU queues the SGIs in its own list registers; one it cannot
+ * queue (no free list register) stays in the word until the next physical
+ * interrupt on that CPU.
+ * ----------------------------------------------------------------------- */
+#define HV_IPI_SGI 1U
+#define HV_REQ_STOP (1U << 31)
+static uint32_t cpu_requests[HV_ARCH_IRQ_MAX_CPUS];
+static uint32_t cpu_stopped[HV_ARCH_IRQ_MAX_CPUS];
+
+hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority);
+
+static void send_ipi(uint32_t cpu)
+{
+	extern uint64_t hv_arch_logical_mpidr(uint32_t cpu);
+	uint64_t m = hv_arch_logical_mpidr(cpu);
+	uint64_t aff0 = m & 0xffU;
+	uint64_t v;
+
+	if (m == 0xffffffffU)
+		return; /* not in the CPU map */
+	v = (((m >> 32) & 0xffU) << 48) | (((m >> 16) & 0xffU) << 32) |
+	    ((aff0 / 16U) << 44) | ((uint64_t)HV_IPI_SGI << 24) |
+	    (((m >> 8) & 0xffU) << 16) | (1ULL << (aff0 % 16U));
+	/* ICC_SGI1R_EL1 */
+	__asm__ volatile("dsb ish\n\tmsr S3_0_C12_C11_5, %0\n\tisb"
+			 :
+			 : "r"(v)
+			 : "memory");
+}
+
+void hv_arch_post_virtual_sgi(uint32_t cpu, uint32_t intid)
+{
+	if (cpu >= HV_ARCH_IRQ_MAX_CPUS || intid >= 16U)
+		return;
+	__atomic_fetch_or(&cpu_requests[cpu], 1U << intid, __ATOMIC_RELEASE);
+	send_ipi(cpu);
+}
+
+static uint64_t counter_now(void)
+{
+	uint64_t v;
+
+	__asm__ volatile("isb\n\tmrs %0, cntpct_el0" : "=r"(v));
+	return v;
+}
+
+/* Ask `cpu` to stop its partition and park; 1 once it has, 0 after
+ * timeout_us. */
+int hv_arch_stop_cpu(uint32_t cpu, uint64_t timeout_us)
+{
+	uint64_t ticks = (read_sysreg(cntfrq_el0) / 1000000U) * timeout_us;
+	uint64_t start;
+
+	if (cpu >= HV_ARCH_IRQ_MAX_CPUS)
+		return 0;
+	__atomic_fetch_or(&cpu_requests[cpu], HV_REQ_STOP, __ATOMIC_RELEASE);
+	send_ipi(cpu);
+	start = counter_now();
+	while (counter_now() - start < ticks)
+		if (__atomic_load_n(&cpu_stopped[cpu], __ATOMIC_ACQUIRE) != 0U)
+			return 1;
+	return 0;
+}
+
+/* Take this CPU's requests: queue the virtual SGIs, or stop. */
+static void take_requests(uint32_t here)
+{
+	extern void hv_printk(const char *fmt, ...);
+	uint32_t req;
+	uint32_t left = 0U;
+
+	if (here >= HV_ARCH_IRQ_MAX_CPUS ||
+	    __atomic_load_n(&cpu_requests[here], __ATOMIC_RELAXED) == 0U)
+		return;
+	req = __atomic_exchange_n(&cpu_requests[here], 0U, __ATOMIC_ACQUIRE);
+	if ((req & HV_REQ_STOP) != 0U) {
+		hv_arch_irq_report(here);
+		hv_printk("HAVEN: partition stopped by its vCPU on another "
+			  "CPU; CPU %u parked\n",
+			  (unsigned)here);
+		__atomic_store_n(&cpu_stopped[here], 1U, __ATOMIC_RELEASE);
+		for (;;)
+			__asm__ volatile("wfe");
+	}
+	for (uint32_t i = 0; i < 16U; i++)
+		if ((req & (1U << i)) != 0U &&
+		    hv_arch_inject_virtual_irq(i, 0xa0U) != HV_OK)
+			left |= 1U << i;
+	if (left != 0U)
+		__atomic_fetch_or(&cpu_requests[here], left, __ATOMIC_RELAXED);
+}
+
 void hv_arch_handle_phys_irq(void)
 {
 	extern void hv_printk(const char *fmt, ...);
@@ -355,6 +451,9 @@ void hv_arch_handle_phys_irq(void)
 	extern int hv_arch_budget_expired(uint32_t cpu);
 	extern hv_status_t gic_v3_disable_irq(uint32_t irq);
 	extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
+
+	/* Requests left over (no free list register last time). */
+	take_requests(hv_arch_cpu_id());
 
 	for (;;) {
 		uint64_t iar = read_sysreg(icc_iar1_el1);
@@ -369,6 +468,8 @@ void hv_arch_handle_phys_irq(void)
 		} else if (intid == HV_CNTHP_PPI) {
 			/* Budget spent: held at EL2 until the next period. */
 			(void)hv_arch_budget_expired(here);
+		} else if (intid == HV_IPI_SGI) {
+			take_requests(here);
 		} else {
 			owner = hv_irq_owner_on(intid, here);
 			if (owner != 0U && here < HV_ARCH_IRQ_MAX_CPUS &&

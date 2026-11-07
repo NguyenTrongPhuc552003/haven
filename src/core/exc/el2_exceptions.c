@@ -328,6 +328,18 @@ hv_s2_fault_action_t hv_s2_fault_action(hv_u64 esr)
 /* PSCI over HVC, or over SMC trapped by HCR_EL2.TSC. The caller's x0..x3
  * are at frame+0..24 (save_minimal layout); the result goes back in x0.
  * A trapped SMC returns to the SMC itself, so ELR is moved past it. */
+/* Multi-vCPU partitions (src/core/partition.c, multi-vcpu.md): the vCPU
+ * table of the partition on a CPU, starting one of its vCPUs, and stopping
+ * its other vCPUs before it stops. Absent or NULL: one vCPU. */
+extern struct hv_psci_vcpus *hv_partition_vcpus(hv_u32 cpu)
+	__attribute__((weak));
+extern int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
+	__attribute__((weak));
+extern void hv_partition_stop_vcpus(hv_u32 cpu) __attribute__((weak));
+extern void hv_spin_lock(volatile uint32_t *lock);
+extern void hv_spin_unlock(volatile uint32_t *lock);
+static volatile uint32_t psci_vcpus_lock;
+
 static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
 {
 	volatile hv_u64 *frame = (volatile hv_u64 *)sp;
@@ -335,9 +347,31 @@ static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
 	hv_u64 mpidr;
 	hv_u64 ret = 0;
 	hv_psci_action_t action;
+	hv_u32 cpu = hv_arch_cpu_id();
+	struct hv_psci_vcpus *v =
+		hv_partition_vcpus != NULL ? hv_partition_vcpus(cpu) : NULL;
+	hv_u32 index = 0U;
 
 	__asm__ volatile("mrs %0, vmpidr_el2" : "=r"(mpidr));
-	action = hv_psci_call(x, mpidr, &ret);
+	if (v != NULL) {
+		hv_spin_lock(&psci_vcpus_lock);
+		action = hv_psci_call_vcpus(x, mpidr, &ret, v, &index);
+		hv_spin_unlock(&psci_vcpus_lock);
+	} else {
+		action = hv_psci_call(x, mpidr, &ret);
+	}
+	if (action == HV_PSCI_START_VCPU) {
+		/* Outside the lock: the start waits for the CPU. */
+		int rc = hv_partition_start_vcpu != NULL ?
+				 hv_partition_start_vcpu(index, x[2], x[3]) :
+				 HV_PSCI_INTERNAL_FAILURE;
+
+		hv_spin_lock(&psci_vcpus_lock);
+		v->state[index] = rc == 0 ? HV_VCPU_ON : HV_VCPU_OFF;
+		hv_spin_unlock(&psci_vcpus_lock);
+		ret = (hv_u64)(int64_t)rc;
+		action = HV_PSCI_RESUME;
+	}
 
 	if (hv_printk)
 		hv_printk("HAVEN: PSCI %s fid=0x%lx x1=0x%lx -> 0x%lx cpu=%u\n",
@@ -346,7 +380,25 @@ static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
 			  (unsigned long)(action == HV_PSCI_RESUME ? ret : 0U),
 			  (unsigned)hv_arch_cpu_id());
 
+	if (action == HV_PSCI_STOP_VCPU) {
+		/* One vCPU of several switched itself off: park its CPU; the
+		 * partition's other vCPUs keep running. */
+		if (hv_arch_irq_report != NULL)
+			hv_arch_irq_report(cpu);
+		if (hv_printk)
+			hv_printk(
+				"HAVEN: vCPU %u stopped by PSCI CPU_OFF; CPU %u "
+				"parked\n",
+				(unsigned)index, (unsigned)cpu);
+		for (;;) {
+			__asm__ volatile("wfe");
+		}
+	}
 	if (action != HV_PSCI_RESUME) {
+		/* A partition with several vCPUs stops the others first; each
+		 * logs its own report before this CPU logs its own. */
+		if (v != NULL && hv_partition_stop_vcpus != NULL)
+			hv_partition_stop_vcpus(cpu);
 		/* Stop the partition: park this CPU at EL2 with exceptions
 		 * masked, as for a stage-2 instruction abort. A restart for
 		 * SYSTEM_RESET is not implemented yet. */

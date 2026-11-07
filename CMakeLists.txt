@@ -167,6 +167,15 @@ if(HAVEN_ARCH_ARM64)
     if(NOT HAVEN_PART_A_DTB_IPA STREQUAL "0")
         target_compile_definitions(haven PRIVATE HAVEN_PART_A_DTB_IPA=${HAVEN_PART_A_DTB_IPA})
     endif()
+    # Partition A with more than one vCPU (docs/architecture/multi-vcpu.md):
+    # vCPU i runs on CPU i; CPU 2 is partition B's, so at most 2. Linux only.
+    set(HAVEN_PART_A_VCPUS 1 CACHE STRING "vCPUs of partition A (1 or 2; 2 needs HAVEN_PART_A_DTB_IPA)")
+    if(NOT HAVEN_PART_A_VCPUS STREQUAL "1")
+        if(HAVEN_PART_A_DTB_IPA STREQUAL "0")
+            message(FATAL_ERROR "HAVEN_PART_A_VCPUS > 1 needs a Linux guest (HAVEN_PART_A_DTB_IPA)")
+        endif()
+        target_compile_definitions(haven PRIVATE HAVEN_PART_A_VCPUS=${HAVEN_PART_A_VCPUS})
+    endif()
     message(STATUS "Haven PSCI conduit: ${HAVEN_PSCI_CONDUIT_DEFINE}"
                    " (profile ${HAVEN_BOOT_PROFILE})")
     target_link_options(haven PRIVATE

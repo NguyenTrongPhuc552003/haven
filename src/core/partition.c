@@ -264,12 +264,28 @@ static const struct hv_partition_mem part_b_mem_cfg = {
  * other partition can claim the same IRQ (hv_irq_assign contract).
  * ----------------------------------------------------------------------- */
 
+/* vCPUs of partition A (CMake HAVEN_PART_A_VCPUS, multi-vcpu.md): vCPU i
+ * runs on CPU i; CPU 2 is partition B's. */
+#ifndef HAVEN_PART_A_VCPUS
+#define HAVEN_PART_A_VCPUS 1
+#endif
+#if HAVEN_PART_A_VCPUS < 1 || HAVEN_PART_A_VCPUS > 2
+#error "HAVEN_PART_A_VCPUS must be 1 or 2 (CPU 2 is partition B's)"
+#endif
+#if HAVEN_PART_A_VCPUS > 1 && !defined(HAVEN_PART_A_DTB_IPA)
+#error "a multi-vCPU partition A needs a Linux guest (HAVEN_PART_A_DTB_IPA)"
+#endif
+
 static const struct hv_irq_route part_a_irqs[] = {
 	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
 #ifdef HAVEN_PART_A_DTB_IPA
 	/* Linux guest: its architected timer is the EL1 virtual timer on
 	 * CPU 0 (partition B owns the same PPI on CPU 2). */
 	{.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
+#if HAVEN_PART_A_VCPUS > 1
+	/* vCPU 1 on CPU 1: the same PPI on that CPU. */
+	{.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 1U},
+#endif
 #endif
 };
 
@@ -392,7 +408,7 @@ extern hv_status_t gic_v3_disable_irq(uint32_t irq);
 extern hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq);
 extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
 
-static struct hv_vgic part_a_vgic;
+static struct hv_vgic part_a_vgic[HAVEN_PART_A_VCPUS];
 
 static int part_a_owns(hv_u32 cpu, hv_u32 intid)
 {
@@ -409,6 +425,157 @@ static void part_a_hw_enable(hv_u32 cpu, hv_u32 intid, int on)
 			    gic_v3_disable_irq(intid));
 }
 
+#if HAVEN_PART_A_VCPUS > 1
+#include <haven/psci.h>
+
+#define PART_A_READY_US 100000U /* vCPU's CPU ready deadline after CPU_ON */
+#define PART_A_STOP_US 100000U /* deadline for the other vCPUs to stop */
+
+extern void hv_spin_lock(volatile uint32_t *lock);
+extern void hv_spin_unlock(volatile uint32_t *lock);
+extern int hv_arch_stop_cpu(uint32_t cpu, uint64_t timeout_us);
+
+static struct hv_vgic *const part_a_peers[HAVEN_PART_A_VCPUS] = {
+	&part_a_vgic[0], &part_a_vgic[1]};
+static struct hv_psci_vcpus part_a_vcpus;
+static hv_u64 part_a_entry[HAVEN_PART_A_VCPUS];
+static hv_u64 part_a_context[HAVEN_PART_A_VCPUS];
+static hv_u32 part_a_started; /* bit i: vCPU i was started once */
+static volatile uint32_t part_a_gic_lock;
+
+/* Both vCPUs reach the distributor model and every redistributor frame
+ * (Linux scans the frames for its own affinity): one lock serialises the
+ * model updates. */
+static int part_a_gicd(void *ctx, hv_u64 off, hv_u32 size, int write,
+		       hv_u64 *val)
+{
+	int r;
+
+	hv_spin_lock(&part_a_gic_lock);
+	r = hv_vgic_gicd_access(ctx, off, size, write, val);
+	hv_spin_unlock(&part_a_gic_lock);
+	return r;
+}
+
+static int part_a_gicr(void *ctx, hv_u64 off, hv_u32 size, int write,
+		       hv_u64 *val)
+{
+	int r;
+
+	hv_spin_lock(&part_a_gic_lock);
+	r = hv_vgic_gicr_access(ctx, off, size, write, val);
+	hv_spin_unlock(&part_a_gic_lock);
+	return r;
+}
+#define PART_A_GICD part_a_gicd
+#define PART_A_GICR part_a_gicr
+
+/* vCPU table of the partition running on `cpu`, for PSCI
+ * (el2_exceptions.c), or NULL for a partition with one vCPU. */
+struct hv_psci_vcpus *hv_partition_vcpus(hv_u32 cpu)
+{
+	return cpu < HAVEN_PART_A_VCPUS ? &part_a_vcpus : NULL;
+}
+
+/* Runs on CPU i after the PSCI CPU_ON HAVEN issued for vCPU i: per-CPU
+ * EL2 state, then partition A at the entry the guest gave, as
+ * partition_b_secondary_cpu_init does for B. */
+__attribute__((noreturn)) static void
+partition_a_secondary_cpu_init(uint64_t cpu_id)
+{
+	uint64_t mpidr;
+
+	hv_arch_cpu_init();
+	hv_arch_phys_irq_cpu_init();
+	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
+	/* The guest sees this CPU's own MPIDR (its cpu@1 node). */
+	__asm__ volatile("mrs %0, mpidr_el1\n\tmsr vmpidr_el2, %0"
+			 : "=r"(mpidr));
+	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_A_ID);
+	if (cpu_id == 0U || cpu_id >= HAVEN_PART_A_VCPUS ||
+	    hv_arch_cpu_id() != cpu_id ||
+	    !hv_arch_cpu_report_ready((uint32_t)cpu_id)) {
+		hv_arch_set_cpu_partition(hv_arch_cpu_id(), 0U);
+		for (;;)
+			__asm__ volatile("wfe");
+	}
+	(void)hv_arch_budget_start((uint32_t)cpu_id, part_a_budget.budget_ns,
+				   part_a_budget.period_ns);
+	hv_arch_start_partition((uintptr_t)part_a_entry[cpu_id], 0UL,
+				(uintptr_t)part_a_context[cpu_id]);
+	__builtin_unreachable();
+}
+
+/* Start vCPU `index` at guest `entry` (an IPA) with `context` in x0, for
+ * a PSCI CPU_ON that hv_psci_call_vcpus accepted. Returns 0 or a PSCI
+ * error code. */
+int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
+{
+	extern void hv_printk(const char *fmt, ...);
+	hv_u32 cpu = index; /* vCPU i runs on CPU i */
+
+	if (index == 0U || index >= HAVEN_PART_A_VCPUS)
+		return HV_PSCI_INTERNAL_FAILURE;
+	if (entry < PART_A_IPA_BASE || entry >= PART_A_IPA_BASE + PART_A_SIZE)
+		return HV_PSCI_INVALID_ADDRESS;
+	if ((part_a_started & (1U << index)) != 0U) {
+		hv_printk("HAVEN: vCPU %u: a start after CPU_OFF is not "
+			  "supported\n",
+			  (unsigned)index);
+		return HV_PSCI_INTERNAL_FAILURE;
+	}
+	if (hv_arch_logical_mpidr(cpu) == HV_ARCH_NO_CPU) {
+		hv_printk("HAVEN: no CPU %u in the CPU map - vCPU %u not "
+			  "started\n",
+			  (unsigned)cpu, (unsigned)index);
+		return HV_PSCI_INTERNAL_FAILURE;
+	}
+	part_a_started |= 1U << index;
+	part_a_entry[index] = entry;
+	part_a_context[index] = context;
+	if (hv_arch_psci_cpu_on(hv_arch_logical_mpidr(cpu),
+				(uintptr_t)secondary_entry) != 0) {
+		hv_printk("HAVEN: PSCI CPU_ON failed for CPU %u - vCPU %u not "
+			  "started\n",
+			  (unsigned)cpu, (unsigned)index);
+		return HV_PSCI_INTERNAL_FAILURE;
+	}
+	hv_arch_secondary_start(cpu, partition_a_secondary_cpu_init);
+	if (!hv_arch_cpu_wait_ready(cpu, PART_A_READY_US)) {
+		hv_printk("HAVEN: CPU %u not ready within %u ms - vCPU %u not "
+			  "started\n",
+			  (unsigned)cpu, (unsigned)(PART_A_READY_US / 1000U),
+			  (unsigned)index);
+		return HV_PSCI_INTERNAL_FAILURE;
+	}
+	hv_printk("HAVEN: CPU %u ready, partition A vCPU %u started at IPA "
+		  "0x%lx\n",
+		  (unsigned)cpu, (unsigned)index, (unsigned long)entry);
+	return 0;
+}
+
+/* Stop the other running vCPUs of the partition on `cpu`, before that
+ * CPU parks for SYSTEM_OFF or SYSTEM_RESET. */
+void hv_partition_stop_vcpus(hv_u32 cpu)
+{
+	extern void hv_printk(const char *fmt, ...);
+
+	if (cpu >= HAVEN_PART_A_VCPUS)
+		return;
+	for (hv_u32 i = 0; i < HAVEN_PART_A_VCPUS; i++) {
+		if (i == cpu || part_a_vcpus.state[i] != HV_VCPU_ON)
+			continue;
+		if (!hv_arch_stop_cpu(i, PART_A_STOP_US))
+			hv_printk("HAVEN: CPU %u did not stop within %u ms\n",
+				  (unsigned)i,
+				  (unsigned)(PART_A_STOP_US / 1000U));
+	}
+}
+#else
+#define PART_A_GICD hv_vgic_gicd_access
+#define PART_A_GICR hv_vgic_gicr_access
+#endif
+
 static void part_a_vgic_setup(void)
 {
 	extern void hv_printk(const char *fmt, ...);
@@ -417,16 +584,41 @@ static void part_a_vgic_setup(void)
 	hv_u64 mpidr;
 
 	__asm__ volatile("mrs %0, vmpidr_el2" : "=r"(mpidr));
-	hv_vgic_init(&part_a_vgic, 0U, mpidr, &hooks);
-	if (hv_mmio_register(0U, PART_A_VGICD_IPA, HV_VGIC_GICD_SIZE,
-			     hv_vgic_gicd_access, &part_a_vgic) != HV_OK ||
-	    hv_mmio_register(0U, PART_A_VGICR_IPA, HV_VGIC_GICR_SIZE,
-			     hv_vgic_gicr_access, &part_a_vgic) != HV_OK)
-		hv_panic("partition A GIC emulation setup failed");
+	hv_vgic_init(&part_a_vgic[0], 0U, mpidr, &hooks);
+#if HAVEN_PART_A_VCPUS > 1
+	/* vCPU 1's redistributor frame follows vCPU 0's; the distributor
+	 * model is vCPU 0's, shared by both. */
+	hv_vgic_init(&part_a_vgic[1], 1U, hv_arch_logical_mpidr(1U), &hooks);
+	part_a_vgic[0].last_frame = 0U;
+	hv_vgic_set_peers(part_a_peers, HAVEN_PART_A_VCPUS);
+	part_a_vcpus.count = HAVEN_PART_A_VCPUS;
+	part_a_vcpus.mpidr[0] = mpidr;
+	part_a_vcpus.state[0] = HV_VCPU_ON;
+	part_a_vcpus.mpidr[1] = hv_arch_logical_mpidr(1U);
+	part_a_vcpus.state[1] = HV_VCPU_OFF;
+#endif
+	for (hv_u32 c = 0; c < HAVEN_PART_A_VCPUS; c++) {
+		if (hv_mmio_register(c, PART_A_VGICD_IPA, HV_VGIC_GICD_SIZE,
+				     PART_A_GICD, &part_a_vgic[0]) != HV_OK)
+			hv_panic("partition A GIC emulation setup failed");
+		for (hv_u32 f = 0; f < HAVEN_PART_A_VCPUS; f++)
+			if (hv_mmio_register(
+				    c, PART_A_VGICR_IPA + f * HV_VGIC_GICR_SIZE,
+				    HV_VGIC_GICR_SIZE, PART_A_GICR,
+				    &part_a_vgic[f]) != HV_OK)
+				hv_panic("partition A GIC emulation setup "
+					 "failed");
+	}
 	hv_printk("HAVEN: partition A GICv3 emulated (GICD 0x%lx, GICR "
 		  "0x%lx); owned interrupts wait for the guest\n",
 		  (unsigned long)PART_A_VGICD_IPA,
 		  (unsigned long)PART_A_VGICR_IPA);
+#if HAVEN_PART_A_VCPUS > 1
+	hv_printk("HAVEN: partition A has %u vCPUs on CPUs 0 to %u; vCPU 1 "
+		  "waits for the guest's PSCI CPU_ON\n",
+		  (unsigned)HAVEN_PART_A_VCPUS,
+		  (unsigned)(HAVEN_PART_A_VCPUS - 1U));
+#endif
 }
 #endif
 

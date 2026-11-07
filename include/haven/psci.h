@@ -37,6 +37,7 @@
 #define HV_PSCI_ALREADY_ON (-4)
 #define HV_PSCI_ON_PENDING (-5)
 #define HV_PSCI_INTERNAL_FAILURE (-6)
+#define HV_PSCI_INVALID_ADDRESS (-9)
 
 /* PSCI 1.0: major 1 in bits [31:16], minor 0 in bits [15:0] */
 #define HV_PSCI_VERSION_1_0 0x00010000U

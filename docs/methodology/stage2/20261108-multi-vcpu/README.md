@@ -72,4 +72,4 @@ Expectation added for SMP1 before its code exists:
 
 | Check | Expected |
 | - | - |
-| SPI 33 (virtio, partition A) enabled by Linux from whichever vCPU | one `GICD_ISENABLER` model state shared by both vCPUs; read-back v12a shows it enabled and routed to CPU 0 at `KDAL-DEMAND-END` |
+| SPI 33 (the PL011 UART, partition A; first written as "virtio", a label error corrected before any SMP1 run) enabled by Linux from whichever vCPU | one `GICD_ISENABLER` model state shared by both vCPUs; read-back v12a shows it enabled and routed to CPU 0 at `KDAL-DEMAND-END` |
