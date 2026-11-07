@@ -1,0 +1,20 @@
+{
+ "magic": 1213615682,
+ "stage": 5,
+ "timer_irqs": 8,
+ "other_irqs": 0,
+ "last_intid": 27,
+ "result": 1,
+ "duty_permille": 981,
+ "max_gap_us": 563,
+ "gaps": 15,
+ "lat_samples": 500,
+ "lat_max_ns": 1261008,
+ "lat_avg_ns": 273156,
+ "lat_lt10us": 0,
+ "lat_lt100us": 8,
+ "lat_lt1ms": 491,
+ "lat_lt10ms": 1,
+ "lat_ge10ms": 0,
+ "sctlr_el1": 12916797
+}
