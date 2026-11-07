@@ -41,9 +41,7 @@ not channel differences):
 - **M4:** the changed attribute macro also changes how HAVEN's EL2 map
   describes those device regions; read-back v5's EL2 check reports them.
   Not predicted.
-- **I1 and S1:** SPI 33 ends up disabled instead of routed to the wrong
-  CPU (I1), and disabled in S1 as well. Not investigated here; recorded
-  as observed.
+- **I1 and S1:** SPI 33 ends up disabled; explained in the addendum below.
 
 I4 held as reasoned: with two security states HAVEN's Non-secure writes
 to `GICD_IGROUPR` do not reach the hardware, and the EL3 view shows Group
@@ -64,3 +62,28 @@ to `GICD_IGROUPR` do not reach the hardware, and the EL3 view shows Group
 Dump size here: about 2,170 records, about 150 KB of text (E0: 2,165
 records, 153,721 bytes). At 115200 baud (about 11.5 KB/s) on a board UART
 that would take about 13 s.
+
+## Addendum (2026-11-08): why SPI 33 is disabled in I1 and S1
+
+Owner-approved follow-up. HAVEN's physical interrupt handler
+(`arch/arm64/irq.c`, the loop after `icc_iar1_el1`) injects an interrupt
+only if its owner is the partition running on the CPU where it arrived
+(`owner == cpu_partition[here]`). Otherwise it disables the SPI in the
+distributor and logs "IRQ n not delivered, disabled" (a level-triggered
+line that nobody acknowledges would otherwise fire forever).
+
+- **I1** routes SPI 33 (partition A's UART) to CPU 2, which runs partition
+  B. The UART interrupt arrives on CPU 2, the owner check fails, and HAVEN
+  disables it: the UART log shows "HAVEN: IRQ 33 not delivered, disabled"
+  in both runs, and read-back reads `enabled=0`, IROUTER = CPU 2.
+- **S1** records CPU 0 as partition B's. The UART interrupt arrives on
+  CPU 0 as routed, but the table says B runs there, so the same check
+  disables it (same log line, IROUTER = CPU 0).
+
+So HAVEN's own safety rule turned a routing fault into a disabled
+interrupt, and read-back reported what the hardware then held. **A gap in
+read-back:** for a granted SPI that is disabled, it reports "missing
+interrupt binding" and stops, so the wrong IROUTER in I1 (CPU 2, granted
+CPU 0) is not reported. Proposal (not done): check routing and group for
+granted SPIs even when they are disabled, so I1 shows both the missing
+binding and the routing drift.
