@@ -1,0 +1,4 @@
+2d639d14d4f638ea37fcbfc916dd33708020b052165a05f258f7683f04f694d4  tools/readback/dt_check.py
+44e27b3a6dcc4896981cd419a0ba91170f527a6cd63935676a829c81aa384ece  docs/methodology/stage2/20261107-dt-check-blind/dt_faults.py
+954849ad08dbfff385a1788da53bbd7075596a5b2470bcfd312932f18948e0b7  docs/methodology/stage2/20261107-dt-check-same-node/dt_same.py
+3cbb9c0009d71f610f2ec938155f71a603286fd046c33c39ecc499dc98844444  docs/methodology/stage2/20261107-dt-check-same-node/run_dt_same.py
