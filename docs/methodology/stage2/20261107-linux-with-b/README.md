@@ -38,3 +38,24 @@ CPU 0, B on CPU 2). Tree: the case set's B0 (L4).
 Not predicted, recorded if seen: whether B's demo guest prints on the
 UART Linux owns (HAVEN's console policy is an open item), and Linux's
 boot time with B running beside it.
+
+## Y1 and Y2 results, and added runs Y4 and Y5
+
+Y1 and Y2 (run before this section was written; raw output in `runs/`):
+partition B started on CPU 2, the CPU table matched (1/1, 0/0, 2/2, 0/0)
+and Linux reached `KDAL-DEMAND-END` in Y1, as expected. But read-back
+found one thing not expected: **CPU 2 PPI 26 enabled without a grant**.
+PPI 26 is HAVEN's own EL2 timer, which enforces partition B's CPU time
+budget once B runs. `grant-l4.json` left it out on purpose, because B did
+not start in `qemu-direct` (its source note says so); the owner-approved
+`grant-budget.json` has it. The expectation "matches" for Y1 and Y2 was
+wrong: a prediction error, from not carrying that note forward. Y3 (the
+`qemu-direct` control) held.
+
+New grant `grant-l4-withb.json`: `grant-l4-cpus.json` plus HAVEN PPI 26
+on CPU 2. Expectations (Claude, before Y4 and Y5 run):
+
+| Run | Profile | Grant | Read at | Expected |
+| - | - | - | - | - |
+| Y4 | qemu-psci | `grant-l4-withb.json` | `KDAL-DEMAND-END` | read-back matches; CPU table 1/1, 0/0, 2/2, 0/0; B started; Linux reaches `KDAL-DEMAND-END` |
+| Y5 | qemu-psci | `grant-l4-withb.json` | entry breakpoint | matches, same CPU table; no Linux output yet |

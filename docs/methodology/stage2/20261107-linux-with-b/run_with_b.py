@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Runs Y1 to Y3 of README.md: the Linux profile built for qemu-psci, so
+"""Runs Y1 to Y5 of README.md: the Linux profile built for qemu-psci, so
 HAVEN can start partition B on CPU 2 while Linux runs in partition A.
 
-Usage: run_with_b.py HAVEN_REPO KDAL_SRC IMAGE KDAL_KO OUT
+Usage: [ONLY=Y4,Y5] run_with_b.py HAVEN_REPO KDAL_SRC IMAGE KDAL_KO OUT
 Writes OUT/<run>/{readback.txt,readback.json,uart.log,gdb.json} and
 OUT/results.md.
 """
@@ -19,12 +19,16 @@ spec = importlib.util.spec_from_file_location(
 rc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rc)
 GRANT = os.path.join(HERE, "..", "20261107-cpu-assignment", "grant-l4-cpus.json")
+GRANT_B = os.path.join(HERE, "grant-l4-withb.json")  # added after Y1, see README
 
-RUNS = [  # name, profile, read point
-    ("Y1", "qemu-psci", "KDAL-DEMAND-END"),
-    ("Y2", "qemu-psci", "break"),
-    ("Y3", "qemu-direct", "KDAL-DEMAND-END"),
+RUNS = [  # name, profile, read point, grant
+    ("Y1", "qemu-psci", "KDAL-DEMAND-END", GRANT),
+    ("Y2", "qemu-psci", "break", GRANT),
+    ("Y3", "qemu-direct", "KDAL-DEMAND-END", GRANT),
+    ("Y4", "qemu-psci", "KDAL-DEMAND-END", GRANT_B),
+    ("Y5", "qemu-psci", "break", GRANT_B),
 ]
+ONLY = os.environ.get("ONLY", "").split(",") if os.environ.get("ONLY") else None
 
 
 def build(repo, profile, out, log):
@@ -57,11 +61,13 @@ def main():
               for p in ("qemu-psci", "qemu-direct")}
     rows = ["| Run | Profile | Read at | Read-back | CPU table (granted / runs) | Partition B | Linux reached |",
             "| - | - | - | - | - | - | - |"]
-    for name, profile, point in RUNS:
+    for name, profile, point, grant in RUNS:
+        if ONLY and name not in ONLY:
+            continue
         d = os.path.join(out, name)
         shutil.rmtree(d, ignore_errors=True)
         os.makedirs(d)
-        cmd = [sys.executable, os.path.join(repo, "tools/readback/readback.py"), builds[profile], GRANT,
+        cmd = [sys.executable, os.path.join(repo, "tools/readback/readback.py"), builds[profile], grant,
                os.path.join(d, "rb"), "--cpu", "cortex-a72", "--wait", "45", "--device", rc.DEV,
                "--guest-a", image, "--load", f"{dtb}@{rc.DTB_PA:#x}", "--load", f"{cpio}@{ipa + rc.PA_OFFSET:#x}"]
         cmd += ["--break", "0x40000000"] if point == "break" else ["--marker", point]
@@ -85,7 +91,7 @@ def main():
                                                                        else "no Linux output")
         rows.append(f"| {name} | {profile} | {at[:40]} | {res}{': ' + finds if finds else ''} | {cpus} | {b} | {reached} |")
         print(rows[-1], flush=True)
-    with open(os.path.join(out, "results.md"), "w") as fh:
+    with open(os.path.join(out, "results-" + "-".join(ONLY) + ".md" if ONLY else "results.md"), "w") as fh:
         fh.write("# Linux with partition B runs\n\n" + "\n".join(rows) + "\n")
     shutil.rmtree(work, ignore_errors=True)
 
