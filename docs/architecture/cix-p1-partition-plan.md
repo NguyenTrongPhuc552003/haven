@@ -48,7 +48,7 @@ read-back still checks its stream table entry.
 | Device tree or ACPI for Linux | device tree in QEMU | the vendor kernel expects ACPI (row 12) | G2, early decision |
 | Identity mapping for partition A | IPA offset in QEMU | IPA = PA for the GPU | `gpu-partition.md` |
 | CPU map from the board | QEMU's | MPIDR order with core 4 first | ledger "CPU numbering" |
-| Console policy | HAVEN prints on partition A's UART | HAVEN on its own UART: **UART3** proposed (FCH, on the 40-pin header); UART6, approved at G2 as Claude's first suggestion, belongs to the security engine and is not usable from the application cores | G2 follow-up |
+| Console policy | HAVEN prints on partition A's UART | HAVEN on its own UART: **UART3** (decided 2026-11-08; FCH, on the 40-pin header); EL3 read-back dump on UART1; UART6 belongs to the security engine | decided |
 
 [I] An alternative to multi-vCPU for B is several single-vCPU real-time
 partitions (one core each). Linux still needs several cores to be a
@@ -62,4 +62,4 @@ either way.
 3. Multi-vCPU partitions: promote from the parking lot to committed work,
    with Linux SMP as its first target.
 4. Device tree or ACPI for the Linux partition on the board: **device tree for the first bring-up** (owner, 2026-11-07); ACPI revisited later.
-5. HAVEN's console: approved as UART6 (2026-11-07), then found to be the security engine's UART; **UART3 proposed instead**, UART1 for the EL3 read-back dump (owner to confirm).
+5. HAVEN's console: **UART3** (FCH, 40-pin header), and **UART1** for the EL3 read-back dump (owner, 2026-11-08); UART6, approved first, is the security engine's. Both need the vendor's "40pin" pin setup or HAVEN's own pinmux.
