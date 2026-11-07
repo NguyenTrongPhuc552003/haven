@@ -41,3 +41,35 @@ second CPU node and redistributor frame.
 | Fault: a cross-CPU SGI injected into the sending vCPU instead of the target | read-back: no finding (no state is left behind); caught by the SMP0 unit test for SGI targeting; Linux may stall (not predicted) |
 
 Results follow below as each step runs.
+
+## SMP0 results (2026-11-08, host, macOS arm64)
+
+Commands: `cmake --build build-host`, `ctest --test-dir build-host -E
+bench_temporal_isolation`, then the three changed test binaries; cross
+builds of the `arm64-qemu` (qemu-direct, qemu-psci), `arm64-imx95` and
+`arm64-imx8qm` presets; the CI QEMU checks `qemu-direct-check.sh` and
+`partition-b-check.py` on cortex-a72 and max.
+
+| Test | Expected | Observed | Verdict |
+| - | - | - | - |
+| CPU_ON for an off vCPU of the caller | SUCCESS, ON_PENDING then ON | SUCCESS, action START_VCPU, index 1, state ON_PENDING; the move to ON is the caller's (integration) step, checked here only as table state | as expected |
+| CPU_ON for another partition's CPU, unlisted, already on | DENIED, ALREADY_ON or INVALID_PARAMETERS | another partition's CPU is not in the caller's table, so INVALID_PARAMETERS; already on: ALREADY_ON; nothing started | as expected |
+| (not predicted) CPU_ON again while the target is pending | none | ON_PENDING (PSCI 1.0 code -5) | extra check |
+| AFFINITY_INFO per vCPU | follows the state | 1 off, 2 on-pending, 0 on; level not 0 or unknown CPU: INVALID_PARAMETERS | as expected |
+| ICC_SGI1R decoding | targets of the same partition only | target list, Aff1 mismatch, RS, IRM (all peers but the sender) as expected; peers are the partition's own vCPUs, so a CPU outside it is never a target; a cross-CPU SGI is posted to the target's physical CPU, not injected locally | as expected |
+| Shared distributor: SPI enabled from vCPU 1 visible from vCPU 0 | visible; one physical enable | **not tested in SMP0.** By design both CPUs' GICD regions use the same `vgic[0]` model, so this is an integration property; moved to SMP1 (added row below, written before the SMP1 code) | not run |
+| All existing host tests | pass | 25 of 25 ctest tests; read-back suite unchanged (29); all four cross builds link; the four CI QEMU checks PASS | as expected |
+
+Deviation found while scoring (observation): an SGI sent to a vCPU that
+has that SGI disabled is **dropped**, while GICv3 keeps it pending until
+it is enabled. The self-only path already behaved this way; SMP0 extends
+it to cross-CPU SGIs. Inference: Linux enables SGIs on a secondary in
+`gic_cpu_init` before marking it online, so normal IPIs should not hit
+this, but an early IPI to CPU 1 would be lost. Recorded as a known
+limitation and an SMP1 risk; fixing it needs a pending bit in the model.
+
+Expectation added for SMP1 before its code exists:
+
+| Check | Expected |
+| - | - |
+| SPI 33 (virtio, partition A) enabled by Linux from whichever vCPU | one `GICD_ISENABLER` model state shared by both vCPUs; read-back v12a shows it enabled and routed to CPU 0 at `KDAL-DEMAND-END` |

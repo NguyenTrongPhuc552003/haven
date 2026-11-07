@@ -14,6 +14,9 @@
 extern hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 	__attribute__((weak));
 extern void hv_printk(const char *fmt, ...) __attribute__((weak));
+/* SGI for a vCPU on another CPU: queue it there (arch/arm64/irq.c). */
+extern void hv_arch_post_virtual_sgi(uint32_t cpu, uint32_t intid)
+	__attribute__((weak));
 
 /* ISS: Op0 [21:20], Op2 [19:17], Op1 [16:14], CRn [13:10], Rt [9:5],
  * CRm [4:1], read [0]. ICC_SGI1R_EL1 (3, 0, C12, C11, 5) writes trap
@@ -35,11 +38,32 @@ void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu)
 
 	if ((iss & SYSREG_KEY_MASK) == SYSREG_ICC_SGI1R && !read) {
 		struct hv_vgic *v = hv_vgic_for_cpu(cpu);
-		int sgi = v ? hv_vgic_sgi(v, hv_frame_get(frame, rt)) : -1;
+		struct hv_vgic *const *peers;
+		hv_u32 n = 0U, sgi_id, mask;
+		int sgi;
 
-		if (sgi >= 0 && hv_arch_inject_virtual_irq != NULL)
-			(void)hv_arch_inject_virtual_irq((uint32_t)sgi,
-							 HV_VIRT_IRQ_PRIORITY);
+		peers = v ? hv_vgic_peers(v, &n) : NULL;
+		if (peers != NULL) { /* a vCPU of several (multi-vcpu.md) */
+			mask = hv_vgic_sgi_targets(v, hv_frame_get(frame, rt),
+						   peers, n, &sgi_id);
+			for (hv_u32 i = 0; i < n; i++) {
+				if ((mask & (1U << i)) == 0U)
+					continue;
+				if (peers[i] == v &&
+				    hv_arch_inject_virtual_irq != NULL)
+					(void)hv_arch_inject_virtual_irq(
+						sgi_id, HV_VIRT_IRQ_PRIORITY);
+				else if (peers[i] != v &&
+					 hv_arch_post_virtual_sgi != NULL)
+					hv_arch_post_virtual_sgi(peers[i]->cpu,
+								 sgi_id);
+			}
+		} else {
+			sgi = v ? hv_vgic_sgi(v, hv_frame_get(frame, rt)) : -1;
+			if (sgi >= 0 && hv_arch_inject_virtual_irq != NULL)
+				(void)hv_arch_inject_virtual_irq(
+					(uint32_t)sgi, HV_VIRT_IRQ_PRIORITY);
+		}
 	} else {
 		if (read)
 			hv_frame_set(frame, rt, 0U);

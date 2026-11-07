@@ -43,6 +43,7 @@ struct hv_vgic {
 	hv_u32 cfg[HV_VGIC_NR_IRQS / 16U];
 	hv_u8 prio[HV_VGIC_NR_IRQS];
 	hv_u64 irouter[HV_VGIC_NR_IRQS];
+	hv_u32 last_frame; /* GICR_TYPER.Last: the last redistributor frame */
 };
 
 /** Reset the model for the vCPU on `cpu` and physically disable every
@@ -60,6 +61,21 @@ int hv_vgic_gicr_access(void *ctx, hv_u64 off, hv_u32 size, int write,
  * inject into this vCPU (0..15), or -1 if it targets no enabled SGI on
  * this vCPU (other CPUs are dropped: one vCPU). */
 int hv_vgic_sgi(const struct hv_vgic *v, hv_u64 value);
+
+/** The vCPUs of one multi-vCPU partition, for SGIs between them (n = 0:
+ * none). The array is kept, not copied. */
+void hv_vgic_set_peers(struct hv_vgic *const *peers, hv_u32 n);
+
+/** The peers registered with v, and their number in *n, or NULL. */
+struct hv_vgic *const *hv_vgic_peers(const struct hv_vgic *v, hv_u32 *n);
+
+/** A write of `value` to ICC_SGI1R_EL1 by `sender`: the bit mask (bit i =
+ * peers[i]) of the vCPUs of the same partition it targets and that have
+ * the SGI enabled; *intid is set to the SGI. IRM = 1 targets every peer
+ * but the sender. */
+hv_u32 hv_vgic_sgi_targets(const struct hv_vgic *sender, hv_u64 value,
+			   struct hv_vgic *const *peers, hv_u32 n,
+			   hv_u32 *intid);
 
 /** Model registered for `cpu`, or NULL. */
 struct hv_vgic *hv_vgic_for_cpu(hv_u32 cpu);

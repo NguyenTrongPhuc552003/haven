@@ -34,6 +34,9 @@
 #define HV_PSCI_NOT_SUPPORTED (-1)
 #define HV_PSCI_INVALID_PARAMETERS (-2)
 #define HV_PSCI_DENIED (-3)
+#define HV_PSCI_ALREADY_ON (-4)
+#define HV_PSCI_ON_PENDING (-5)
+#define HV_PSCI_INTERNAL_FAILURE (-6)
 
 /* PSCI 1.0: major 1 in bits [31:16], minor 0 in bits [15:0] */
 #define HV_PSCI_VERSION_1_0 0x00010000U
@@ -48,6 +51,8 @@ typedef enum {
 	HV_PSCI_RESUME = 0, /* write x0 and return to the partition */
 	HV_PSCI_STOP_OFF = 1, /* CPU_OFF or SYSTEM_OFF: stop the partition */
 	HV_PSCI_STOP_RESET = 2, /* SYSTEM_RESET: stop (no restart yet) */
+	HV_PSCI_START_VCPU = 3, /* CPU_ON accepted: start vCPU *index */
+	HV_PSCI_STOP_VCPU = 4, /* CPU_OFF of one vCPU of several */
 } hv_psci_action_t;
 
 /**
@@ -61,6 +66,30 @@ typedef enum {
  * Pure: no hardware access, so host tests can call it.
  */
 hv_psci_action_t hv_psci_call(const hv_u64 x[4], hv_u64 mpidr, hv_u64 *ret);
+
+/* Multi-vCPU partitions (docs/architecture/multi-vcpu.md): the calling
+ * partition's vCPUs, each pinned to one CPU. AFFINITY_INFO returns these
+ * state values directly (PSCI: 0 ON, 1 OFF, 2 ON_PENDING). */
+#define HV_PSCI_MAX_VCPUS 4U
+#define HV_VCPU_ON 0U
+#define HV_VCPU_OFF 1U
+#define HV_VCPU_ON_PENDING 2U
+
+struct hv_psci_vcpus {
+	hv_u32 count;
+	hv_u64 mpidr[HV_PSCI_MAX_VCPUS]; /* as the guest sees it (VMPIDR) */
+	hv_u32 state[HV_PSCI_MAX_VCPUS];
+};
+
+/** As hv_psci_call, for a partition whose vCPUs are listed in `v` (NULL:
+ * one vCPU, as hv_psci_call). CPU_ON of a listed vCPU that is off marks
+ * it ON_PENDING and returns HV_PSCI_START_VCPU with *index set (entry in
+ * x[2], context in x[3]); the caller starts it and sets its state to ON,
+ * or back to OFF with *ret = INTERNAL_FAILURE. CPU_OFF from one of
+ * several vCPUs marks it OFF and returns HV_PSCI_STOP_VCPU. Pure. */
+hv_psci_action_t hv_psci_call_vcpus(const hv_u64 x[4], hv_u64 mpidr,
+				    hv_u64 *ret, struct hv_psci_vcpus *v,
+				    hv_u32 *index);
 
 /** Short name of a PSCI function ID for the log, or "?" */
 const char *hv_psci_name(hv_u32 fid);

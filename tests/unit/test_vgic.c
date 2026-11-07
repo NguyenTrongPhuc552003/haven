@@ -169,6 +169,43 @@ static void test_affinity(void)
 	printf("[PASS] non-zero affinity in GICR_TYPER and SGI targets\n");
 }
 
+/* SMP0: SGIs between the vCPUs of one partition (vCPU 0 at Aff0 0, vCPU 1
+ * at Aff0 1), and the Last bit of each redistributor frame. */
+static void test_sgi_targets(void)
+{
+	static struct hv_vgic a, b;
+	struct hv_vgic *peers[2] = {&a, &b};
+	hv_u32 intid = 99U;
+
+	hv_vgic_init(&a, 4, 0x80000000ULL, &hooks);
+	hv_vgic_init(&b, 5, 0x80000001ULL, &hooks);
+	a.last_frame = 0U;
+	assert((rd(R, &a, 0x0008, 8) & (1U << 4)) == 0U);
+	assert((rd(R, &b, 0x0008, 8) & (1U << 4)) != 0U);
+	wr(R, &a, SGI + 0x0100, 4, 1U << 3);
+	wr(R, &b, SGI + 0x0100, 4, 1U << 3);
+	/* SGI 3 to Aff0 1 (target list bit 1): vCPU 1 only */
+	assert(hv_vgic_sgi_targets(&a, (3ULL << 24) | 2U, peers, 2, &intid) ==
+	       2U);
+	assert(intid == 3U);
+	/* Target list 0 and 1 from vCPU 1: both, self included */
+	assert(hv_vgic_sgi_targets(&b, (3ULL << 24) | 3U, peers, 2, &intid) ==
+	       3U);
+	/* IRM: every vCPU but the sender */
+	assert(hv_vgic_sgi_targets(&a, (3ULL << 24) | (1ULL << 40), peers, 2,
+				   &intid) == 2U);
+	/* Aff0 2 is no vCPU of this partition: nobody */
+	assert(hv_vgic_sgi_targets(&a, (3ULL << 24) | 4U, peers, 2, &intid) ==
+	       0U);
+	/* Aff1 1 matches neither vCPU: nobody */
+	assert(hv_vgic_sgi_targets(&a, (3ULL << 24) | (1ULL << 16) | 2U, peers,
+				   2, &intid) == 0U);
+	/* SGI 5 is enabled on neither: nobody */
+	assert(hv_vgic_sgi_targets(&a, (5ULL << 24) | 2U, peers, 2, &intid) ==
+	       0U);
+	printf("[PASS] SGIs between vCPUs, redistributor Last bit\n");
+}
+
 int main(void)
 {
 	static struct hv_vgic v;
@@ -179,6 +216,7 @@ int main(void)
 	test_enable(&v);
 	test_sgi(&v);
 	test_affinity();
+	test_sgi_targets();
 	printf("test_vgic: all passed\n");
 	return 0;
 }

@@ -30,6 +30,15 @@ hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 	return HV_OK;
 }
 
+static int posted_cpu = -1, posted_sgi = -1, post_calls;
+
+void hv_arch_post_virtual_sgi(uint32_t cpu, uint32_t intid)
+{
+	posted_cpu = (int)cpu;
+	posted_sgi = (int)intid;
+	post_calls++;
+}
+
 static int owned_none(hv_u32 cpu, hv_u32 id)
 {
 	(void)cpu;
@@ -104,11 +113,37 @@ static void test_log_cap(void)
 	printf("[PASS] log stops after four accesses\n");
 }
 
+/* SMP0: vCPU on CPU 0 (Aff0 0) sends SGI 2 to its peer on CPU 1 (Aff0 1). */
+static void test_cross_cpu_sgi(void)
+{
+	static struct hv_vgic v0, v1;
+	struct hv_vgic *peers[2] = {&v0, &v1};
+	hv_u64 en = 1U << 2;
+
+	hv_vgic_init(&v0, 0, 0x80000000ULL, &hooks);
+	hv_vgic_init(&v1, 1, 0x80000001ULL, &hooks);
+	hv_vgic_set_peers(peers, 2U);
+	assert(hv_vgic_gicr_access(&v1, 0x10000U + 0x0100U, 4, 1, &en) == 0);
+	assert(hv_vgic_gicr_access(&v0, 0x10000U + 0x0100U, 4, 1, &en) == 0);
+	inject_calls = 0;
+	frame[HV_FRAME_ELR] = 0x3000;
+	frame[6] = (2ULL << 24) | 2U; /* SGI 2 to Aff0 1 */
+	hv_handle_sysreg_trap(esr(3, 0, 12, 11, 5, 6, 0), frame, 0);
+	assert(post_calls == 1 && posted_cpu == 1 && posted_sgi == 2);
+	assert(inject_calls == 0 && frame[HV_FRAME_ELR] == 0x3004);
+	frame[6] = (2ULL << 24) | 3U; /* to both: local injection and a post */
+	hv_handle_sysreg_trap(esr(3, 0, 12, 11, 5, 6, 0), frame, 0);
+	assert(post_calls == 2 && inject_calls == 1 && injected == 2);
+	hv_vgic_set_peers(NULL, 0U);
+	printf("[PASS] SGI for another vCPU posted to its CPU\n");
+}
+
 int main(void)
 {
 	test_self_sgi();
 	test_read_as_zero();
 	test_log_cap();
+	test_cross_cpu_sgi();
 	printf("test_sysreg_trap: all passed\n");
 	return 0;
 }

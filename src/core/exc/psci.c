@@ -4,7 +4,8 @@
  *
  * Supported: PSCI_VERSION, PSCI_FEATURES, MIGRATE_INFO_TYPE,
  * AFFINITY_INFO (own vCPU only), CPU_SUSPEND (returns at once, which the
- * spec allows as an immediate wake-up), CPU_ON (always DENIED: one vCPU),
+ * spec allows as an immediate wake-up), CPU_ON (DENIED for one vCPU; for
+ * a multi-vCPU partition see hv_psci_call_vcpus),
  * CPU_OFF, SYSTEM_OFF and SYSTEM_RESET (the partition is stopped).
  * Everything else returns NOT_SUPPORTED, including SMCCC_VERSION, so a
  * Linux guest keeps SMCCC v1.0 and makes no further SMCCC calls.
@@ -95,6 +96,65 @@ hv_psci_action_t hv_psci_call(const hv_u64 x[4], hv_u64 mpidr, hv_u64 *ret)
 		break;
 	}
 	return HV_PSCI_RESUME;
+}
+
+static int vcpu_index(const struct hv_psci_vcpus *v, hv_u64 mpidr)
+{
+	for (hv_u32 i = 0; i < v->count && i < HV_PSCI_MAX_VCPUS; i++)
+		if ((v->mpidr[i] & HV_PSCI_MPIDR_AFF_MASK) ==
+		    (mpidr & HV_PSCI_MPIDR_AFF_MASK))
+			return (int)i;
+	return -1;
+}
+
+hv_psci_action_t hv_psci_call_vcpus(const hv_u64 x[4], hv_u64 mpidr,
+				    hv_u64 *ret, struct hv_psci_vcpus *v,
+				    hv_u32 *index)
+{
+	hv_u32 fid = (hv_u32)x[0];
+	hv_u64 target;
+	int i;
+
+	if (v == NULL || (x[0] >> 32) != 0U)
+		return hv_psci_call(x, mpidr, ret);
+	switch (fid) {
+	case HV_PSCI_CPU_ON_32:
+	case HV_PSCI_CPU_ON_64:
+		target = (fid == HV_PSCI_CPU_ON_32) ? (hv_u32)x[1] : x[1];
+		i = vcpu_index(v, target);
+		if (i < 0) {
+			*ret = psci_ret(HV_PSCI_INVALID_PARAMETERS);
+		} else if (v->state[i] == HV_VCPU_ON) {
+			*ret = psci_ret(HV_PSCI_ALREADY_ON);
+		} else if (v->state[i] == HV_VCPU_ON_PENDING) {
+			*ret = psci_ret(HV_PSCI_ON_PENDING);
+		} else {
+			v->state[i] = HV_VCPU_ON_PENDING;
+			*index = (hv_u32)i;
+			*ret = psci_ret(HV_PSCI_SUCCESS);
+			return HV_PSCI_START_VCPU;
+		}
+		return HV_PSCI_RESUME;
+	case HV_PSCI_AFFINITY_INFO_32:
+	case HV_PSCI_AFFINITY_INFO_64:
+		target = (fid == HV_PSCI_AFFINITY_INFO_32) ? (hv_u32)x[1] :
+							     x[1];
+		i = vcpu_index(v, target);
+		*ret = (x[2] == 0U && i >= 0) ?
+			       (hv_u64)v->state[i] :
+			       psci_ret(HV_PSCI_INVALID_PARAMETERS);
+		return HV_PSCI_RESUME;
+	case HV_PSCI_CPU_OFF:
+		i = vcpu_index(v, mpidr);
+		if (v->count > 1U && i >= 0) {
+			v->state[i] = HV_VCPU_OFF;
+			*index = (hv_u32)i;
+			return HV_PSCI_STOP_VCPU;
+		}
+		return HV_PSCI_STOP_OFF;
+	default:
+		return hv_psci_call(x, mpidr, ret);
+	}
 }
 
 const char *hv_psci_name(hv_u32 fid)

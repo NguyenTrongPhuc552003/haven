@@ -67,6 +67,7 @@ void hv_vgic_init(struct hv_vgic *v, hv_u32 cpu, hv_u64 mpidr,
 	v->gicd_ctlr = GICD_CTLR_DS;
 	v->waker = GICR_WAKER_PS | GICR_WAKER_CA; /* asleep at reset */
 	v->cfg[0] = 0xAAAAAAAAU; /* SGIs are edge-triggered */
+	v->last_frame = 1U;
 	for (hv_u32 id = 16; id < HV_VGIC_NR_IRQS; id++)
 		if (v->hooks.owned(cpu, id))
 			v->hooks.hw_enable(cpu, id, 0);
@@ -239,7 +240,8 @@ int hv_vgic_gicr_access(void *ctx, hv_u64 off, hv_u32 size, int write,
 	switch (off) {
 	case GICR_TYPER: /* 64-bit, or the low half */
 		if (!write) {
-			hv_u64 t = (v->affinity << 32) | GICR_TYPER_LAST;
+			hv_u64 t = (v->affinity << 32) |
+				   (v->last_frame ? GICR_TYPER_LAST : 0U);
 			*val = size == 8U ? t : (t & 0xFFFFFFFFULL);
 		}
 		return 0;
@@ -286,4 +288,55 @@ int hv_vgic_sgi(const struct hv_vgic *v, hv_u64 value)
 	if ((v->enabled[0] & (1U << intid)) == 0U)
 		return -1;
 	return (int)intid;
+}
+
+static struct hv_vgic *const *peer_set;
+static hv_u32 peer_count;
+
+void hv_vgic_set_peers(struct hv_vgic *const *peers, hv_u32 n)
+{
+	peer_set = peers;
+	peer_count = peers != NULL ? n : 0U;
+}
+
+struct hv_vgic *const *hv_vgic_peers(const struct hv_vgic *v, hv_u32 *n)
+{
+	for (hv_u32 i = 0; i < peer_count; i++)
+		if (peer_set[i] == v) {
+			*n = peer_count;
+			return peer_set;
+		}
+	*n = 0U;
+	return NULL;
+}
+
+hv_u32 hv_vgic_sgi_targets(const struct hv_vgic *sender, hv_u64 value,
+			   struct hv_vgic *const *peers, hv_u32 n,
+			   hv_u32 *intid)
+{
+	hv_u32 id = (hv_u32)((value >> 24) & 0xFU);
+	hv_u64 aff123 = ((value >> 16) & 0xFFU) | /* Aff1 */
+			(((value >> 32) & 0xFFU) << 8) | /* Aff2 */
+			(((value >> 48) & 0xFFU) << 16); /* Aff3 */
+	int irm = (int)((value >> 40) & 1U);
+	hv_u32 rs = (hv_u32)((value >> 44) & 0xFU);
+	hv_u32 mask = 0U;
+
+	*intid = id;
+	for (hv_u32 i = 0; i < n && i < 32U; i++) {
+		const struct hv_vgic *t = peers[i];
+		hv_u32 aff0 = (hv_u32)(t->affinity & 0xFFU);
+
+		if (irm) {
+			if (t == sender)
+				continue;
+		} else if (aff123 != ((t->affinity >> 8) & 0xFFFFFFU) ||
+			   rs != aff0 / 16U ||
+			   ((value >> (aff0 % 16U)) & 1U) == 0U) {
+			continue;
+		}
+		if ((t->enabled[0] & (1U << id)) != 0U)
+			mask |= 1U << i;
+	}
+	return mask;
 }
