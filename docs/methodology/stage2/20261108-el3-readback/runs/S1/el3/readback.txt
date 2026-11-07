@@ -1,0 +1,42 @@
+read at: EL3 secure timer (counter 0x1dde5899, CPU MPIDR 0x80000000, 2161 records)
+  EL3 saw VTTBR_EL2 = 0x000100008000e000
+  EL3 saw VTCR_EL2 = 0x0000000080023559
+  EL3 saw HCR_EL2 = 0x0000000080080039
+  EL3 saw TTBR0_EL2 = 0x0000000080415000
+partition 1 root=0x8000e000
+  H ipa=0x009000000 pa=0x009000000 size=0x00001000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+  H ipa=0x010000000 pa=0x010000000 size=0x00004000 s2ap=3 memattr=0x1 sh=0 xn=0b10 af=1
+  H ipa=0x040000000 pa=0x080800000 size=0x20000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+  H ipa=0x070000000 pa=0x0a4c00000 size=0x00200000 s2ap=1 memattr=0xf sh=3 xn=0b10 af=1
+  H ipa=0x4010008000 pa=0x4010008000 size=0x00001000 s2ap=1 memattr=0x1 sh=0 xn=0b10 af=1
+partition 2 root=0x80012000
+  H ipa=0x060000000 pa=0x0a0800000 size=0x04000000 s2ap=3 memattr=0xf sh=3 xn=0b00 af=1
+  EL2 va=0x0000000000 pa=0x0000000000 size=0x0040000000 Device-nGnRE xn=1
+  EL2 va=0x0080000000 pa=0x0080000000 size=0x0000800000 Normal WB xn=0
+  EL2 va=0x4000000000 pa=0x4000000000 size=0x0040000000 Device-nGnRE xn=1
+EL2 map: 3 range(s), TTBR0_EL2 0x80415000
+  EL2 observation: partition 1 device PA 0x9000000-0x9001000 also mapped at EL2
+  EL2 observation: partition 1 device PA 0x10000000-0x10004000 also mapped at EL2
+  EL2 observation: partition 1 device PA 0x4010008000-0x4010009000 also mapped at EL2
+SMMU enabled=True GBPA=0x1000 stream table 0x8042c000, 256 entries; virtio-mmio nodes behind an SMMU in the device tree: 0
+SMMU IDR0=0xd44101b (S2P=1) CMDQ_BASE=0x4000000080430008 PROD=0x6 CONS=0x6 GERROR=0x0
+SMMU event queue: 17 event(s), 17 consumed by HAVEN
+  EVENT translation fault SID 8 page 0x5e000000 write x17
+GIC GICD_CTLR=0x12, 288 INTIDs; enabled SPIs:
+  SPI 33: enabled=0 group1=1 -> CPU 0 (IROUTER 0x0)
+  SPI 106: enabled=1 group1=1 -> CPU 0 (IROUTER 0x0)
+  CPU 0 (affinity 0x0): PPIs enabled [26]
+  CPU 1 (affinity 0x1): PPIs enabled none
+  CPU 2 (affinity 0x2): PPIs enabled [26]
+  CPU 3 (affinity 0x3): PPIs enabled none
+  SPI 106: priority 0x40 (granted 0x40)
+  CPU 0 PPI 26: priority 0x40 (granted 0x40)
+  CPU 2 PPI 26: priority 0x40 (granted 0x40)
+  CPU 0: granted to partition 1, HAVEN runs partition 2
+  CPU 1: granted to partition 0, HAVEN runs partition 0
+  CPU 2: granted to partition 2, HAVEN runs partition 2
+  CPU 3: granted to partition 0, HAVEN runs partition 0
+  FINDING SPI 33: missing interrupt binding (granted but disabled)
+  FINDING CPU 2 PPI 27: missing interrupt binding (granted but disabled)
+  FINDING CPU 0: CPU assignment drift (granted to partition 1, HAVEN runs partition 2)
+RESULT 3 finding(s)

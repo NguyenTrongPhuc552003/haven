@@ -1,0 +1,444 @@
+{
+ "cpu": "cortex-a72",
+ "trigger": "marker",
+ "partitions": {
+  "1": {
+   "root": "0x8000e000",
+   "H": [
+    {
+     "ipa": "0x9000000",
+     "size": "0x1000",
+     "pa": "0x9000000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 2
+    },
+    {
+     "ipa": "0x10000000",
+     "size": "0x4000",
+     "pa": "0x10000000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 2
+    },
+    {
+     "ipa": "0x40000000",
+     "size": "0x20000000",
+     "pa": "0x80800000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 0
+    },
+    {
+     "ipa": "0x70000000",
+     "size": "0x200000",
+     "pa": "0xa4c00000",
+     "memattr": 15,
+     "s2ap": 1,
+     "sh": 3,
+     "af": 1,
+     "xn": 2
+    },
+    {
+     "ipa": "0x4010008000",
+     "size": "0x1000",
+     "pa": "0x4010008000",
+     "memattr": 15,
+     "s2ap": 1,
+     "sh": 3,
+     "af": 1,
+     "xn": 2
+    }
+   ]
+  },
+  "2": {
+   "root": "0x80012000",
+   "H": [
+    {
+     "ipa": "0x60000000",
+     "size": "0x4000000",
+     "pa": "0xa0800000",
+     "memattr": 15,
+     "s2ap": 3,
+     "sh": 3,
+     "af": 1,
+     "xn": 0
+    }
+   ]
+  }
+ },
+ "el2": {
+  "ttbr": "0x80415000",
+  "ranges": [
+   {
+    "va": "0x0",
+    "pa": "0x0",
+    "size": "0x40000000",
+    "type": "Device-nGnRE",
+    "xn": 1,
+    "readonly": 0
+   },
+   {
+    "va": "0x80000000",
+    "pa": "0x80000000",
+    "size": "0x800000",
+    "type": "Normal WB",
+    "xn": 0,
+    "readonly": 0
+   },
+   {
+    "va": "0x4000000000",
+    "pa": "0x4000000000",
+    "size": "0x40000000",
+    "type": "Device-nGnRE",
+    "xn": 1,
+    "readonly": 0
+   }
+  ],
+  "mair_assumed": "0xff04"
+ },
+ "smmu_events": [
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058304,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058304,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058308,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058312,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058316,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058320,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058324,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058328,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058332,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058336,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058340,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058344,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058348,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058352,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058356,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058360,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  },
+  {
+   "id": 16,
+   "event": "translation fault",
+   "sid": 8,
+   "addr": 1577058364,
+   "write": true,
+   "stage2": true,
+   "consumed": true
+  }
+ ],
+ "smmu": {
+  "cr0": "0xd",
+  "cr0ack": "0xd",
+  "gbpa": "0x1000",
+  "strtab_base": "0x400000008042c000",
+  "strtab_cfg": "0x8",
+  "idr0": "0xd44101b",
+  "gerror": "0x0",
+  "cmdq_base": "0x4000000080430008",
+  "cmdq_prod": "0x6",
+  "cmdq_cons": "0x6",
+  "evtq_base": "0x4000000080431006",
+  "evtq_prod": "0x11",
+  "evtq_cons": "0x11"
+ },
+ "dma_masters": [
+  {
+   "device": "pci-1af4:1044",
+   "bus": "pci 00:01.0",
+   "sid": 8,
+   "behind_smmu": true,
+   "virtio_bypass": false,
+   "state": "translated:1",
+   "reason": "STE stage-2, S2TTB 0x80014000 (stream table, 0x100000 bytes)"
+  }
+ ],
+ "gic": {
+  "spis": [
+   {
+    "irq": 33,
+    "enabled": 1,
+    "group1": 0,
+    "irouter": "0x0",
+    "cpu": 0
+   },
+   {
+    "irq": 106,
+    "enabled": 1,
+    "group1": 0,
+    "irouter": "0x0",
+    "cpu": 0
+   }
+  ],
+  "cpus": [
+   {
+    "cpu": 0,
+    "affinity": "0x0",
+    "ppis_enabled": [
+     26
+    ],
+    "sgis_enabled": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ]
+   },
+   {
+    "cpu": 1,
+    "affinity": "0x1",
+    "ppis_enabled": [],
+    "sgis_enabled": []
+   },
+   {
+    "cpu": 2,
+    "affinity": "0x2",
+    "ppis_enabled": [
+     26
+    ],
+    "sgis_enabled": []
+   },
+   {
+    "cpu": 3,
+    "affinity": "0x3",
+    "ppis_enabled": [],
+    "sgis_enabled": []
+   }
+  ],
+  "guest_enabled": [],
+  "priorities": [
+   {
+    "irq": 33,
+    "priority": "0xa0",
+    "expected": "0xa0"
+   },
+   {
+    "irq": 106,
+    "priority": "0x40",
+    "expected": "0x40"
+   },
+   {
+    "irq": 26,
+    "cpu": 0,
+    "priority": "0x40",
+    "expected": "0x40"
+   },
+   {
+    "irq": 26,
+    "cpu": 2,
+    "priority": "0x40",
+    "expected": "0x40"
+   }
+  ],
+  "groups_visible": false
+ },
+ "cpu_assignment": [
+  {
+   "cpu": 0,
+   "granted": 1,
+   "served": 1
+  },
+  {
+   "cpu": 1,
+   "granted": 0,
+   "served": 0
+  },
+  {
+   "cpu": 2,
+   "granted": 2,
+   "served": 2
+  },
+  {
+   "cpu": 3,
+   "granted": 0,
+   "served": 0
+  }
+ ],
+ "findings": [
+  [
+   "A UART",
+   "memory-type drift",
+   "memattr=0xf expected 0x1"
+  ],
+  [
+   "A UART",
+   "shareability drift",
+   "sh=0x3 expected 0x0"
+  ],
+  [
+   "A PCI config",
+   "memory-type drift",
+   "memattr=0xf expected 0x1"
+  ],
+  [
+   "A PCI config",
+   "shareability drift",
+   "sh=0x3 expected 0x0"
+  ],
+  [
+   "A PCI BAR",
+   "memory-type drift",
+   "memattr=0xf expected 0x1"
+  ],
+  [
+   "A PCI BAR",
+   "shareability drift",
+   "sh=0x3 expected 0x0"
+  ],
+  [
+   "EL2 / partition 1",
+   "partition memory mapped at EL2",
+   "PA 0x9000000-0x9001000 (Device-nGnRE at EL2)"
+  ],
+  [
+   "EL2 / partition 1",
+   "partition memory mapped at EL2",
+   "PA 0x10000000-0x10004000 (Device-nGnRE at EL2)"
+  ],
+  [
+   "EL2 / partition 1",
+   "partition memory mapped at EL2",
+   "PA 0x4010008000-0x4010009000 (Device-nGnRE at EL2)"
+  ],
+  [
+   "CPU 2 PPI 27",
+   "missing interrupt binding",
+   "granted but disabled"
+  ]
+ ]
+}
