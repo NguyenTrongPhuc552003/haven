@@ -1,0 +1,313 @@
+diff --git a/plat/qemu/common/qemu_bl31_setup.c b/plat/qemu/common/qemu_bl31_setup.c
+index 0a70cc2..72a65fc 100644
+--- a/plat/qemu/common/qemu_bl31_setup.c
++++ b/plat/qemu/common/qemu_bl31_setup.c
+@@ -209,6 +209,9 @@ void bl31_plat_runtime_setup(void)
+ 	}
+ #endif
+ 
++#if EL3_READBACK
++	qemu_el3_readback_setup();
++#endif
+ 	console_flush();
+ 	console_switch_state(CONSOLE_FLAG_RUNTIME);
+ }
+diff --git a/plat/qemu/common/qemu_common.c b/plat/qemu/common/qemu_common.c
+index 9ccb2c8..9655c98 100644
+--- a/plat/qemu/common/qemu_common.c
++++ b/plat/qemu/common/qemu_common.c
+@@ -107,6 +107,10 @@ static const mmap_region_t plat_qemu_mmap[] = {
+ #ifdef IMAGE_BL31
+ static const mmap_region_t plat_qemu_mmap[] = {
+ 	MAP_SHARED_RAM,
++#if EL3_READBACK
++	/* The hypervisor's region, read-only, for the EL3 read-back */
++	MAP_REGION_FLAT(0x80000000, 0x00800000, MT_MEMORY | MT_RO | MT_NS),
++#endif
+ 	MAP_DEVICE0,
+ #ifdef MAP_DEVICE1
+ 	MAP_DEVICE1,
+diff --git a/plat/qemu/common/qemu_el3_readback.c b/plat/qemu/common/qemu_el3_readback.c
+new file mode 100644
+index 0000000..4bb11db
+--- /dev/null
++++ b/plat/qemu/common/qemu_el3_readback.c
+@@ -0,0 +1,227 @@
++/*
++ * EL3 read-back service for HAVEN (prototype, QEMU virt).
++ *
++ * A board without a usable external debugger can still have its enforced
++ * state read from outside the hypervisor: BL31 arms the secure physical
++ * timer (PPI 29, Group 0, routed to EL3), and when it fires, dumps on the
++ * secure UART (UART1) the hypervisor's memory region (non-zero 32-byte
++ * lines only), the GIC distributor and redistributor registers it needs,
++ * the SMMU registers and stream table, and the interrupted CPU's EL2
++ * translation registers. Nothing in the hypervisor takes part. The host
++ * parses the dump (tools/readback/readback.py --from-el3) and runs the same
++ * comparison as with the QEMU monitor.
++ *
++ * Line format, one record per line:
++ *   RB BEGIN 1 <cntpct> <mpidr>
++ *   RB S <name> <value>        system register of the interrupted CPU
++ *   RB W <addr> <value>        32-bit MMIO read
++ *   RB Q <addr> <value>        64-bit MMIO read
++ *   RB M <addr> <64 hex digits> 32 bytes of memory (all-zero lines omitted)
++ *   RB END <lines>
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include <stdint.h>
++
++#include <arch_helpers.h>
++#include <bl31/interrupt_mgmt.h>
++#include <common/debug.h>
++#include <lib/mmio.h>
++#include <plat/common/platform.h>
++#include <platform_def.h>
++
++#include "qemu_private.h"
++
++#ifndef EL3RB_DELAY_MS
++#define EL3RB_DELAY_MS 8000
++#endif
++
++#define RB_UART		UART1_BASE
++#define RB_HV_BASE	0x80000000UL
++#define RB_HV_SIZE	0x00800000UL
++#define RB_GICR_STRIDE	0x20000UL
++#define RB_NCPUS	4U
++#define RB_SMMU		0x09050000UL
++#define RB_LINE		32U
++
++static unsigned long rb_lines;
++
++static void rb_putc(char c)
++{
++	while ((mmio_read_32(RB_UART + 0x18U) & (1U << 5)) != 0U) /* TXFF */
++		;
++	mmio_write_32(RB_UART, (uint32_t)c);
++}
++
++static void rb_puts(const char *s)
++{
++	while (*s != '\0')
++		rb_putc(*s++);
++}
++
++static void rb_hex(uint64_t v, unsigned int digits)
++{
++	static const char h[] = "0123456789abcdef";
++
++	while (digits-- > 0U)
++		rb_putc(h[(v >> (4U * digits)) & 0xfU]);
++}
++
++static void rb_rec(const char *tag, uint64_t a, uint64_t v, unsigned int digits)
++{
++	rb_puts("RB ");
++	rb_puts(tag);
++	rb_putc(' ');
++	rb_hex(a, 10U);
++	rb_putc(' ');
++	rb_hex(v, digits);
++	rb_putc('\n');
++	rb_lines++;
++}
++
++static void rb_sys(const char *name, uint64_t v)
++{
++	rb_puts("RB S ");
++	rb_puts(name);
++	rb_putc(' ');
++	rb_hex(v, 16U);
++	rb_putc('\n');
++	rb_lines++;
++}
++
++static void rb_w(uintptr_t a)
++{
++	rb_rec("W", a, mmio_read_32(a), 8U);
++}
++
++static void rb_q(uintptr_t a)
++{
++	rb_rec("Q", a, mmio_read_64(a), 16U);
++}
++
++static void rb_mem(uintptr_t base, size_t size)
++{
++	for (uintptr_t a = base; a < base + size; a += RB_LINE) {
++		const volatile uint8_t *p = (const volatile uint8_t *)a;
++		unsigned int nz = 0U;
++
++		for (unsigned int i = 0U; i < RB_LINE; i++)
++			nz |= p[i];
++		if (nz == 0U)
++			continue;
++		rb_puts("RB M ");
++		rb_hex(a, 10U);
++		rb_putc(' ');
++		for (unsigned int i = 0U; i < RB_LINE; i++)
++			rb_hex(p[i], 2U);
++		rb_putc('\n');
++		rb_lines++;
++	}
++}
++
++static void rb_gic(void)
++{
++	uint32_t typer = mmio_read_32(GICD_BASE + 0x4U);
++	unsigned int nirq = ((typer & 0x1fU) + 1U) * 32U;
++
++	if (nirq > 1020U)
++		nirq = 1020U;
++	rb_w(GICD_BASE);
++	rb_w(GICD_BASE + 0x4U);
++	for (unsigned int i = 0U; i < nirq / 32U; i++) {
++		rb_w(GICD_BASE + 0x80U + 4U * i);   /* IGROUPR */
++		rb_w(GICD_BASE + 0x100U + 4U * i);  /* ISENABLER */
++		rb_w(GICD_BASE + 0xd00U + 4U * i);  /* IGRPMODR */
++	}
++	for (unsigned int i = 0U; i < nirq / 4U; i++)
++		rb_w(GICD_BASE + 0x400U + 4U * i);  /* IPRIORITYR */
++	for (unsigned int irq = 32U; irq < nirq; irq++)
++		rb_q(GICD_BASE + 0x6000U + 8U * irq); /* IROUTER */
++	for (unsigned int c = 0U; c < RB_NCPUS; c++) {
++		uintptr_t rd = GICR_BASE + RB_GICR_STRIDE * c;
++		uintptr_t sgi = rd + 0x10000U;
++
++		rb_q(rd + 0x8U);                     /* GICR_TYPER */
++		rb_w(sgi + 0x80U);                   /* IGROUPR0 */
++		rb_w(sgi + 0x100U);                  /* ISENABLER0 */
++		rb_w(sgi + 0xd00U);                  /* IGRPMODR0 */
++		for (unsigned int i = 0U; i < 8U; i++)
++			rb_w(sgi + 0x400U + 4U * i); /* IPRIORITYR0-7 */
++	}
++}
++
++static void rb_smmu(void)
++{
++	static const uint32_t w[] = {0x0, 0x20, 0x24, 0x44, 0x60, 0x88, 0x98, 0x9c,
++				     0x100a8, 0x100ac};
++	uint32_t cr0ack = mmio_read_32(RB_SMMU + 0x24U);
++
++	for (unsigned int i = 0U; i < ARRAY_SIZE(w); i++)
++		rb_w(RB_SMMU + w[i]);
++	rb_q(RB_SMMU + 0x80U); /* STRTAB_BASE */
++	rb_q(RB_SMMU + 0x90U); /* CMDQ_BASE */
++	rb_q(RB_SMMU + 0xa0U); /* EVTQ_BASE */
++	if ((cr0ack & 1U) != 0U) {
++		uint64_t base = mmio_read_64(RB_SMMU + 0x80U) & 0x000fffffffffffc0ULL;
++		uint32_t cfg = mmio_read_32(RB_SMMU + 0x88U);
++		size_t size = ((size_t)1U << (cfg & 0x3fU)) * 64U;
++
++		/* Only inside the mapped hypervisor region in this prototype. */
++		if (base >= RB_HV_BASE && base + size <= RB_HV_BASE + RB_HV_SIZE)
++			rb_puts("RB N strtab inside the hypervisor region\n");
++		else
++			rb_puts("RB N strtab outside the mapped region, not dumped\n");
++	}
++}
++
++static uint64_t rb_handler(uint32_t id, uint32_t flags, void *handle, void *cookie)
++{
++	uint32_t intid = plat_ic_acknowledge_interrupt();
++
++	(void)id;
++	(void)flags;
++	(void)handle;
++	(void)cookie;
++	write_cntps_ctl_el1(0U);
++	rb_lines = 0U;
++	rb_puts("RB BEGIN 1 ");
++	rb_hex(read_cntpct_el0(), 16U);
++	rb_putc(' ');
++	rb_hex(read_mpidr_el1(), 16U);
++	rb_putc('\n');
++	rb_sys("VTTBR_EL2", read_vttbr_el2());
++	rb_sys("VTCR_EL2", read_vtcr_el2());
++	rb_sys("HCR_EL2", read_hcr_el2());
++	rb_sys("TTBR0_EL2", read_ttbr0_el2());
++	rb_gic();
++	rb_smmu();
++	rb_mem(RB_HV_BASE, RB_HV_SIZE);
++	rb_puts("RB END ");
++	rb_hex(rb_lines, 8U);
++	rb_putc('\n');
++	plat_ic_end_of_interrupt(intid);
++	return 0U;
++}
++
++void qemu_el3_readback_setup(void)
++{
++	uint32_t flags = 0U;
++	uint64_t delay;
++	int rc;
++
++	/* PL011 on: UARTEN | TXE; 8 bits, FIFO on. */
++	mmio_write_32(RB_UART + 0x2cU, (3U << 5) | (1U << 4));
++	mmio_write_32(RB_UART + 0x30U, (1U << 0) | (1U << 8));
++
++	set_interrupt_rm_flag(flags, NON_SECURE);
++	rc = register_interrupt_type_handler(INTR_TYPE_EL3, rb_handler, flags);
++	if (rc != 0) {
++		ERROR("EL3 read-back: handler not registered (%d)\n", rc);
++		return;
++	}
++	delay = (uint64_t)read_cntfrq_el0() * EL3RB_DELAY_MS / 1000U;
++	write_cntps_cval_el1(read_cntpct_el0() + delay);
++	write_cntps_ctl_el1(1U);
++	NOTICE("EL3 read-back armed: dump on UART1 in %u ms\n", (unsigned int)EL3RB_DELAY_MS);
++}
+diff --git a/plat/qemu/common/qemu_gicv3.c b/plat/qemu/common/qemu_gicv3.c
+index 0d35446..3302e74 100644
+--- a/plat/qemu/common/qemu_gicv3.c
++++ b/plat/qemu/common/qemu_gicv3.c
+@@ -10,6 +10,11 @@
+ #include <plat/common/platform.h>
+ 
+ static const interrupt_prop_t qemu_interrupt_props[] = {
++#if EL3_READBACK
++	/* Secure physical timer, the EL3 read-back trigger */
++	INTR_PROP_DESC(29, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP0,
++		       GIC_INTR_CFG_LEVEL),
++#endif
+ 	PLATFORM_G1S_PROPS(INTR_GROUP1S),
+ 	PLATFORM_G0_PROPS(INTR_GROUP0)
+ };
+diff --git a/plat/qemu/common/qemu_private.h b/plat/qemu/common/qemu_private.h
+index 25b14e2..39c03aa 100644
+--- a/plat/qemu/common/qemu_private.h
++++ b/plat/qemu/common/qemu_private.h
+@@ -25,6 +25,9 @@ void sip_svc_init(void);
+ void plat_qemu_gic_init(void);
+ void qemu_pwr_gic_on_finish(void);
+ void qemu_pwr_gic_off(void);
++#if EL3_READBACK
++void qemu_el3_readback_setup(void);
++#endif
+ 
+ int qemu_set_tos_fw_info(uintptr_t config_base, uintptr_t log_addr,
+ 			size_t log_size);
+diff --git a/plat/qemu/qemu/platform.mk b/plat/qemu/qemu/platform.mk
+index 0d4cdb8..1f5b528 100644
+--- a/plat/qemu/qemu/platform.mk
++++ b/plat/qemu/qemu/platform.mk
+@@ -148,6 +148,16 @@ else
+ $(error "Incorrect GIC driver chosen for QEMU platform")
+ endif
+ 
++# EL3 read-back service for HAVEN (prototype)
++EL3_READBACK		?=	0
++EL3RB_DELAY_MS		?=	8000
++$(eval $(call assert_boolean,EL3_READBACK))
++$(eval $(call add_define,EL3_READBACK))
++ifeq (${EL3_READBACK},1)
++BL31_SOURCES		+=	plat/qemu/common/qemu_el3_readback.c
++$(eval $(call add_define,EL3RB_DELAY_MS))
++endif
++
+ ifeq (${ARCH},aarch64)
+ BL31_SOURCES		+=	drivers/arm/pl061/pl061_gpio.c		\
+ 				drivers/gpio/gpio.c			\

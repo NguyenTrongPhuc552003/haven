@@ -17,6 +17,18 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v11 (2026-11-08, board read-back fallback B): --tfa DIR boots
+HAVEN under TF-A (BL1 from DIR, BL2 and BL31 by semihosting, HAVEN
+preloaded at 0x80000000; the machine gets secure=on). With --el3 the state
+is not read through the QEMU monitor at all: TF-A's BL31, built with the
+EL3 read-back service (tools/el3-readback/), dumps it on the secure UART
+when its secure timer fires, and read-back parses that dump. The GIC is
+dumped with Secure accesses; read-back converts it to the Non-secure view
+the comparison expects (see el3_snapshot). The unenforced-DMA-master check
+needs QEMU's device list and is skipped in that mode. In --tfa mode
+without --el3, the monitor's Non-secure view reads interrupt groups as
+zero (GICv3 with two security states), so the group check is skipped.
+
 Changes in v10 (2026-11-07, dt_check blind test, M01): HAVEN's per-CPU
 partition table (symbol cpu_partition in arch/arm64/irq.c: the partition
 each CPU runs, 0 for none, used to decide which partition an interrupt is
@@ -97,7 +109,7 @@ SMMU read-back; extra QEMU devices; command-line options.
 Usage:
   readback.py BUILD GRANT.json OUT [--cpu CPU] [--nm NM] [--wait SECONDS]
               [--device QEMU-DEVICE ...] [--smmu-stage nested|1|2] [--marker TEXT]
-              [--guest-a FILE] [--load FILE@ADDR ...] [--break ADDR]
+              [--guest-a FILE] [--load FILE@ADDR ...] [--break ADDR] [--tfa DIR [--el3]]
 Exit status: 0 = enforced state matches the grant, 1 = findings, 2 = probe failure.
 Needs qemu-system-aarch64, an aarch64 nm and dtc on PATH (or --nm).
 """
@@ -226,16 +238,20 @@ class QMP:
         return [(self.read32 if size == "w" else self.read64)(pa + i * step) for i in range(n)]
 
 
-def qemu_args(build, cpu, devices, extra, smmu_stage="nested", guest_a=None, loads=()):
+def qemu_args(build, cpu, devices, extra, smmu_stage="nested", guest_a=None, loads=(), tfa=None):
     machine = MACHINE if smmu_stage == "nested" else MACHINE.replace("virt,", "virt-9.1,", 1)
+    if tfa:  # v11: TF-A at EL3 boots HAVEN, which is preloaded (no cpu-num)
+        machine += ",secure=on"
     args = ["qemu-system-aarch64", "-machine", machine + extra, "-cpu", cpu, "-smp", "4",
             "-m", "2G", "-display", "none", "-nic", "none"]
+    if tfa:
+        args += ["-bios", os.path.join(tfa, "bl1.bin"), "-semihosting-config", "enable=on,target=native"]
     if smmu_stage == "2":
         args += ["-global", "arm-smmuv3.stage=2"]
     for d in devices:
         args += ["-device", d]
     return args + [
-        "-device", f"loader,file={build}/haven.bin,addr=0x80000000,force-raw=on,cpu-num=0",
+        "-device", f"loader,file={build}/haven.bin,addr=0x80000000,force-raw=on" + ("" if tfa else ",cpu-num=0"),
         "-device", f"loader,file={guest_a or build + '/guest_a.bin'},addr=0x80800000,force-raw=on",
         "-device", f"loader,file={build}/guest_b.bin,addr=0xA0800000,force-raw=on"] + [
         a for f, addr in loads for a in ("-device", f"loader,file={f},addr={addr},force-raw=on")]
@@ -267,15 +283,20 @@ def capture(args_ns, out):
         if os.path.exists(p):
             os.remove(p)
     gsock = f"/tmp/readback-{os.getpid()}.gdb"
+    uart1 = os.path.join(out, "uart1.log")  # v11: TF-A's secure UART (EL3 dump)
+    if os.path.exists(uart1):
+        os.remove(uart1)
     cmd = qemu_args(args_ns.build, args_ns.cpu, args_ns.device, "", args_ns.smmu_stage,
-                    args_ns.guest_a, args_ns.load) + [
+                    args_ns.guest_a, args_ns.load, args_ns.tfa) + [
         "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait"]
+    if args_ns.tfa:
+        cmd += ["-serial", f"file:{uart1}"]
     if args_ns.break_at is not None:  # v9: start paused, GDB stub on a socket
         if os.path.exists(gsock):
             os.remove(gsock)
         cmd += ["-S", "-chardev", f"socket,id=gdb0,path={gsock},server=on,wait=off", "-gdb", "chardev:gdb0"]
     open(os.path.join(out, "qemu-command.txt"), "w").write(" ".join(cmd) + "\n")
-    q = subprocess.Popen(cmd)
+    q = subprocess.Popen(cmd, cwd=args_ns.tfa or None)  # semihosting finds bl2/bl31 in cwd
     snap = {"trigger": None}
     try:
         t0 = time.time()
@@ -289,6 +310,19 @@ def capture(args_ns, out):
             snap["gdb"] = g.log
             snap["trigger"] = (f"breakpoint at {args_ns.break_at:#x} (stop reply {reply})" if reached else
                                f"time limit ({args_ns.wait:g} s, breakpoint at {args_ns.break_at:#x} not reached)")
+        if args_ns.el3:  # v11: wait for BL31's dump, read nothing through the monitor
+            while time.time() - t0 < args_ns.wait and q.poll() is None:
+                if os.path.exists(uart1) and "RB END" in open(uart1, errors="replace").read():
+                    break
+                time.sleep(0.2)
+            text = open(uart1, errors="replace").read() if os.path.exists(uart1) else ""
+            if "RB END" not in text:
+                return None
+            snap.update(el3_snapshot(text))
+            m = QMP(sock)
+            m.cmd("quit")
+            q.wait(timeout=10)
+            return snap
         while args_ns.break_at is None and time.time() - t0 < args_ns.wait:
             if os.path.exists(uart) and args_ns.marker in open(uart, errors="replace").read():
                 snap["trigger"] = "marker"
@@ -334,6 +368,82 @@ def capture(args_ns, out):
             q.kill()
         if os.path.exists(sock):
             os.remove(sock)
+    return snap
+
+
+def el3_snapshot(text):
+    """v11: a snapshot from the EL3 read-back dump (tools/el3-readback/).
+
+    The GIC was read with Secure accesses. The comparison expects what a
+    Non-secure observer sees with two security states (GICv3, GICD_CTLR.DS
+    = 0), so this converts: GICD_CTLR's ARE_NS (bit 5) and EnableGrp1NS
+    (bit 1) become the Non-secure view's bits 4 and 1; an interrupt is
+    Non-secure Group 1 when IGROUPR = 1 and IGRPMODR = 0; Secure interrupts
+    read as zero in the Non-secure view (enable, routing, priority), and a
+    Non-secure priority reads shifted left by one bit."""
+    mem, words, sysregs, begin, end = {}, {}, {}, None, None
+    for line in text.splitlines():
+        p = line.split()
+        if len(p) < 3 or p[0] != "RB":
+            continue
+        if p[1] == "BEGIN":
+            begin = (int(p[3], 16), int(p[4], 16))
+        elif p[1] == "S":
+            sysregs[p[2]] = int(p[3], 16)
+        elif p[1] in ("W", "Q"):
+            words[int(p[2], 16)] = int(p[3], 16)
+        elif p[1] == "M":
+            mem[int(p[2], 16)] = bytes.fromhex(p[3])
+        elif p[1] == "END":
+            end = int(p[2], 16)
+    image = bytearray(IMG_SIZE)
+    for addr, data in mem.items():
+        if IMG_PA <= addr and addr + len(data) <= IMG_PA + IMG_SIZE:
+            image[addr - IMG_PA:addr - IMG_PA + len(data)] = data
+    ctlr_s, typer = words[GICD_BASE], words[GICD_BASE + 0x4]
+    nirq = min(((typer & 0x1F) + 1) * 32, 1020)
+    ns = [words[GICD_BASE + 0x80 + 4 * i] & ~words[GICD_BASE + 0xD00 + 4 * i] & 0xFFFFFFFF
+          for i in range(nirq // 32)]
+
+    def is_ns(bits, irq):
+        return (bits[irq // 32] >> (irq % 32)) & 1
+
+    def prio_words(raw, bits, first):
+        out = []
+        for i, w in enumerate(raw):
+            v = 0
+            for b in range(4):
+                irq = first + 4 * i + b
+                if is_ns(bits, irq):
+                    v |= (((w >> (8 * b)) & 0xFF) << 1 & 0xFF) << (8 * b)
+            out.append(v)
+        return out
+    g = {"ctlr": ((ctlr_s >> 5) & 1) << 4 | (ctlr_s & 0x2), "typer": typer, "nirq": nirq,
+         "igroupr": ns,
+         "isenabler": [words[GICD_BASE + 0x100 + 4 * i] & ns[i] for i in range(nirq // 32)],
+         "irouter": [words[GICD_BASE + 0x6000 + 8 * irq] if is_ns(ns, irq) else 0 for irq in range(32, nirq)],
+         "ipriorityr": prio_words([words[GICD_BASE + 0x400 + 4 * i] for i in range(nirq // 4)], ns, 0),
+         "cpus": [], "secure_ctlr": ctlr_s}
+    for c in range(NCPUS):
+        rd = GICR_BASE + c * GICR_STRIDE
+        sgi = rd + 0x10000
+        ns0 = [words[sgi + 0x80] & ~words[sgi + 0xD00] & 0xFFFFFFFF]
+        g["cpus"].append({"typer": words[rd + 0x8], "igroupr0": ns0[0], "isenabler0": words[sgi + 0x100] & ns0[0],
+                          "ipriorityr": prio_words([words[sgi + 0x400 + 4 * i] for i in range(8)], ns0, 0)})
+    smmu = {name: words[SMMU_BASE + off] for name, off in (
+        ("idr0", 0x0), ("cr0", 0x20), ("cr0ack", 0x24), ("gbpa", 0x44), ("gerror", 0x60), ("strtab_cfg", 0x88),
+        ("cmdq_prod", 0x98), ("cmdq_cons", 0x9C), ("evtq_prod", 0x100A8), ("evtq_cons", 0x100AC))}
+    smmu.update(strtab_base=words[SMMU_BASE + 0x80], cmdq_base=words[SMMU_BASE + 0x90],
+                evtq_base=words[SMMU_BASE + 0xA0])
+    snap = {"image": bytes(image), "smmu": smmu, "gic": g, "pci": [], "qtree": "", "el3_sysregs": sysregs,
+            "trigger": f"EL3 secure timer (counter {begin[0]:#x}, CPU MPIDR {begin[1]:#x}, {end} records)"}
+    if smmu["cr0ack"] & 1:
+        size = (1 << (smmu["strtab_cfg"] & 0x3F)) * 64
+        base = smmu["strtab_base"] & 0x000FFFFFFFFFFFC0
+        if IMG_PA <= base and base + size <= IMG_PA + IMG_SIZE:
+            snap["stream_table"] = bytes(image[base - IMG_PA:base - IMG_PA + size])
+        else:
+            snap["stream_table"] = bytes(size)  # outside the dumped region: reported as zeros
     return snap
 
 
@@ -757,7 +867,7 @@ def compare_cpus(served, expected):
     return f, rep
 
 
-def compare_gic(g, expected, model=None):
+def compare_gic(g, expected, model=None, groups_visible=True):
     """Interrupt ownership as enforced by the GIC against the grant: every
     enabled SPI must be granted, routed (affinity, not 1-of-N) to the granted
     CPU of the granted partition, in Group 1 Non-secure; per CPU, only
@@ -821,7 +931,7 @@ def compare_gic(g, expected, model=None):
                       f"routed to CPU {cpu} (partition {cpu_part.get(cpu)}), granted partition {want['partition']}"))
         elif cpu != want["cpu"]:
             f.append((name, "interrupt routing drift", f"routed to CPU {cpu}, granted CPU {want['cpu']}"))
-        if not grp1:
+        if not grp1 and groups_visible:  # v11: with two security states the Non-secure view reads groups as 0
             f.append((name, "interrupt group drift", "Group 0 (expected Group 1 Non-secure)"))
     if extra:
         f.append(("GIC", "interrupt enable drift", f"{len(extra)} SPI(s) enabled without a grant: {ranges(extra)}"))
@@ -883,7 +993,13 @@ def main():
                     help="extra file at a physical address (repeatable)")
     ap.add_argument("--break", dest="break_at", type=lambda x: int(x, 0), metavar="ADDR",
                     help="read when a CPU reaches this instruction address (v9; QEMU GDB stub)")
+    ap.add_argument("--tfa", metavar="DIR", help="boot HAVEN under TF-A from DIR (bl1.bin, bl2.bin, bl31.bin) (v11)")
+    ap.add_argument("--el3", action="store_true", help="read the EL3 read-back dump instead of the monitor (v11)")
     a = ap.parse_args()
+    if a.el3 and not a.tfa:
+        ap.error("--el3 needs --tfa")
+    if a.tfa:
+        a.tfa = os.path.abspath(a.tfa)
     os.makedirs(a.out, exist_ok=True)
     grant = grant_file.load(a.grant)  # format 1 or 2 (FF-A vocabulary)
     snap = capture(a, a.out)
@@ -891,6 +1007,8 @@ def main():
         print("probe failure: QEMU exited before the memory could be read")
         return 2
     print(f"read at: {snap['trigger']}")
+    for name, value in snap.get("el3_sysregs", {}).items():  # v11: the interrupted CPU, as BL31 saw it
+        print(f"  EL3 saw {name} = {value:#018x}")
     roots_pa = symbol(a.nm, os.path.join(a.build, "haven.elf"), "pt_roots")
     findings, report = [], {"cpu": a.cpu, "trigger": snap["trigger"], "partitions": {}}
     roots = {}
@@ -950,7 +1068,11 @@ def main():
             print(f"  EVENT {e[0]} SID {e[1]} page {e[2]:#x} {'write' if e[3] else 'read'} x{n}")
     if "gic" in grant:
         model = read_vgic_enables(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))
-        f, rep = compare_gic(snap["gic"], grant["gic"], model)
+        groups_visible = not (a.tfa and not a.el3)  # v11
+        f, rep = compare_gic(snap["gic"], grant["gic"], model, groups_visible)
+        rep["groups_visible"] = groups_visible
+        if not groups_visible:
+            print("  interrupt groups not observable: two security states, Non-secure monitor view (use --el3)")
         findings += f
         report["gic"] = rep
         g = snap["gic"]
