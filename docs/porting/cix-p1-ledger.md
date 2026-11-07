@@ -32,7 +32,7 @@ sources), S = single source or disputed.
 | 21 | PCIe Gen4 freezes; x16 slot reportedly broken on some revisions | S | No discrete-GPU plans | n/a |
 | 22 | Firmware enters the OS at EL2 with VHE (`HCR_EL2.E2H` may be set) | S | Positive: HAVEN can start at EL2, but must handle E2H at entry | Dump `HCR_EL2`, `ID_AA64MMFR*` at HAVEN entry |
 | 23 | Armbian support alpha | S | Low | n/a |
-| 24 | External debug of the application cores may need Secure authorisation: the CIX firmware layout has a 4 KiB `SECURE_DEBUG` item in SPI NOR | V (firmware source; effect not documented) | Read-back at a fixed instruction on the board (as `--break` in QEMU) needs a working debugger; without one, HAVEN must record the moment itself | At bring-up: is J21 fitted; does a 1.8 V probe see the debug port; can it halt a core (section below) |
+| 24 | External debug of the application cores may need Secure authorisation: the CIX firmware layout has a 4 KiB `SECURE_DEBUG` item in SPI NOR | V (firmware source; effect not documented) | Read-back at a fixed instruction on the board (as `--break` in QEMU) needs a working debugger; without one, HAVEN must record the moment itself | Before buying: probe and soldering plan; at bring-up: does a 1.8 V probe see the debug port and halt a core (section below) |
 
 ## Row 1 checked against vendor firmware source (2026-11-02)
 
@@ -130,11 +130,23 @@ which reads at a breakpoint through QEMU's GDB stub. Reference facts:
   0x5FF2CE bytes), so whether retail firmware carries a `SECURE_DEBUG`
   item could not be read from them.
 
-Inference: the board has a JTAG header wired to the SoC, but whether a
-probe can halt an application core depends on three things the documents
-do not settle: J21 fitted on retail boards, debug authorisation (the
-`SECURE_DEBUG` item suggests a Secure gate), and probe support for the
-Cortex-A720/A520 debug port. Proposal (not yet approved): on the board, HAVEN records each owned
+- `data/orange-pi-6/plus/OrangePi_6_Plus_Cix_Linux System_User Manual_v0.7.pdf`,
+  section 1.5 (page 5 of the manual), the vendor's annotated photo of a
+  board with silkscreen "OPi 6 PLUS V1.1": next to the silkscreen
+  "PDC JTAG" is a 2x5 surface-mount footprint with **bare pads, no header
+  fitted**. The labelled "10Pin headers" in the same photo is the debug
+  UART J135. Reference observation from one photo; a retail board may
+  differ.
+
+Inference: the board has a JTAG port wired to the SoC, but the header is
+not fitted on the board in the vendor photo: using it means soldering a
+2x5 surface-mount header (PH0205-100TM-SM-H10) and the pull-ups the note
+asks for. Whether a probe can then halt an application core still depends
+on debug authorisation (the `SECURE_DEBUG` item suggests a Secure gate)
+and probe support for the Cortex-A720/A520 debug port, which no document
+in `data/` settles. This matters beyond one read point: the A1 design
+(`../methodology/stage1/20261101-a1-readback/DESIGN.md`, section 2) plans
+all external read-back on boards through a JTAG/SWD debugger. Proposal (not yet approved): on the board, HAVEN records each owned
 interrupt's first enable itself (works without a debugger); JTAG, if it
 works, is a cross-check. Writing the `SECURE_DEBUG` item means writing
 the SPI NOR, which the standing rules forbid without the owner.
