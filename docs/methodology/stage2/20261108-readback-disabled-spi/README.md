@@ -39,3 +39,16 @@ grant and options):
 | E0 | as before: CPU 2 PPI 27 missing binding |
 | I1 | as before **plus** SPI 33 routing drift (routed to CPU 2, partition 2; granted partition 1) |
 | S1 | as before (SPI 33 is routed to CPU 0, the CPU the grant gives partition 1; the routing check uses the grant, not HAVEN's table) |
+
+## Results (2026-11-08, haven `583ab24`)
+
+| Test or case | Observed | Expectation |
+| - | - | - |
+| 5 new unit tests | 3 of them failed on the old code (the three gap cases), all 5 pass after the change; 29 of 29 read-back tests pass | held |
+| E0 | CPU 2 PPI 27 missing binding, both channels | held |
+| I1 | CPU 2 PPI 27 missing binding; SPI 33 missing binding; **SPI 33 routing drift** ("routed to CPU 2 (partition 2), granted partition 1"), both channels | held |
+| S1 | CPU 0 assignment drift; CPU 2 PPI 27 missing binding; SPI 33 missing binding (no routing finding), both channels | held |
+
+All expectations held. Read-back now reports both effects of the I1
+fault: the wrong route, and the interrupt HAVEN disabled because of it.
+Raw output: `runs/` (paths replaced by `<workspace>` and `<tmp>`).
