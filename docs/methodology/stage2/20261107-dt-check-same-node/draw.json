@@ -1,0 +1,158 @@
+{
+ "seed_text": "haven cf6405b | owner 2026-11-07 21:17: 2. Approve",
+ "seed_sha256": "1023dca16bb7f00028bc736664264b22923adc37028b81332bf30eadf24f8594",
+ "combinations": 69,
+ "picks": [
+  {
+   "name": "S01",
+   "index": 60,
+   "node": "memory node",
+   "change": "base 0x40100000, size 0x40000000",
+   "spec": [
+    "mem",
+    1074790400,
+    1073741824
+   ]
+  },
+  {
+   "name": "S02",
+   "index": 34,
+   "node": "KDAL node",
+   "change": "base 0x10003000, SPI 74",
+   "spec": [
+    "kdal",
+    "0x10003000",
+    "0x1000",
+    "0 74 4"
+   ]
+  },
+  {
+   "name": "S03",
+   "index": 35,
+   "node": "KDAL node",
+   "change": "base 0x10003000, SPI 1 edge",
+   "spec": [
+    "kdal",
+    "0x10003000",
+    "0x1000",
+    "0 1 1"
+   ]
+  },
+  {
+   "name": "S04",
+   "index": 33,
+   "node": "KDAL node",
+   "change": "base 0x10003000, SPI 2",
+   "spec": [
+    "kdal",
+    "0x10003000",
+    "0x1000",
+    "0 2 4"
+   ]
+  },
+  {
+   "name": "S05",
+   "index": 57,
+   "node": "memory node",
+   "change": "base 0x40100000, size 0x1f000000",
+   "spec": [
+    "mem",
+    1074790400,
+    520093696
+   ]
+  },
+  {
+   "name": "S06",
+   "index": 66,
+   "node": "timer node",
+   "change": "secure PPI 9, virtual PPI 10",
+   "spec": [
+    "timer",
+    [
+     9,
+     14,
+     10,
+     10
+    ]
+   ]
+  },
+  {
+   "name": "S07",
+   "index": 51,
+   "node": "KDAL node",
+   "change": "size 0x2000, SPI 1 edge",
+   "spec": [
+    "kdal",
+    "0x09000000",
+    "0x2000",
+    "0 1 1"
+   ]
+  },
+  {
+   "name": "S08",
+   "index": 0,
+   "node": "KDAL node",
+   "change": "base 0x09000800, size 0x800",
+   "spec": [
+    "kdal",
+    "0x09000800",
+    "0x800",
+    "0 1 4"
+   ]
+  },
+  {
+   "name": "S09",
+   "index": 10,
+   "node": "KDAL node",
+   "change": "base 0x10000000, size 0x2000",
+   "spec": [
+    "kdal",
+    "0x10000000",
+    "0x2000",
+    "0 1 4"
+   ]
+  },
+  {
+   "name": "S10",
+   "index": 5,
+   "node": "KDAL node",
+   "change": "base 0x09010000, size 0x1001",
+   "spec": [
+    "kdal",
+    "0x09010000",
+    "0x1001",
+    "0 1 4"
+   ]
+  },
+  {
+   "name": "S11",
+   "index": 67,
+   "node": "timer node",
+   "change": "secure PPI 9, virtual PPI 12",
+   "spec": [
+    "timer",
+    [
+     9,
+     14,
+     12,
+     10
+    ]
+   ]
+  },
+  {
+   "name": "S12",
+   "index": 68,
+   "node": "timer node",
+   "change": "secure PPI 9, virtual PPI 15",
+   "spec": [
+    "timer",
+    [
+     9,
+     14,
+     15,
+     10
+    ]
+   ]
+  }
+ ]
+}
