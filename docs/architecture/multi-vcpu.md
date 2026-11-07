@@ -1,10 +1,11 @@
 # Multi-vCPU partitions: design (committed work since G2)
 
 **Status:** design, owner-approved to start 2026-11-07 (G2 promoted
-multi-vCPU partitions to committed work, Linux SMP first). Nothing here
-is implemented yet. Labels: **[F]** fact from our code or records, **[I]**
-inference, **[P]** proposal. Expectations for the first runs:
-`../methodology/stage2/20261108-multi-vcpu/README.md`.
+multi-vCPU partitions to committed work, Linux SMP first). SMP0 and SMP1
+implemented 2026-11-08 (haven `88cd9e0`, `a27dc96`); where the code
+differs from this design, section 7 says so. Labels: **[F]** fact from our
+code or records, **[I]** inference, **[P]** proposal. Expectations and
+results: `../methodology/stage2/20261108-multi-vcpu/README.md`.
 
 ## 1. Why
 
@@ -71,3 +72,29 @@ separately from read-back as before.
 3. **SMP2:** read-back v12 and seeded faults.
 4. Later: more vCPUs, then the board layout (8 for Linux, 2 to 4 for the
    real-time partition), which also needs the board's CPU map.
+
+## 7. As implemented (SMP0, SMP1) [F]
+
+Built only with `-DHAVEN_PART_A_VCPUS=2` and a Linux guest; the default
+(1) keeps the one-vCPU code paths. Differences from sections 3 to 5:
+
+- **Emulated GIC not split.** `struct hv_vgic` is unchanged (read-back's
+  offset check still holds). Each vCPU has its own model; the
+  distributor region of both CPUs is served by vCPU 0's model, so SPI
+  state lives there once, and each vCPU's redistributor frame by its own
+  model. Both CPUs map both frames (Linux scans them for its affinity);
+  GICR_TYPER.Last is set on the last frame only. One spinlock serialises
+  all accesses to these models. Read-back needs no new symbols for this.
+- **CPU_OFF** parks the CPU at EL2 and marks the vCPU OFF, but leaves
+  `cpu_partition` as it was (as the other stop paths do), and a second
+  CPU_ON for that vCPU fails with INTERNAL_FAILURE: the CPU was parked,
+  not switched off through the firmware, so it cannot be started again.
+- **CPU_ON** also checks that the entry address lies in partition A's
+  RAM (INVALID_ADDRESS otherwise).
+- **Requests between CPUs** use HAVEN's physical SGI 1 and a per-CPU
+  request word (bits 0 to 15: virtual SGIs; bit 31: stop). An SGI to a
+  vCPU that has it disabled is dropped (GICv3 would keep it pending); one
+  that finds no free list register waits for the next physical interrupt
+  on that CPU.
+- **Trusted code:** +425 code lines measured (6,762 to 7,187), against
+  the estimate of about 250 in section 5.
