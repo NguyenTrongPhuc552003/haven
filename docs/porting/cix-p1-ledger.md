@@ -138,6 +138,17 @@ which reads at a breakpoint through QEMU's GDB stub. Reference facts:
   UART J135. Reference observation from one photo; a retail board may
   differ.
 
+- A web search summary the owner found (2026-11-07, query `orange pi 6
+  plus jtag port`) says JTAG on the CD8180 is "locked down or restricted
+  by default". Its cited sources were checked: the Hacker News review
+  thread mentions SWD/JTAG being disabled only for a different board (an
+  Nvidia Jetson Orin Nano) and says nothing about debug on the CIX P1; the
+  `visorcraft/orange-pi-6-plus-gpu` repository does not mention JTAG (only
+  a power register that EL1 cannot write); the Orange Pi product page
+  could not be fetched (robots exclusion); the two YouTube shorts were not
+  checked. So the claim is **not supported by its sources**, and whether
+  CIX P1 debug is locked stays open.
+
 Inference: the board has a JTAG port wired to the SoC, but the header is
 not fitted on the board in the vendor photo: using it means soldering a
 2x5 surface-mount header (PH0205-100TM-SM-H10) and the pull-ups the note
