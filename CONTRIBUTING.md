@@ -7,6 +7,11 @@ Thanks for contributing to haven.
 - Open an issue describing motivation and scope.
 - Submit pull requests with clear commit history.
 - Keep changes focused and include tests/documentation updates.
+- `main` is protected: changes reach it only through a pull request whose
+  CI checks all pass (host unit tests on Linux, macOS and Windows; ARM64
+  build and QEMU boot). Nobody can push to it directly or force-push, and
+  nobody bypasses the rule. Pull requests are merged with a merge commit,
+  so commit hashes cited in the research records stay valid.
 
 ## Sign-off
 
