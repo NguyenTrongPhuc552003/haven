@@ -69,8 +69,17 @@ timestamp and `psci:` prefix), printed by CPU 0 at the moment CPU 1's
 HAVEN printed its report (observation); the lock cannot stop a guest
 writing to a UART it owns.
 
-Consequence for the console policy (inference): whole lines from both
-HAVEN and Linux need separate UARTs, which is the board plan already
-(UART3 for HAVEN, G2); in QEMU's `virt` machine only one PL011 is given to
-Normal world, so the shared UART stays in the QEMU runs, and run scripts
-must keep matching HAVEN lines loosely when both CPUs print.
+Consequence for the console policy: whole lines from both HAVEN and
+Linux need separate UARTs, which is the board plan already (UART3 for
+HAVEN, G2). This paragraph first said that QEMU's `virt` machine gives
+Normal world only one PL011; that was wrong (corrected the same day,
+before any further run). QEMU's documentation says `virt` has "Either one
+or two PL011 UARTs for the NonSecure World", the second only when a
+second `-serial` is given and TrustZone emulation is off
+(https://www.qemu.org/docs/master/system/arm/virt). Observed with the local
+QEMU 11.1.3 (`dumpdtb` with two `-serial` options): the second PL011 is at
+0x09040000 with SPI 8 (INTID 40). So HAVEN's own console could move to
+that UART in QEMU too, as on the board (proposal, not done: it changes
+the setup every run script and CI check reads, and CI's older Ubuntu
+QEMU may not have the second UART). Until then, run scripts must keep
+matching HAVEN lines loosely when both CPUs print.
