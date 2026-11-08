@@ -206,6 +206,35 @@ static void test_sgi_targets(void)
 	printf("[PASS] SGIs between vCPUs, redistributor Last bit\n");
 }
 
+/* SMP3: an SGI for a vCPU that has it disabled stays pending (GICv3) and
+ * is delivered once, when that vCPU enables it. */
+static void test_sgi_pending(void)
+{
+	static struct hv_vgic a, b;
+	struct hv_vgic *peers[2] = {&a, &b};
+	hv_u32 intid = 99U;
+
+	hv_vgic_init(&a, 4, 0x80000000ULL, &hooks);
+	hv_vgic_init(&b, 5, 0x80000001ULL, &hooks);
+	/* SGI 6 to vCPU 1, which has it disabled: addressed, not targeted */
+	assert(hv_vgic_sgi_addressed(&a, (6ULL << 24) | 2U, peers, 2, &intid) ==
+		       2U &&
+	       intid == 6U);
+	assert(hv_vgic_sgi_targets(&a, (6ULL << 24) | 2U, peers, 2, &intid) ==
+	       0U);
+	assert(hv_vgic_sgi_hold(&b, 6U) == 0U); /* kept pending */
+	assert(hv_vgic_sgi_take(&b) == 0U); /* still disabled */
+	wr(R, &b, SGI + 0x0100, 4, 1U << 6); /* vCPU 1 enables SGI 6 */
+	assert(hv_vgic_sgi_take(&b) == (1U << 6)); /* delivered once */
+	assert(hv_vgic_sgi_take(&b) == 0U);
+	/* A hold on an SGI that is enabled returns it at once */
+	assert(hv_vgic_sgi_hold(&b, 6U) == (1U << 6));
+	assert(hv_vgic_sgi_take(&b) == 0U);
+	/* Only SGIs: an INTID of 16 or more is never held */
+	assert(hv_vgic_sgi_hold(&b, 27U) == 0U);
+	printf("[PASS] disabled SGI kept pending, delivered once on enable\n");
+}
+
 int main(void)
 {
 	static struct hv_vgic v;
@@ -217,6 +246,7 @@ int main(void)
 	test_sgi(&v);
 	test_affinity();
 	test_sgi_targets();
+	test_sgi_pending();
 	printf("test_vgic: all passed\n");
 	return 0;
 }

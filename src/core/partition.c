@@ -443,20 +443,25 @@ static void part_a_hw_enable(hv_u32 cpu, hv_u32 intid, int on)
 
 #if HAVEN_PART_A_VCPUS > 1
 #include <haven/psci.h>
+#include <haven/sysreg_trap.h>
 
 #define PART_A_READY_US 100000U /* vCPU's CPU ready deadline after CPU_ON */
 #define PART_A_STOP_US 100000U /* deadline for the other vCPUs to stop */
+#define PART_A_ON_RETRIES 50U /* firmware CPU_ON retries on ALREADY_ON */
+#define PART_A_ON_RETRY_US 2000U
 
 extern void hv_spin_lock(volatile uint32_t *lock);
 extern void hv_spin_unlock(volatile uint32_t *lock);
 extern int hv_arch_stop_cpu(uint32_t cpu, uint64_t timeout_us);
+extern int hv_arch_cpu_prepare_start(uint32_t cpu, uint64_t timeout_us);
+extern void hv_arch_cpu_off_self(uint32_t cpu);
+extern void hv_arch_delay_us(uint64_t us);
 
 static struct hv_vgic *const part_a_peers[HAVEN_PART_A_VCPUS] = {
 	&part_a_vgic[0], &part_a_vgic[1]};
 static struct hv_psci_vcpus part_a_vcpus;
 static hv_u64 part_a_entry[HAVEN_PART_A_VCPUS];
 static hv_u64 part_a_context[HAVEN_PART_A_VCPUS];
-static hv_u32 part_a_started; /* bit i: vCPU i was started once */
 static volatile uint32_t part_a_gic_lock;
 
 /* Both vCPUs reach the distributor model and every redistributor frame
@@ -481,6 +486,10 @@ static int part_a_gicr(void *ctx, hv_u64 off, hv_u32 size, int write,
 	hv_spin_lock(&part_a_gic_lock);
 	r = hv_vgic_gicr_access(ctx, off, size, write, val);
 	hv_spin_unlock(&part_a_gic_lock);
+	/* SMP3: SGIs that were pending while disabled, now enabled */
+	if (write)
+		hv_vgic_deliver_sgis(hv_vgic_for_cpu(hv_arch_cpu_id()), ctx,
+				     hv_vgic_sgi_take(ctx));
 	return r;
 }
 #define PART_A_GICD part_a_gicd
@@ -541,29 +550,38 @@ int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
 {
 	extern void hv_printk(const char *fmt, ...);
 	hv_u32 cpu;
+	int rc;
+	unsigned tries;
 
 	if (index == 0U || index >= HAVEN_PART_A_VCPUS)
 		return HV_PSCI_INTERNAL_FAILURE;
 	cpu = part_a_cpu[index]; /* static pinning */
 	if (entry < PART_A_IPA_BASE || entry >= PART_A_IPA_BASE + PART_A_SIZE)
 		return HV_PSCI_INVALID_ADDRESS;
-	if ((part_a_started & (1U << index)) != 0U) {
-		hv_printk("HAVEN: vCPU %u: a start after CPU_OFF is not "
-			  "supported\n",
-			  (unsigned)index);
-		return HV_PSCI_INTERNAL_FAILURE;
-	}
 	if (hv_arch_logical_mpidr(cpu) == HV_ARCH_NO_CPU) {
 		hv_printk("HAVEN: no CPU %u in the CPU map - vCPU %u not "
 			  "started\n",
 			  (unsigned)cpu, (unsigned)index);
 		return HV_PSCI_INTERNAL_FAILURE;
 	}
-	part_a_started |= 1U << index;
+	/* SMP3: the CPU may have been switched off after a CPU_OFF; its
+	 * state word must say so before it is started again. */
+	if (!hv_arch_cpu_prepare_start(cpu, PART_A_READY_US)) {
+		hv_printk("HAVEN: CPU %u is not off - vCPU %u not started\n",
+			  (unsigned)cpu, (unsigned)index);
+		return HV_PSCI_INTERNAL_FAILURE;
+	}
 	part_a_entry[index] = entry;
 	part_a_context[index] = context;
-	if (hv_arch_psci_cpu_on(hv_arch_logical_mpidr(cpu),
-				(uintptr_t)secondary_entry) != 0) {
+	/* The firmware may still be switching it off: ALREADY_ON, retry. */
+	for (tries = 0;; tries++) {
+		rc = hv_arch_psci_cpu_on(hv_arch_logical_mpidr(cpu),
+					 (uintptr_t)secondary_entry);
+		if (rc != HV_PSCI_ALREADY_ON || tries >= PART_A_ON_RETRIES)
+			break;
+		hv_arch_delay_us(PART_A_ON_RETRY_US);
+	}
+	if (rc != 0) {
 		hv_printk("HAVEN: PSCI CPU_ON failed for CPU %u - vCPU %u not "
 			  "started\n",
 			  (unsigned)cpu, (unsigned)index);
@@ -581,6 +599,18 @@ int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
 		  "0x%lx\n",
 		  (unsigned)cpu, (unsigned)index, (unsigned long)entry);
 	return 0;
+}
+
+/* SMP3: the vCPU on `cpu` called CPU_OFF (its table entry is already OFF):
+ * the CPU runs no partition from here and is switched off through the
+ * firmware, so a later CPU_ON can start it again. Returns only if the
+ * firmware refused. */
+void hv_partition_vcpu_off(hv_u32 cpu)
+{
+	if (part_a_index(cpu) <= 0)
+		return;
+	hv_arch_set_cpu_partition(cpu, 0U);
+	hv_arch_cpu_off_self(cpu);
 }
 
 /* Stop the other running vCPUs of the partition on `cpu`, before that

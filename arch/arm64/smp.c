@@ -67,3 +67,50 @@ int hv_arch_cpu_report_ready(uint32_t cpu)
 		__asm__ volatile("wfe" ::: "memory");
 	return answer == HV_CPU_GO;
 }
+
+/* -----------------------------------------------------------------------
+ * Switching a secondary off and on again (multi-vCPU SMP3).
+ * ----------------------------------------------------------------------- */
+extern volatile uint64_t secondary_entry_addrs[];
+extern int hv_arch_psci_cpu_off(void);
+extern void hv_arch_cpu_requests_reset(uint32_t cpu);
+
+void hv_arch_delay_us(uint64_t us)
+{
+	uint64_t ticks = (read_sysreg(cntfrq_el0) / 1000000U) * us;
+	uint64_t start = counter();
+
+	while (counter() - start < ticks)
+		;
+}
+
+/* The calling secondary leaves HAVEN: its request word, mailbox and state
+ * word are reset (it writes its own state word), then the firmware
+ * switches it off. Returns only if the firmware refused. */
+void hv_arch_cpu_off_self(uint32_t cpu)
+{
+	if (cpu == 0U || cpu >= HV_MAX_CPUS)
+		return;
+	hv_arch_cpu_requests_reset(cpu);
+	secondary_entry_addrs[cpu] = ~0ULL;
+	__atomic_store_n(&hv_cpu_state[cpu], HV_CPU_OFF, __ATOMIC_RELEASE);
+	__asm__ volatile("dsb ish" ::: "memory");
+	(void)hv_arch_psci_cpu_off();
+}
+
+/* Primary, before switching `cpu` on (again): wait up to timeout_us for its
+ * state word to say OFF, then reset the answer word. 1 if it may start. */
+int hv_arch_cpu_prepare_start(uint32_t cpu, uint64_t timeout_us)
+{
+	uint64_t ticks = (read_sysreg(cntfrq_el0) / 1000000U) * timeout_us;
+	uint64_t start = counter();
+
+	if (cpu == 0U || cpu >= HV_MAX_CPUS || cpu >= hv_cpu_count)
+		return 0;
+	while (__atomic_load_n(&hv_cpu_state[cpu], __ATOMIC_ACQUIRE) !=
+	       HV_CPU_OFF)
+		if (counter() - start >= ticks)
+			return 0;
+	__atomic_store_n(&hv_cpu_go[cpu], HV_CPU_WAIT, __ATOMIC_RELEASE);
+	return 1;
+}

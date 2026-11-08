@@ -153,6 +153,13 @@ static void test_vcpus(void)
 	(void)vcall(&v, 0x80000001ULL, HV_PSCI_CPU_OFF, 0, 0, &a, &idx);
 	assert(a == HV_PSCI_STOP_VCPU && idx == 1U &&
 	       v.state[1] == HV_VCPU_OFF);
+	/* SMP3: a vCPU that went off through CPU_OFF can be started again */
+	idx = 99U;
+	assert(code(vcall(&v, 0x80000000ULL, HV_PSCI_CPU_ON_64, 1,
+			  0x40080000ULL, &a, &idx)) == HV_PSCI_SUCCESS);
+	assert(a == HV_PSCI_START_VCPU && idx == 1U &&
+	       v.state[1] == HV_VCPU_ON_PENDING);
+	v.state[1] = HV_VCPU_ON;
 	/* SYSTEM_OFF stops the partition, as before */
 	(void)vcall(&v, 0x80000000ULL, HV_PSCI_SYSTEM_OFF, 0, 0, &a, &idx);
 	assert(a == HV_PSCI_STOP_OFF);

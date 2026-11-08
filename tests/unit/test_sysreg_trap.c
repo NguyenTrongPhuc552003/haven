@@ -138,12 +138,39 @@ static void test_cross_cpu_sgi(void)
 	printf("[PASS] SGI for another vCPU posted to its CPU\n");
 }
 
+/* SMP3: an SGI for the other vCPU, which has it disabled, is not posted;
+ * it stays pending in that vCPU's model until the vCPU enables it. */
+static void test_pending_cross_cpu_sgi(void)
+{
+	static struct hv_vgic v0, v1;
+	struct hv_vgic *peers[2] = {&v0, &v1};
+	hv_u64 en = 1U << 4;
+	int before;
+
+	hv_vgic_init(&v0, 0, 0x80000000ULL, &hooks);
+	hv_vgic_init(&v1, 1, 0x80000001ULL, &hooks);
+	hv_vgic_set_peers(peers, 2U);
+	assert(hv_vgic_gicr_access(&v0, 0x10000U + 0x0100U, 4, 1, &en) == 0);
+	before = post_calls;
+	inject_calls = 0;
+	frame[HV_FRAME_ELR] = 0x4000;
+	frame[6] = (4ULL << 24) | 2U; /* SGI 4 to Aff0 1, disabled there */
+	hv_handle_sysreg_trap(esr(3, 0, 12, 11, 5, 6, 0), frame, 0);
+	assert(post_calls == before && inject_calls == 0);
+	assert(frame[HV_FRAME_ELR] == 0x4004);
+	assert(hv_vgic_gicr_access(&v1, 0x10000U + 0x0100U, 4, 1, &en) == 0);
+	assert(hv_vgic_sgi_take(&v1) == (1U << 4));
+	hv_vgic_set_peers(NULL, 0U);
+	printf("[PASS] SGI for a vCPU with it disabled kept pending\n");
+}
+
 int main(void)
 {
 	test_self_sgi();
 	test_read_as_zero();
 	test_log_cap();
 	test_cross_cpu_sgi();
+	test_pending_cross_cpu_sgi();
 	printf("test_sysreg_trap: all passed\n");
 	return 0;
 }

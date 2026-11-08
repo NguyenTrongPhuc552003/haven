@@ -44,6 +44,7 @@ struct hv_vgic {
 	hv_u8 prio[HV_VGIC_NR_IRQS];
 	hv_u64 irouter[HV_VGIC_NR_IRQS];
 	hv_u32 last_frame; /* GICR_TYPER.Last: the last redistributor frame */
+	hv_u32 sgi_pending; /* SGIs sent while disabled here (bit = SGI) */
 };
 
 /** Reset the model for the vCPU on `cpu` and physically disable every
@@ -76,6 +77,22 @@ struct hv_vgic *const *hv_vgic_peers(const struct hv_vgic *v, hv_u32 *n);
 hv_u32 hv_vgic_sgi_targets(const struct hv_vgic *sender, hv_u64 value,
 			   struct hv_vgic *const *peers, hv_u32 n,
 			   hv_u32 *intid);
+
+/** As hv_vgic_sgi_targets, but every vCPU the write addresses, whether
+ * it has the SGI enabled or not. */
+hv_u32 hv_vgic_sgi_addressed(const struct hv_vgic *sender, hv_u64 value,
+			     struct hv_vgic *const *peers, hv_u32 n,
+			     hv_u32 *intid);
+
+/** SGI `intid` for `v` while v has it disabled: kept pending, as GICv3
+ * does. Returns the SGIs of v that are pending and enabled now (taken,
+ * for the caller to deliver; 0 if none). Safe against a concurrent
+ * enable on another CPU (sequentially consistent atomics). */
+hv_u32 hv_vgic_sgi_hold(struct hv_vgic *v, hv_u32 intid);
+
+/** The SGIs of v that are pending and enabled, removed from the pending
+ * set: call after v may have enabled SGIs, then deliver them. */
+hv_u32 hv_vgic_sgi_take(struct hv_vgic *v);
 
 /** Model registered for `cpu`, or NULL. */
 struct hv_vgic *hv_vgic_for_cpu(hv_u32 cpu);

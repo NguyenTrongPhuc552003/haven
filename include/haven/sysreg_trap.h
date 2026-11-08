@@ -17,4 +17,12 @@
  * advanced past the instruction. Arch-neutral, so host tests run it. */
 void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu);
 
+struct hv_vgic;
+
+/** SGIs `ready` (bit = SGI) for vCPU t, sent from the vCPU on this CPU
+ * (`here`, NULL if none): injected locally when t is that vCPU, else
+ * posted to t's CPU (multi-vCPU partitions). */
+void hv_vgic_deliver_sgis(const struct hv_vgic *here, const struct hv_vgic *t,
+			  hv_u32 ready);
+
 #endif /* HAVEN_SYSREG_TRAP_H */

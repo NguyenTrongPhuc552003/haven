@@ -310,9 +310,9 @@ struct hv_vgic *const *hv_vgic_peers(const struct hv_vgic *v, hv_u32 *n)
 	return NULL;
 }
 
-hv_u32 hv_vgic_sgi_targets(const struct hv_vgic *sender, hv_u64 value,
-			   struct hv_vgic *const *peers, hv_u32 n,
-			   hv_u32 *intid)
+hv_u32 hv_vgic_sgi_addressed(const struct hv_vgic *sender, hv_u64 value,
+			     struct hv_vgic *const *peers, hv_u32 n,
+			     hv_u32 *intid)
 {
 	hv_u32 id = (hv_u32)((value >> 24) & 0xFU);
 	hv_u64 aff123 = ((value >> 16) & 0xFFU) | /* Aff1 */
@@ -335,8 +335,44 @@ hv_u32 hv_vgic_sgi_targets(const struct hv_vgic *sender, hv_u64 value,
 			   ((value >> (aff0 % 16U)) & 1U) == 0U) {
 			continue;
 		}
-		if ((t->enabled[0] & (1U << id)) != 0U)
-			mask |= 1U << i;
+		mask |= 1U << i;
 	}
 	return mask;
+}
+
+hv_u32 hv_vgic_sgi_targets(const struct hv_vgic *sender, hv_u64 value,
+			   struct hv_vgic *const *peers, hv_u32 n,
+			   hv_u32 *intid)
+{
+	hv_u32 mask = hv_vgic_sgi_addressed(sender, value, peers, n, intid);
+
+	for (hv_u32 i = 0; i < n && i < 32U; i++)
+		if ((peers[i]->enabled[0] & (1U << *intid)) == 0U)
+			mask &= ~(1U << i);
+	return mask;
+}
+
+/* Pending SGIs (SMP3): the sender sets the bit and then looks at the
+ * enable; the vCPU that enables an SGI takes the pending ones after its
+ * write. With sequentially consistent ordering at least one side sees
+ * the other's write, and the atomic take delivers each SGI once. */
+hv_u32 hv_vgic_sgi_take(struct hv_vgic *v)
+{
+	hv_u32 ready;
+
+	__atomic_thread_fence(__ATOMIC_SEQ_CST);
+	ready = __atomic_load_n(&v->sgi_pending, __ATOMIC_RELAXED) &
+		__atomic_load_n(&v->enabled[0], __ATOMIC_RELAXED) & 0xFFFFU;
+	if (ready == 0U)
+		return 0U;
+	return __atomic_fetch_and(&v->sgi_pending, ~ready, __ATOMIC_SEQ_CST) &
+	       ready;
+}
+
+hv_u32 hv_vgic_sgi_hold(struct hv_vgic *v, hv_u32 intid)
+{
+	if (intid >= 16U)
+		return 0U;
+	__atomic_fetch_or(&v->sgi_pending, 1U << intid, __ATOMIC_SEQ_CST);
+	return hv_vgic_sgi_take(v);
 }

@@ -336,6 +336,7 @@ extern struct hv_psci_vcpus *hv_partition_vcpus(hv_u32 cpu)
 extern int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
 	__attribute__((weak));
 extern void hv_partition_stop_vcpus(hv_u32 cpu) __attribute__((weak));
+extern void hv_partition_vcpu_off(hv_u32 cpu) __attribute__((weak));
 extern void hv_spin_lock(volatile uint32_t *lock);
 extern void hv_spin_unlock(volatile uint32_t *lock);
 static volatile uint32_t psci_vcpus_lock;
@@ -381,15 +382,21 @@ static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
 			  (unsigned)hv_arch_cpu_id());
 
 	if (action == HV_PSCI_STOP_VCPU) {
-		/* One vCPU of several switched itself off: park its CPU; the
-		 * partition's other vCPUs keep running. */
+		/* One vCPU of several switched itself off (SMP3): its CPU is
+		 * switched off through the firmware and can be started again
+		 * by a later CPU_ON; the partition's other vCPUs keep running. */
 		if (hv_arch_irq_report != NULL)
 			hv_arch_irq_report(cpu);
 		if (hv_printk)
 			hv_printk(
 				"HAVEN: vCPU %u stopped by PSCI CPU_OFF; CPU %u "
-				"parked\n",
+				"switched off\n",
 				(unsigned)index, (unsigned)cpu);
+		if (hv_partition_vcpu_off != NULL)
+			hv_partition_vcpu_off(cpu);
+		if (hv_printk)
+			hv_printk("HAVEN: CPU %u not switched off; parked\n",
+				  (unsigned)cpu);
 		for (;;) {
 			__asm__ volatile("wfe");
 		}

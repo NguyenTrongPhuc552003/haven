@@ -414,6 +414,15 @@ int hv_arch_stop_cpu(uint32_t cpu, uint64_t timeout_us)
 	return 0;
 }
 
+/* A CPU leaving HAVEN (CPU_OFF, SMP3): no stale request on its return. */
+void hv_arch_cpu_requests_reset(uint32_t cpu)
+{
+	if (cpu >= HV_ARCH_IRQ_MAX_CPUS)
+		return;
+	__atomic_store_n(&cpu_requests[cpu], 0U, __ATOMIC_RELEASE);
+	__atomic_store_n(&cpu_stopped[cpu], 0U, __ATOMIC_RELEASE);
+}
+
 /* Take this CPU's requests: queue the virtual SGIs, or stop. */
 static void take_requests(uint32_t here)
 {

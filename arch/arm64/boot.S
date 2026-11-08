@@ -265,6 +265,27 @@ hv_arch_psci_cpu_on:
 
         .size hv_arch_psci_cpu_on, . - hv_arch_psci_cpu_on
 
+/* -----------------------------------------------------------------------
+ * hv_arch_psci_cpu_off - switch the calling CPU off through the firmware
+ * (PSCI CPU_OFF, 0x84000002, same conduit as CPU_ON; multi-vCPU SMP3).
+ * Does not return on success; returns the PSCI error code otherwise.
+ * ----------------------------------------------------------------------- */
+        .global hv_arch_psci_cpu_off
+        .align  3
+hv_arch_psci_cpu_off:
+        mov     x0, #0x0002
+        movk    x0, #0x8400, lsl #16
+#if defined(HAVEN_PSCI_CONDUIT_NONE)
+        mov     x0, #-1
+#elif defined(HAVEN_PSCI_CONDUIT_SMC)
+        smc     #0
+#elif defined(HAVEN_PSCI_CONDUIT_HVC)
+        hvc     #0
+#endif
+        ret
+
+        .size hv_arch_psci_cpu_off, . - hv_arch_psci_cpu_off
+
 
 /* -----------------------------------------------------------------------
  * Error paths

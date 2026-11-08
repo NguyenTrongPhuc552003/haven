@@ -29,6 +29,22 @@ extern void hv_arch_post_virtual_sgi(uint32_t cpu, uint32_t intid)
 #define SYSREG_KEY_MASK 0x3FFC1EU
 #define SYSREG_ICC_SGI1R SYSREG_KEY(3, 0, 12, 11, 5)
 
+/* SGIs `ready` (bit = SGI) for vCPU t, sent from vCPU `here`: injected
+ * locally when t is the vCPU on this CPU, else posted to t's CPU. */
+void hv_vgic_deliver_sgis(const struct hv_vgic *here, const struct hv_vgic *t,
+			  hv_u32 ready)
+{
+	for (hv_u32 id = 0; id < 16U; id++) {
+		if ((ready & (1U << id)) == 0U)
+			continue;
+		if (t == here && hv_arch_inject_virtual_irq != NULL)
+			(void)hv_arch_inject_virtual_irq(id,
+							 HV_VIRT_IRQ_PRIORITY);
+		else if (t != here && hv_arch_post_virtual_sgi != NULL)
+			hv_arch_post_virtual_sgi(t->cpu, id);
+	}
+}
+
 void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu)
 {
 	static unsigned logged;
@@ -44,19 +60,21 @@ void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu)
 
 		peers = v ? hv_vgic_peers(v, &n) : NULL;
 		if (peers != NULL) { /* a vCPU of several (multi-vcpu.md) */
-			mask = hv_vgic_sgi_targets(v, hv_frame_get(frame, rt),
-						   peers, n, &sgi_id);
+			mask = hv_vgic_sgi_addressed(v, hv_frame_get(frame, rt),
+						     peers, n, &sgi_id);
 			for (hv_u32 i = 0; i < n; i++) {
+				hv_u32 ready;
+
 				if ((mask & (1U << i)) == 0U)
 					continue;
-				if (peers[i] == v &&
-				    hv_arch_inject_virtual_irq != NULL)
-					(void)hv_arch_inject_virtual_irq(
-						sgi_id, HV_VIRT_IRQ_PRIORITY);
-				else if (peers[i] != v &&
-					 hv_arch_post_virtual_sgi != NULL)
-					hv_arch_post_virtual_sgi(peers[i]->cpu,
+				/* Disabled there: kept pending (SMP3) */
+				ready = (__atomic_load_n(&peers[i]->enabled[0],
+							 __ATOMIC_RELAXED) &
+					 (1U << sgi_id)) != 0U ?
+						(1U << sgi_id) :
+						hv_vgic_sgi_hold(peers[i],
 								 sgi_id);
+				hv_vgic_deliver_sgis(v, peers[i], ready);
 			}
 		} else {
 			sgi = v ? hv_vgic_sgi(v, hv_frame_get(frame, rt)) : -1;
