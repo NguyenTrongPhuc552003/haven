@@ -124,3 +124,56 @@ SMP2 expectation amended (Claude, before any SMP2 code):
 | Run | Expected |
 | - | - |
 | Entry breakpoint, SMP grant with `cpus_on_request` CPU 1 | matches; CPU 1 "waiting for the guest", **and its HAVEN PPI 26 "waiting for the guest" too** (was: CPU 1 only) |
+
+## SMP2 design and final expectations (Claude, 2026-11-08, before any SMP2 code)
+
+### Read-back v12 rule
+
+The grant's `gic` section may list `cpus_on_request`: CPUs that HAVEN
+starts only when the partition's guest calls PSCI CPU_ON. Read-back v12
+reads HAVEN's vCPU table for partition 1 (symbol `part_a_vcpus`,
+`struct hv_psci_vcpus`: count, guest MPIDRs, states; offsets asserted at
+compile time as for `hv_vgic.enabled`). A CPU in `cpus_on_request` that
+runs no partition is **waiting for the guest** (information, not a
+finding) only while the partition still has at least as many vCPUs in
+state OFF as it has such idle on-request CPUs; otherwise it is CPU
+assignment drift as in v10. Without the table, or for a CPU not in the
+list, v10's rule applies unchanged. On a waiting CPU, the partition's
+granted PPIs and HAVEN's own PPIs may be off (information). The rule uses
+no mapping from vCPU to physical CPU, so it cannot tell which CPU a vCPU
+should be on; the CPU table (v10) does that.
+
+### HAVEN change needed by the fault design
+
+Today the physical CPU of vCPU 1 and its guest identity are the same
+number. SMP2 separates them: `PART_A_CPU1` (default 1) is the physical
+CPU vCPU 1 is pinned to; vCPU 1's guest MPIDR stays that of logical CPU 1
+(the device tree's `reg = <0x1>`), and HAVEN writes it to VMPIDR_EL2 when
+it starts the vCPU. Everything physical about vCPU 1 follows
+`PART_A_CPU1`: the CPU switched on, its MMIO regions, its virtual timer
+PPI 27, its GIC model's hardware CPU, its budget.
+
+### Faults
+
+- **F-CPU3** (one-line patch, `PART_A_CPU1` from 1 to 3): HAVEN's own
+  configuration pins vCPU 1 to CPU 3 while the grant gives CPU 1. Linux
+  cannot notice (its vCPU 1 still has MPIDR 1). This replaces the earlier
+  row's wording ("vCPU 1 started on physical CPU 3", two findings), which
+  had no concrete design yet.
+- **F-SGI** (patch in `sysreg_trap.c`): an SGI for the other vCPU is
+  injected into the sending vCPU instead of being posted to its CPU.
+- **F-REFUSE** (patch in `partition.c`: the start returns
+  INTERNAL_FAILURE without starting anything): HAVEN refuses the guest's
+  CPU_ON. Added to test a predicted blind spot of the v12 rule.
+
+### Expectations
+
+| Run | Grant, read at | Expected |
+| - | - | - |
+| V1 | `grant-smp-v12.json` (`grant-smp.json` plus `cpus_on_request: [1]`), entry breakpoint | matches; CPU 1 waiting for the guest; its PPIs 26 and 27 waiting |
+| V2 | same, `KDAL-DEMAND-END` | matches; CPU table 1/1, 1/1, 2/2, 0/0 |
+| V3 (control) | `grant-smp.json` (no `cpus_on_request`), entry breakpoint | as SMP1 R2: 2 findings (CPU 1 runs nothing; CPU 1 PPI 26 disabled) |
+| FA | F-CPU3, `grant-smp-v12.json`, `KDAL-DEMAND-END` | Linux brings up 2 CPUs and reaches the marker. **5 findings**: CPU 1 assignment drift (granted to partition 1, runs nothing; no vCPU left off); CPU 3 assignment drift (granted to no partition, runs partition 1); CPU 3 PPIs enabled without a grant (26 and 27, one finding); CPU 1 PPI 27 missing binding (no GIC model on CPU 1, so the v8 rule cannot apply); CPU 1 PPI 26 missing binding |
+| FB | F-SGI | host test `test_sysreg_trap` fails (the SMP0 cross-CPU SGI test); read-back at `KDAL-DEMAND-END`, if reached: matches (no state left behind); Linux's behaviour not predicted |
+| FC | F-REFUSE, `grant-smp-v12.json`, `KDAL-DEMAND-END` | Linux reports that CPU 1 failed to come online and still reaches the marker; read-back: **matches, CPU 1 waiting for the guest**. A predicted blind spot: a refused CPU_ON looks like a CPU the guest never asked for |
+| Unit | `tools/readback` | new tests for the v12 rule pass; all earlier read-back tests unchanged |
