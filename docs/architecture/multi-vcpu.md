@@ -1,8 +1,8 @@
 # Multi-vCPU partitions: design (committed work since G2)
 
 **Status:** design, owner-approved to start 2026-11-07 (G2 promoted
-multi-vCPU partitions to committed work, Linux SMP first). SMP0 and SMP1
-implemented 2026-11-08 (haven `88cd9e0`, `a27dc96`); where the code
+multi-vCPU partitions to committed work, Linux SMP first). SMP0 to SMP3
+implemented 2026-11-08 (haven `88cd9e0`, `a27dc96`, `1af894b`, `dab23d5`); where the code
 differs from this design, section 7 says so. Labels: **[F]** fact from our
 code or records, **[I]** inference, **[P]** proposal. Expectations and
 results: `../methodology/stage2/20261108-multi-vcpu/README.md`.
@@ -73,7 +73,7 @@ separately from read-back as before.
 4. Later: more vCPUs, then the board layout (8 for Linux, 2 to 4 for the
    real-time partition), which also needs the board's CPU map.
 
-## 7. As implemented (SMP0, SMP1) [F]
+## 7. As implemented (SMP0 to SMP3) [F]
 
 Built only with `-DHAVEN_PART_A_VCPUS=2` and a Linux guest; the default
 (1) keeps the one-vCPU code paths. Differences from sections 3 to 5:
@@ -85,16 +85,21 @@ Built only with `-DHAVEN_PART_A_VCPUS=2` and a Linux guest; the default
   model. Both CPUs map both frames (Linux scans them for its affinity);
   GICR_TYPER.Last is set on the last frame only. One spinlock serialises
   all accesses to these models. Read-back needs no new symbols for this.
-- **CPU_OFF** parks the CPU at EL2 and marks the vCPU OFF, but leaves
-  `cpu_partition` as it was (as the other stop paths do), and a second
-  CPU_ON for that vCPU fails with INTERNAL_FAILURE: the CPU was parked,
-  not switched off through the firmware, so it cannot be started again.
+- **CPU_OFF** (since SMP3) marks the vCPU OFF, sets `cpu_partition` to
+  none, resets the CPU's state, mailbox and request words and switches it
+  off through the firmware's PSCI CPU_OFF; a later CPU_ON starts it again
+  by the first path. (SMP1 parked the CPU and refused a second CPU_ON.)
+- **Pinning** (since SMP2): `PART_A_CPU1` is vCPU 1's physical CPU; its
+  guest MPIDR comes from the vCPU table and is written to VMPIDR_EL2, so
+  the two can differ.
 - **CPU_ON** also checks that the entry address lies in partition A's
   RAM (INVALID_ADDRESS otherwise).
 - **Requests between CPUs** use HAVEN's physical SGI 1 and a per-CPU
   request word (bits 0 to 15: virtual SGIs; bit 31: stop). An SGI to a
-  vCPU that has it disabled is dropped (GICv3 would keep it pending); one
-  that finds no free list register waits for the next physical interrupt
-  on that CPU.
-- **Trusted code:** +425 code lines measured (6,762 to 7,187), against
-  the estimate of about 250 in section 5.
+  vCPU that has it disabled is kept pending in that vCPU's model and
+  delivered once when it is enabled (since SMP3; SMP0 to SMP2 dropped it).
+  One that finds no free list register waits for the next physical
+  interrupt on that CPU. The one-vCPU path still drops a disabled
+  self-SGI.
+- **Trusted code:** +425 code lines for SMP0 and SMP1 (6,762 to 7,187,
+  estimate 250), +29 for SMP2, +126 for SMP3 (estimate 40): 7,342 in all.

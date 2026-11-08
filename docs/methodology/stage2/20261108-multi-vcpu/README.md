@@ -262,3 +262,37 @@ init does (load KDAL, print its demand, power off).
 | H3 | read-back v12, same grant, at `KDAL-DEMAND-END` | matches; CPU table 1/1, 1/1, 2/2, 0/0 |
 | Pending SGI in Linux | any run | not shown: Linux enables its SGIs before it marks a CPU online, so no run is expected to exercise the pending path; only the unit tests do |
 | Trusted code | `tcb-image-loc.py` | about +40 code lines (estimate) |
+
+## SMP3 results (2026-11-08, QEMU 4 CPUs cortex-a72, TCG)
+
+HAVEN `dab23d5` (code, unit tests, `hotplug-init.c` and `run_smp3.py`,
+all committed before the first SMP3 run; expectations in `9ceea6a`).
+Command: `run_smp3.py <workspace>/haven <workspace>/kdal <Linux v6.18
+Image> kdal.ko runs-smp3`, first `ONLY=H1`, then `ONLY=H2,H3` (the H1
+section of `runs-smp3/results.md` was merged back by hand). Each run is
+the first of its kind; no code changed between runs.
+
+| Step | Expected | Observed | Verdict |
+| - | - | - | - |
+| Unit `test_vgic` | pending bit set, not targeted; delivered once on enable; hold on enabled returns at once | `[PASS] disabled SGI kept pending, delivered once on enable` | as expected |
+| Unit `test_sysreg_trap` | not posted while disabled; taken after enable | `[PASS] SGI for a vCPU with it disabled kept pending` | as expected |
+| Unit `test_psci` | CPU_ON after CPU_OFF gives START_VCPU | passes | as expected |
+| Unit, all | pass | 25 of 25 host tests; 42 read-back tests; both CI QEMU checks | as expected |
+| H1 | CPU 1 offline, HAVEN switches it off; second start; online `0-1`; marker; both stopped | `HAVEN: vCPU 1 stopped by PSCI CPU_OFF; CPU 1 switched off`, Linux `psci: CPU1 killed (polled 4 ms)`, `HOTPLUG-OFF ok, online: 0`; then a second `CPU 1 ready, partition A vCPU 1 started` and `CPU1: Booted secondary processor 0x0000000001` at 3.66 s, `HOTPLUG-ON ok, online: 0-1`; `KDAL-DEMAND-END`; CPU 1 and CPU 0 stop lines at power-off | as expected |
+| H2 | matches; CPU 1 waiting | matches; `CPU 1: ... HAVEN runs partition 0 (waiting for the guest)`; PPI 27 on CPU 1 waiting (Linux disabled its timer when the CPU went offline) | as expected |
+| H3 | matches; 1/1, 1/1, 2/2, 0/0 | matches; that table | as expected |
+| Pending SGI in Linux | not shown by any run | not observable in these logs | as expected (unit tests only) |
+| Trusted code | about +40 (estimate) | 7,216 at `1af894b` to 7,342 at `dab23d5`: **+126**, about 3 times the estimate. (SMP2's pinning change, `a27dc96` to `1af894b`: +29.) | measured |
+
+All 8 judged rows held.
+
+Observations not predicted:
+- HAVEN's log lines from two CPUs interleave: CPU 1's CPU_OFF line and
+  CPU 0's AFFINITY_INFO line, printed at the same moment, are mixed
+  character by character in H1. HAVEN's printk has no lock; this is the
+  open item "HAVEN prints on the UART partition A owns, from two CPUs",
+  now seen breaking a line (read-back does not parse these lines; the
+  run scripts' patterns still matched the others).
+- On the switched-off CPU 1, HAVEN's budget timer PPI 26 stays enabled
+  in its redistributor (H2: `CPU 1 ... PPIs enabled [26]`); granted, so no
+  finding, and the CPU is off, so it cannot fire.

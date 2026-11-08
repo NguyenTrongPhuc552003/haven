@@ -1,0 +1,253 @@
+Haven hypervisor starting
+  Version: 0.6.2
+  Build:   Nov  8 2026 23:09:43
+HAVEN: EL2 stage-1 on (identity map, image Normal WB, MMIO Device)
+  CPU: PARange=4 GIC=v3 - features OK
+HAVEN: GIC virtual interface: 4 list registers
+HAVEN: launching 2-partition configuration
+HAVEN: partition A mapped PA=0x80800000 IPA=0x40000000 size=512MB + UART MMIO
+HAVEN: partition B mapped PA=0xa0800000 IPA=0x60000000 size=64MB
+HAVEN: DMA grant SID 8 -> partition 1: IOVA 0x5f000000 size 0x100000
+HAVEN: partition A boots with device tree at IPA 0x50000000
+HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)
+HAVEN: partition A GICv3 emulated (GICD 0x8000000, GICR 0x80a0000); owned interrupts wait for the guest
+HAVEN: partition A has 2 vCPUs, vCPU 1 on CPU 1; it waits for the guest's PSCI CPU_ON
+HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)
+HAVEN: budgets set  A=8ms/10ms  B=2ms/10ms
+HAVEN: enabling stage-2 for partition A (VMID=1)
+HAVEN: CPU 2 ready, partition B started (VMID=2)
+HAVEN: ERET -> partition A entry IPA=0x40000000
+HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)
+HAVEN: Denied stage-2 violation IPA=0x40000000 FAR=0x40000000 ESR=0x93c08006 cpu=2 n=1
+HAVEN: decoded: read 8 bytes, reg x0, IPA=0x40000000; reads as zero
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
+[    0.000000] Linux version 6.18.0-dirty (trongphucnguyen@Phucs-MacBook-Pro.local) (Homebrew clang version 23.1.5, Homebrew LLD 23.1.5) #1 SMP PREEMPT Wed Nov  4 21:39:14 +07 2026
+[    0.000000] KASLR disabled due to lack of seed
+[    0.000000] Machine model: linux,dummy-virt
+[    0.000000] earlycon: pl11 at MMIO 0x0000000009000000 (options '')
+[    0.000000] printk: legacy bootconsole [pl11] enabled
+[    0.000000] efi: UEFI not found.
+[    0.000000] OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+[    0.000000] NUMA: Faking a node at [mem 0x0000000040000000-0x000000005fffffff]
+[    0.000000] NODE_DATA(0) allocated [mem 0x5ff08740-0x5ff0adbf]
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000040000000-0x000000005fffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000040000000-0x000000005fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000040000000-0x000000005fffffff]
+[    0.000000] cma: Reserved 32 MiB at 0x000000005d600000
+[    0.000000] psci: probing for conduit method from DT.
+HAVEN: PSCI PSCI_VERSION fid=0x84000000 x1=0x0 -> 0x10000 cpu=0
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+HAVEN: PSCI MIGRATE_INFO_TYPE fid=0x84000006 x1=0x0 -> 0x2 cpu=0
+[    0.000000] psci: Trusted OS migration not required
+HAVEN: PSCI PSCI_FEATURES fid=0x8400000a x1=0x80000000 -> 0xffffffffffffffff cpu=0
+[    0.000000] psci: SMC Calling Convention v1.0
+HAVEN: PSCI PSCI_FEATURES fid=0x8400000a x1=0xc4000001 -> 0x0 cpu=0
+HAVEN: PSCI PSCI_FEATURES fid=0x8400000a x1=0xc400000e -> 0xffffffffffffffff cpu=0
+HAVEN: PSCI PSCI_FEATURES fid=0x8400000a x1=0xc4000012 -> 0xffffffffffffffff cpu=0
+HAVEN: PSCI PSCI_FEATURES fid=0x8400000a x1=0xc4000015 -> 0xffffffffffffffff cpu=0
+[    0.000000] percpu: Embedded 25 pages/cpu s62360 r8192 d31848 u102400
+[    0.000000] Detected PIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GICv3 CPU interface
+[    0.000000] CPU features: detected: Spectre-v2
+[    0.000000] CPU features: detected: Spectre-v3a
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: detected: Spectre-BHB
+[    0.000000] CPU features: detected: ARM erratum 1742098
+[    0.000000] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: earlycon=pl011,0x09000000 console=ttyAMA0 panic=-1 rdinit=/init
+[    0.000000] printk: log buffer data + meta data: 131072 + 458752 = 589824 bytes
+[    0.000000] Dentry cache hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.000000] software IO TLB: SWIOTLB bounce buffer size adjusted to 0MB
+[    0.000000] software IO TLB: area num 2.
+[    0.000000] software IO TLB: mapped [mem 0x000000005d580000-0x000000005d600000] (0MB)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 131072
+[    0.000000] Policy zone: DMA
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=2, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=2.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=2
+[    0.000000] RCU Tasks: Setting shift to 1 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=2.
+[    0.000000] RCU Tasks Trace: Setting shift to 1 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=2.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: 32 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: GICD_CTLR.DS=1, SCR_EL3.FIQ=0
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x00000000080a0000
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: cp15 timer running at 62.50MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0x1ffffffffffffff max_cycles: 0x1cd42e208c, max_idle_ns: 881590405314 ns
+[    0.000047] sched_clock: 57 bits at 63MHz, resolution 16ns, wraps every 4398046511096ns
+[    0.018080] Console: colour dummy device 80x25
+[    0.019835] Calibrating delay loop (skipped), value calculated using timer frequency.. 125.00 BogoMIPS (lpj=250000)
+[    0.020397] pid_max: default: 32768 minimum: 301
+[    0.032734] LSM: initializing lsm=capability
+[    0.034488] Mount-cache hash table entries: 1024 (order: 1, 8192 bytes, linear)
+[    0.034743] Mountpoint-cache hash table entries: 1024 (order: 1, 8192 bytes, linear)
+[    0.063553] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.072603] rcu: Hierarchical SRCU implementation.
+[    0.073051] rcu: 	Max phase no-delay instances is 1000.
+[    0.074527] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[    0.076450] EFI services will not be available.
+[    0.077163] smp: Bringing up secondary CPUs ...
+HAVEN: CPU 1 ready, partition A vCPU 1 started at IPA 0x41e40570
+HAVEN: PSCI CPU_ON fid=0xc4000003 x1=0x1 -> 0x0 cpu=0
+[    0.081889] Detected PIPT I-cache on CPU1
+[    0.082483] GICv3: CPU1: found redistributor 1 region 0:0x00000000080c0000
+[    0.082828] CPU1: Booted secondary processor 0x0000000001 [0x410fd083]
+[    0.085628] smp: Brought up 1 node, 2 CPUs
+[    0.086337] SMP: Total of 2 processors activated.
+[    0.086609] CPU: All CPU(s) started at EL1
+[    0.086950] CPU features: detected: 32-bit EL0 Support
+[    0.087169] CPU features: detected: 32-bit EL1 Support
+[    0.087385] CPU features: detected: CRC32 instructions
+[    0.087713] CPU features: detected: PMUv3
+[    0.091799] alternatives: applying system-wide alternatives
+[    0.110755] Memory: 429120K/524288K available (18240K kernel code, 5450K rwdata, 12628K rodata, 11136K init, 691K bss, 60364K reserved, 32768K cma-reserved)
+[    0.128856] devtmpfs: initialized
+[    0.145069] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.145794] posixtimers hash table entries: 1024 (order: 2, 16384 bytes, linear)
+[    0.146251] futex hash table entries: 512 (32768 bytes on 1 NUMA nodes, total 32 KiB, linear).
+[    0.148359] 20672 pages in range for non-PLT usage
+[    0.148421] 512192 pages in range for PLT usage
+[    0.152057] pinctrl core: initialized pinctrl subsystem
+[    0.160570] DMI not present or invalid.
+[    0.182647] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.190658] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+[    0.191766] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.192832] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.193376] audit: initializing netlink subsys (disabled)
+[    0.194996] audit: type=2000 audit(0.124:1): state=initialized audit_enabled=0 res=1
+[    0.198228] thermal_sys: Registered thermal governor 'step_wise'
+[    0.199526] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.200577] cpuidle: using governor menu
+[    0.201700] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.202341] ASID allocator initialised with 65536 entries
+[    0.206313] Serial: AMBA PL011 UART driver
+[    0.223162] 9000000.pl011: ttyAMA0 at MMIO 0x9000000 (irq = 13, base_baud = 0) is a PL011 rev1
+[    0.225411] printk: console [ttyAMA0] enabled
+[    0.225411] printk: console [ttyAMA0] enabled
+[    0.226308] printk: legacy bootconsole [pl11] disabled
+[    0.226308] printk: legacy bootconsole [pl11] disabled
+[    0.241719] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.241981] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.242006] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.242011] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.242015] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.242018] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.242024] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.242032] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.251777] ACPI: Interpreter disabled.
+[    0.254552] iommu: Default domain type: Translated
+[    0.254665] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.257205] SCSI subsystem initialized
+[    0.261978] usbcore: registered new interface driver usbfs
+[    0.262257] usbcore: registered new interface driver hub
+[    0.262374] usbcore: registered new device driver usb
+[    0.263122] pps_core: LinuxPPS API ver. 1 registered
+[    0.263194] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.263329] PTP clock support registered
+[    0.263777] EDAC MC: Ver: 3.0.0
+[    0.265135] scmi_core: SCMI protocol bus registered
+[    0.266852] FPGA manager framework
+[    0.275936] vgaarb: loaded
+[    0.279548] clocksource: Switched to clocksource arch_sys_counter
+[    0.281283] VFS: Disk quotas dquot_6.6.0
+[    0.281450] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.285816] pnp: PnP ACPI: disabled
+[    0.319760] NET: Registered PF_INET protocol family
+[    0.320717] IP idents hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.324334] tcp_listen_portaddr_hash hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    0.324485] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.324540] TCP established hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.324689] TCP bind hash table entries: 4096 (order: 5, 131072 bytes, linear)
+[    0.324856] TCP: Hash tables configured (established 4096 bind 4096)
+[    0.325559] UDP hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.325712] UDP-Lite hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.326411] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.331162] RPC: Registered named UNIX socket transport module.
+[    0.332658] RPC: Registered udp transport module.
+[    0.332675] RPC: Registered tcp transport module.
+[    0.332699] RPC: Registered tcp-with-tls transport module.
+[    0.332712] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.332793] PCI: CLS 0 bytes, default 64
+[    0.335725] Unpacking initramfs...
+[    0.336268] kvm [1]: HYP mode not available
+[    0.341276] Initialise system trusted keyrings
+[    0.343077] workingset: timestamp_bits=42 max_order=17 bucket_order=0
+[    0.344320] Freeing initrd memory: 1220K
+[    0.345324] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.347111] NFS: Registering the id_resolver key type
+[    0.347876] Key type id_resolver registered
+[    0.349063] Key type id_legacy registered
+[    0.349617] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.350024] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.351176] 9p: Installing v9fs 9p2000 file system support
+[    0.393627] Key type asymmetric registered
+[    0.394074] Asymmetric key parser 'x509' registered
+[    0.394618] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+[    0.395054] io scheduler mq-deadline registered
+[    0.395319] io scheduler kyber registered
+[    0.395768] io scheduler bfq registered
+[    0.405434] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.442104] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.448588] msm_serial: driver initialized
+[    0.449197] SuperH (H)SCI(F) driver initialized
+[    0.449293] STM32 USART driver initialized
+[    0.463823] loop: module loaded
+[    0.465227] megasas: 07.734.00.00-rc1
+[    0.473277] tun: Universal TUN/TAP device driver, 1.6
+[    0.477139] thunder_xcv, ver 1.0
+[    0.477256] thunder_bgx, ver 1.0
+[    0.477416] nicpf, ver 1.0
+[    0.478996] e1000: Intel(R) PRO/1000 Network Driver
+[    0.479044] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    0.479198] e1000e: Intel(R) PRO/1000 Network Driver
+[    0.479211] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.479277] igb: Intel(R) Gigabit Ethernet Network Driver
+[    0.479293] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    0.479570] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[    0.479610] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    0.479960] sky2: driver version 1.30
+[    0.483247] VFIO - User Level meta-driver version: 0.3
+[    0.488844] usbcore: registered new interface driver usb-storage
+[    0.492711] i2c_dev: i2c /dev entries driver
+[    0.500543] sdhci: Secure Digital Host Controller Interface driver
+[    0.500644] sdhci: Copyright(c) Pierre Ossman
+[    0.501284] Synopsys Designware Multimedia Card Interface Driver
+[    0.502008] sdhci-pltfm: SDHCI platform and OF driver helper
+[    0.506473] usbcore: registered new interface driver usbhid
+[    0.506571] usbhid: USB HID core driver
+[    0.514010] NET: Registered PF_PACKET protocol family
+[    0.515010] 9pnet: Installing 9P2000 support
+[    0.515433] Key type dns_resolver registered
+[    0.533678] registered taskstats version 1
+[    0.538184] Loading compiled-in X.509 certificates
+[    0.551289] Demotion targets for Node 0: null
+[    0.555721] clk: Disabling unused clocks
+[    0.556354] PM: genpd: Disabling unused power domains
+[    0.557489] KTAP version 1
+[    0.557501] 1..0
+[    0.643229] Freeing unused kernel memory: 11136K
+[    0.644350] Run /init as init process
+HAVEN: PSCIHA CVEN: PPU_OFF fidSC=0I AFFINITY_x8IN40000FO02 x1 fid=0x10=0000 -xc4> 0x0000 cpu=0041
+ x1=HAVEN:0x1 vir ->tua 0x1l  cpintu=errupts0
+ delivered on CPU 1: 0 x25 1 x213 5 x48 27 x100
+HAVEN:[    0.6 vCP97255]U 1  psstoppeci: CPUd by P1 kSCI Cilled (pPUolled 0 ms)_OFF; CP
+U 1 switched off
+HOTPLUG-OFF ok, online: 0
