@@ -37,3 +37,29 @@ options plus `-DHAVEN_CONSOLE_UART=1`, the hotplug init), QEMU 11.1.3.
 | C4: read-back v13 `--haven-uart`, `grant-smp-v12.json`, at `KDAL-DEMAND-END` | matches, as V2 (UART1 is mapped in no partition, so no new finding) |
 | Default build (`HAVEN_CONSOLE_UART` unset): CI QEMU checks, host tests, read-back tests | unchanged, pass |
 | Trusted code | under +10 code lines (estimate) |
+
+## Results (2026-11-09, QEMU 11.1.3)
+
+HAVEN `30a6577` (option, read-back v13 and runner; expectations in
+`b55dd3c`). Command: `run_console.py <workspace>/haven <workspace>/kdal
+<Linux v6.18 Image> kdal.ko runs`, one call, each run the first of its
+kind. Raw logs in `runs/`.
+
+| Run | Expected | Observed | Verdict |
+| - | - | - | - |
+| C1 to C3 | HAVEN log only HAVEN's (lines start with `HAVEN` or are the banner `Haven hypervisor starting`); no `HAVEN` in the Linux log; no broken HAVEN line; marker, hotplug, both stops | each run: 38 HAVEN lines, **0 broken**, 0 `HAVEN` in the Linux log, `KDAL-DEMAND-END`, `HOTPLUG-ON ok, online: 0-1`, 2 stop lines. 3 lines per run start with neither: `  Version: 0.6.2`, `  Build: ...`, `  CPU: PARange=4 GIC=v3 - features OK` | intent held; **rule wording wrong** (prediction error) |
+| C4 | read-back matches | `RESULT enforced state matches the grant`; CPU table 1/1, 1/1, 2/2, 0/0; `haven-uart.log` captured | as expected |
+| Default build | CI checks, host and read-back tests unchanged | `qemu-direct-check` and `partition-b-check` PASS (cortex-a72, max); 26 host tests; read-back tests OK | as expected |
+| Trusted code | under +10 | not measured separately (6 code lines in `memory.h` and two changed calls in `platform.c`; the CMake lines are not in the count) | counted by hand |
+
+Prediction error (Claude's): the three lines are HAVEN's own boot banner
+(`src/core/init.c` lines 174, 175 and 208, printed with leading spaces),
+so the HAVEN log does hold only HAVEN's output, as intended; the rule
+named only the banner's first line. The separation itself is complete in
+all three runs: no HAVEN text on Linux's UART and no Linux text on
+HAVEN's.
+
+Use from now on (proposal): new Linux runs build with
+`-DHAVEN_CONSOLE_UART=1` and capture both logs; read-back runs add
+`--haven-uart`; CI stays on the default until its QEMU has the second
+PL011.
