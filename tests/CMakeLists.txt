@@ -54,6 +54,10 @@ haven_test(test_el2_exceptions
     SRCS ${_T}/unit/test_el2_exceptions.c
          ${CORE_EL2}
 )
+haven_test(test_gicr_frames
+    SRCS ${_T}/unit/test_gicr_frames.c
+         ${_S}/core/irq/gicr_frames.c
+)
 haven_test(test_vgic
     SRCS ${_T}/unit/test_vgic.c
          ${_S}/core/irq/vgic.c

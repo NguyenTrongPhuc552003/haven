@@ -19,6 +19,7 @@
  */
 
 #include <asm/gic.h>
+#include <haven/gicr_frames.h>
 #include <haven/types.h>
 #include <stdint.h>
 
@@ -38,9 +39,14 @@ static struct {
  * Redistributor per-CPU base address
  * ----------------------------------------------------------------------- */
 
+/* Each logical CPU's RD_base, found by GICR_TYPER affinity at init (D2,
+ * ledger row 25): not logical index x a fixed stride, which is wrong when
+ * frames are 256 KiB (GICv4) or the boot CPU is not core 0. 0: none. */
+static uintptr_t gicr_frame[16];
+
 static inline uintptr_t gicr_cpu_base(uint32_t cpu)
 {
-	return gic.gicr_base + (uintptr_t)cpu * GICR_STRIDE;
+	return cpu < 16U ? gicr_frame[cpu] : 0U;
 }
 
 /* -----------------------------------------------------------------------
@@ -138,8 +144,25 @@ hv_status_t gic_v3_init(uintptr_t gicd_pa, uintptr_t gicr_pa, uint32_t nr_cpus)
 	gic.initialized = 0;
 
 	gicd_init();
+	{
+		extern uint64_t hv_arch_logical_mpidr(uint32_t cpu);
+		extern void hv_printk(const char *fmt, ...);
+		hv_u64 mpidr[16];
+		hv_u32 found;
+
+		for (uint32_t i = 0; i < nr_cpus; i++)
+			mpidr[i] = hv_arch_logical_mpidr(i);
+		found = hv_gicr_find_frames(gicr_pa, mpidr, nr_cpus,
+					    gicr_frame);
+		if (found != nr_cpus)
+			hv_printk(
+				"HAVEN: GIC redistributors found for %u of %u "
+				"CPUs; the others get no PPIs\n",
+				(unsigned)found, (unsigned)nr_cpus);
+	}
 	for (uint32_t i = 0; i < nr_cpus; i++)
-		gicr_cpu_init(i);
+		if (gicr_frame[i] != 0U)
+			gicr_cpu_init(i);
 
 	gic.initialized = 1;
 	return HV_OK;
@@ -197,7 +220,8 @@ hv_status_t gic_v3_disable_irq(uint32_t irq)
 
 static int ppi_valid(uint32_t cpu, uint32_t irq)
 {
-	return gic.initialized && cpu < gic.nr_cpus && irq >= GIC_PPI_BASE &&
+	return gic.initialized && cpu < gic.nr_cpus &&
+	       gicr_cpu_base(cpu) != 0U && irq >= GIC_PPI_BASE &&
 	       irq < GIC_SPI_BASE;
 }
 
