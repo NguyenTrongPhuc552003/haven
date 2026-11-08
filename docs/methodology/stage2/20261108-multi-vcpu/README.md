@@ -215,3 +215,50 @@ What the faults show (inference from the observations above):
 Linux's IPI stall in FB (a function call or rescheduling IPI to CPU 1
 that never arrives) is an inference from where the log stops; it was not
 traced.
+
+## SMP3: the two multi-vCPU limits fixed (owner-approved 2026-11-08; Claude's design and expectations, before any SMP3 code)
+
+### Design
+
+**Pending SGIs.** An SGI for a vCPU that has it disabled is kept pending
+in that vCPU's model (new field `sgi_pending` at the end of `struct
+hv_vgic`, so `enabled` stays at offset 40) and delivered once, when the
+vCPU enables it. The sender sets the pending bit and then re-checks the
+enable bit; the side that enables an SGI takes the pending ones after the
+write. Both use sequentially consistent atomics, so an enable racing with
+a send delivers the SGI exactly once (no lost wake-up). Delivery to the
+vCPU on the CPU doing the access is a local injection, to another CPU a
+post (SMP1's request word). Multi-vCPU builds only: the one-vCPU path
+keeps dropping a disabled self-SGI, as today.
+
+**Restart after CPU_OFF.** Today a vCPU that calls CPU_OFF parks its CPU
+at EL2 and a second CPU_ON is refused. Instead, HAVEN marks the CPU as
+running no partition, resets that CPU's handshake word and mailbox and
+its request word, and switches the CPU off through the firmware's PSCI
+(the conduit HAVEN already uses for CPU_ON). A later CPU_ON from the
+guest starts it again by the same path as the first time: the primary
+resets its answer word, waits for the CPU's state word to say OFF, and
+retries the firmware's CPU_ON while it returns ALREADY_ON (the CPU may
+still be on its way off), up to 50 times 2 ms. The "started once"
+refusal goes.
+
+Test guest for the restart: an `/init` (`hotplug-init.c`, in this
+record) that mounts sysfs, writes `0` then `1` to
+`/sys/devices/system/cpu/cpu1/online` with a 3 s pause between them
+(printing `HOTPLUG-OFF` after the first write and `HOTPLUG-ON` after the
+second, with the online CPU list each time), then does what the KDAL CI
+init does (load KDAL, print its demand, power off).
+
+### Expectations
+
+| Step | Check | Expected |
+| - | - | - |
+| Unit | `test_vgic` | an SGI to a vCPU with it disabled sets its pending bit and is not targeted; enabling it through the redistributor's ISENABLER0 makes the take return that SGI once, then nothing; a hold on an enabled SGI returns it at once |
+| Unit | `test_sysreg_trap` | an SGI to the other vCPU with the SGI disabled is not posted; after that vCPU enables it, the take returns it |
+| Unit | `test_psci` | CPU_ON for a vCPU that went OFF through CPU_OFF returns START_VCPU again (pure layer; already true, now tested) |
+| Unit | all host tests, read-back tests | pass |
+| H1 | free boot with `hotplug-init` | Linux takes CPU 1 offline (online list `0`), HAVEN logs CPU_OFF for vCPU 1 and that CPU 1 is off; then HAVEN logs a second "CPU 1 ready, partition A vCPU 1 started" and Linux a second "CPU1: Booted secondary processor"; online list `0-1`; `KDAL-DEMAND-END`; SYSTEM_OFF stops both vCPUs |
+| H2 | read-back v12, `grant-smp-v12.json`, at `HOTPLUG-OFF` | matches; CPU 1 waiting for the guest (vCPU 1 OFF, CPU runs nothing) |
+| H3 | read-back v12, same grant, at `KDAL-DEMAND-END` | matches; CPU table 1/1, 1/1, 2/2, 0/0 |
+| Pending SGI in Linux | any run | not shown: Linux enables its SGIs before it marks a CPU online, so no run is expected to exercise the pending path; only the unit tests do |
+| Trusted code | `tcb-image-loc.py` | about +40 code lines (estimate) |
