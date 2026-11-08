@@ -26,7 +26,7 @@ Two different trees, often confused:
 
 | Source | What it is | Status |
 | - | - | - |
-| Mainline Linux `arch/arm64/boot/dts/cix/sky1.dtsi` and `sky1-xcp.dts` | SoC tree, and the **Orange Pi 6 Plus** board tree (`model = "Xunlong,OrangePi 6 Plus"`, 83 lines on top of `sky1.dtsi`: UART2 console, PCIe x8, x2 and x1 root complexes, a 640 MiB CMA pool, a few pin hogs), posted by CIX (v4, 2026-01-10) and pulled for v6.20-rc1 | [O] from the patch and pull request pages (sources below); **not in `data/` yet** (D1) |
+| Mainline Linux `arch/arm64/boot/dts/cix/sky1.dtsi` and `sky1-xcp.dts` | SoC tree, and the **Orange Pi 6 Plus** board tree (`model = "Xunlong,OrangePi 6 Plus"`, 83 lines on top of `sky1.dtsi`: UART2 console, PCIe x8, x2 and x1 root complexes, a 640 MiB CMA pool, a few pin hogs), posted by CIX (v4, 2026-01-10) and pulled for v6.20-rc1 | [O] in `data/common/linux-dts-cix/v7.3/` (D1, fetched 2026-11-08 at Linux `v7.3`, commit `c03c1a1`; 13 files with SHA-256 in its README) |
 | CIX BIOS `edk2-platforms/Platform/Radxa/Orion/O6/DeviceTree/sky1-orion-o6.dtb` | the vendor firmware's tree for the Radxa Orion O6: same SoC, another board | [O] `data/common/cix-bios` at `7799770`; decompiled with `dtc`, 5,060 lines; facts in section 3 |
 | Orange Pi 6 Plus firmware | BIOS manual v1.4, section 3.6: "System Table Selection: ACPI and Device Tree" | [R]; the firmware can hand over a device tree |
 | Orange Pi firmware images in `data/` | `opi6plus_bios_image_for_linux_20251031.img`, `OPI6PLUS_BIOS_1.4_General.bin`: no uncompressed flattened tree found (search for the FDT header); strings show a build from CIX's ACPI SDK (`cix_sdk_acpi`) | [O]; a tree, if present, is inside a compressed firmware volume [I] |
@@ -47,6 +47,20 @@ from ACPI tables in the CIX BIOS source (`cix-p1-partition-plan.md`).
 | Timer | PPIs 13, 14, 11, 10 (INTIDs 29, 30, 27, 26), level-low; `clock-frequency` 1 GHz | | budget timer on PPI 26 (CNTHP), guest virtual timer PPI 27 | same PPI numbers as QEMU; the 1 GHz counter shortens nothing HAVEN computes from CNTFRQ [I] |
 | Memory | `memory@80000000`, 4 GiB in this tree | | | board-specific: the Orange Pi 6 Plus has 16 GB (and ledger row 17); the board's memory map decides partition A's RAM window |
 
+### Mainline `sky1-xcp.dts` at v7.3, compiled (D1) [O]
+
+Preprocessed with `clang -E` and compiled with `dtc` (834 lines out):
+CPUs Aff1 0 to 3 are `arm,cortex-a520`, 4 to 11 `arm,cortex-a720`
+(contiguous, as the vendor tree's capacities say; ledger row 16's
+interleaving is not in either tree, MIDR on the board stays the test);
+GICv3 with one redistributor region of 3 MiB at 0x0E090000 (12 x 256 KiB,
+as the vendor tree's 12 regions); UART2 (0x040D0000) `okay` and
+`stdout-path`, UART3 (0x040E0000, SPI 299, INTID 331) disabled, so free
+for HAVEN; PSCI over SMC; a fifth timer PPI 12 (INTID 28, the EL2 virtual
+timer). No memory node (firmware fills it in) and no SMMU nodes in this
+tree at v7.3: partition A's tree gets its memory from the grant, and SMMU
+facts stay with the vendor tree and IORT.
+
 ## 4. Open questions for the board
 
 1. Which tree the Orange Pi firmware hands over in Device Tree mode, and
@@ -63,7 +77,7 @@ from ACPI tables in the CIX BIOS source (`cix-p1-partition-plan.md`).
 
 | Step | What | Needs |
 | - | - | - |
-| D1 | Fetch mainline `sky1.dtsi`, `sky1-xcp.dts`, `sky1-orion-o6.dts` and the dt-bindings headers they include, at a pinned Linux tag, into `data/common/linux-dts-cix/` with a README giving the tag and commit | owner approval (download; `data/` change) |
+| D1 | Fetch mainline `sky1.dtsi`, `sky1-xcp.dts`, `sky1-orion-o6.dts` and the dt-bindings headers they include, at a pinned Linux tag, into `data/common/linux-dts-cix/` with a README giving the tag and commit | **done** 2026-11-08 (`v7.3`, owner-approved) |
 | D2 | HAVEN GIC driver: redistributor found by GICR_TYPER affinity, per-platform stride; host unit test with a fake 12-frame layout; QEMU checks unchanged | **done** 2026-11-08 (`93cf892`, `../methodology/stage2/20261108-gicr-affinity/`) |
 | D3 | Partition A tree generator: from `sky1-xcp.dts` and the board grant v0 (Linux on 8 cores), keep the granted CPUs, RAM window, UART2, PCIe; replace the GIC by HAVEN's emulated one; drop UART3 and HAVEN-owned nodes; check it with `dt_check.py` offline | D1 |
 | D4 | `src/platform/cix-p1/` draft (CPU map, GIC, UART3, timer), compile-only until the board | D1, D2 |
