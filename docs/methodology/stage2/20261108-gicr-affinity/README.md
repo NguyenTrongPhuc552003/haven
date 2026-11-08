@@ -40,3 +40,27 @@ The fixed `GICR_STRIDE` is no longer used by the driver.
 | Linux on two vCPUs (run V2 of `../20261108-multi-vcpu/`, at the D2 commit) | read-back matches, as before |
 | i.MX95 and i.MX8QM builds | compile |
 | Trusted code | about +40 code lines (estimate) |
+
+## Results (2026-11-08)
+
+HAVEN `93cf892` (expectations in `d520ec6`). Host tests on macOS arm64,
+QEMU 11.1.3 for the rest. Each run is the first of its kind.
+
+| Check | Expected | Observed | Verdict |
+| - | - | - | - |
+| CIX-like region | logical 0 gets frame 4, logical 1 frame 0, all 12 | `[PASS] CIX-like: 256 KiB frames, boot core 4 found by affinity` | as expected |
+| QEMU-like region | frame n at n x 128 KiB | `[PASS] QEMU-like` | as expected |
+| Missing CPU, frame after Last | not found; not used | `[PASS] missing CPU not found; walk stops at Last; Aff3 used` (Aff3 case added beside) | as expected |
+| Host and read-back tests | pass | 26 of 26 host tests (one new), 42 read-back tests | as expected |
+| CI QEMU checks | PASS | `qemu-direct-check` and `partition-b-check` PASS on cortex-a72 and max | as expected |
+| Linux on two vCPUs (V2) | read-back matches | matches; CPU table 1/1, 1/1, 2/2, 0/0; `smp: Brought up 1 node, 2 CPUs`; no "redistributors found for" line (all CPUs found) | as expected |
+| i.MX95, i.MX8QM builds | compile | compile | as expected |
+| Trusted code | about +40 | 7,381 at `261f52d`, 7,443 at `93cf892`: +62 (two more files) | measured |
+
+All 8 judged rows held. Not test-first this time: the unit test and
+`gicr_frames.c` were written in the same step, so the test was never
+seen failing before the code existed (method note, not a result).
+
+On the i.MX boards the change is untested beyond compiling: there, the
+frames are now found by the affinity in the platform's CPU map, which
+must match the hardware's GICR_TYPER (it did not need to before).

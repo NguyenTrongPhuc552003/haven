@@ -64,7 +64,7 @@ from ACPI tables in the CIX BIOS source (`cix-p1-partition-plan.md`).
 | Step | What | Needs |
 | - | - | - |
 | D1 | Fetch mainline `sky1.dtsi`, `sky1-xcp.dts`, `sky1-orion-o6.dts` and the dt-bindings headers they include, at a pinned Linux tag, into `data/common/linux-dts-cix/` with a README giving the tag and commit | owner approval (download; `data/` change) |
-| D2 | HAVEN GIC driver: redistributor found by GICR_TYPER affinity, per-platform stride; host unit test with a fake 12-frame layout; QEMU checks unchanged | expectations first |
+| D2 | HAVEN GIC driver: redistributor found by GICR_TYPER affinity, per-platform stride; host unit test with a fake 12-frame layout; QEMU checks unchanged | **done** 2026-11-08 (`93cf892`, `../methodology/stage2/20261108-gicr-affinity/`) |
 | D3 | Partition A tree generator: from `sky1-xcp.dts` and the board grant v0 (Linux on 8 cores), keep the granted CPUs, RAM window, UART2, PCIe; replace the GIC by HAVEN's emulated one; drop UART3 and HAVEN-owned nodes; check it with `dt_check.py` offline | D1 |
 | D4 | `src/platform/cix-p1/` draft (CPU map, GIC, UART3, timer), compile-only until the board | D1, D2 |
 
