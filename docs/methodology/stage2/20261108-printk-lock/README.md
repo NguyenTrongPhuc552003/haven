@@ -44,3 +44,33 @@ Checker: `check_lines.py` (this directory) applies the first row's rules
 to a UART log. Applied before the change to SMP3's H1 log, it should
 report the broken line seen there (a check of the checker, not a
 result).
+
+## Results (2026-11-08, QEMU 4 CPUs cortex-a72, TCG)
+
+HAVEN `261f52d` (the lock; expectations and checker in `cbad86e`).
+Runs: `ONLY=H1 ../20261108-multi-vcpu/run_smp3.py ...` three times (P1 to
+P3), UART logs in `runs/`, then `check_lines.py runs/P*/uart.log`. Each
+run is the first of its kind; no code changed between them.
+
+| Row | Expected | Observed | Verdict |
+| - | - | - | - |
+| P1 to P3 | HAVEN lines whole in all three; marker; both stop | P2 and P3: 38 HAVEN lines each, none broken. P1: 37 HAVEN lines, **one broken**: the "virtual interrupts delivered on CPU 1" line at CPU 1's CPU_OFF has Linux's `[    0.62...] psci: CPU1 killed` text inside it; and one Linux line has HAVEN's "vCPU 1 stopped by PSCI CPU_OFF" inside it (found by eye; the checker only reads lines that hold `HAVEN`). All three reach `KDAL-DEMAND-END` with both stop lines | **prediction error** (P1) |
+| HAVEN with HAVEN | (part of the row above) | none in 3 runs: the CPU_OFF line (CPU 1) and the AFFINITY_INFO line (CPU 0), mixed in SMP3, are whole in all three | as intended |
+| Linux with HAVEN | counted, not judged | 2 lines in P1 (both above), 0 in P2 and P3 | counted |
+| CI checks, host tests | pass | `qemu-direct-check` and `partition-b-check` PASS (cortex-a72 and max), 25 of 25 host tests | as expected |
+| Trusted code | about +25 | 7,342 at `4d61d32`, 7,381 at `261f52d`: +39 | measured |
+
+Prediction error (Claude's): the expectation said every report line would
+be whole, while the design section itself says that Linux writes to the
+same UART and can still mix with HAVEN's lines. The judged rule did not
+exclude that case, and the checker cannot tell a Linux insertion from a
+HAVEN one inside a line. The inserted text in P1 is Linux's own (its
+timestamp and `psci:` prefix), printed by CPU 0 at the moment CPU 1's
+HAVEN printed its report (observation); the lock cannot stop a guest
+writing to a UART it owns.
+
+Consequence for the console policy (inference): whole lines from both
+HAVEN and Linux need separate UARTs, which is the board plan already
+(UART3 for HAVEN, G2); in QEMU's `virt` machine only one PL011 is given to
+Normal world, so the shared UART stays in the QEMU runs, and run scripts
+must keep matching HAVEN lines loosely when both CPUs print.

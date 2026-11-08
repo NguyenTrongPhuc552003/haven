@@ -16,10 +16,9 @@
  * printed a format ending in a newline, so a line built from several
  * calls stays whole. A CPU that cannot get it within 50 ms prints anyway
  * (a CPU parked in the middle of a line costs interleaving, not a hang).
- * The lock is used
- * only once EL2 stage-1 translation is on (hv_el2_ttbr): before, HAVEN's
- * memory is Device memory, where exclusives need not work, and only the
- * boot CPU runs. docs/methodology/stage2/20261108-printk-lock/.
+ * The lock is used only once EL2 stage-1 translation is on (hv_el2_ttbr):
+ * before, HAVEN's memory is Device memory, where exclusives need not work,
+ * and only the boot CPU runs. docs/methodology/stage2/20261108-printk-lock/.
  *
  * All output goes through platform_uart_putchar() provided by
  * src/platform/<board>/platform.c.  No buffering; each character
