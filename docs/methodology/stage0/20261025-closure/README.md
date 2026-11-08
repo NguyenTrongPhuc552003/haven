@@ -17,7 +17,7 @@ candidate integrated architecture is not an observed integrated runtime.
 | [A1_A2_DECISION.md](A1_A2_DECISION.md) | Authoritative explanation of the captured alignment fault; strict bootstrap versus EL2 translation; assumptions/regression matrix; independent A2 adoption recommendation |
 | [NEXT_DECISION.md](NEXT_DECISION.md) | CP1 necessity/deferral, Stage1 decision scope, prioritized effort ranges and EP-A2 concrete implementation proposal |
 | [Updated engineering roadmap](../20261025-integration-design/ROADMAP.md) | Thesis-stage mapping distinct from M0–M5; original milestone criteria retained as delivery criteria |
-| [Stage index](../../../../../stages/README.md), [workspace rules](../../../../../AGENTS.md) | Current navigation and stable preparation exit/reuse/approval rules |
+| [Stage index](../../../../../stages/README.md), workspace rules (the workspace's own instruction file, outside this repository) | Current navigation and stable preparation exit/reuse/approval rules |
 | [repository-state.json](repository-state.json), [session-start-haven.patch](session-start-haven.patch), [review-sources.json](review-sources.json), [verification.json](verification.json) | Revisions, preserved changes, primary/reference source ledger and final integrity checks |
 
 ## Recommendations
@@ -103,3 +103,5 @@ decisions, not whether the preparation has discovered and owned them.
 
 No production patch, coordinated source change, commit, publication, board
 support claim, DMA/real-time guarantee or stage transition is made here.
+
+Note (2026-11-09): the snapshot `AGENTS.md.before` that this record kept (a copy of an AI-agent instruction file) was removed from the repository under the clean-repository rule; it remains in the history (added in `7c5bc60`).

@@ -17,7 +17,7 @@ scope. No stage transition or implementation approval is implied.
 
 | Read                                                                                                                                                                                       | Content                                                                                                                                     |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Current workspace instructions](../../../../../AGENTS.md), [stage index](../../../../../stages/README.md), [baseline](../../../../../stages/STAGE0_BASELINE.md)                           | Durable required-three-component scope and repaired baseline navigation                                                                     |
+| Current workspace instructions (the workspace's own instruction file, outside this repository), [stage index](../../../../../stages/README.md), [baseline](../../../../../stages/STAGE0_BASELINE.md)                           | Durable required-three-component scope and repaired baseline navigation                                                                     |
 | [ARCHITECTURE.md](ARCHITECTURE.md)                                                                                                                                                         | Observed versus proposed architecture, placement comparison, dependency map, actual Linux and KDAL prerequisites                            |
 | [CONTRACTS.md](CONTRACTS.md)                                                                                                                                                               | Seven producer/consumer contracts: versions, trust/admission, resource needs, lifecycle, tests, evidence and first-failure ownership        |
 | [ACCEPTANCE.md](ACCEPTANCE.md)                                                                                                                                                             | One pinned software-backend positive/API-negative and actual HAVEN stage-2 negative scenario, including allowed control and external oracle |
@@ -97,3 +97,5 @@ Approve or amend that proposal before coordinated implementation. KDAL's
 inclusion is already decided; the remaining decision concerns this placement,
 contract and bounded implementation scope. No integrated, board, DMA or
 real-time result is claimed.
+
+Note (2026-11-09): the snapshot `AGENTS.md.before` that this record kept (a copy of an AI-agent instruction file) was removed from the repository under the clean-repository rule; it remains in the history (added in `7c5bc60`).
