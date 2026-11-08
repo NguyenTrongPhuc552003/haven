@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ca3d3fd..4e1e089 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -545,6 +545,8 @@ int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
+ 	if (index == 0U || index >= HAVEN_PART_A_VCPUS)
+ 		return HV_PSCI_INTERNAL_FAILURE;
+ 	cpu = part_a_cpu[index]; /* static pinning */
++	if (cpu != 0xffU)
++		return HV_PSCI_INTERNAL_FAILURE;
+ 	if (entry < PART_A_IPA_BASE || entry >= PART_A_IPA_BASE + PART_A_SIZE)
+ 		return HV_PSCI_INVALID_ADDRESS;
+ 	if ((part_a_started & (1U << index)) != 0U) {

@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ca3d3fd..fd8fc7e 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -278,7 +278,7 @@ static const struct hv_partition_mem part_b_mem_cfg = {
+ /* Physical CPU vCPU 1 is pinned to. Its guest MPIDR stays that of logical
+  * CPU 1 (the device tree's cpu@1) wherever it runs. */
+ #ifndef PART_A_CPU1
+-#define PART_A_CPU1 1U
++#define PART_A_CPU1 3U
+ #endif
+ #if HAVEN_PART_A_VCPUS > 1 && (PART_A_CPU1 == 0 || PART_A_CPU1 == 2)
+ #error "PART_A_CPU1 must not be CPU 0 (vCPU 0) or CPU 2 (partition B)"

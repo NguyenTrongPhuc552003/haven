@@ -1,0 +1,121 @@
+{
+ "source": "Claude, 2026-11-08, SMP2 of 20261108-multi-vcpu (written before the runs): grant-smp.json plus gic.cpus_on_request [1]: CPU 1 runs partition 1 only after the guest's PSCI CPU_ON (read-back v12).",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x40000000",
+    "pa": "0x80800000",
+    "size": "0x20000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART",
+    "ipa": "0x09000000",
+    "pa": "0x09000000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A RO",
+    "ipa": "0x70000000",
+    "pa": "0xA4C00000",
+    "size": "0x200000",
+    "attrs": "R"
+   },
+   {
+    "name": "A PCI config",
+    "ipa": "0x4010008000",
+    "pa": "0x4010008000",
+    "size": "0x1000",
+    "attrs": "DEVICE_R"
+   },
+   {
+    "name": "A PCI BAR",
+    "ipa": "0x10000000",
+    "pa": "0x10000000",
+    "size": "0x4000",
+    "attrs": "DEVICE_RW"
+   }
+  ],
+  "2": [
+   {
+    "name": "B RAM",
+    "ipa": "0x60000000",
+    "pa": "0xA0800000",
+    "size": "0x04000000",
+    "attrs": "RWX"
+   }
+  ]
+ },
+ "smmu": {
+  "enabled": true,
+  "streams": {
+   "8": {
+    "partition": 1,
+    "window": {
+     "ipa": "0x5F000000",
+     "size": "0x100000"
+    },
+    "access": "RW"
+   }
+  },
+  "allowed_unenforced": []
+ },
+ "gic": {
+  "cpus": {
+   "0": 1,
+   "1": 1,
+   "2": 2,
+   "3": 0
+  },
+  "spis": {
+   "33": {
+    "partition": 1,
+    "cpu": 0
+   },
+   "106": {
+    "partition": 0,
+    "cpu": 0
+   }
+  },
+  "ppis": {
+   "0": [
+    27
+   ],
+   "1": [
+    27
+   ],
+   "2": [
+    27
+   ]
+  },
+  "priority": {
+   "haven": "0x40",
+   "partition": "0xa0"
+  },
+  "haven_ppis": {
+   "0": [
+    26
+   ],
+   "1": [
+    26
+   ],
+   "2": [
+    26
+   ]
+  },
+  "guest_enabled": {
+   "0": [
+    27,
+    33
+   ],
+   "1": [
+    27
+   ]
+  },
+  "cpus_on_request": [
+   1
+  ]
+ }
+}

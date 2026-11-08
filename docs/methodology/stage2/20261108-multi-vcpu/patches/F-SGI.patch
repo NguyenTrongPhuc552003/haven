@@ -1,0 +1,15 @@
+diff --git a/src/core/exc/sysreg_trap.c b/src/core/exc/sysreg_trap.c
+index 77a97c2..2123363 100644
+--- a/src/core/exc/sysreg_trap.c
++++ b/src/core/exc/sysreg_trap.c
+@@ -55,8 +55,8 @@ void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu)
+ 						sgi_id, HV_VIRT_IRQ_PRIORITY);
+ 				else if (peers[i] != v &&
+ 					 hv_arch_post_virtual_sgi != NULL)
+-					hv_arch_post_virtual_sgi(peers[i]->cpu,
+-								 sgi_id);
++					(void)hv_arch_inject_virtual_irq(
++						sgi_id, HV_VIRT_IRQ_PRIORITY);
+ 			}
+ 		} else {
+ 			sgi = v ? hv_vgic_sgi(v, hv_frame_get(frame, rt)) : -1;
