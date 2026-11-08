@@ -1,0 +1,4 @@
+[PASS] self-targeted SGI injected, others dropped
+[PASS] unhandled registers read as zero, writes ignored
+[PASS] log stops after four accesses
+Assertion failed: (post_calls == 1 && posted_cpu == 1 && posted_sgi == 2), function test_cross_cpu_sgi, file test_sysreg_trap.c, line 132.

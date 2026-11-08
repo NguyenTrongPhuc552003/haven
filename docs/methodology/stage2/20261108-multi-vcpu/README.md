@@ -177,3 +177,41 @@ PPI 27, its GIC model's hardware CPU, its budget.
 | FB | F-SGI | host test `test_sysreg_trap` fails (the SMP0 cross-CPU SGI test); read-back at `KDAL-DEMAND-END`, if reached: matches (no state left behind); Linux's behaviour not predicted |
 | FC | F-REFUSE, `grant-smp-v12.json`, `KDAL-DEMAND-END` | Linux reports that CPU 1 failed to come online and still reaches the marker; read-back: **matches, CPU 1 waiting for the guest**. A predicted blind spot: a refused CPU_ON looks like a CPU the guest never asked for |
 | Unit | `tools/readback` | new tests for the v12 rule pass; all earlier read-back tests unchanged |
+
+## SMP2 results (2026-11-08, QEMU 4 CPUs cortex-a72, TCG)
+
+HAVEN `1af894b` (read-back v12 and the pinning change), runner, patches
+and `grant-smp-v12.json` in `be79a76`, all committed before the first
+SMP2 run. Command: `run_smp2.py <workspace>/haven <workspace>/kdal
+<Linux v6.18 Image> kdal.ko runs-smp2`, one call for all six runs, each
+the first of its kind. Raw output in `runs-smp2/`.
+
+| Run | Expected | Observed | Verdict |
+| - | - | - | - |
+| V1 | matches; CPU 1 waiting; its PPIs 26 and 27 waiting | `RESULT enforced state matches the grant`; CPU 1 "HAVEN runs partition 0 (waiting for the guest)"; PPI 26 "off, CPU waiting for the guest"; PPI 27 "waiting for the guest" (v8 rule, the GIC model exists) | as expected |
+| V2 | matches; 1/1, 1/1, 2/2, 0/0 | matches; that table; Linux `smp: Brought up 1 node, 2 CPUs`, `KDAL-DEMAND-END` | as expected |
+| V3 (control) | 2 findings as SMP1 R2 | the same 2 findings | as expected |
+| FA | Linux up on 2 CPUs; 5 findings as listed | `vCPU 1 on CPU 3`, `CPU 3 ready, partition A vCPU 1 started`; Linux `CPU1: Booted secondary processor 0x0000000001`, 2 CPUs, `KDAL-DEMAND-END`; exactly the 5 predicted findings (CPU 1 drift "no vCPU of partition 1 is off", CPU 3 drift, CPU 3 PPIs 26-27, CPU 1 PPI 27, CPU 1 PPI 26) | as expected |
+| FB | `test_sysreg_trap` fails; read-back matches if the marker is reached; Linux not predicted | host test aborts at the SMP0 cross-CPU SGI assertion (exit -6); Linux brings up 2 CPUs and then stops making progress after `DMI not present or invalid` (2.3 s guest time; a 2.2 s gap before it); read-back after the 90 s limit: matches, CPU 1 runs partition 1 | as expected; Linux stalled (observation) |
+| FC | Linux: CPU 1 fails, marker reached; read-back matches, CPU 1 waiting | HAVEN returns INTERNAL_FAILURE (`-> 0xfffffffffffffffa`); Linux `psci: failed to boot CPU1 (-22)`, `smp: Brought up 1 node, 1 CPU`, `KDAL-DEMAND-END`; read-back matches, CPU 1 waiting | as expected: **blind spot confirmed** |
+| Unit | new tests pass, old unchanged | 42 read-back tests pass (13 new); 25 host tests pass; CI checks pass | as expected |
+
+All 7 rows held.
+
+What the faults show (inference from the observations above):
+- A pinning error inside HAVEN (FA) is invisible to the guest, which
+  boots normally on two CPUs, and read-back names it five ways.
+- A wrong SGI path (FB) leaves no state behind: read-back reports a
+  match while the guest hangs. The unit test written in SMP0 catches it
+  before any run, and a behaviour probe (the guest reaching its marker)
+  catches its effect. This supports the board read-back order accepted
+  at G2: behaviour probes always, beside the state read-back.
+- A refused CPU_ON (FC) looks to v12 exactly like a CPU the guest never
+  asked for, because HAVEN puts the vCPU back to OFF. The guest's log
+  shows it; read-back does not. Closing it would need HAVEN to record the
+  refusal (self-report, last in the G2 order) or read-back to read the
+  guest's own state; neither is proposed now.
+
+Linux's IPI stall in FB (a function call or rescheduling IPI to CPU 1
+that never arrives) is an inference from where the log stops; it was not
+traced.
