@@ -17,6 +17,15 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v12 (2026-11-08, multi-vCPU SMP2): the grant's gic section may
+list "cpus_on_request", CPUs HAVEN starts only when the partition's guest
+calls PSCI CPU_ON. HAVEN's vCPU table for partition 1 (symbol
+part_a_vcpus, struct hv_psci_vcpus) is read: an on-request CPU that runs
+no partition is "waiting for the guest" (information) while the
+partition has at least as many vCPUs off as it has such idle CPUs;
+otherwise it is CPU assignment drift. On a waiting CPU the granted PPIs
+and HAVEN's own may be off. Without the table, v10 applies.
+
 Changes in v12a (2026-11-08, EL3 record case I1): a granted SPI's routing
 and group are checked also when it is disabled or waiting for the guest;
 before, a disabled SPI was reported as a missing binding and nothing else,
@@ -857,22 +866,53 @@ def read_cpu_partitions(mem, nm, elf):
     return [struct.unpack_from("<I", mem, table + 4 * c - IMG_PA)[0] for c in range(NCPUS)]
 
 
-def compare_cpus(served, expected):
-    """v10: CPU assignment drift between gic.cpus and HAVEN's table."""
+VCPU_STATE_OFFSET = 40  # offsetof(struct hv_psci_vcpus, state), asserted in psci.c
+VCPU_OFF = 1  # HV_VCPU_OFF
+
+
+def read_vcpus(mem, nm, elf):
+    """v12: HAVEN's vCPU table of partition 1 (part_a_vcpus), or None."""
+    try:
+        t = symbol(nm, elf, "part_a_vcpus")
+    except SystemExit:
+        return None
+    n = min(struct.unpack_from("<I", mem, t - IMG_PA)[0], 4)
+    return {"partition": 1, "count": n,
+            "state": [struct.unpack_from("<I", mem, t + VCPU_STATE_OFFSET + 4 * i - IMG_PA)[0] for i in range(n)]}
+
+
+def compare_cpus(served, expected, vcpus=None):
+    """v10: CPU assignment drift between gic.cpus and HAVEN's table.
+    v12: an idle CPU in cpus_on_request is waiting for the guest while
+    the partition's vCPU table still has a vCPU off."""
     granted = {int(c): int(p) for c, p in expected.get("cpus", {}).items()}
+    on_request = {int(c) for c in expected.get("cpus_on_request", [])}
+    off = {}
+    if vcpus:
+        off[vcpus["partition"]] = sum(1 for s in vcpus["state"][:vcpus["count"]] if s == VCPU_OFF)
     f, rep = [], []
 
     def who(p):
         return f"partition {p}" if p else "no partition"
     for c, got in enumerate(served):
         want = granted.get(c, 0)
-        rep.append({"cpu": c, "granted": want, "served": got})
-        if got != want:
-            f.append((f"CPU {c}", "CPU assignment drift", f"granted to {who(want)}, HAVEN runs {who(got)}"))
+        row = {"cpu": c, "granted": want, "served": got}
+        rep.append(row)
+        if got == want:
+            continue
+        if got == 0 and c in on_request and want in off:
+            if off[want] > 0:
+                off[want] -= 1
+                row["waiting"] = True
+                continue
+            f.append((f"CPU {c}", "CPU assignment drift", f"granted to {who(want)}, HAVEN runs {who(got)}"
+                      f" (on request; no vCPU of partition {want} is off)"))
+            continue
+        f.append((f"CPU {c}", "CPU assignment drift", f"granted to {who(want)}, HAVEN runs {who(got)}"))
     return f, rep
 
 
-def compare_gic(g, expected, model=None, groups_visible=True):
+def compare_gic(g, expected, model=None, groups_visible=True, waiting_cpus=None):
     """Interrupt ownership as enforced by the GIC against the grant: every
     enabled SPI must be granted, routed (affinity, not 1-of-N) to the granted
     CPU of the granted partition, in Group 1 Non-secure; per CPU, only
@@ -888,7 +928,9 @@ def compare_gic(g, expected, model=None, groups_visible=True):
     spis = {int(k): v for k, v in expected.get("spis", {}).items()}
     lazy = {int(c): set(v) for c, v in expected.get("guest_enabled", {}).items()}  # v8
     model = model or {}
+    waiting_cpus = waiting_cpus or set()  # v12: CPUs waiting for the guest's CPU_ON
     report["guest_enabled"] = []
+    report["waiting_ppis"] = []
 
     def lazy_check(cpu, irq, hw_on):
         """v8: an interrupt enabled on the guest's request. Returns True if
@@ -951,7 +993,9 @@ def compare_gic(g, expected, model=None, groups_visible=True):
         for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):  # v4 RB2, v6
             if lazy_check(i, b, b in en):
                 continue
-            if b not in en:
+            if b not in en and i in waiting_cpus:  # v12
+                report["waiting_ppis"].append({"cpu": i, "irq": b})
+            elif b not in en:
                 f.append((f"CPU {i} PPI {b}", "missing interrupt binding", "granted but disabled"))
     pr = expected.get("priority")
     if pr and "ipriorityr" in g:  # v4: priorities of granted interrupts
@@ -1073,7 +1117,11 @@ def main():
     if "gic" in grant:
         model = read_vgic_enables(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))
         groups_visible = not (a.tfa and not a.el3)  # v11
-        f, rep = compare_gic(snap["gic"], grant["gic"], model, groups_visible)
+        served = read_cpu_partitions(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))  # v10
+        vcpus = read_vcpus(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))  # v12
+        cpu_f, cpu_rep = compare_cpus(served, grant["gic"], vcpus) if served is not None else ([], [])
+        idle = {x["cpu"] for x in cpu_rep if x.get("waiting")}
+        f, rep = compare_gic(snap["gic"], grant["gic"], model, groups_visible, idle)
         rep["groups_visible"] = groups_visible
         if not groups_visible:
             print("  interrupt groups not observable: two security states, Non-secure monitor view (use --el3)")
@@ -1088,16 +1136,18 @@ def main():
         for x in rep.get("guest_enabled", []):
             state = "waiting for the guest" if not x["guest"] and not x["gic"] else f"guest {x['guest']}, GIC {int(bool(x['gic']))}"
             print(f"  guest-enabled INTID {x['irq']} on CPU {x['cpu']}: {state}")
+        for x in rep.get("waiting_ppis", []):
+            print(f"  CPU {x['cpu']} PPI {x['irq']}: off, CPU waiting for the guest")
         for x in rep.get("priorities", []):
             where = f"CPU {x['cpu']} PPI" if "cpu" in x else "SPI"
             print(f"  {where} {x['irq']}: priority {x['priority']} (granted {x['expected']})")
-        served = read_cpu_partitions(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))  # v10
         if served is not None and "cpus" in grant["gic"]:
-            f, rep = compare_cpus(served, grant["gic"])
-            findings += f
-            report["cpu_assignment"] = rep
-            for x in rep:
-                print(f"  CPU {x['cpu']}: granted to partition {x['granted']}, HAVEN runs partition {x['served']}")
+            findings += cpu_f
+            report["cpu_assignment"] = cpu_rep
+            report["vcpus"] = vcpus
+            for x in cpu_rep:
+                note = " (waiting for the guest)" if x.get("waiting") else ""
+                print(f"  CPU {x['cpu']}: granted to partition {x['granted']}, HAVEN runs partition {x['served']}{note}")
     report["findings"] = findings
     json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
     for name, cls, detail in findings:

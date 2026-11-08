@@ -108,6 +108,8 @@ def to_v2(v1, level_spis=()):
     }
     if gic.get("guest_enabled"):  # interrupts HAVEN enables on the guest's request
         haven["guest-enabled"] = {str(c): sorted(v) for c, v in gic["guest_enabled"].items()}
+    if gic.get("cpus_on_request"):  # CPUs started on the guest's PSCI CPU_ON (read-back v12)
+        haven["cpus-on-request"] = sorted(int(c) for c in gic["cpus_on_request"])
     out = {"format": "haven-grant/2", "vocabulary": "FF-A partition manifest binding; haven,* are HAVEN extensions",
            "partitions": parts, "haven": haven}
     if "source" in v1:
@@ -182,6 +184,8 @@ def to_v1(v2):
             gic["haven_ppis"] = haven["ppis"]
         if haven.get("guest-enabled"):
             gic["guest_enabled"] = haven["guest-enabled"]
+        if haven.get("cpus-on-request"):
+            gic["cpus_on_request"] = haven["cpus-on-request"]
         v1["gic"] = gic
     return v1
 

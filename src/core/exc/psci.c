@@ -98,6 +98,13 @@ hv_psci_action_t hv_psci_call(const hv_u64 x[4], hv_u64 mpidr, hv_u64 *ret)
 	return HV_PSCI_RESUME;
 }
 
+/* Read-back v12 (tools/readback/readback.py) reads HAVEN's vCPU table
+ * (part_a_vcpus) at these offsets; keep them in step. */
+_Static_assert(__builtin_offsetof(struct hv_psci_vcpus, count) == 0,
+	       "readback.py reads hv_psci_vcpus.count at offset 0");
+_Static_assert(__builtin_offsetof(struct hv_psci_vcpus, state) == 40,
+	       "readback.py reads hv_psci_vcpus.state at offset 40");
+
 static int vcpu_index(const struct hv_psci_vcpus *v, hv_u64 mpidr)
 {
 	for (hv_u32 i = 0; i < v->count && i < HV_PSCI_MAX_VCPUS; i++)
