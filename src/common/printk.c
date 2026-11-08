@@ -11,6 +11,16 @@
  *   %p  pointer (64-bit hex with 0x prefix)
  *   %%  literal percent
  *
+ * Lines from several CPUs (multi-vCPU partitions) are kept whole by a
+ * line lock: a CPU holds it from its first character until it has
+ * printed a format ending in a newline, so a line built from several
+ * calls stays whole. A CPU that cannot get it within 50 ms prints anyway
+ * (a CPU parked in the middle of a line costs interleaving, not a hang).
+ * The lock is used
+ * only once EL2 stage-1 translation is on (hv_el2_ttbr): before, HAVEN's
+ * memory is Device memory, where exclusives need not work, and only the
+ * boot CPU runs. docs/methodology/stage2/20261108-printk-lock/.
+ *
  * All output goes through platform_uart_putchar() provided by
  * src/platform/<board>/platform.c.  No buffering; each character
  * is written immediately (early boot safe).
@@ -20,6 +30,47 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+
+extern volatile uint64_t hv_el2_ttbr;
+extern uint32_t hv_arch_cpu_id(void);
+
+#define PRINT_WAIT_MS 50U
+
+static uint32_t print_owner; /* 0: free, else CPU index + 1 */
+
+static uint64_t print_counter(void)
+{
+	uint64_t v;
+
+	__asm__ volatile("isb\n\tmrs %0, cntpct_el0" : "=r"(v));
+	return v;
+}
+
+/* Take the line lock for the calling CPU; 1 if it holds it afterwards. */
+static int print_lock(void)
+{
+	uint32_t me;
+	uint64_t freq, start;
+
+	if (hv_el2_ttbr == 0U)
+		return 0;
+	me = hv_arch_cpu_id() + 1U; /* 0 for a CPU not in the map */
+	if (me == 0U)
+		return 0;
+	if (__atomic_load_n(&print_owner, __ATOMIC_RELAXED) == me)
+		return 1; /* line in progress, or nested */
+	__asm__ volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+	start = print_counter();
+	do {
+		uint32_t free = 0U;
+
+		if (__atomic_compare_exchange_n(&print_owner, &free, me, 0,
+						__ATOMIC_ACQUIRE,
+						__ATOMIC_RELAXED))
+			return 1;
+	} while (print_counter() - start < (freq / 1000U) * PRINT_WAIT_MS);
+	return 0;
+}
 
 static void putstr(const char *s)
 {
@@ -77,6 +128,12 @@ static void putdec(uint64_t val)
 void hv_printk(const char *fmt, ...)
 {
 	va_list ap;
+	int locked = print_lock();
+	const char *fmt0 = fmt;
+	const char *end = fmt;
+
+	while (*end)
+		end++;
 	va_start(ap, fmt);
 
 	while (*fmt) {
@@ -150,4 +207,8 @@ void hv_printk(const char *fmt, ...)
 	}
 
 	va_end(ap);
+	/* A line ends with a format that ends in a newline: the lock is
+	 * released only then (no state shared between CPUs decides it). */
+	if (locked && end != fmt0 && end[-1] == '\n')
+		__atomic_store_n(&print_owner, 0U, __ATOMIC_RELEASE);
 }
