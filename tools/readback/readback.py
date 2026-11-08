@@ -17,6 +17,11 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v13 (2026-11-09, HAVEN's own QEMU console): --haven-uart gives
+QEMU a second -serial for a HAVEN built with HAVEN_CONSOLE_UART=1 (QEMU
+virt's second Normal-world PL011); its output goes to haven-uart.log.
+Not with --tfa, where the second PL011 is Secure world's.
+
 Changes in v12 (2026-11-08, multi-vCPU SMP2): the grant's gic section may
 list "cpus_on_request", CPUs HAVEN starts only when the partition's guest
 calls PSCI CPU_ON. HAVEN's vCPU table for partition 1 (symbol
@@ -305,6 +310,8 @@ def capture(args_ns, out):
         "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait"]
     if args_ns.tfa:
         cmd += ["-serial", f"file:{uart1}"]
+    elif args_ns.haven_uart:  # v13: HAVEN's console on the second PL011
+        cmd += ["-serial", f"file:{os.path.join(out, 'haven-uart.log')}"]
     if args_ns.break_at is not None:  # v9: start paused, GDB stub on a socket
         if os.path.exists(gsock):
             os.remove(gsock)
@@ -1041,11 +1048,15 @@ def main():
                     help="extra file at a physical address (repeatable)")
     ap.add_argument("--break", dest="break_at", type=lambda x: int(x, 0), metavar="ADDR",
                     help="read when a CPU reaches this instruction address (v9; QEMU GDB stub)")
+    ap.add_argument("--haven-uart", action="store_true",
+                    help="second -serial for HAVEN_CONSOLE_UART=1 builds, into haven-uart.log (v13)")
     ap.add_argument("--tfa", metavar="DIR", help="boot HAVEN under TF-A from DIR (bl1.bin, bl2.bin, bl31.bin) (v11)")
     ap.add_argument("--el3", action="store_true", help="read the EL3 read-back dump instead of the monitor (v11)")
     a = ap.parse_args()
     if a.el3 and not a.tfa:
         ap.error("--el3 needs --tfa")
+    if a.haven_uart and a.tfa:  # v13: with TrustZone the second PL011 is Secure world's
+        ap.error("--haven-uart cannot be used with --tfa")
     if a.tfa:
         a.tfa = os.path.abspath(a.tfa)
     os.makedirs(a.out, exist_ok=True)

@@ -47,7 +47,7 @@ const uint32_t hv_el2_region_count =
 
 static void qemu_uart_putchar(char c)
 {
-	uart_putchar(QEMU_UART_BASE, c);
+	uart_putchar(QEMU_CONSOLE_BASE, c);
 }
 
 /* -----------------------------------------------------------------------
@@ -120,5 +120,5 @@ void platform_init(void)
    * the same path works on real Juno/FVP hardware.
    * ref_clk = 24 MHz (QEMU default for PL011).
    */
-	uart_init(QEMU_UART_BASE, 115200u, 24000000u);
+	uart_init(QEMU_CONSOLE_BASE, 115200u, 24000000u);
 }

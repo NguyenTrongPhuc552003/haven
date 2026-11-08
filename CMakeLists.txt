@@ -168,6 +168,13 @@ if(HAVEN_ARCH_ARM64)
     if(NOT HAVEN_PART_A_DTB_IPA STREQUAL "0")
         target_compile_definitions(haven PRIVATE HAVEN_PART_A_DTB_IPA=${HAVEN_PART_A_DTB_IPA})
     endif()
+    # HAVEN's own console in QEMU (docs/methodology/stage2/20261109-qemu-console):
+    # 0 = PL011 UART0, shared with partition A; 1 = QEMU virt's second
+    # Normal-world PL011 (0x09040000; QEMU needs a second -serial).
+    set(HAVEN_CONSOLE_UART 0 CACHE STRING "QEMU virt: HAVEN console, 0 = UART0, 1 = second PL011")
+    if(NOT HAVEN_CONSOLE_UART STREQUAL "0")
+        target_compile_definitions(haven PRIVATE HAVEN_CONSOLE_UART=${HAVEN_CONSOLE_UART})
+    endif()
     # Partition A with more than one vCPU (docs/architecture/multi-vcpu.md):
     # vCPU i runs on CPU i; CPU 2 is partition B's, so at most 2. Linux only.
     set(HAVEN_PART_A_VCPUS 1 CACHE STRING "vCPUs of partition A (1 or 2; 2 needs HAVEN_PART_A_DTB_IPA)")

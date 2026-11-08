@@ -3,6 +3,15 @@
 
 /* QEMU virt machine (aarch64) memory map */
 #define QEMU_UART_BASE 0x09000000UL
+
+/* HAVEN's own console (CMake HAVEN_CONSOLE_UART): UART0, which partition A
+ * also owns, or QEMU virt's second Normal-world PL011, which no partition
+ * maps (docs/methodology/stage2/20261109-qemu-console). */
+#if defined(HAVEN_CONSOLE_UART) && HAVEN_CONSOLE_UART == 1
+#define QEMU_CONSOLE_BASE 0x09040000UL
+#else
+#define QEMU_CONSOLE_BASE QEMU_UART_BASE
+#endif
 #define QEMU_GIC_DIST_BASE 0x08000000UL
 #define QEMU_GIC_REDIST_BASE 0x080A0000UL
 #define QEMU_SMMU_BASE 0x09050000UL /* SMMUv3 for QEMU virt */
