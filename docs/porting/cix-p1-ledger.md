@@ -33,6 +33,8 @@ sources), S = single source or disputed.
 | 22 | Firmware enters the OS at EL2 with VHE (`HCR_EL2.E2H` may be set) | S | Positive: HAVEN can start at EL2, but must handle E2H at entry | Dump `HCR_EL2`, `ID_AA64MMFR*` at HAVEN entry |
 | 23 | Armbian support alpha | S | Low | n/a |
 | 24 | External debug of the application cores may need Secure authorisation: the CIX firmware layout has a 4 KiB `SECURE_DEBUG` item in SPI NOR | V (firmware source; effect not documented) | Read-back at a fixed instruction on the board (as `--break` in QEMU) needs a working debugger; without one, HAVEN must record the moment itself | Before buying: probe and soldering plan; at bring-up: does a 1.8 V probe see the debug port and halt a core (section below) |
+| 25 | GIC-700 redistributors are 256 KiB apart (GICv4 frames), one region per core in the vendor tree (core order inferred), while HAVEN's GIC driver indexes them by logical CPU at a fixed stride | V (vendor Orion O6 device tree in the CIX BIOS source; HAVEN source) | HAVEN would program the wrong redistributor (logical CPU 0 is the boot core, not core 0): PPI enables and SGIs land on another CPU, a direct A1 case | `cix-p1-device-tree.md` D2: find frames by GICR_TYPER affinity; on the board, read GICR_TYPER of each frame |
+| 26 | The Orange Pi 6 Plus firmware offers ACPI or Device Tree, but the images in `data/` hold no uncompressed tree and were built from CIX's ACPI SDK | V (BIOS manual v1.4 section 3.6; image search) | The tree Linux gets on the board is unknown until dumped; partition A's tree should come from mainline `sky1-xcp.dts` | Boot vendor Linux in Device Tree mode, dump `/sys/firmware/fdt`, compare with mainline |
 
 ## Row 1 checked against vendor firmware source (2026-11-02)
 
