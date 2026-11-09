@@ -13,6 +13,9 @@ project(haven VERSION 0.6.2 LANGUAGES C ASM)
 # ─────────────────────────────────────────────────────────────────────────────
 
 include(cmake/flags.cmake)
+# SOURCE_DATE_EPOCH for every compile: the HEAD commit time unless the
+# environment sets it (byte-identical images for one commit)
+include(cmake/reproducible.cmake)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
