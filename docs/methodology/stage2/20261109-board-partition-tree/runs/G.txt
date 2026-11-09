@@ -1,0 +1,11 @@
+$ python3 docs/methodology/stage2/20261109-board-partition-tree/gen_partition_a.py <linux-dts-cix/v7.3> docs/methodology/stage2/20261109-board-partition-tree/grant-cixp1-v0.json docs/methodology/stage2/20261109-board-partition-tree --seeds
+partition-a: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S1: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000, /soc@0/serial@40e0000
+seeds/partition-a-S2a: dtc exit 0, warnings: none; 9 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S2b: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S3: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S3b: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S4: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S5: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+seeds/partition-a-S6: dtc exit 0, warnings: none; 8 cpu nodes, 1 memory node(s), devices with reg besides the GIC: /soc@0/serial@40d0000
+exit 0

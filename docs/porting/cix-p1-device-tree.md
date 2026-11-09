@@ -79,7 +79,7 @@ facts stay with the vendor tree and IORT.
 | - | - | - |
 | D1 | Fetch mainline `sky1.dtsi`, `sky1-xcp.dts`, `sky1-orion-o6.dts` and the dt-bindings headers they include, at a pinned Linux tag, into `data/common/linux-dts-cix/` with a README giving the tag and commit | **done** 2026-11-08 (`v7.3`, owner-approved) |
 | D2 | HAVEN GIC driver: redistributor found by GICR_TYPER affinity, per-platform stride; host unit test with a fake 12-frame layout; QEMU checks unchanged | **done** 2026-11-08 (`93cf892`, `../methodology/stage2/20261108-gicr-affinity/`) |
-| D3 | Partition A tree generator: from `sky1-xcp.dts` and the board grant v0 (Linux on 8 cores), keep the granted CPUs, RAM window, UART2, PCIe; replace the GIC by HAVEN's emulated one; drop UART3 and HAVEN-owned nodes; check it with `dt_check.py` offline | D1 |
+| D3 | Partition A tree generator: from `sky1-xcp.dts` and the board grant v0 (Linux on 8 cores), keep the granted CPUs, RAM window, UART2, PCIe; replace the GIC by HAVEN's emulated one; drop UART3 and HAVEN-owned nodes; check it with `dt_check.py` offline | **done** 2026-11-09 without PCIe (owner's D3 instruction; `../methodology/stage2/20261109-board-partition-tree/`): matches the draft grant, 4 findings and proposals for `dt_check.py` and the vGIC |
 | D4 | `src/platform/cix-p1/` draft (CPU map, GIC, UART3, timer), compile-only until the board | D1, D2 |
 
 Sources (upstream patch and pull):

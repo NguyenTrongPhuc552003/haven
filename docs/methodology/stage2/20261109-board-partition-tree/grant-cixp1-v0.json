@@ -1,0 +1,91 @@
+{
+ "source": "Claude, 2026-11-09, D3 of 20261109-board-partition-tree (DRAFT, no board yet; design in README.md, merged before this file). Orange Pi 6 Plus (CIX P1), partition A (Linux) only. Assumptions: (1) CPU keys are HAVEN logical CPUs from the ledger's CPU map (MADT order, core 4 first: logical 0 = core 4, 1 to 4 = cores 0 to 3, 5 to 11 = cores 5 to 11); D4 fixes the map in code. A = logical 0 to 7 (cores 0 to 7), logical 1 to 7 started on PSCI CPU_ON; B = logical 8 to 11 (cores 8 to 11), a placeholder until B's own record (no B regions here). (2) A RAM: identity mapped (IPA = PA, GPU DMA untranslated, partition plan), 2 GiB at 4 GiB, inside the 4 GiB from 0x80000000 that the vendor tree and PcdSystemMemoryBase/Size state and above the firmware reservations of Sky1Common.dsc.inc (cix-bios 7799770); to confirm with the 16 GB board's EFI memory map. (3) A UART2: PL011 at 0x040D0000 (sky1.dtsi, Linux v7.3), SPI 298 = INTID 330 on logical CPU 0. (4) INTID 331 (UART3, HAVEN's console, G2 decision 5) is HAVEN's (partition 0). (5) PPI 27 (virtual timer) per CPU of each partition; PPI 26 (HAVEN's budget timer) per CPU, as in the QEMU grants. (6) No SMMU section: no DMA device is granted in the first bring-up. The emulated GIC (GICD 0x0E010000+0x10000, GICR 0x0E090000+0x100000) is not a region: it is given to dt_check.py with --emulated.",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x100000000",
+    "pa": "0x100000000",
+    "size": "0x80000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART2",
+    "ipa": "0x040D0000",
+    "pa": "0x040D0000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   }
+  ],
+  "2": []
+ },
+ "gic": {
+  "cpus": {
+   "0": 1,
+   "1": 1,
+   "2": 1,
+   "3": 1,
+   "4": 1,
+   "5": 1,
+   "6": 1,
+   "7": 1,
+   "8": 2,
+   "9": 2,
+   "10": 2,
+   "11": 2
+  },
+  "spis": {
+   "330": {
+    "partition": 1,
+    "cpu": 0
+   },
+   "331": {
+    "partition": 0,
+    "cpu": 0
+   }
+  },
+  "ppis": {
+   "0": [27],
+   "1": [27],
+   "2": [27],
+   "3": [27],
+   "4": [27],
+   "5": [27],
+   "6": [27],
+   "7": [27],
+   "8": [27],
+   "9": [27],
+   "10": [27],
+   "11": [27]
+  },
+  "priority": {
+   "haven": "0x40",
+   "partition": "0xa0"
+  },
+  "haven_ppis": {
+   "0": [26],
+   "1": [26],
+   "2": [26],
+   "3": [26],
+   "4": [26],
+   "5": [26],
+   "6": [26],
+   "7": [26],
+   "8": [26],
+   "9": [26],
+   "10": [26],
+   "11": [26]
+  },
+  "guest_enabled": {
+   "0": [27, 330],
+   "1": [27],
+   "2": [27],
+   "3": [27],
+   "4": [27],
+   "5": [27],
+   "6": [27],
+   "7": [27]
+  },
+  "cpus_on_request": [1, 2, 3, 4, 5, 6, 7]
+ }
+}
