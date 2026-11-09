@@ -98,3 +98,37 @@ tests, local, CI and records):
 
 Verdict rule: a row holds if every stated value, identity and text
 matches; anything else is a prediction error and is reported as such.
+
+### Results (2026-11-09, macOS host and CI)
+
+Expectations merged first (haven `22edfc3`, pull request 61); the code
+after that (commit `2e5ed85`, merged as `53209bb`, pull request 62, CI
+green on every job). Measured on `main` at `53209bb` (HEAD commit time
+1794205236, 2026-11-09 13:20:36 +0700), no `SOURCE_DATE_EPOCH` in the
+environment unless stated; build directories outside the repository.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| R1 | `-- Haven SOURCE_DATE_EPOCH: 1794205236 (HEAD commit time)` for all five variants (and for the host-test configure) | as expected |
+| R2 | builds started at 06:21:13 UTC (set a), 06:22:09 (b) and 06:22:35 (c), each in its own directories: `haven.bin` SHA-256 (first 16 hex digits) qemu `02ac6876264da813`, psci `806ac057c07e2314`, qemu-linux `197361d5452dbb44`, cix `e752d10d191c9256`, cix-linux `553223211ea38b5f`, the same in a, b and c (a and c are 82 s apart; a and b 56 s) | as expected |
+| R3 | the same tree with `SOURCE_DATE_EPOCH=1794205236` exported (configure says `(environment)`): the five images equal set a's (`cmp`) | as expected |
+| R4 | `Build:   Nov  9 2026 06:20:36`, the commit time in UTC | as expected |
+| R5 | `SOURCE_DATE_EPOCH=1793318400`: configure prints `(environment)`, banner `Build:   Oct 30 2026 00:00:00`; the image differs from set a's in 9 bytes, all in the banner | as expected |
+| R6 | text / data / bss: qemu 43,140 / 144 / 5,251,064; psci the same; qemu-linux 45,716 / 144 / 5,252,496; cix 43,196 / 144 / 5,251,064; cix-linux 45,784 / 144 / 5,258,048 | as expected |
+| R7 | `haven.elf` (qemu) built at 06:21 and rebuilt clean in the same directory about two minutes later: identical | as expected |
+| R8 | scratch clone (not pushed): first build `Build:   Nov  9 2026 06:20:36`; after an empty commit dated 2026-11-10T00:00:00Z, `cmake --build` printed `[0/1] Re-running CMake...`, `Haven SOURCE_DATE_EPOCH: 1794268800 (HEAD commit time)`, and the banner became `Nov 10 2026 00:00:00` | as expected |
+| R9 | qemu 66 files, 7,455 code lines; cix 67 files, 7,479 | as expected |
+| R10 | CTest 27 of 27; Python 53 tests, OK, none skipped | as expected |
+| R11 | pull request 62: all jobs green on Linux, macOS and Windows; the new step passed on Ubuntu (`aarch64-linux-gnu` GCC 15.2.0), both configures printing `Haven SOURCE_DATE_EPOCH: 1794205150 (HEAD commit time)` (the pull request's merge ref) | as expected |
+
+**Verdict.** 11 of 11 rows hold as pre-registered. Observation outside
+the rows: in CI the second build ran 18 s after the first (06:19:41 and
+06:19:59 UTC), not "minutes" as the design said; the job is short. The
+seconds of `__TIME__` still differ, so the step still tests the property.
+
+Limits [I]: the banner shows the commit time, not when the image was
+built; a build from uncommitted changes carries the HEAD time too (the
+source then differs from that commit, so its image is not that commit's
+image anyway). Outside a git checkout the build time is embedded as
+before. Only `haven.bin` and `haven.elf` were compared; other outputs
+(object archives of host tests) were not checked.
