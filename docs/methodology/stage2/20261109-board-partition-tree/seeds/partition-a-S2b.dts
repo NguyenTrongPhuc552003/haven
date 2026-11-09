@@ -4,7 +4,7 @@
 // docs/methodology/stage2/20261109-board-partition-tree/gen_partition_a.py
 // from Linux v7.3 sky1-xcp.dts sha256 cc96c9c9ccbbb6955e5e84b837103810b12194816e85807864a5a19c012f894c
 // and sky1.dtsi sha256 386626c419330751db71a19818813c93c1d647bc6281b62483105045bb433149
-// with grant grant-cixp1-v0.json sha256 6d59ef82ae042cf44d2f4383351336dce5cebedf8f04a76102d3308a97ece9d8
+// with grant grant-cixp1-v0.json sha256 e54e5b06a086dcb5576fd74bb59cf1af705874204cee3ea48aaf84c770111b39
 // SEEDED FAULT S2b (README.md, Expectations): not a tree to boot
 
 / {

@@ -16,7 +16,8 @@
     "size": "0x1000",
     "attrs": "DEVICE_RW"
    }
-  ]
+  ],
+  "2": []
  },
  "gic": {
   "cpus": {

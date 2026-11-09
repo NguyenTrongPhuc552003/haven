@@ -116,6 +116,13 @@ marked `SEEDED FAULT` in its header), one log per row in `runs/`. The board
 fact checks of the generator all passed (no stop). The data folder was only
 read (preprocessing and the board blob go to a temporary directory).
 
+CI on the first push of this record failed one test, `test_grant`'s round
+trip of every repository grant through format 2: the grant gave cores 8 to
+11 to partition 2 in `gic.cpus` but listed no partition 2, so the
+conversion dropped them. The grant now lists `"2": []` (no regions yet);
+the tree and all rows were regenerated and rerun with the same results
+(only the grant's SHA-256 in the `.dts` headers changed).
+
 | Row | Expected | Observed | Verdict |
 | - | - | - | - |
 | G | `dtc` exit 0, no warning; 8 cpu nodes, 1 memory node, UART2 the only device with `reg` besides the GIC | exit 0, `warnings: none`; 8 cpu nodes, 1 memory node, `/soc@0/serial@40d0000` (the eight seeded trees also compile without warning) | as expected |
