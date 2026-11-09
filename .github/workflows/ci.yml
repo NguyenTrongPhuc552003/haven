@@ -70,6 +70,13 @@ jobs:
         run: python3 scripts/qemu/partition-b-check.py build-psci cortex-a72
       - name: Partition B check (max)
         run: python3 scripts/qemu/partition-b-check.py build-psci max
+      # SOURCE_DATE_EPOCH is the HEAD commit time (cmake/reproducible.cmake):
+      # a second build minutes later must give the same image.
+      - name: Reproducibility (rebuild and compare haven.bin)
+        run: |
+          cmake --preset arm64-qemu -B build-repro -DHAVEN_BOOT_PROFILE=qemu-direct
+          cmake --build build-repro
+          cmp build/haven.bin build-repro/haven.bin
       # Draft CIX P1 platform: compile-only until a board exists
       # (docs/methodology/stage2/20261109-cix-p1-platform).
       - name: Cross-compile (cix-p1 draft, no boot)
