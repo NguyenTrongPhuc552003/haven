@@ -19,6 +19,18 @@
             }
         },
         {
+            "name": "arm64-cix-p1",
+            "displayName": "ARM64 - CIX P1 (Orange Pi 6 Plus), draft",
+            "description": "Cross-compile the draft CIX P1 platform (compile-only until a board exists)",
+            "toolchainFile": "${sourceDir}/cmake/arm64.cmake",
+            "binaryDir": "${sourceDir}/build-cix-p1",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "PLATFORM": "cix-p1",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
             "name": "arm64-imx95",
             "displayName": "ARM64 - NXP i.MX95 Dev Kit",
             "description": "Cross-compile for ARM64 targeting the NXP i.MX95 Dev Kit (thesis primary board)",
@@ -58,6 +70,11 @@
         {
             "name": "arm64-qemu",
             "configurePreset": "arm64-qemu",
+            "jobs": 4
+        },
+        {
+            "name": "arm64-cix-p1",
+            "configurePreset": "arm64-cix-p1",
             "jobs": 4
         },
         {

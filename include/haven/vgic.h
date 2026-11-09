@@ -19,7 +19,18 @@
 
 #include <haven/types.h>
 
-#define HV_VGIC_NR_IRQS 64U /* INTIDs 0..63: 16 SGIs, 16 PPIs, 32 SPIs */
+/* Interrupt IDs the model reports (GICD_TYPER.ITLinesNumber = n / 32 - 1).
+ * Per platform: the build defines HAVEN_VGIC_NR_IRQS (CMake; 352 on cix-p1,
+ * docs/methodology/stage2/20261109-cix-p1-platform), else 64 (INTIDs 0..63:
+ * 16 SGIs, 16 PPIs, 32 SPIs). Every translation unit must see one value. */
+#ifdef HAVEN_VGIC_NR_IRQS
+#define HV_VGIC_NR_IRQS HAVEN_VGIC_NR_IRQS
+#else
+#define HV_VGIC_NR_IRQS 64U
+#endif
+_Static_assert(HV_VGIC_NR_IRQS % 32U == 0U && HV_VGIC_NR_IRQS >= 64U &&
+		       HV_VGIC_NR_IRQS <= 1024U,
+	       "HV_VGIC_NR_IRQS: a multiple of 32 from 64 to 1024");
 #define HV_VGIC_GICD_SIZE 0x10000U
 #define HV_VGIC_GICR_SIZE 0x20000U /* RD frame + SGI frame */
 #define HV_VGIC_DEFAULT_PRIO 0xA0U
