@@ -1,0 +1,6 @@
+$ python3 tools/readback/dt_check.py docs/methodology/stage2/20261109-board-partition-tree/grant-cixp1-v0.json docs/methodology/stage2/20261109-board-partition-tree/seeds/partition-a-S2b.dtb --partition 1 --emulated 0x0E010000+0x10000 --emulated 0x0E090000+0x100000
+  info /timer: timer interrupt 29 (entry 0) not used by an EL1 guest
+  info /timer: timer interrupt 30 (entry 1) not used by an EL1 guest
+  info /timer: timer interrupt 26 (entry 3) not used by an EL1 guest
+RESULT the device tree matches the grant
+exit 0

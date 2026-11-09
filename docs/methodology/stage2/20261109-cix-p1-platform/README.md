@@ -203,3 +203,103 @@ and order) and the number of information lines match; build rows hold if
 every stated number or identity matches. Anything else is a prediction
 error and is reported as such. These expectations are not edited after
 the runs; results go in a Results section added by a later pull request.
+
+## Results (2026-11-09, macOS host and CI; no board)
+
+Expectations merged first (haven `a47ebc0`, pull request 58); the code
+after that (commit `b99c8ea`, merged as `1ec9b8a`, pull request 59, CI
+green on every job). Tools: `aarch64-unknown-linux-gnu` GCC 15.2.0 on the
+macOS host (CI: `aarch64-linux-gnu` GCC 15.2.0), DTC 1.6.1, Python 3.9.6,
+`cloc`. Build directories outside the repository; commands as in the
+Expectations (presets `arm64-qemu`, `arm64-cix-p1`, `host-tests`).
+Part 4: `python3 docs/methodology/stage2/20261109-cix-p1-platform/run_d4.py`
+from the haven repository; one log per row in `runs/`, the new seed in
+`seeds/` (marked `SEEDED FAULT`).
+
+### Builds, tests, trusted code
+
+| Row | Observed | Verdict |
+| - | - | - |
+| B1 | builds; size 43,140 / 144 / 5,251,064 as predicted; `haven.bin` **not** byte-identical: 3 bytes differ, the build time in `Build: Nov  9 2026 12:21:17` against `12:31:43` (`src/core/init.c` prints `__DATE__ " " __TIME__`). With `SOURCE_DATE_EPOCH=1793318400` for both builds (baseline: D4's changes stashed, same tree), the images are byte-identical (SHA-256 `b8b4ea32...d337` both) | **prediction error** (the expectation overlooked the embedded build time); the property it meant to test holds |
+| B2 | same: differs only in the build time; with the fixed epoch byte-identical (`ceffd618...60c9` both). Also checked, not a row: the Linux options build is byte-identical too (`c2308a15...ef`) | **prediction error**, same cause; property holds |
+| B3 | builds; no compiler warning; the linker warnings are the same lines as the qemu-virt build's (RWX LOAD segment and build-id discarded, for haven, guest_a and guest_b); `Haven PSCI conduit: HAVEN_PSCI_CONDUIT_SMC`; bss 5,251,064, equal to B1's (text 43,196) | as expected |
+| B4 | `hv_cpu_mpidr` (0x60 bytes, read-only data) = 0x400, 0x0, 0x100, 0x200, 0x300, 0x500, 0x600, 0x700, 0x800, 0x900, 0xa00, 0xb00; `hv_cpu_count` = 12 | as expected |
+| B5 | qemu-virt bss 5,252,496, cix-p1 bss 5,258,048: difference **5,552** exactly (no padding) | as expected |
+| T1 | local CTest 27 of 27 pass (`main`: 26 run), `test_vgic_wide` prints `sizeof(struct hv_vgic) = 3440`; `scripts/dev/test.sh` also passes. CI: 27 of 27 on Linux, macOS and Windows | as expected |
+| T2 | local: 53 tests (`main`: 42), all pass, 0 skipped; `test_grant` reads `grant-cixp1-v1.json`. CI: 53 run, 12 skipped (the dts-based tests, no `dtc` there, as designed), the 5 blob-based board tests run | as expected |
+| T3 | pull request 59: every job green, including `Cross-compile (cix-p1 draft, no boot)` | as expected |
+| K1 | 66 files, 7,455 code lines (+7: `vgic.h` 45 to 52; `vgic.c` unchanged at 310) | as expected |
+| K2 | 67 files, 7,479 code lines (main's qemu-virt 7,448, minus qemu-virt `platform.c` 59, plus cix-p1 `platform.c` 61 and `memory.h` 22, plus 7 in `vgic.h`) | as expected |
+| K3 | `dt_check.py` 190 (the low end of the range), `grant.py` 167 | as expected |
+
+Note on K1 and K2: `tcb-image-loc.py` takes the file list from a build
+but counts the files as they are on disk, so the baseline (7,448) was
+counted at `main` before any change.
+
+### dt_check.py on D3's trees
+
+| Row | Observed | Verdict |
+| - | - | - |
+| A-C, A-S1, A-S2a, A-S2b, A-S3, A-S3b, A-S4 | output equal to D3's logs, line for line (the runner compares them) | as expected (S2b still missed with grant v0) |
+| A-S5 | exit 0, no finding, info 29 (entry 0), 30 (entry 1), 26 (entry 3) | as expected: **read correctly** |
+| A-S6 | exit 0, no finding, the 3 timer lines and `/psci: method "smc"; HAVEN serves PSCI to partitions over HVC` | as expected: **reported as information** |
+| B-C | exit 0, no finding, 3 info | as expected |
+| B-S1 | exit 1: registers 0x40e0000+0x1000 and SPI 331 of `/soc@0/serial@40e0000`; 3 info | as expected |
+| B-S2a | exit 1: `/cpus: 9 CPU nodes, partition 1 has 8 CPU(s)`, then `/cpus/cpu@800: MPIDR 0x800 is not a CPU of partition 1`; 3 info | as expected |
+| B-S2b | exit 1: `/cpus/cpu@800: MPIDR 0x800 is not a CPU of partition 1`; 3 info | as expected: **caught** |
+| B-S3, B-S3b, B-S4 | exit 1, D3's single finding each; 3 info | as expected |
+| B-S5 | exit 0, no finding, 3 info | as expected |
+| B-S6 | exit 0, no finding, 4 info (the `/psci` line last) | as expected |
+| V | exit 1: `/soc@0/serial@40d0000: SPI 330 beyond the emulated GIC (64 interrupt IDs)`; 3 info | as expected: D3 finding 1 **caught** |
+| S7-dtc | exit 0, one warning: `Warning (interrupts_property): /soc@0/serial@40d0000:#interrupt-cells: size is (12), expected multiple of 8` | as expected |
+| S7 | exit 1: `/timer: interrupt specifiers not readable: the parent's #interrupt-cells is 2 (3 or 4 expected)`, the same for `/soc@0/serial@40d0000`; no info | as expected: **caught** (fail closed) |
+
+**Verdict.** 32 checks: 30 hold as pre-registered, 2 are prediction errors
+(B1, B2), both from one cause: the expectation said "byte-identical"
+without fixing the build time HAVEN prints at boot. With the time fixed
+the qemu-virt images (default, `qemu-psci`, Linux options) are
+byte-identical before and after D4, which is what those rows were meant to
+show. Of D3's limits, S2b (wrong core, right count) is now caught when the
+grant names MPIDRs, S5 (4-cell specifiers) is read correctly, S6 (SMC
+conduit) is reported as information, and D3 finding 1 (an interrupt the
+emulated GIC cannot deliver) is a finding under `--vgic-intids`.
+
+What this shows [O]: the draft platform builds with every board fact
+traced to `data/`; the emulated GIC at 352 IDs takes and gives back INTID
+330's enable, routing, priority and configuration in a host test, at a
+cost of 2,776 bytes per vCPU; qemu-virt is unchanged.
+
+What this does not show: that HAVEN runs on the board. The cix-p1 image
+links at 0x8000_0000, inside the firmware's secure reservation, carries
+QEMU's partition tables (partition.c is unchanged), and has not executed
+one instruction on a CIX P1. UART3's clock and pins, the RAM window and
+the GIC-700's own interrupt range stay assumptions until the board.
+
+### Findings and proposals
+
+1. **Reproducibility of image comparisons** [O, I]: HAVEN's image embeds
+   its build time, so two builds of the same source differ. Proposal [P]:
+   records that compare images set `SOURCE_DATE_EPOCH` (GCC honours it for
+   `__DATE__` and `__TIME__`); CI could set it too.
+2. **Next step for the platform** [P]: partition.c takes partition A's
+   regions, vGIC IPAs and vCPU count from the platform (the `CIX_PART_A_*`
+   constants of `memory.h` are ready and unused), so a cix-p1 build carries
+   the D3 grant instead of QEMU's layout.
+3. **Read-back** [F]: `readback.py` reads the model's enables for INTIDs 0
+   to 63 only; on cix-p1 it would not see INTID 330. Proposal [P]: read
+   `HV_VGIC_NR_IRQS / 32` words, taken from the ELF (for example a
+   constant symbol), before read-back runs on the board.
+4. **vGIC width beyond the first grant** [I]: 352 IDs do not cover PCIe
+   INTx (INTID up to 480) or the highest vendor INTID (506); granting
+   those needs 512 IDs (+1,280 bytes more per vCPU at 8 bytes of `irouter`
+   per ID, plus the bitmaps and priorities), which `dt_check.py
+   --vgic-intids` will report first.
+
+### Open questions for the owner
+
+1. How HAVEN is loaded on the board (UEFI application or firmware image)
+   and at which address: needed before the cix-p1 image can run (porting
+   note, open question 5).
+2. Approve the next platform step (finding 2) as D5, or another order.
+3. Adopt `SOURCE_DATE_EPOCH` for image comparisons in records and CI
+   (finding 1).

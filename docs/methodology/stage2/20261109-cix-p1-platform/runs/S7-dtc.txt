@@ -1,0 +1,3 @@
+$ dtc -I dts -O dtb -o docs/methodology/stage2/20261109-cix-p1-platform/seeds/partition-a-S7.dtb docs/methodology/stage2/20261109-cix-p1-platform/seeds/partition-a-S7.dts
+docs/methodology/stage2/20261109-cix-p1-platform/seeds/partition-a-S7.dts:157.3-26: Warning (interrupts_property): /soc@0/serial@40d0000:#interrupt-cells: size is (12), expected multiple of 8
+exit 0
