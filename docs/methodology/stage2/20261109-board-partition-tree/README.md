@@ -102,3 +102,85 @@ after `FINDING`, in the printed order.
 Verdict rule: a row holds if exit status, findings (text and number) and
 the number of info lines match. Any other result is a prediction error and
 is reported as such; the expectations above are not edited after the runs.
+
+## Results (2026-11-09, offline, macOS host)
+
+Expectations merged first (haven `518fe7c`, pull request 56); generator,
+grant and runner written after that merge. Tools: Apple clang 21.0.0, DTC
+1.6.1, Python 3.9.6; `dt_check.py` unchanged. One command, from the haven
+repository: `python3
+docs/methodology/stage2/20261109-board-partition-tree/run_d3.py
+<workspace>/data/common/linux-dts-cix/v7.3`. Outputs: `partition-a.dts`
+and `partition-a.dtb` (3,060 bytes), the seeded trees in `seeds/` (each
+marked `SEEDED FAULT` in its header), one log per row in `runs/`. The board
+fact checks of the generator all passed (no stop). The data folder was only
+read (preprocessing and the board blob go to a temporary directory).
+
+| Row | Expected | Observed | Verdict |
+| - | - | - | - |
+| G | `dtc` exit 0, no warning; 8 cpu nodes, 1 memory node, UART2 the only device with `reg` besides the GIC | exit 0, `warnings: none`; 8 cpu nodes, 1 memory node, `/soc@0/serial@40d0000` (the eight seeded trees also compile without warning) | as expected |
+| C | exit 0, no finding, 3 info (29, 30, 26) | exit 0, `RESULT the device tree matches the grant`, info for 29 (entry 0), 30 (entry 1), 26 (entry 3) | as expected |
+| S1 | exit 1: registers 0x40e0000+0x1000 and SPI 331 of `/soc@0/serial@40e0000` | exit 1, exactly those two findings, in that order; 3 info | as expected (caught) |
+| S2a | exit 1: `/cpus: 9 CPU nodes, partition 1 has 8 CPU(s)` | exit 1, that finding; 3 info | as expected (caught) |
+| S2b | exit 0, no finding (expected miss) | exit 0, no finding | as expected (**missed**, a limit of the tool) |
+| S3 | exit 1: memory 0x100000000+0x100000000 | exit 1, that finding; 3 info | as expected (caught) |
+| S3b | exit 1: memory 0x80000000+0x80000000 | exit 1, that finding; 3 info | as expected (caught) |
+| S4 | exit 1: `/interrupt-controller@e010000` registers 0xe090000+0x300000 | exit 1, that finding; 3 info | as expected (caught) |
+| S5 | exit 1, false finding `/timer: PPI 16`; 4 info (29, 33, 24, 26) | exit 1, `FINDING /timer: PPI 16 not granted to partition 1`; info 29 (entry 0), 33 (entry 1), 24 (entry 3), 26 (entry 4) | as expected (**misread**, a limit of the tool) |
+| S6 | exit 0, no finding (expected miss) | exit 0, no finding | as expected (**missed**, a limit of the tool) |
+
+**Verdict.** All ten rows match the pre-registered expectations; no
+prediction error. The generated tree matches the draft board grant, and
+`dt_check.py` catches the five seeded faults inside its rules (a HAVEN-owned
+device, an extra CPU, memory beyond or outside the window, an emulated
+range larger than HAVEN serves).
+
+What this does not show: that Linux boots with this tree (no board, and
+HAVEN has no CIX platform yet, D4), that the RAM window exists and is free
+on the 16 GB board, or that UART2's clock is 100 MHz. These stay
+assumptions of the grant's `source` field until the board.
+
+### Findings
+
+1. **The tree passes `dt_check.py` but would not yet work with HAVEN's
+   vGIC** (known limit 1): UART2's INTID 330 is above the 64 IDs the vGIC
+   reports. The check passed because it compares the tree with the grant,
+   not with what the emulation can deliver.
+2. **CPU identity is not checked** (S2b): a tree that names a core of
+   partition B passes, as long as the number of CPUs is right. Linux
+   would then ask HAVEN, through PSCI CPU_ON, for a core outside its
+   grant; HAVEN refuses that (CPU_ON checks the partition's CPU list
+   [F, `multi-vcpu.md`]), so the fault is contained at run time, but it
+   is a guest-description mismatch the offline check should catch.
+3. **Specifier width is assumed** (S5): `dt_check.py` reads interrupts in
+   groups of three whatever the controller's `#interrupt-cells`. On the
+   board's own tree (4 cells) it would report false findings and could
+   also accept a wrong interrupt by misalignment.
+4. **PSCI conduit is not checked** (S6): a tree that tells Linux to use
+   SMC passes. Checked after the run: the consequence is small today,
+   because HAVEN traps SMC (`HCR_EL2.TSC`) and serves PSCI over a trapped
+   SMC as over HVC [F, `src/core/exc/el2_exceptions.c`, PSCI handler
+   comment]. It remains a difference between the tree and the design
+   (HVC), which matters if the SMC path ever forwards calls to firmware.
+
+### Proposals (not done here; `dt_check.py` and HAVEN's code unchanged)
+
+| For | Proposal |
+| - | - |
+| finding 2 | the grant names each CPU's guest MPIDR (for example `gic.mpidr`: `{"<logical cpu>": "0x400"}`), and `dt_check.py` compares the set of cpu `reg` values with the partition's MPIDRs (finding: "cpu@800 is not a CPU of partition 1") |
+| finding 3 | `dt_check.py` takes the specifier width from the parent's `#interrupt-cells` (3 or 4, the 4th being a PPI partition), and reports a tree whose width it cannot read |
+| finding 4 | a Linux-profile rule, as information rather than a finding: `/psci` present, with `method = "hvc"` |
+| finding 1 | `--emulated` grows a GIC form (for example `--vgic-intids 64`) so the check reports an interrupt the emulated GIC cannot deliver; and in D4 the vGIC's interrupt range covers the board's granted SPIs (at least INTID 330, ITLinesNumber 10) |
+
+### Open questions for the board
+
+1. RAM window: is 0x1_0000_0000 to 0x1_7FFF_FFFF conventional memory in
+   the 16 GB board's EFI memory map, with no firmware reservation in it?
+2. UART2's clock: do IBRD and FBRD read 54 and 16 after UEFI (100 MHz at
+   115200 baud)?
+3. The CIX BIOS also names UART3 (0x040E0000, INTID 331) as its "EMS UART
+   Terminal" (`PcdSerialDbgRegisterBase`, `Sky1Common.dsc.inc`) [O]: does
+   any firmware component write to it after boot, where HAVEN would share
+   it?
+4. Which A720 group is faster (`M0`/`M1` or `B0`/`B1`): MIDR and the SCMI
+   performance levels, before the real-time partition takes cores 8 to 11.

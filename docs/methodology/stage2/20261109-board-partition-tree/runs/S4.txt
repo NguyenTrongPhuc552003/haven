@@ -1,0 +1,7 @@
+$ python3 tools/readback/dt_check.py docs/methodology/stage2/20261109-board-partition-tree/grant-cixp1-v0.json docs/methodology/stage2/20261109-board-partition-tree/seeds/partition-a-S4.dtb --partition 1 --emulated 0x0E010000+0x10000 --emulated 0x0E090000+0x100000
+  FINDING /interrupt-controller@e010000: registers 0xe090000+0x300000 not granted to partition 1
+  info /timer: timer interrupt 29 (entry 0) not used by an EL1 guest
+  info /timer: timer interrupt 30 (entry 1) not used by an EL1 guest
+  info /timer: timer interrupt 26 (entry 3) not used by an EL1 guest
+RESULT 1 finding(s)
+exit 1
