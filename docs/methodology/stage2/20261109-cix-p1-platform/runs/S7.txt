@@ -1,0 +1,5 @@
+$ python3 tools/readback/dt_check.py docs/methodology/stage2/20261109-cix-p1-platform/grant-cixp1-v1.json docs/methodology/stage2/20261109-cix-p1-platform/seeds/partition-a-S7.dtb --partition 1 --emulated 0x0E010000+0x10000 --emulated 0x0E090000+0x100000 --vgic-intids 352
+  FINDING /timer: interrupt specifiers not readable: the parent's #interrupt-cells is 2 (3 or 4 expected)
+  FINDING /soc@0/serial@40d0000: interrupt specifiers not readable: the parent's #interrupt-cells is 2 (3 or 4 expected)
+RESULT 2 finding(s)
+exit 1
