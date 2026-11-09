@@ -62,6 +62,12 @@ haven_test(test_vgic
     SRCS ${_T}/unit/test_vgic.c
          ${_S}/core/irq/vgic.c
 )
+# The same model at the cix-p1 width (docs/methodology/stage2/20261109-cix-p1-platform)
+haven_test(test_vgic_wide
+    SRCS ${_T}/unit/test_vgic_wide.c
+         ${_S}/core/irq/vgic.c
+    DEFINES HAVEN_VGIC_NR_IRQS=352U
+)
 haven_test(test_sysreg_trap
     SRCS ${_T}/unit/test_sysreg_trap.c
          ${_S}/core/exc/sysreg_trap.c

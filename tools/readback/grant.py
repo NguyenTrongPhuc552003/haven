@@ -17,6 +17,9 @@ device tree:
 - `haven,target-cpu`: the CPU an SPI is routed to.
 - `haven,ppis`: per-CPU private interrupts the partition owns
   ({"cpu": [intid, ...]}).
+- `haven,mpidr`: the guest MPIDR of each of the partition's CPUs
+  ({"cpu": "0x400"}; format 1: `gic.mpidr`, D4); CPUs of no partition keep
+  theirs in the top-level `haven` object.
 - top-level `haven`: what belongs to HAVEN itself (its interrupts, its
   per-CPU timer PPIs, priorities, SMMU state, devices allowed to stay
   unenforced).
@@ -96,6 +99,9 @@ def to_v2(v1, level_spis=()):
                 if str(c) in {str(x) for x in p["haven,cpus"]}}
         if ppis:
             p["haven,ppis"] = {str(c): sorted(v) for c, v in ppis.items()}
+        mp = {str(c): gic["mpidr"][str(c)] for c in p["haven,cpus"] if str(c) in gic.get("mpidr", {})}
+        if mp:
+            p["haven,mpidr"] = mp
         parts.append(p)
     haven = {
         "interrupts": [{"id": int(i), "haven,target-cpu": int(s["cpu"])}
@@ -110,6 +116,10 @@ def to_v2(v1, level_spis=()):
         haven["guest-enabled"] = {str(c): sorted(v) for c, v in gic["guest_enabled"].items()}
     if gic.get("cpus_on_request"):  # CPUs started on the guest's PSCI CPU_ON (read-back v12)
         haven["cpus-on-request"] = sorted(int(c) for c in gic["cpus_on_request"])
+    placed = {c for p in parts for c in p.get("haven,mpidr", {})}
+    rest = {c: m for c, m in gic.get("mpidr", {}).items() if str(c) not in placed}
+    if rest:  # MPIDRs of CPUs no partition owns
+        haven["mpidr"] = rest
     out = {"format": "haven-grant/2", "vocabulary": "FF-A partition manifest binding; haven,* are HAVEN extensions",
            "partitions": parts, "haven": haven}
     if "source" in v1:
@@ -131,6 +141,7 @@ def to_v1(v2):
     if "source" in v2:
         v1["source"] = v2["source"]
     streams, spis, cpus, ppis = {}, {}, {}, {}
+    mpidr = dict(haven.get("mpidr", {}))
     for p in v2["partitions"]:
         pid = int(p["id"])
         regions, cpu_mapped = [], []
@@ -168,6 +179,7 @@ def to_v1(v2):
             cpus[str(c)] = pid
         for c, v in p.get("haven,ppis", {}).items():
             ppis[str(c)] = list(v)
+        mpidr.update(p.get("haven,mpidr", {}))
         v1["partitions"][str(pid)] = regions
     for c in haven.get("unassigned-cpus", []):
         cpus[str(c)] = 0
@@ -186,6 +198,8 @@ def to_v1(v2):
             gic["guest_enabled"] = haven["guest-enabled"]
         if haven.get("cpus-on-request"):
             gic["cpus_on_request"] = haven["cpus-on-request"]
+        if mpidr:
+            gic["mpidr"] = mpidr
         v1["gic"] = gic
     return v1
 

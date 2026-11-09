@@ -70,3 +70,10 @@ jobs:
         run: python3 scripts/qemu/partition-b-check.py build-psci cortex-a72
       - name: Partition B check (max)
         run: python3 scripts/qemu/partition-b-check.py build-psci max
+      # Draft CIX P1 platform: compile-only until a board exists
+      # (docs/methodology/stage2/20261109-cix-p1-platform).
+      - name: Cross-compile (cix-p1 draft, no boot)
+        run: |
+          cmake --preset arm64-cix-p1
+          cmake --build build-cix-p1
+          file build-cix-p1/haven.elf | grep -q "ARM aarch64"

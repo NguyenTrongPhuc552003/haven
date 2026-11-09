@@ -22,7 +22,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(HAVEN_ARCH_ARM64  "Build for ARM64 bare-metal"    OFF)
 option(HAVEN_HOST_BUILD  "Build for host (unit tests)"   OFF)
 set(PLATFORM "qemu-virt" CACHE STRING
-    "Target platform: qemu-virt | imx95-devkit | imx8qm-mek")
+    "Target platform: qemu-virt | cix-p1 (draft, compile-only) | imx95-devkit | imx8qm-mek")
 
 # Derive preprocessor platform symbol, e.g. imx95-devkit → HAVEN_PLATFORM_IMX95_DEVKIT
 string(TOUPPER  "${PLATFORM}" _plat_upper)
@@ -30,8 +30,8 @@ string(REPLACE  "-" "_" _plat_sym "${_plat_upper}")
 set(HAVEN_PLATFORM_DEFINE "HAVEN_PLATFORM_${_plat_sym}")
 
 # PSCI boot profile (FINDINGS B1, owner decision E2, 2026-10-31).
-# Only qemu-virt has profiles; other platforms keep the historical HVC conduit,
-# which is unverified for them.
+# Only qemu-virt has profiles; cix-p1 uses SMC (below); the legacy i.MX
+# platforms keep the historical HVC conduit, which is unverified for them.
 #   qemu-direct : QEMU loads HAVEN directly at EL2. No PSCI provider exists, so
 #                 CPU_ON is declared unavailable and no HVC/SMC is executed.
 #   qemu-tfa    : TF-A BL1/BL2/BL31 provides PSCI at EL3; CPU_ON uses SMC.
@@ -54,6 +54,10 @@ if(PLATFORM STREQUAL "qemu-virt")
             "Unknown HAVEN_BOOT_PROFILE '${HAVEN_BOOT_PROFILE}' "
             "(expected qemu-direct, qemu-tfa or qemu-psci)")
     endif()
+elseif(PLATFORM STREQUAL "cix-p1")
+    # CIX P1: TF-A at EL3 provides PSCI over SMC (Linux v7.3 sky1.dtsi,
+    # /psci method "smc"); partitions keep PSCI over HVC, emulated by HAVEN.
+    set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_SMC)
 else()
     set(HAVEN_PSCI_CONDUIT_DEFINE HAVEN_PSCI_CONDUIT_HVC)
 endif()
@@ -183,6 +187,13 @@ if(HAVEN_ARCH_ARM64)
             message(FATAL_ERROR "HAVEN_PART_A_VCPUS > 1 needs a Linux guest (HAVEN_PART_A_DTB_IPA)")
         endif()
         target_compile_definitions(haven PRIVATE HAVEN_PART_A_VCPUS=${HAVEN_PART_A_VCPUS})
+    endif()
+    # Interrupt IDs of the emulated GIC (include/haven/vgic.h): 64 unless the
+    # platform needs more. cix-p1: 352 (ITLinesNumber 10) covers its granted
+    # SPIs, UART2 = 330 and UART3 = 331
+    # (docs/methodology/stage2/20261109-cix-p1-platform).
+    if(PLATFORM STREQUAL "cix-p1")
+        target_compile_definitions(haven PRIVATE HAVEN_VGIC_NR_IRQS=352U)
     endif()
     message(STATUS "Haven PSCI conduit: ${HAVEN_PSCI_CONDUIT_DEFINE}"
                    " (profile ${HAVEN_BOOT_PROFILE})")

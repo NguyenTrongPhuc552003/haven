@@ -61,6 +61,13 @@ mkdir -p build/tests
 
 ./build/tests/test_vgic
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -DHAVEN_VGIC_NR_IRQS=352U \
+	tests/unit/test_vgic_wide.c \
+	src/core/irq/vgic.c \
+	-o build/tests/test_vgic_wide
+
+./build/tests/test_vgic_wide
+
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_sysreg_trap.c \
 	src/core/exc/sysreg_trap.c \

@@ -2,6 +2,7 @@
 """Check a guest's device tree (T) against its partition's grant (G).
 
 Usage: dt_check.py GRANT DT --partition N [--emulated BASE+SIZE ...]
+                   [--vgic-intids N]
 
 DT is a .dts or .dtb (a .dts is compiled with dtc). GRANT is a HAVEN grant
 (format 1 or 2, see grant.py). --emulated names register ranges HAVEN
@@ -15,16 +16,27 @@ What the guest is told must be what it is granted:
 - initramfs: /chosen linux,initrd-start..end lies in granted RAM;
 - device registers: every reg range of an enabled device node lies in a
   device region granted to the partition, or in an emulated range;
-- interrupts (GIC, three cells): every SPI is granted to the partition,
-  every PPI to the partition on one of its CPUs. For the architected
-  timer (arm,armv8-timer) only the virtual timer (third entry) must be
-  granted: a Linux guest at EL1 uses it (drivers/clocksource/
-  arm_arch_timer.c); the other three are listed as information;
-- CPUs: no more cpu nodes than CPUs assigned to the partition.
+- interrupts (GICv3, specifier width from the parent's #interrupt-cells:
+  3, or 4 with a PPI partition in the 4th cell, which is not checked; any
+  other width or a length that is not a multiple of it is a finding):
+  every SPI is granted to the partition, every PPI to the partition on one
+  of its CPUs. For the architected timer (arm,armv8-timer) only the
+  virtual timer (third entry) must be granted: a Linux guest at EL1 uses
+  it (drivers/clocksource/arm_arch_timer.c); the others are listed as
+  information. With --vgic-intids N, every interrupt checked must also be
+  below N, the interrupt IDs HAVEN's emulated GIC reports;
+- CPUs: no more cpu nodes than CPUs assigned to the partition; if the
+  grant's "gic" section has "mpidr" ({logical cpu: guest MPIDR}), every
+  cpu node's reg must be the MPIDR of one of the partition's CPUs;
+- PSCI (information only): /psci with a method other than "hvc", or no
+  /psci while cpu nodes use enable-method "psci" (HAVEN serves PSCI over
+  HVC).
 
 Exit status: 0 the device tree matches the grant, 1 findings, 2 bad input.
 Written after Linux chain case set v1 (finding 5): T4 and T5 would have
-been caught before boot.
+been caught before boot. CPU identity, specifier width, PSCI and
+--vgic-intids added by D4 (docs/methodology/stage2/20261109-cix-p1-platform)
+for D3's findings 1 to 4.
 """
 import argparse
 import os
@@ -134,7 +146,10 @@ def inside(base, size, spans):
     return pos >= end
 
 
-def check(g, root, pid, emulated):
+AFF = 0xFF00FFFFFF  # MPIDR Aff3 [39:32], Aff2..Aff0 [23:0]
+
+
+def check(g, root, pid, emulated, vgic_intids=None):
     pid = int(pid)
     regions = g["partitions"].get(str(pid), [])
     ram = [(int(r["ipa"], 16), int(r["size"], 16)) for r in regions if r["attrs"] in NORMAL]
@@ -149,9 +164,18 @@ def check(g, root, pid, emulated):
     root_parent = cells(root["props"]["interrupt-parent"])[0] if "interrupt-parent" in root["props"] else None
     findings, info = [], []
 
-    ncpu = sum(1 for path, n, _, _ in nodes if path.startswith("/cpus/") and n["props"].get("device_type", b"").startswith(b"cpu"))
+    cpu_nodes = [(path, n, ac) for path, n, ac, _ in nodes
+                 if path.startswith("/cpus/") and n["props"].get("device_type", b"").startswith(b"cpu")]
+    ncpu = len(cpu_nodes)
     if gic and ncpu > len(cpus):
         findings.append(f"/cpus: {ncpu} CPU nodes, partition {pid} has {len(cpus)} CPU(s)")
+    mpidr = {int(c): int(m, 16) if isinstance(m, str) else int(m) for c, m in gic.get("mpidr", {}).items()}
+    if mpidr:  # D3 finding 2: which CPUs, not only how many
+        mine = {mpidr[c] & AFF for c in cpus if c in mpidr}
+        for path, n, ac in cpu_nodes:
+            for m, _ in ranges_of(n["props"].get("reg", b""), ac, 0):
+                if m & AFF not in mine:
+                    findings.append(f"{path}: MPIDR {m:#x} is not a CPU of partition {pid}")
 
     for path, n, ac, sc in nodes:
         p = n["props"]
@@ -175,17 +199,38 @@ def check(g, root, pid, emulated):
                 info.append(f"{path}: interrupts of a non-GICv3 parent not checked")
                 continue
             cs = cells(p["interrupts"])
-            entries = [cs[i:i + 3] for i in range(0, len(cs) - 2, 3)]
+            pp = parent["props"]
+            w = cells(pp["#interrupt-cells"])[0] if "#interrupt-cells" in pp else None
+            if w not in (3, 4):  # D3 finding 3: read the width, never assume it
+                why = ("the parent has no #interrupt-cells" if w is None
+                       else f"the parent's #interrupt-cells is {w} (3 or 4 expected)")
+                findings.append(f"{path}: interrupt specifiers not readable: {why}")
+                continue
+            if len(cs) % w:
+                findings.append(f"{path}: interrupt specifiers not readable: "
+                                f"{len(cs)} cells is not a multiple of #interrupt-cells {w}")
+                continue
+            entries = [cs[i:i + 3] for i in range(0, len(cs), w)]
             for k, (typ, nr, _flags) in enumerate(entries):
                 intid = nr + (32 if typ == 0 else 16)
                 timer_other = "arm,armv8-timer" in compat and k != 2
                 if timer_other:
                     info.append(f"{path}: timer interrupt {intid} (entry {k}) not used by an EL1 guest")
                     continue
+                kind = "SPI" if typ == 0 else "PPI"
                 ok = intid in spis if typ == 0 else intid in ppis
                 if not ok:
-                    kind = "SPI" if typ == 0 else "PPI"
                     findings.append(f"{path}: {kind} {intid} not granted to partition {pid}")
+                if vgic_intids is not None and intid >= vgic_intids:  # D3 finding 1
+                    findings.append(f"{path}: {kind} {intid} beyond the emulated GIC ({vgic_intids} interrupt IDs)")
+    # D3 finding 4: the PSCI conduit the guest is told (information only)
+    psci = next((n for path, n, _, _ in nodes if path == "/psci"), None)
+    if psci is not None:
+        method = strs(psci["props"].get("method", b""))
+        if method != ["hvc"]:
+            info.append(f'/psci: method "{" ".join(method)}"; HAVEN serves PSCI to partitions over HVC')
+    elif any(strs(n["props"].get("enable-method", b"")) == ["psci"] for _, n, _ in cpu_nodes):
+        info.append('/psci: none, but cpu nodes use enable-method "psci"')
     return findings, info
 
 
@@ -195,6 +240,8 @@ def main():
     ap.add_argument("dt")
     ap.add_argument("--partition", required=True)
     ap.add_argument("--emulated", action="append", default=[], metavar="BASE+SIZE")
+    ap.add_argument("--vgic-intids", type=lambda x: int(x, 0), metavar="N",
+                    help="interrupt IDs HAVEN's emulated GIC reports (GICD_TYPER), e.g. 64 for qemu-virt")
     a = ap.parse_args()
     try:
         g = grant_file.load(a.grant)
@@ -203,7 +250,7 @@ def main():
     except (OSError, ValueError, KeyError) as e:
         print(f"bad input: {e}")
         return 2
-    findings, info = check(g, root, a.partition, emulated)
+    findings, info = check(g, root, a.partition, emulated, a.vgic_intids)
     for f in findings:
         print(f"  FINDING {f}")
     for i in info:

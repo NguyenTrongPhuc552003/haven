@@ -2,7 +2,8 @@
 /**
  * Emulated GICv3 distributor and redistributor for one vCPU (L3).
  *
- * Reports 64 interrupt IDs (32 SPIs), security disabled (GICD_CTLR.DS = 1),
+ * Reports HV_VGIC_NR_IRQS interrupt IDs (64 by default, per platform:
+ * include/haven/vgic.h), security disabled (GICD_CTLR.DS = 1),
  * no LPIs and no extended SPIs. Enable and disable of an interrupt the
  * partition owns go to the physical GIC; other interrupt IDs read as zero
  * and ignore writes, except SGIs (virtual state only). Pending and active
@@ -29,8 +30,8 @@
 
 #define GICD_CTLR_DS (1U << 6)
 #define GICD_CTLR_WRITABLE 0x37U /* EnableGrp0/1NS/1S, ARE_S, ARE_NS */
-/* ITLinesNumber = 1 (64 IDs), IDbits = 9 (10 bits) */
-#define GICD_TYPER_VALUE ((9U << 19) | 1U)
+/* ITLinesNumber = IDs / 32 - 1 (1 for 64 IDs), IDbits = 9 (10 bits) */
+#define GICD_TYPER_VALUE ((9U << 19) | (HV_VGIC_NR_IRQS / 32U - 1U))
 #define GIC_PIDR2_V3 0x30U
 
 /* GICR: RD frame, then SGI frame at +64 KiB */
