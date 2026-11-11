@@ -82,6 +82,9 @@ struct hv_psci_vcpus {
 	hv_u32 state[HV_PSCI_MAX_VCPUS];
 };
 
+/* HV_PSCI_MAX_VCPUS in the image, for read-back (readback.py v14). */
+extern const hv_u32 hv_psci_max_vcpus;
+
 /** As hv_psci_call, for a partition whose vCPUs are listed in `v` (NULL:
  * one vCPU, as hv_psci_call). CPU_ON of a listed vCPU that is off marks
  * it ON_PENDING and returns HV_PSCI_START_VCPU with *index set (entry in
