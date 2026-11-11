@@ -90,5 +90,5 @@ jobs:
       # placeholder inside A's RAM for compiling, not a load decision.
       - name: Cross-compile (cix-p1 draft, Linux layout, no boot)
         run: |
-          cmake --preset arm64-cix-p1 -B build-cix-p1-linux -DHAVEN_PART_A_DTB_IPA=0x110000000 -DHAVEN_PART_A_VCPUS=2
+          cmake --preset arm64-cix-p1 -B build-cix-p1-linux -DHAVEN_PART_A_DTB_IPA=0x110000000 -DHAVEN_PART_A_VCPUS=8
           cmake --build build-cix-p1-linux

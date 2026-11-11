@@ -47,6 +47,12 @@
 /* Partition B's CPU */
 #define PART_B_CPU 2U
 
+/* Partition A's vCPUs (Linux guest, multi-vcpu.md): at most 3, because
+ * CPU 2 is partition B's. vCPU 0 on CPU 0, vCPU 1 on partition.c's
+ * PART_A_CPU1 (default 1), vCPU 2 on CPU 3. */
+#define PART_A_MAX_VCPUS 3
+#define PART_A_CPU(i) ((i) == 0U ? 0U : (i) == 1U ? PART_A_CPU1 : 3U)
+
 /* Partition B (RTOS): 64 MB
  * PA: [0xA0800000, 0xA4800000)  IPA: [0x60000000, 0x64000000)
  * Distinct IPA base from A so cross-partition access faults are detectable. */

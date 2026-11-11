@@ -183,8 +183,9 @@ if(HAVEN_ARCH_ARM64)
         target_compile_definitions(haven PRIVATE HAVEN_CONSOLE_UART=${HAVEN_CONSOLE_UART})
     endif()
     # Partition A with more than one vCPU (docs/architecture/multi-vcpu.md):
-    # vCPU i runs on CPU i; CPU 2 is partition B's, so at most 2. Linux only.
-    set(HAVEN_PART_A_VCPUS 1 CACHE STRING "vCPUs of partition A (1 or 2; 2 needs HAVEN_PART_A_DTB_IPA)")
+    # vCPU i runs on the platform's PART_A_CPU(i): at most 3 on qemu-virt
+    # (CPU 2 is partition B's), 8 on cix-p1. Linux only.
+    set(HAVEN_PART_A_VCPUS 1 CACHE STRING "vCPUs of partition A (1 to the platform's maximum; more than 1 needs HAVEN_PART_A_DTB_IPA)")
     if(NOT HAVEN_PART_A_VCPUS STREQUAL "1")
         if(HAVEN_PART_A_DTB_IPA STREQUAL "0")
             message(FATAL_ERROR "HAVEN_PART_A_VCPUS > 1 needs a Linux guest (HAVEN_PART_A_DTB_IPA)")
@@ -200,6 +201,13 @@ if(HAVEN_ARCH_ARM64)
         # Link address 0xF0000000 (owner decision 2026-11-09,
         # docs/porting/cix-p1-loading.md), as HAVEN_LOAD_PA in its memory.h
         target_link_options(haven PRIVATE -Wl,--defsym=HV_LOAD_ADDR=0xF0000000)
+        # Up to 8 vCPUs for partition A: the PSCI vCPU table and 8 x (1 + 8)
+        # emulated regions (docs/methodology/stage2/20261112-multi-vcpu-n)
+        target_compile_definitions(haven PRIVATE HAVEN_PSCI_MAX_VCPUS=8U
+                                                 HAVEN_MMIO_MAX_REGIONS=72U)
+    elseif(HAVEN_PART_A_VCPUS GREATER 2)
+        math(EXPR _haven_mmio "${HAVEN_PART_A_VCPUS} * (${HAVEN_PART_A_VCPUS} + 1)")
+        target_compile_definitions(haven PRIVATE HAVEN_MMIO_MAX_REGIONS=${_haven_mmio}U)
     endif()
     message(STATUS "Haven PSCI conduit: ${HAVEN_PSCI_CONDUIT_DEFINE}"
                    " (profile ${HAVEN_BOOT_PROFILE})")

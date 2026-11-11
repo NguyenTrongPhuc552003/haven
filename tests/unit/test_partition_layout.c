@@ -1,8 +1,9 @@
 /**
  * What partitions_launch() (src/core/partition.c) asks the policy modules
  * for, per platform layout (docs/methodology/stage2/20261109-d5-platform-
- * layout, Step 2). Built twice: with the qemu-virt layout, and with
- * HAVEN_PLATFORM_CIX_P1 and a Linux device tree IPA. Stage-2, SMMU, IRQ
+ * layout, Step 2). Built three times: with the qemu-virt layout, and with
+ * HAVEN_PLATFORM_CIX_P1 and a Linux device tree IPA, with 1 and 8 vCPUs
+ * (docs/methodology/stage2/20261112-multi-vcpu-n). Stage-2, SMMU, IRQ
  * ownership, budgets and printk are recording stubs.
  *
  * @file tests/unit/test_partition_layout.c
@@ -142,9 +143,17 @@ int main(void)
 	region(0, 0, 0x100000000ULL, 0x100000000ULL, 0x80000000ULL, HV_MEM_RWX);
 	region(0, 1, 0x040D0000ULL, 0x040D0000ULL, 0x1000ULL, HV_MEM_DEVICE_RW);
 	CHECK(nassign == 0U && nwindow == 0U && nadds == 0U);
+#if defined(HAVEN_PART_A_VCPUS) && HAVEN_PART_A_VCPUS == 8
+	/* vCPU i on logical CPU i: its virtual timer PPI there, in order */
+	CHECK(nroutes == 9U);
+	route(0, 330U, 1U, 0U);
+	for (hv_u32 c = 0U; c < 8U; c++)
+		route(1U + c, 27U, 1U, c);
+#else
 	CHECK(nroutes == 2U);
 	route(0, 330U, 1U, 0U);
 	route(1, 27U, 1U, 0U); /* Linux guest: virtual timer on CPU 0 */
+#endif
 	CHECK(nbudgets == 1U && budgets[0].partition_id == 1U);
 	CHECK(budgets[0].budget_ns == 8000000ULL &&
 	      budgets[0].period_ns == 10000000ULL);
