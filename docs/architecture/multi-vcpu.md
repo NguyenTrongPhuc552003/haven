@@ -71,7 +71,11 @@ separately from read-back as before.
    2 beside it).
 3. **SMP2:** read-back v12 and seeded faults.
 4. Later: more vCPUs, then the board layout (8 for Linux, 2 to 4 for the
-   real-time partition), which also needs the board's CPU map.
+   real-time partition), which also needs the board's CPU map. **Done
+   for partition A** (2026-11-12, `../methodology/stage2/20261112-multi-vcpu-n/`):
+   N vCPUs pinned by the platform (`PART_A_CPU(i)`), 8 on cix-p1
+   (compile-only), up to 3 on qemu-virt (Linux boots on 3 in QEMU). The
+   real-time partition waits for its own record.
 
 ## 7. As implemented (SMP0 to SMP3) [F]
 
