@@ -52,7 +52,13 @@ hv_u64 hv_mmio_store_value(const hv_mmio_access_t *a, hv_u64 reg);
 typedef int (*hv_mmio_handler_t)(void *ctx, hv_u64 offset, hv_u32 size,
 				 int write, hv_u64 *value);
 
+/* Per build (CMake): N x (N + 1) for N vCPUs of partition A (each CPU
+ * registers the distributor and N redistributor frames): 72 on cix-p1. */
+#ifdef HAVEN_MMIO_MAX_REGIONS
+#define HV_MMIO_MAX_REGIONS HAVEN_MMIO_MAX_REGIONS
+#else
 #define HV_MMIO_MAX_REGIONS 8U
+#endif
 
 /** Register an emulated region for the partition running on `cpu` (one
  * vCPU per partition for now). Returns HV_OK, HV_EINVAL or HV_ENOSPC. */
