@@ -49,22 +49,35 @@
  * PcdArmPrimaryCore 0x400). The logical map is in platform.c. */
 #define CIX_NR_CPUS 12U
 
-/* HAVEN's image. ASSUMPTION: data/ does not say how HAVEN is loaded
- * (porting note, open question 5), so this is linker.ld's default. It
- * lies inside dsc PcdReservedSecureMemoryBase/Size (0x80000000 +
- * 0x02500000): the draft cannot boot on the board as linked. */
-#define HAVEN_LOAD_PA 0x80000000UL
+/* HAVEN's image at 0xF0000000, 8 MiB (owner decision 2026-11-09, loading
+ * study docs/porting/cix-p1-loading.md): in DRAM for every memory size,
+ * 2 MiB aligned, above every fixed firmware reservation found. CMake links
+ * the image there (HV_LOAD_ADDR). */
+#define HAVEN_LOAD_PA 0xF0000000UL
 #define HAVEN_SIZE 0x00800000UL /* 8 MiB, as qemu-virt */
 
-/* Partition A, owner decisions (D3 grant-cixp1-v0.json). Not used yet:
- * src/core/partition.c still takes QEMU's layout (D4 README, Part 1).
- * RAM: identity mapped, 2 GiB at 4 GiB; ASSUMPTION until the 16 GB
- * board's EFI memory map. Emulated GIC at the GIC-700's addresses, one
- * 128 KiB redistributor frame per vCPU (8 vCPUs). */
+/* Partition A, owner decisions (D3 grant-cixp1-v0.json), used by
+ * src/core/partition.c since D5. RAM: identity mapped, 2 GiB at 4 GiB;
+ * ASSUMPTION until the 16 GB board's EFI memory map. Emulated GIC at the
+ * GIC-700's addresses, one 128 KiB redistributor frame per vCPU. Target:
+ * 8 vCPUs on logical CPUs 0 to 7; HAVEN supports 1 or 2 today (8 is the
+ * step after D5, docs/architecture/multi-vcpu.md step 4). */
 #define CIX_PART_A_RAM_BASE 0x100000000UL
 #define CIX_PART_A_RAM_SIZE 0x80000000UL
 #define CIX_PART_A_VGICD_IPA CIX_GIC_DIST_BASE
 #define CIX_PART_A_VGICR_IPA CIX_GIC_REDIST_BASE
 #define CIX_PART_A_VCPUS 8U
+
+/* The names partition.c takes. UART2 is Linux's console; no read-only
+ * region, no DMA grant (D3: no SMMU section) and no partition B (owner:
+ * not mapped or started until it has its own record). */
+#define PART_A_IPA_BASE CIX_PART_A_RAM_BASE
+#define PART_A_PA_BASE CIX_PART_A_RAM_BASE
+#define PART_A_SIZE CIX_PART_A_RAM_SIZE
+#define PART_A_UART_BASE CIX_UART2_BASE
+#define PART_A_UART_INTID 330 /* CIX_UART2_INTID, a plain decimal */
+#define PART_A_VGICD_IPA CIX_PART_A_VGICD_IPA
+#define PART_A_VGICR_IPA CIX_PART_A_VGICR_IPA
+#define PART_A_LAST_CPU 7U /* A's CPUs are logical 0 to 7 */
 
 #endif /* HAVEN_PLATFORM_CIX_P1_MEMORY_H */

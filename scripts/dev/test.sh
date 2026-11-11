@@ -68,6 +68,21 @@ mkdir -p build/tests
 
 ./build/tests/test_vgic_wide
 
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -I. \
+	tests/unit/test_partition_layout.c \
+	src/core/partition.c \
+	-o build/tests/test_partition_layout
+
+./build/tests/test_partition_layout
+
+"$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude -I. \
+	-DHAVEN_PLATFORM_CIX_P1 -DHAVEN_PART_A_DTB_IPA=0x110000000 \
+	tests/unit/test_partition_layout.c \
+	src/core/partition.c \
+	-o build/tests/test_partition_layout_cix
+
+./build/tests/test_partition_layout_cix
+
 "$CC_BIN" -std=c11 -Wall -Wextra -Werror -Iinclude \
 	tests/unit/test_sysreg_trap.c \
 	src/core/exc/sysreg_trap.c \

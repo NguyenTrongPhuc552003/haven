@@ -197,6 +197,9 @@ if(HAVEN_ARCH_ARM64)
     # (docs/methodology/stage2/20261109-cix-p1-platform).
     if(PLATFORM STREQUAL "cix-p1")
         target_compile_definitions(haven PRIVATE HAVEN_VGIC_NR_IRQS=352U)
+        # Link address 0xF0000000 (owner decision 2026-11-09,
+        # docs/porting/cix-p1-loading.md), as HAVEN_LOAD_PA in its memory.h
+        target_link_options(haven PRIVATE -Wl,--defsym=HV_LOAD_ADDR=0xF0000000)
     endif()
     message(STATUS "Haven PSCI conduit: ${HAVEN_PSCI_CONDUIT_DEFINE}"
                    " (profile ${HAVEN_BOOT_PROFILE})")

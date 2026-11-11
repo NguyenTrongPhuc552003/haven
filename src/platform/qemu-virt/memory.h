@@ -34,6 +34,19 @@
 #define PART_A_PA_BASE (HAVEN_LOAD_PA + HAVEN_SIZE)
 #define PART_A_SIZE 0x20000000UL
 
+/* Partition A's UART (PL011 UART0, identity mapped) and its SPI; a plain
+ * decimal so partition.c can also print it. */
+#define PART_A_UART_BASE QEMU_UART_BASE
+#define PART_A_UART_INTID 33
+
+/* Emulated GICv3 for a Linux partition A, at QEMU virt's GIC addresses
+ * (docs/methodology/stage2/20261104-linux-partition/partition-a.dts). */
+#define PART_A_VGICD_IPA 0x08000000ULL
+#define PART_A_VGICR_IPA 0x080a0000ULL
+
+/* Partition B's CPU */
+#define PART_B_CPU 2U
+
 /* Partition B (RTOS): 64 MB
  * PA: [0xA0800000, 0xA4800000)  IPA: [0x60000000, 0x64000000)
  * Distinct IPA base from A so cross-partition access faults are detectable. */
