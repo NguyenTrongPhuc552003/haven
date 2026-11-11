@@ -94,3 +94,43 @@ reaches `KDAL-DEMAND-END`, both vCPUs stop, partition B starts on CPU 2.
 Verdict rule as D5. Not shown by this step: 8 vCPUs running (no board),
 Linux on more than 3 vCPUs, read-back of an N-vCPU partition, or any
 performance property of 72 linearly searched MMIO regions.
+
+## Results (2026-11-12, macOS host and CI)
+
+Expectations merged first (haven `fd53ab1`, pull request 74); the code
+after that (commit `483ee2e`, merged as `2b4b697`, pull request 75, CI
+green on every job). Images built with `SOURCE_DATE_EPOCH=1793318400`,
+"after" from the code commit's tree. QEMU runs: `python3 run_n.py
+<workspace>/haven <workspace>/kdal <Linux v6.18 Image> kdal.ko runs` on
+`main` at `2b4b697` (logs in `runs/`; the same rows were also seen on a
+scratch commit of the same tree before the pull request).
+
+| Row | Observed | Verdict |
+| - | - | - |
+| M1 | qemu `4fb97f52...`, psci `a58b6143...`: equal to the baseline (`cmp`) | as expected |
+| M2 | builds; differs from the baseline; 45,736 / 144 / **5,252,512** | as expected |
+| M3 | builds; 46,004 / 144 / **5,253,360** (M2 + 848, no padding) | as expected |
+| M4 | builds; 41,720 / 144 / **5,253,624** | as expected |
+| M5 | builds; 44,256 / 144 / **5,260,672** | as expected |
+| M6 | builds, no compiler warning (only the known linker lines); 44,424 / 144 / **5,281,456** | as expected |
+| M7 | both stop with `#error "HAVEN_PART_A_VCPUS must be from 1 to the platform's PART_A_MAX_VCPUS"` | as expected |
+| M8 | Linux `smp: Brought up 1 node, 2 CPUs`; `KDAL-DEMAND-END`; `CPU 1 ready, partition A vCPU 1 started at IPA 0x41e40570`; `CPU 1 parked` (by its vCPU on another CPU), then `partition stopped by PSCI OFF`; `CPU 2 ready, partition B started`; no `not delivered` | as expected |
+| M9 | Linux `CPU2: Booted secondary processor 0x0000000002`, `smp: Brought up 1 node, 3 CPUs`; `KDAL-DEMAND-END`; `CPU 3 ready, partition A vCPU 2 started at IPA 0x41e40570`; CPUs 1 and 3 parked, then `partition stopped by PSCI OFF`; `CPU 2 ready, partition B started`; virtual interrupts delivered on CPUs 0, 1 and 3; no `not delivered` | as expected |
+| M10 | 30 of 30 locally and in CI (Linux, macOS, Windows); `scripts/dev/test.sh` passes | as expected |
+| M11 | 59, OK | as expected |
+| M12 | qemu 66 files, 7,543; cix 66 files, 7,531 | as expected |
+| M13 | pull request 75: every job green, `Cross-compile (cix-p1 draft, Linux layout, no boot)` with 8 vCPUs | as expected |
+
+**Verdict.** 13 of 13 rows hold as pre-registered; every bss figure was
+exact (no padding). Linux runs on 3 vCPUs of partition A in QEMU with
+vCPU 2 pinned to CPU 3 and seeing MPIDR 2, beside partition B on CPU 2,
+through the same loops the cix-p1 build uses for 8.
+
+What this does not show [I]: 8 vCPUs running (compile-only, no board),
+Linux on more than 3 vCPUs, read-back of an N-vCPU partition (not run),
+or the cost of 72 linearly searched MMIO regions and one lock over 8
+models on the trap path (to measure on the board).
+
+Next [P]: partition B's own record on cix-p1 (memory, CPUs 8 to 11,
+whether it gets several vCPUs); read-back on QEMU with 3 vCPUs (grant
+with `cpus_on_request` 1 and 3) when read-back is next exercised.
