@@ -68,6 +68,16 @@ haven_test(test_vgic_wide
          ${_S}/core/irq/vgic.c
     DEFINES HAVEN_VGIC_NR_IRQS=352U
 )
+# partitions_launch() per platform layout (docs/methodology/stage2/20261109-d5-platform-layout)
+haven_test(test_partition_layout
+    SRCS ${_T}/unit/test_partition_layout.c
+         ${_S}/core/partition.c
+)
+haven_test(test_partition_layout_cix
+    SRCS ${_T}/unit/test_partition_layout.c
+         ${_S}/core/partition.c
+    DEFINES HAVEN_PLATFORM_CIX_P1 HAVEN_PART_A_DTB_IPA=0x110000000
+)
 haven_test(test_sysreg_trap
     SRCS ${_T}/unit/test_sysreg_trap.c
          ${_S}/core/exc/sysreg_trap.c

@@ -31,10 +31,21 @@
 #include "drivers/pci/ecam.h"
 #endif
 
-/* Platform memory layout - QEMU virt default.
- * The -I. flag in ARM64_CFLAGS makes the root the first extra search
- * directory, so "src/platform/..." resolves from the repository root. */
+/* Platform memory layout: partition A's RAM, UART and emulated GIC, and
+ * optionally a read-only region, a DMA grant and partition B
+ * (docs/methodology/stage2/20261109-d5-platform-layout, Step 2). QEMU
+ * virt unless the platform has its own (the legacy i.MX builds keep
+ * QEMU's). The -I. flag in ARM64_CFLAGS makes the root the first extra
+ * search directory, so "src/platform/..." resolves from the repository
+ * root. */
+#if defined(HAVEN_PLATFORM_CIX_P1)
+#include "src/platform/cix-p1/memory.h"
+#else
 #include "src/platform/qemu-virt/memory.h"
+#endif
+
+#define HV_STR_(x) #x
+#define HV_STR(x) HV_STR_(x)
 
 /* -----------------------------------------------------------------------
  * Partition IDs - must be non-zero and unique (stage2.c contract)
@@ -62,15 +73,16 @@ static const struct hv_mem_region part_a_regions[] = {
 		.size = PART_A_SIZE,
 		.attrs = HV_MEM_RWX, /* Normal WB, read/write/execute */
 	},
-	/* PL011 UART0 MMIO - identity-mapped so the guest stub can print.
+	/* Partition A's PL011 MMIO - identity-mapped so the guest can print.
 	 * The device is owned by partition A; partition B has no UART mapping,
 	 * so a B→UART access would fault at stage-2. */
 	{
-		.ipa_base = QEMU_UART_BASE,
-		.pa_base = QEMU_UART_BASE,
+		.ipa_base = PART_A_UART_BASE,
+		.pa_base = PART_A_UART_BASE,
 		.size = 0x1000UL, /* 4 KB MMIO page */
 		.attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */
 	},
+#ifdef PART_A_RO_IPA_BASE
 	/* Read-only Normal memory, never executable. Partition A does not
 	 * touch it; it lets read-back (A1) see write-permission drift. */
 	{
@@ -79,8 +91,10 @@ static const struct hv_mem_region part_a_regions[] = {
 		.size = PART_A_RO_SIZE,
 		.attrs = HV_MEM_R,
 	},
+#endif
 };
 
+#ifdef PART_B_SIZE
 static const struct hv_mem_region part_b_regions[] = {
 	{
 		.ipa_base = PART_B_IPA_BASE,
@@ -89,11 +103,13 @@ static const struct hv_mem_region part_b_regions[] = {
 		.attrs = HV_MEM_RWX,
 	},
 };
+#endif
 
 static const struct hv_partition_mem part_a_mem_cfg = {
 	.partition_id = PARTITION_A_ID,
 	.regions = part_a_regions,
-	.region_count = 3U, /* DRAM + UART MMIO + read-only region */
+	/* DRAM + UART MMIO (+ read-only region) */
+	.region_count = sizeof(part_a_regions) / sizeof(part_a_regions[0]),
 };
 
 /* -----------------------------------------------------------------------
@@ -116,6 +132,7 @@ static const struct hv_partition_mem part_a_mem_cfg = {
  * and the partition name the same buffer the same way.
  * ----------------------------------------------------------------------- */
 
+#ifdef PART_A_DMA_SID /* the platform grants partition A a DMA device */
 #define GUEST_ARG_DMA0 (1UL << 0) /* x0 bit: grant 0 is in force */
 
 struct part_dma_grant {
@@ -240,12 +257,21 @@ static hv_u64 apply_dma_grants(hv_u32 partition_id)
 	}
 	return flags;
 }
+#else
+static hv_u64 apply_dma_grants(hv_u32 partition_id)
+{
+	(void)partition_id;
+	return 0U; /* no DMA grant on this platform */
+}
+#endif
 
+#ifdef PART_B_SIZE
 static const struct hv_partition_mem part_b_mem_cfg = {
 	.partition_id = PARTITION_B_ID,
 	.regions = part_b_regions,
 	.region_count = 1U,
 };
+#endif
 
 /* -----------------------------------------------------------------------
  * IRQ routing
@@ -280,12 +306,26 @@ static const struct hv_partition_mem part_b_mem_cfg = {
 #ifndef PART_A_CPU1
 #define PART_A_CPU1 1U
 #endif
-#if HAVEN_PART_A_VCPUS > 1 && (PART_A_CPU1 == 0 || PART_A_CPU1 == 2)
-#error "PART_A_CPU1 must not be CPU 0 (vCPU 0) or CPU 2 (partition B)"
+#if HAVEN_PART_A_VCPUS > 1 && PART_A_CPU1 == 0
+#error "PART_A_CPU1 must not be CPU 0 (vCPU 0)"
+#endif
+#if HAVEN_PART_A_VCPUS > 1 && defined(PART_B_SIZE) && PART_A_CPU1 == PART_B_CPU
+#error "PART_A_CPU1 must not be partition B's CPU"
+#endif
+#if HAVEN_PART_A_VCPUS > 1 && defined(PART_A_LAST_CPU) && \
+	PART_A_CPU1 > PART_A_LAST_CPU
+#error "PART_A_CPU1 must be one of partition A's CPUs"
+#endif
+#ifdef HAVEN_PART_A_DTB_IPA
+_Static_assert(HAVEN_PART_A_DTB_IPA >= PART_A_IPA_BASE &&
+		       HAVEN_PART_A_DTB_IPA < PART_A_IPA_BASE + PART_A_SIZE,
+	       "the device tree IPA must lie in partition A's RAM");
 #endif
 
 static const struct hv_irq_route part_a_irqs[] = {
-	{.irq_id = 33U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
+	{.irq_id = PART_A_UART_INTID,
+	 .owner_partition_id = PARTITION_A_ID,
+	 .target_cpu = 0U},
 #ifdef HAVEN_PART_A_DTB_IPA
 	/* Linux guest: its architected timer is the EL1 virtual timer on
 	 * CPU 0 (partition B owns the same PPI on CPU 2). */
@@ -299,7 +339,7 @@ static const struct hv_irq_route part_a_irqs[] = {
 #endif
 };
 
-#define PART_B_CPU 2U
+#ifdef PART_B_SIZE /* the platform gives partition B memory and a CPU */
 #define PART_B_READY_US 100000U /* CPU 2 ready deadline after CPU_ON */
 #define PART_B_VTIMER_PPI 27U
 
@@ -308,6 +348,7 @@ static const struct hv_irq_route part_b_irqs[] = {
 	 .owner_partition_id = PARTITION_B_ID,
 	 .target_cpu = PART_B_CPU},
 };
+#endif
 
 /* -----------------------------------------------------------------------
  * CPU time budgets  (10 ms period, static allocation)
@@ -324,11 +365,13 @@ static const struct hv_budget part_a_budget = {
 	.budget_ns = 8000000ULL, /*  8 ms */
 };
 
+#ifdef PART_B_SIZE
 static const struct hv_budget part_b_budget = {
 	.partition_id = PARTITION_B_ID,
 	.period_ns = 10000000ULL, /* 10 ms */
 	.budget_ns = 2000000ULL, /*  2 ms */
 };
+#endif
 
 /* -----------------------------------------------------------------------
  * ARM64 ERET stub - defined in arch/arm64/partition.S
@@ -356,6 +399,7 @@ extern uint32_t hv_arch_cpu_id(void);
 /* Symbol defined in arch/arm64/boot.S - the secondary CPU spin-loop entry */
 extern void secondary_entry(void);
 
+#ifdef PART_B_SIZE
 /*
  * partition_b_secondary_cpu_init - runs on CPU 2 after PSCI wakeup.
  *
@@ -397,6 +441,7 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
 	/* Unreachable */
 	__builtin_unreachable();
 }
+#endif /* PART_B_SIZE */
 #endif
 
 extern void hv_panic(const char *msg);
@@ -410,8 +455,7 @@ extern void hv_panic(const char *msg);
 #include <haven/mmio.h>
 #include <haven/vgic.h>
 
-#define PART_A_VGICD_IPA 0x08000000ULL
-#define PART_A_VGICR_IPA 0x080a0000ULL
+/* PART_A_VGICD_IPA, PART_A_VGICR_IPA: the platform's memory.h */
 
 extern hv_status_t gic_v3_enable_irq(uint32_t irq);
 extern hv_status_t gic_v3_disable_irq(uint32_t irq);
@@ -707,7 +751,11 @@ void partitions_launch(void)
 	hv_u64 part_a_arg;
 	extern void hv_printk(const char *fmt, ...);
 
+#ifdef PART_B_SIZE
 	hv_printk("HAVEN: launching 2-partition configuration\n");
+#else
+	hv_printk("HAVEN: launching partition A\n");
+#endif
 
 	/* ----- Stage-2 memory mapping ------------------------------------- */
 
@@ -720,6 +768,7 @@ void partitions_launch(void)
 		(unsigned long)PART_A_PA_BASE, (unsigned long)PART_A_IPA_BASE,
 		(unsigned)(PART_A_SIZE >> 20));
 
+#ifdef PART_B_SIZE
 	st = hv_stage2_map_partition(&part_b_mem_cfg);
 	if (st != HV_OK) {
 		hv_stage2_unmap_partition(PARTITION_A_ID);
@@ -728,6 +777,11 @@ void partitions_launch(void)
 	hv_printk("HAVEN: partition B mapped PA=0x%lx IPA=0x%lx size=%uMB\n",
 		  (unsigned long)PART_B_PA_BASE, (unsigned long)PART_B_IPA_BASE,
 		  (unsigned)(PART_B_SIZE >> 20));
+#else
+	/* Owner decision (D5): no partition B until it has its own record. */
+	hv_printk("HAVEN: partition B not started: no memory on this "
+		  "platform\n");
+#endif
 
 	/* ----- DMA grants (after both partitions own their memory) -------- */
 
@@ -748,11 +802,13 @@ void partitions_launch(void)
 			hv_panic("partition A IRQ assignment failed");
 		}
 	}
-	hv_printk("HAVEN: partition A IRQs assigned (SPI 33 -> CPU 0)\n");
+	hv_printk("HAVEN: partition A IRQs assigned (SPI " HV_STR(
+		PART_A_UART_INTID) " -> CPU 0)\n");
 #if defined(HAVEN_PART_A_DTB_IPA) && defined(HAVEN_ARCH_ARM64)
 	part_a_vgic_setup();
 #endif
 
+#ifdef PART_B_SIZE
 	for (i = 0U; i < sizeof(part_b_irqs) / sizeof(part_b_irqs[0]); ++i) {
 		st = hv_irq_assign(&part_b_irqs[i]);
 		if (st != HV_OK) {
@@ -760,6 +816,7 @@ void partitions_launch(void)
 		}
 	}
 	hv_printk("HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)\n");
+#endif
 
 	/* ----- Scheduler budgets ------------------------------------------ */
 
@@ -767,6 +824,11 @@ void partitions_launch(void)
 	if (st != HV_OK) {
 		hv_panic("partition A budget setup failed");
 	}
+#ifndef PART_B_SIZE
+	hv_printk("HAVEN: budget set  A=%ums/%ums\n",
+		  (unsigned)(part_a_budget.budget_ns / 1000000U),
+		  (unsigned)(part_a_budget.period_ns / 1000000U));
+#else
 	st = hv_budget_set(&part_b_budget);
 	if (st != HV_OK) {
 		hv_panic("partition B budget setup failed");
@@ -776,12 +838,14 @@ void partitions_launch(void)
 		  (unsigned)(part_a_budget.period_ns / 1000000U),
 		  (unsigned)(part_b_budget.budget_ns / 1000000U),
 		  (unsigned)(part_b_budget.period_ns / 1000000U));
+#endif
 
 #ifdef HAVEN_ARCH_ARM64
 	hv_printk("HAVEN: enabling stage-2 for partition A (VMID=%u)\n",
 		  PARTITION_A_ID);
 	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
 
+#ifdef PART_B_SIZE
 	/* Bring up CPU 2 via PSCI and point it at Haven's secondary spin-loop.
 	 * Once the mailbox is filled (hv_arch_secondary_start below), CPU 2
 	 * will jump to partition_b_secondary_cpu_init and ERET into Partition B.
@@ -812,6 +876,7 @@ void partitions_launch(void)
 		hv_printk(
 			"HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive\n");
 	}
+#endif /* PART_B_SIZE */
 
 	hv_printk("HAVEN: ERET -> partition A entry IPA=0x%lx\n",
 		  (unsigned long)PART_A_IPA_BASE);
