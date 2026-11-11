@@ -79,3 +79,40 @@ Checker test: run on the N-vCPU record's committed logs
 
 Verdict rule as before. Not shown: read-back in CI, a newer QEMU, or the
 board.
+
+## Results (2026-11-11 UTC, macOS host and CI)
+
+Expectations merged first (haven `688407a`, pull request 77); the change
+after that (commit `9d53742`, merged as `faecdd6`, pull request 78). The
+new job ran twice on it (push and pull request event), 1 min 54 s and
+1 min 38 s (run 43083602847, 19:03:36 to 19:05:14 UTC). Job log read
+through the GitHub API, kept outside the repository.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| E1 | committed logs: `N = 2: OK (5 markers)`, `N = 3: OK (6 markers)`, exit 0; copy without `KDAL-DEMAND-END` in N3: `N = 3: FAIL`, `missing: KDAL-DEMAND-END`, exit 1 | as expected |
+| E2 | `Linux in partition A (QEMU, ELMOS SDK kernel)` passed on both runs | as expected |
+| E3 | `Login Succeeded`; `SDK Linux version 6.18.0 (haven@ci) (Ubuntu clang version 18.1.3 ...)`, `elmos 4eb897c`, `run 4`; `oras logout ghcr.io` in the same step; `kernel-prepare.sh` (which stops on a `sha256sum -c` or release mismatch) passed | as expected |
+| E4 | `modinfo -F vermagic`: `6.18.0 SMP preempt mod_unload aarch64` | as expected |
+| E5 | `N = 2: ... Linux version 6.18.0 (haven@ci) ...`, `N = 2: OK (5 markers)` | as expected |
+| E6 | `N = 3: OK (6 markers)`, including `CPU 3 ready, partition A vCPU 2 started` | as expected |
+| E7 | QEMU `8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)`; `HAVEN: DMA grant SID 8 -> partition 1 withheld (rc=-95)` in both runs (-95: not supported) | as expected |
+| E8 | under 2 minutes | as expected |
+| E9 | every other job green; the change touches only `ci.yml` and the new checker (no C or header file) | as expected |
+| E10 | no `ghs_` or `ghp_` string in the job log; the only `releases/download` URL is `setup-oras` fetching the ORAS CLI | as expected |
+
+**Verdict.** 10 of 10 rows hold. From now on every pull request boots
+Linux 6.18 (ELMOS SDK, `haven@ci`) with KDAL in partition A on 2 and 3
+vCPUs beside partition B, in Ubuntu's QEMU 8.2.2, and fails if a vCPU,
+KDAL's demand, the PSCI stop or partition B is missing.
+
+Observations outside the rows [F]: on both E4 pull requests a
+`host unit tests (macos-latest)` job of the pull-request run stayed
+queued and was cancelled by GitHub; re-running it passed. The job is
+not in this step's scope.
+
+Limits [I]: the CI kernel and QEMU differ from the Mac's (6.18.0-dirty
+built by hand, QEMU 11.1.3); the runs on the Mac stay the reference for
+read-back and DMA grants. Next [P]: read-back in this job once its SMMU
+expectations account for a QEMU without stage 2, or with a pinned newer
+QEMU.
