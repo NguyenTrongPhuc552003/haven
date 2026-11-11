@@ -231,3 +231,93 @@ exported (Step 1): "before" is `main` at this record's merge, "after" is
 Verdict rule as Step 1. What this step will not show: that the cix-p1
 image runs (no board, no loader yet), anything about 8 vCPUs, or that the
 RAM window is free on the 16 GB board.
+
+### Results (2026-11-12, macOS host and CI)
+
+Expectations merged first (haven `de1ebee`, pull request 66); the code
+after that (commit `3473290`, merged as `45b6277`, pull request 69, CI
+green on every job). "Before" built at `de1ebee`, "after" from the code
+commit's tree, both with `SOURCE_DATE_EPOCH=1793318400`. Correction to the
+baseline paragraph [F]: the macOS host's cross compiler, picked by
+`cmake/arm64.cmake`, is Homebrew's `aarch64-linux-gnu-gcc` GCC 15.2.0, not
+`aarch64-unknown-linux-gnu` (only `size` and `nm` came from the latter).
+
+| Row | Observed | Verdict |
+| - | - | - |
+| P1 | qemu `b8b4ea32...`, psci `ceffd618...`, qemu-linux `c2308a15...` before and after (`cmp` equal; the same hashes D4 recorded); sizes as the baseline | as expected |
+| P2 | builds, no compiler warning; text 41,712 (1,484 less than 43,196), data 144, bss 5,251,064 | as expected |
+| P3 | builds; text 44,312, data 144, bss 5,258,048 | as expected |
+| P4 | `error: static assertion failed: "the device tree IPA must lie in partition A's RAM"` (partition.c) | as expected |
+| P5 | `_start` 0xf0000000 (cix, cix-linux), 0x80000000 (qemu); `part_a_regions` 0x40 (cix, cix-linux) and 0x60 (qemu, qemu-linux); `part_a_irqs` 0x24 on cix-linux and qemu-linux; cix has no `part_b_irqs` and no `partition_b_secondary_cpu_init` (qemu: 0xc and 0x8c bytes) | as expected |
+| P6 | `test_partition_layout`: passes, every check of the row | as expected |
+| P7 | `test_partition_layout_cix`: passes, every check of the row | as expected |
+| P8 | local CTest 29 of 29, `scripts/dev/test.sh` passes; CI 29 of 29 on Linux, macOS and Windows | as expected |
+| P9 | 53, OK | as expected |
+| P10 | 66 files, **7,517** code lines (+62: `partition.c` 571 to 628, qemu-virt `memory.h` 38 to 43) | **prediction error** (7,470 to 7,500 predicted) |
+| P11 | 66 files, **7,506** code lines (cix and cix-linux) | **prediction error** (7,455 to 7,495 predicted) |
+| P12 | pull request 69: every job green, including `Cross-compile (cix-p1 draft, Linux layout, no boot)` | as expected |
+
+**Verdict.** 12 rows: 10 hold, 2 are prediction errors (P10, P11) with one
+cause: `partition.c` grew by 57 code lines, not the 15 to 45 assumed. The
+estimate counted the new definitions and checks but not the
+preprocessor lines of every `#ifdef`, `#else` and `#endif` (cloc counts
+them as code), the no-DMA stub, the second budget branch, or
+`clang-format` splitting the UART route over three lines (the
+pre-commit hook reformatted the file once; the images were rebuilt
+afterwards, with the same hashes). Nothing else differs.
+
+What this shows [O]: a `PLATFORM=cix-p1` image now carries D3's partition
+A layout (RAM, UART2, SPI 330, emulated GIC at the GIC-700 addresses),
+no partition B, and links at 0xF000_0000; the qemu-virt images are
+unchanged. What it does not show: that the image runs on the board, 8
+vCPUs (the next step, `multi-vcpu.md` step 4), or that the RAM window
+is free on the 16 GB board.
+
+## Step 3: read-back reads the image's widths
+
+### Problem
+
+[F] `tools/readback/readback.py` assumes two sizes of HAVEN's memory:
+`read_vgic_enables` reads the emulated GIC's enable bits for INTIDs 0 to
+63 (two words), and `read_vcpus` reads partition A's vCPU table with at
+most 4 entries and `state` at offset 40. On cix-p1 the model has 352 IDs
+(D4), so INTID 330 is invisible; the vCPU table's size (`HV_PSCI_MAX_VCPUS`,
+4 today) will grow with the 8-vCPU step. The owner approved widening
+both (2026-11-09).
+
+### Design
+
+- HAVEN states both widths in its image, as read-only constants next to
+  the code that defines them: `const hv_u32 hv_vgic_nr_irqs =
+  HV_VGIC_NR_IRQS;` in `vgic.c` and `const hv_u32 hv_psci_max_vcpus =
+  HV_PSCI_MAX_VCPUS;` in `psci.c`, declared in `vgic.h` and `psci.h`.
+  `psci.c`'s offset assertion becomes the layout read-back uses,
+  `offsetof(state) == 8 + 8 * HV_PSCI_MAX_VCPUS` (40 for 4 entries, as
+  today).
+- `readback.py` (v14): `vgic_width()` reads `hv_vgic_nr_irqs` from the
+  dumped image; without the symbol (images before this change) it is 64,
+  so old behaviour is kept. A value that is not a multiple of 32 from 64
+  to 1024 stops read-back (`SystemExit`, fail closed).
+  `read_vgic_enables` reads `width / 32` words. `read_vcpus` reads
+  `hv_psci_max_vcpus` (4 without the symbol; outside 1 to 16 stops
+  read-back), takes `state` at `8 + 8 * max` and caps the count at `max`.
+- Tests: `tools/readback/test_readback_width.py`, with a fake image and a
+  `.nm` listing (no QEMU, no cross tools): width 64 without the symbol;
+  352 with it and INTID 330 visible; an invalid width stops read-back;
+  the vCPU table with and without `hv_psci_max_vcpus` (offset 40 and
+  count capped at 4; offset 72 and 8 entries with max 8); an invalid max
+  stops read-back.
+- No QEMU read-back run: the change keeps QEMU's behaviour by
+  construction (64 and 4 are what the qemu-virt image states) and the unit
+  tests check both paths.
+
+### Expectations
+
+| Row | Check | Expected result |
+| - | - | - |
+| W1 | sizes of the five variants (Step 2 commands) | text 8 to 16 bytes larger than after Step 2 (two 4-byte constants, alignment); data and bss unchanged; images not byte-identical to Step 2's (expected) |
+| W2 | `nm -S` and the image | `hv_vgic_nr_irqs` (4 bytes) holds 64 on qemu-virt and 352 on cix-p1; `hv_psci_max_vcpus` (4 bytes) holds 4 on all five |
+| W3 | Python tests | 53 existing pass unchanged, 6 new pass: 59 |
+| W4 | host CTest | 29 of 29 |
+| W5 | trusted code | qemu 66 files, 7,520 to 7,527 code lines; cix 66 files, 7,509 to 7,516 |
+| W6 | CI on the code pull request | every job green |
