@@ -47,6 +47,8 @@
  * symbol by_cpu and reads enabled[] at this offset; keep them in step. */
 _Static_assert(__builtin_offsetof(struct hv_vgic, enabled) == 40,
 	       "readback.py reads hv_vgic.enabled at offset 40");
+/* ... and reads HV_VGIC_NR_IRQS / 32 words of it (v14). */
+const hv_u32 hv_vgic_nr_irqs = HV_VGIC_NR_IRQS;
 
 static struct hv_vgic *by_cpu[16];
 

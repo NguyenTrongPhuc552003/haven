@@ -17,6 +17,13 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v14 (2026-11-12, D5 step 3): the emulated GIC's width and the
+vCPU table's size come from the image (constants hv_vgic_nr_irqs and
+hv_psci_max_vcpus): the model's enable bits are read for every INTID it
+has (352 on cix-p1, not 0-63 only), and the vCPU table's state at
+8 + 8 * size with the count capped at that size. Images without the
+symbols read as 64 and 4, as before; an impossible value stops read-back.
+
 Changes in v13 (2026-11-09, HAVEN's own QEMU console): --haven-uart gives
 QEMU a second -serial for a HAVEN built with HAVEN_CONSOLE_UART=1 (QEMU
 virt's second Normal-world PL011); its output goes to haven-uart.log.
@@ -848,19 +855,42 @@ def compare_window(sid, grant, part, reach, kind, parts):
 VGIC_ENABLED_OFFSET = 40  # offsetof(struct hv_vgic, enabled), asserted in vgic.c
 
 
+def image_u32(mem, nm, elf, name, default):
+    """v14: a 32-bit constant HAVEN states in its image, or default for an
+    image without the symbol (built before v14)."""
+    try:
+        addr = symbol(nm, elf, name)
+    except SystemExit:
+        return default
+    return struct.unpack_from("<I", mem, addr - IMG_PA)[0]
+
+
+def vgic_width(mem, nm, elf):
+    """v14: interrupt IDs of the emulated GIC (hv_vgic_nr_irqs): 64 on
+    qemu-virt, 352 on cix-p1; 64 without the symbol. Fail closed on a value
+    vgic.h would reject."""
+    n = image_u32(mem, nm, elf, "hv_vgic_nr_irqs", 64)
+    if n % 32 or not 64 <= n <= 1024:
+        raise SystemExit(f"hv_vgic_nr_irqs = {n}: not a multiple of 32 from 64 to 1024")
+    return n
+
+
 def read_vgic_enables(mem, nm, elf):
-    """Per CPU, the emulated GIC's enable bits for INTIDs 0-63 (v8), or {}."""
+    """Per CPU, the emulated GIC's enable bits for all its INTIDs (v8; v14:
+    the image's width, not 0-63 only), as one integer, or {}."""
     try:
         table = symbol(nm, elf, "by_cpu")
     except SystemExit:
         return {}
+    words = vgic_width(mem, nm, elf) // 32
     out = {}
     for cpu in range(16):
         ptr = rd64(mem, table + 8 * cpu)
         if ptr:
-            lo = struct.unpack_from("<I", mem, ptr + VGIC_ENABLED_OFFSET - IMG_PA)[0]
-            hi = struct.unpack_from("<I", mem, ptr + VGIC_ENABLED_OFFSET + 4 - IMG_PA)[0]
-            out[cpu] = lo | (hi << 32)
+            bits = 0
+            for w in range(words):
+                bits |= struct.unpack_from("<I", mem, ptr + VGIC_ENABLED_OFFSET + 4 * w - IMG_PA)[0] << (32 * w)
+            out[cpu] = bits
     return out
 
 
@@ -873,19 +903,31 @@ def read_cpu_partitions(mem, nm, elf):
     return [struct.unpack_from("<I", mem, table + 4 * c - IMG_PA)[0] for c in range(NCPUS)]
 
 
-VCPU_STATE_OFFSET = 40  # offsetof(struct hv_psci_vcpus, state), asserted in psci.c
 VCPU_OFF = 1  # HV_VCPU_OFF
 
 
+def vcpu_table_size(mem, nm, elf):
+    """v14: entries of struct hv_psci_vcpus (hv_psci_max_vcpus); 4 without
+    the symbol. Fail closed outside 1 to 16 (HAVEN's CPU limit)."""
+    n = image_u32(mem, nm, elf, "hv_psci_max_vcpus", 4)
+    if not 1 <= n <= 16:
+        raise SystemExit(f"hv_psci_max_vcpus = {n}: not from 1 to 16")
+    return n
+
+
 def read_vcpus(mem, nm, elf):
-    """v12: HAVEN's vCPU table of partition 1 (part_a_vcpus), or None."""
+    """v12: HAVEN's vCPU table of partition 1 (part_a_vcpus), or None.
+    v14: count u32 at 0, mpidr u64[max] at 8, state u32[max] at 8 + 8 * max
+    (asserted in psci.c), with max read from the image."""
     try:
         t = symbol(nm, elf, "part_a_vcpus")
     except SystemExit:
         return None
-    n = min(struct.unpack_from("<I", mem, t - IMG_PA)[0], 4)
+    size = vcpu_table_size(mem, nm, elf)
+    state = 8 + 8 * size
+    n = min(struct.unpack_from("<I", mem, t - IMG_PA)[0], size)
     return {"partition": 1, "count": n,
-            "state": [struct.unpack_from("<I", mem, t + VCPU_STATE_OFFSET + 4 * i - IMG_PA)[0] for i in range(n)]}
+            "state": [struct.unpack_from("<I", mem, t + state + 4 * i - IMG_PA)[0] for i in range(n)]}
 
 
 def compare_cpus(served, expected, vcpus=None):

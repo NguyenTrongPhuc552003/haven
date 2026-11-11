@@ -31,6 +31,8 @@
 _Static_assert(HV_VGIC_NR_IRQS % 32U == 0U && HV_VGIC_NR_IRQS >= 64U &&
 		       HV_VGIC_NR_IRQS <= 1024U,
 	       "HV_VGIC_NR_IRQS: a multiple of 32 from 64 to 1024");
+/* HV_VGIC_NR_IRQS in the image, for read-back (readback.py v14). */
+extern const hv_u32 hv_vgic_nr_irqs;
 #define HV_VGIC_GICD_SIZE 0x10000U
 #define HV_VGIC_GICR_SIZE 0x20000U /* RD frame + SGI frame */
 #define HV_VGIC_DEFAULT_PRIO 0xA0U
