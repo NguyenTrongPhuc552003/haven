@@ -92,3 +92,57 @@ jobs:
         run: |
           cmake --preset arm64-cix-p1 -B build-cix-p1-linux -DHAVEN_PART_A_DTB_IPA=0x110000000 -DHAVEN_PART_A_VCPUS=8
           cmake --build build-cix-p1-linux
+
+  # Linux with KDAL in partition A on 2 and 3 vCPUs, partition B beside it
+  # (docs/methodology/stage2/20261112-e4-ci-linux). Kernel: the pinned
+  # private ELMOS SDK package; kdal.ko built against it at a pinned KDAL.
+  linux-partition:
+    name: Linux in partition A (QEMU, ELMOS SDK kernel)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: NguyenTrongPhuc552003/kdal
+          ref: f11e87e48f91726e7391b7bc153ab63da5e00d8b
+          path: kdal
+      - uses: oras-project/setup-oras@v2
+      - name: Pull the pinned ELMOS SDK kernel (private package)
+        env:
+          # pinned run tag: a new SDK build reaches HAVEN only through a reviewed change
+          SDK: ghcr.io/nguyentrongphuc552003/elmos-sdk:linux-6.18-4
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+          mkdir -p build/sdk
+          oras pull "$SDK" -o build/sdk
+          oras logout ghcr.io
+          python3 -c 'import json;m=json.load(open("build/sdk/manifest.json"));print("SDK", m["linux"]["version_string"], "elmos", m["elmos_commit"], "run", m["run"])'
+      - name: Install tools
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+            qemu-system-arm device-tree-compiler clang lld llvm make bc flex bison \
+            libelf-dev libssl-dev xz-utils curl
+          qemu-system-aarch64 --version | head -1
+      - name: Prepare the SDK kernel and build kdal.ko (KDAL f11e87e)
+        run: |
+          set -o pipefail
+          kdal/scripts/ci/kernel-prepare.sh "$PWD/build/sdk" | tail -2 > build/kpaths
+          make -C "$(sed -n 1p build/kpaths)" M="$PWD/kdal" ARCH=arm64 LLVM=1 modules > build/kdal-build.log 2>&1 ||
+            { tail -30 build/kdal-build.log; exit 1; }
+          modinfo -F vermagic kdal/kdal.ko
+      - name: Boot Linux in partition A (2 and 3 vCPUs)
+        run: |
+          python3 docs/methodology/stage2/20261112-multi-vcpu-n/run_n.py "$PWD" "$PWD/kdal" \
+            "$(sed -n 2p build/kpaths)" "$PWD/kdal/kdal.ko" build/linux-runs
+          grep -h "DMA grant" build/linux-runs/N*/uart.log || true
+      - name: Check the UART logs
+        run: python3 scripts/qemu/linux-partition-check.py build/linux-runs
+      - name: Show the UART logs on failure
+        if: failure()
+        run: for f in build/linux-runs/N*/uart.log; do echo "== $f"; tail -60 "$f"; done
