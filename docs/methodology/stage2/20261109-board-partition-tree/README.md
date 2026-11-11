@@ -191,3 +191,16 @@ assumptions of the grant's `source` field until the board.
    it?
 4. Which A720 group is faster (`M0`/`M1` or `B0`/`B1`): MIDR and the SCMI
    performance levels, before the real-time partition takes cores 8 to 11.
+
+## Correction (2026-11-11)
+
+The RAM-window row of the design says "Every DRAM source agrees on 4 GiB
+from 0x8000_0000". That is not right for boards: `PcdSystemMemorySize`
+(0x1_0000_0000) is a build default, and every CIX board package
+(`Alcor.dsc`, `Edge.dsc`, `Merak.dsc`, Radxa `O6.dsc`) builds with
+`UPDATE_MEMORY_TOP`, which sets the top of DRAM at boot from the
+memory-init result (up to 30 GiB from 0x8000_0000, the rest at
+0x80_0000_0000). On the 16 GB board DRAM is then one range from
+0x8000_0000 to about 0x4_7FFF_FFFF [I]. The window 0x1_0000_0000 + 2 GiB
+stays inside DRAM and the results of this record are unchanged. Sources and
+probe P1: `../../../porting/cix-p1-loading.md`, section 5.1.
