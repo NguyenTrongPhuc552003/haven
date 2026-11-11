@@ -132,3 +132,102 @@ source then differs from that commit, so its image is not that commit's
 image anyway). Outside a git checkout the build time is embedded as
 before. Only `haven.bin` and `haven.elf` were compared; other outputs
 (object archives of host tests) were not checked.
+
+## Step 2: partition A's layout from the platform (D5)
+
+### Problem
+
+[F] `src/core/partition.c` includes `src/platform/qemu-virt/memory.h`
+unconditionally and holds QEMU's vGIC IPAs (0x0800_0000, 0x080A_0000), so
+a `PLATFORM=cix-p1` build carries QEMU's partition layout (D4, Part 1).
+The `CIX_PART_A_*` constants of `src/platform/cix-p1/memory.h` are unused.
+D4 also linked the cix-p1 image at 0x8000_0000, inside the firmware's
+secure reservation.
+
+### Owner decisions this step implements (2026-11-09)
+
+1. Partition A on logical CPUs 0 to 7; RAM 2 GiB at 0x1_0000_0000,
+   identity mapped (assumption until the board's EFI memory map); emulated
+   GIC at GICD 0x0E01_0000 and GICR 0x0E09_0000; UART2 (0x040D_0000, INTID
+   330) is Linux's console, UART3 HAVEN's (D3 grant v0, D4).
+2. On cix-p1 partition B is **not mapped and not started** until it has
+   its own record (the D3 grant gives it no memory).
+3. **8 vCPUs is a separate later step** (`multi-vcpu.md` step 4). D5 keeps
+   the vCPU count the code supports today: 1, or 2 with a Linux guest
+   (vCPU 1 on `PART_A_CPU1`, default logical CPU 1).
+4. cix-p1's link address becomes **0xF000_0000** (loading study,
+   `../../../porting/cix-p1-loading.md`, pull request 64); qemu-virt stays
+   at 0x8000_0000. No other part of that study (EFI loader, entry checks
+   in `boot.S`) is done here.
+
+### Design
+
+- **Interface.** `partition.c` includes the selected platform's
+  `memory.h` (`HAVEN_PLATFORM_CIX_P1`: cix-p1; otherwise qemu-virt, as
+  today, also for the legacy i.MX builds). Each `memory.h` defines
+  `PART_A_IPA_BASE`, `PART_A_PA_BASE`, `PART_A_SIZE`, `PART_A_UART_BASE`,
+  `PART_A_UART_INTID` (a plain decimal, so it can also be printed),
+  `PART_A_VGICD_IPA` and `PART_A_VGICR_IPA`. Optional, present on
+  qemu-virt only: the read-only region (`PART_A_RO_*`), the DMA grant
+  (`PART_A_DMA_*`) and partition B's memory and CPU (`PART_B_*`,
+  `PART_B_CPU`). The QEMU vGIC IPAs move from `partition.c` to qemu-virt's
+  `memory.h` with the same values and types.
+- **cix-p1 values** (all already in `memory.h` from D4 or the decisions
+  above): RAM IPA = PA = `CIX_PART_A_RAM_BASE`, size
+  `CIX_PART_A_RAM_SIZE`; UART2; vGIC at the GIC-700 addresses; no
+  read-only region and no DMA grant (D3: "no SMMU section"); no partition
+  B. `CIX_PART_A_VCPUS` (8) stays the recorded target, not consumed.
+  `PART_A_LAST_CPU` 7 bounds `PART_A_CPU1` (A's CPUs are 0 to 7).
+- **Without partition B** (`PART_B_SIZE` undefined): B's regions, IRQs,
+  budget, secondary entry and CPU_ON are compiled out;
+  `partitions_launch` prints
+  `HAVEN: partition B not started: no memory on this platform`.
+  Read-back's grant for the board then has no partition 2 CPUs or PPIs; D3's
+  grant v0, which lists B's CPUs 8 to 11 and their PPI 27, is left as it
+  is (a record) and differs from the image on that point.
+- **Fail closed:** a static assertion that `HAVEN_PART_A_DTB_IPA` lies
+  inside partition A's RAM. D4's cix-p1 Linux build option
+  `-DHAVEN_PART_A_DTB_IPA=0x50000000` is then refused at compile time; the
+  cix-p1 Linux check uses `0x110000000` (A's base + 256 MiB, QEMU's
+  offset), **a placeholder for compiling, not a load decision**.
+- **Link address:** cix-p1's `HAVEN_LOAD_PA` becomes 0xF000_0000 and CMake
+  passes `-Wl,--defsym=HV_LOAD_ADDR=0xF0000000` for `PLATFORM=cix-p1`
+  (`linker.ld` already takes `HV_LOAD_ADDR`); the EL2 map follows
+  `HAVEN_LOAD_PA`.
+- qemu-virt: the preprocessed tables and code paths are kept equal, so
+  its three images stay byte-identical; log strings are built from the
+  same text.
+- **Host test** `tests/unit/test_partition_layout.c`, built twice: with
+  the qemu-virt layout, and with `HAVEN_PLATFORM_CIX_P1` and
+  `HAVEN_PART_A_DTB_IPA=0x110000000`. It compiles `partition.c` against
+  recording stubs (stage-2, SMMU, IRQ ownership, budgets, printk) and
+  checks what `partitions_launch` asks for. Also in `scripts/dev/test.sh`.
+- **CI:** one more compile-only step, `Cross-compile (cix-p1 draft, Linux
+  layout, no boot)`, with `-DHAVEN_PART_A_DTB_IPA=0x110000000
+  -DHAVEN_PART_A_VCPUS=2`.
+
+### Expectations
+
+Image comparisons build both trees with `SOURCE_DATE_EPOCH=1793318400`
+exported (Step 1): "before" is `main` at this record's merge, "after" is
+`main` at the code's merge. cix-linux now means `arm64-cix-p1` with
+`-DHAVEN_PART_A_DTB_IPA=0x110000000 -DHAVEN_PART_A_VCPUS=2`.
+
+| Row | Check | Expected result |
+| - | - | - |
+| P1 | qemu, psci, qemu-linux | `haven.bin` byte-identical before and after; sizes as the baseline table |
+| P2 | cix (preset, demo guest) | builds, no compiler warning (the known linker warnings only); text smaller than D4's 43,196 by 100 to 2,500 bytes (no DMA grant, no partition B code); data 144; bss within 64 bytes of 5,251,064 |
+| P3 | cix-linux | builds; text smaller than 45,784; bss within 64 bytes of 5,258,048 |
+| P4 | cix with D4's option `-DHAVEN_PART_A_DTB_IPA=0x50000000` | compile fails on the static assertion that the device tree IPA lies in partition A's RAM |
+| P5 | `nm -S` of `haven.elf` | `_start` at 0xf0000000 (cix, cix-linux) and 0x80000000 (qemu); `part_a_regions` 0x40 bytes (2 regions) on cix, 0x60 (3) on qemu; `part_a_irqs` 0x24 bytes (3 routes) on cix-linux and qemu-linux; no `part_b_irqs` and no `partition_b_secondary_cpu_init` on cix |
+| P6 | `test_partition_layout` (qemu-virt layout) | partition 1 mapped once with 3 regions: 0x4000_0000 to PA 0x8080_0000 + 512 MiB RWX, 0x0900_0000 + 4 KiB Device RW, 0x7000_0000 to PA 0xA4C0_0000 + 2 MiB read-only; partition 2 once with 1 region: 0x6000_0000 to PA 0xA080_0000 + 64 MiB RWX; StreamID 8 assigned to partition 1 with window IOVA 0x5F00_0000 + 1 MiB to PA 0x9F80_0000; 2 MMIO regions added; IRQ routes in order (33, A, CPU 0), (27, B, CPU 2); 2 budgets |
+| P7 | `test_partition_layout_cix` | partition 1 mapped once with 2 regions: 0x1_0000_0000 = PA, 2 GiB RWX, and 0x040D_0000 + 4 KiB Device RW; partition 2 never mapped; no SMMU call; IRQ routes in order (330, A, CPU 0), (27, A, CPU 0); 1 budget (A, 8 of 10 ms); the log has `partition B not started: no memory on this platform` |
+| P8 | host CTest | 29 of 29 (2 new); `scripts/dev/test.sh` passes |
+| P9 | Python tests | 53, all pass |
+| P10 | trusted code, qemu | 66 files; 7,470 to 7,500 code lines (`partition.c` and qemu-virt `memory.h` only) |
+| P11 | trusted code, cix and cix-linux | 66 files (qemu-virt `memory.h` no longer in the build); 7,455 to 7,495 code lines |
+| P12 | CI on the code pull request | every job green, including the new cix-p1 Linux layout step |
+
+Verdict rule as Step 1. What this step will not show: that the cix-p1
+image runs (no board, no loader yet), anything about 8 vCPUs, or that the
+RAM window is free on the 16 GB board.
