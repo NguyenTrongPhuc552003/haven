@@ -321,3 +321,41 @@ both (2026-11-09).
 | W4 | host CTest | 29 of 29 |
 | W5 | trusted code | qemu 66 files, 7,520 to 7,527 code lines; cix 66 files, 7,509 to 7,516 |
 | W6 | CI on the code pull request | every job green |
+
+### Results (2026-11-12, macOS host and CI)
+
+Expectations merged first (haven `5052034`, pull request 70); the code
+after that (commit `d3f2216`, merged as `49ab922`, pull request 71, CI
+green on every job). Images built with `SOURCE_DATE_EPOCH=1793318400`.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| W1 | text +8 bytes on all five (qemu 43,148, psci 43,148, qemu-linux 45,724, cix 41,720, cix-linux 44,320); data 144 and bss as after Step 2 | as expected |
+| W2 | `hv_vgic_nr_irqs`, 4 bytes: 0x40 (64) on qemu, psci, qemu-linux; 0x160 (352) on cix, cix-linux; `hv_psci_max_vcpus`, 4 bytes: 4 on all five (`objdump -s` of `haven.elf`) | as expected |
+| W3 | local 59 tests, OK, none skipped; CI 59 run, 12 skipped (the dts-based tests, no `dtc` there, as before) | as expected |
+| W4 | CTest 29 of 29 locally and in CI | as expected |
+| W5 | qemu 66 files, 7,522 code lines; cix 66 files, 7,511 | as expected |
+| W6 | pull request 71: every job green | as expected |
+
+**Verdict.** 6 of 6 rows hold. Read-back now sees every INTID of the
+emulated GIC the image has (INTID 330 on cix-p1) and the vCPU table at
+the image's size. Not shown: a read-back run on QEMU (none was made; the
+qemu-virt image states 64 and 4, the values read-back assumed before, and
+the unit tests check both paths) or on the board, where read-back's QEMU
+parts (`IMG_PA` 0x8000_0000, QEMU's GIC addresses and `NCPUS` = 4) do not
+apply yet.
+
+## Summary of D5 and next steps
+
+- Step 1: images are reproducible by default (11 of 11 rows).
+- Step 2: the cix-p1 image carries D3's partition A layout, no partition
+  B, and links at 0xF000_0000; qemu-virt images byte-identical (10 of 12
+  rows; 2 trusted-code count errors).
+- Step 3: read-back takes the vGIC width and vCPU table size from the
+  image (6 of 6 rows).
+- Trusted code over D5: qemu-virt 7,455 to 7,522 code lines (+67), cix-p1
+  67 files and 7,479 lines to 66 files and 7,511 (+32).
+- Next [P]: 8 vCPUs for partition A (`multi-vcpu.md` step 4; it needs a
+  larger `HV_PSCI_MAX_VCPUS` and `HV_MMIO_MAX_REGIONS` on cix-p1, and
+  generalising the vCPU 1 code); partition B's own record; read-back's
+  board path (image address and GIC from the platform).
