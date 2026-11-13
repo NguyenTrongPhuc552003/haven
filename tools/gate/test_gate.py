@@ -105,7 +105,8 @@ class Identity(unittest.TestCase):
             p = os.path.join(d, "baseline.json")
             self.assertEqual(fd.save_baseline(p, [old, blk]), (1, 1))  # BLOCKER never kept
             base = fd.load_baseline(p)
-            self.assertEqual(json.load(open(p))["schema"], fd.BASELINE_SCHEMA)
+            with open(p) as f:
+                self.assertEqual(json.load(f)["schema"], fd.BASELINE_SCHEMA)
         allf = [old, new, crit, blk]
         self.assertEqual(fd.blocking(allf, base, "pre-commit"), [blk])
         self.assertEqual(fd.blocking(allf, base, "pre-push"), [new, crit, blk])
@@ -307,6 +308,49 @@ class Kernel(unittest.TestCase):
         res, out = tools.kernel_make(Ctx(), "sparse", [])
         self.assertIsNone(res)
         self.assertEqual([(f.rule, f.severity) for f in out], [("not-run", "MAJOR")])
+
+
+class CiOnlyTools(unittest.TestCase):
+    """D16: a baseline written where a tool cannot run keeps that tool's
+    entries, and only such tools' findings can be added from a CI log."""
+
+    def run_baseline(self, d, *extra):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = gate.main(["--root", d, "baseline"] + list(extra))
+        return code, out.getvalue()
+
+    def profile(self, d, ci):
+        os.makedirs(os.path.join(d, "quality"), exist_ok=True)
+        with open(os.path.join(d, "quality", "gate.json"), "w") as f:
+            json.dump({"stages": {"ci": ci}, "kernel": {"env": "GATE_TEST_NO_SUCH_VAR", "make": ["make"]}}, f)
+        with open(os.path.join(d, "src.c"), "w") as f:
+            f.write("int f(void);\nint g(void) { return f(); }\n")
+
+    def test_entries_of_a_tool_that_did_not_run_are_kept(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.profile(d, ["sparse"])
+            kept = fd.Finding("sparse", "warning", "src.c", 1, "MAJOR", "not declared", root=d)
+            fd.save_baseline(os.path.join(d, "quality", "baseline.json"), [kept])
+            code, out = self.run_baseline(d)
+            self.assertEqual(code, 0)
+            self.assertIn("entries kept: sparse (1)", out)
+            self.assertEqual(fd.load_baseline(os.path.join(d, "quality", "baseline.json")), {kept.key: 1})
+
+    def test_reported_findings_only_for_tools_that_did_not_run(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.profile(d, ["sparse"])
+            log = os.path.join(d, "ci.log")
+            with open(log, "w") as f:
+                f.write("2026-11-13T15:55:56Z MAJOR    sparse/warning src.c:1: symbol 'f' was not declared\n"
+                        "2026-11-13T15:55:56Z CRITICAL clang-tidy/bugprone-x src.c:2: something\n")
+            code, out = self.run_baseline(d, "--add-reported", log)
+            self.assertIn("adding: MAJOR    sparse/warning src.c:1", out)
+            self.assertIn("refusing (the tool ran here): CRITICAL clang-tidy/bugprone-x", out)
+            tools_in = {e["tool"] for e in fd.load_baseline_entries(os.path.join(d, "quality", "baseline.json"))}
+            self.assertEqual(tools_in, {"sparse"})
 
 
 if __name__ == "__main__":

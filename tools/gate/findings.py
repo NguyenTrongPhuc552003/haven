@@ -10,6 +10,7 @@ import collections
 import hashlib
 import json
 import os
+import re
 
 LEVELS = ("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER")
 RANK = {name: i for i, name in enumerate(LEVELS)}
@@ -69,6 +70,29 @@ def load_baseline(path):
     return {e["key"]: e.get("count", 1) for e in data["findings"]}
 
 
+def load_baseline_entries(path):
+    """The baseline's entries as written (dicts with their counts)."""
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        return json.load(f)["findings"]
+
+
+# A finding as Finding.__str__ prints it, anywhere in a line (a CI log adds
+# a timestamp in front)
+REPORTED = re.compile(r"(BLOCKER|CRITICAL|MAJOR|MINOR)\s+(\S+?)/(\S+) (\S+?):(\d+): (.*)$")
+
+
+def parse_reported(text, root="."):
+    out = []
+    for line in text.splitlines():
+        m = REPORTED.search(line.rstrip())
+        if m:
+            sev, tool, rule, path, ln, msg = m.groups()
+            out.append(Finding(tool, rule, path, int(ln), sev, msg, root=root))
+    return out
+
+
 def accepted(f):
     """What a baseline may hold: not BLOCKER (never accepted), not INFO (not a
     defect), not the gate's own reports (a missing or failed tool)."""
@@ -79,9 +103,13 @@ def counts(findings):
     return collections.Counter(f.key for f in findings if accepted(f))
 
 
-def save_baseline(path, findings):
+def save_baseline(path, findings, kept=()):
+    """kept: entries carried over as they are (tools that did not run)."""
     n = counts(findings)
     keep = {f.key: dict(f.as_dict(), count=n[f.key]) for f in findings if accepted(f)}
+    for e in kept:
+        keep.setdefault(e["key"], e)
+        n[e["key"]] = n[e["key"]] or e.get("count", 1)
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w") as f:
         json.dump({"schema": BASELINE_SCHEMA, "findings": [keep[k] for k in sorted(keep)]},
