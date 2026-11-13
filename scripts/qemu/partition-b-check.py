@@ -81,6 +81,29 @@ def symbol(nm, elf, name):
     raise SystemExit(f"partition-b-check: {name} not found in {elf}")
 
 
+def read_status(m, status_pa):
+    """Partition B's status record (tests/demos/guest_b_timer.c) at PA status_pa."""
+    return dict(zip(FIELDS, (m.read32(status_pa + 4 * i) for i in range(len(FIELDS)))))
+
+
+def b_checks(log, status):
+    """The ten partition B checks, as (name, ok) pairs; also used by
+    uefi-boot-check.py, which boots the same images through the UEFI loader."""
+    denied_b = [l for l in log.splitlines() if "Denied stage-2 violation" in l and "IPA=0x40000000" in l]
+    return [
+        ("CPU 2 ready, partition B started", "CPU 2 ready, partition B started" in log),
+        ("partition B IRQs assigned", "partition B IRQs assigned" in log),
+        ("partition A: IRQ test done", "PARTITION_A: IRQ test done" in log),
+        ("B's read of A's IPA denied on CPU 2", any("cpu=2" in l for l in denied_b)),
+        ("B status magic", status["magic"] == GUEST_B_MAGIC),
+        ("B reached stage 5 (done)", status["stage"] == 5),
+        (f"B timer interrupts >= {TIMER_IRQS}", status["timer_irqs"] >= TIMER_IRQS),
+        ("B saw no other interrupts", status["other_irqs"] == 0),
+        ("B result: %s" % RESULTS.get(status["result"], "?"), status["result"] == 1),
+        ("no undelivered interrupt", "not delivered" not in log),
+    ]
+
+
 def main():
     build = sys.argv[1] if len(sys.argv) > 1 else "build"
     cpu = sys.argv[2] if len(sys.argv) > 2 else "cortex-a72"
@@ -124,7 +147,7 @@ def main():
             time.sleep(0.05)
         m = QMP(sock)
         while time.time() - t0 < limit and q.poll() is None:
-            status = dict(zip(FIELDS, (m.read32(status_pa + 4 * i) for i in range(len(FIELDS)))))
+            status = read_status(m, status_pa)
             log = open(uart, errors="replace").read() if os.path.exists(uart) else ""
             if status["stage"] == 5 and "PARTITION_A: IRQ test done" in log:
                 break
@@ -157,19 +180,7 @@ def main():
     for c, b in budgets.items():  # reported, not judged here (QEMU timing)
         print(f"Haven budget CPU {c}: active={b['active']} throttles={b['throttles']} "
               f"missed={b['missed']} max_late_ticks={b['max_late_ticks']}")
-    denied_b = [l for l in log.splitlines() if "Denied stage-2 violation" in l and "IPA=0x40000000" in l]
-    checks = [
-        ("CPU 2 ready, partition B started", "CPU 2 ready, partition B started" in log),
-        ("partition B IRQs assigned", "partition B IRQs assigned" in log),
-        ("partition A: IRQ test done", "PARTITION_A: IRQ test done" in log),
-        ("B's read of A's IPA denied on CPU 2", any("cpu=2" in l for l in denied_b)),
-        ("B status magic", status["magic"] == GUEST_B_MAGIC),
-        ("B reached stage 5 (done)", status["stage"] == 5),
-        (f"B timer interrupts >= {TIMER_IRQS}", status["timer_irqs"] >= TIMER_IRQS),
-        ("B saw no other interrupts", status["other_irqs"] == 0),
-        ("B result: %s" % RESULTS.get(status["result"], "?"), status["result"] == 1),
-        ("no undelivered interrupt", "not delivered" not in log),
-    ]
+    checks = b_checks(log, status)
     for name, ok in checks:
         print(("ok      " if ok else "MISSING ") + name)
     ok = all(c for _, c in checks)
