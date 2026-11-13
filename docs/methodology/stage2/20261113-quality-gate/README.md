@@ -509,3 +509,37 @@ finding not in the baseline, at every severity (fix list).
 (no step failed; the jobs did not get a runner in time); each was re-run
 and passed. A cancelled required check blocks a merge like a failed one.
 
+## Fix list, part 1: the deep tier moves to CI; L8 (design and expectations, before code)
+
+Owner, 2026-11-14: everything that can run in CI runs there, because the
+owner's Mac is not always on. Only the git hooks stay local (they run when
+a change is committed or pushed from a machine).
+
+- **D19, weekly deep checks in CI for all three.** HAVEN and ELMOS get the
+  weekly workflow KDAL has (Mondays, and on demand): `scripts/gate deep` on
+  a Linux runner. On the Mac, `deep` stays available but is no longer the
+  only place it runs.
+- **D20, LeakSanitizer where it works.** On Linux the sanitizer runner turns
+  leak detection on (it stays off on macOS on Apple silicon, where it does
+  not run).
+- **D21, a weekly run that finds something fails.** `deep --fail-on-new`
+  exits 1 when a CRITICAL or MAJOR finding is not in the baseline, so the
+  failed scheduled run is visible on the repository's Actions page and
+  GitHub notifies the owner. It still blocks no pull request (the
+  workflow is not a required check).
+- **L8 fix.** `deep` lists every finding not in the baseline, at every
+  severity, not only the blocking ones.
+- **Cache key.** haven and ELMOS key the cppcheck cache by the pinned
+  cppcheck version, as KDAL does.
+
+| Row | Check | Expected |
+| - | - | - |
+| W1 | HAVEN weekly run in CI | host tests pass under AddressSanitizer, UBSan and LeakSanitizer; 0 to 2 reports |
+| W2 | ELMOS weekly run in CI | 0 races; 0 fuzz failures in 60 s per target; under 10 min |
+| W3 | KDAL weekly run with LeakSanitizer | 1 to 5 leak reports from `kdalc` (the analyzer's `lx.tokens` leak among them), so the run fails (D21) |
+| W4 | KDAL weekly run after the L8 fix | lists Coccinelle's MINOR findings one by one (146 expected) |
+| W5 | `deep --fail-on-new` with nothing new (HAVEN, ELMOS) | exit 0 |
+| W6 | haven and ELMOS "quality gate" job, second run after the key change | the cppcheck cache is hit (no rebuild) |
+| W7 | `baseline --check` in all three | 0 new, 0 fixed |
+| W8 | engine unit tests | pass, with tests for L8 and `--fail-on-new` |
+
