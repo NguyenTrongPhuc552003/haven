@@ -20,7 +20,9 @@ for t in "$@"; do
 	jscpd)
 		npm install -g --silent "jscpd@$v" >/dev/null ;;
 	gitleaks)
-		GOBIN="$BIN" go install "github.com/zricethezav/gitleaks/v8@v$v" ;;
+		# the release binary: a `go install` build reports no version
+		curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v$v/gitleaks_${v}_linux_x64.tar.gz" |
+			tar -xz -C /tmp gitleaks && install /tmp/gitleaks "$BIN/" ;;
 	shellcheck)
 		curl -fsSL "https://github.com/koalaman/shellcheck/releases/download/v$v/shellcheck-v$v.linux.x86_64.tar.xz" |
 			tar -xJ -C /tmp && install "/tmp/shellcheck-v$v/shellcheck" "$BIN/" ;;
