@@ -496,6 +496,11 @@ on the Mac, and a later baseline written there would drop them as fixed.
 | A8 | "quality gate" job: 3 min 23 s | holds |
 | A9 | not observed yet: the weekly workflow can be started on demand only once it is on `main` | open |
 
+Count: of the 24 rows, 18 held (Z4 after a fix), 3 were prediction errors
+(Z2, K7, K8), K10 failed and held after D18, G4b held but confounded, and A9
+is open. (The commit message that added this table says "17 held, 2 of
+them after a fix"; that count is wrong.)
+
 **Not predicted.** GitHub cancelled four macOS jobs during these runs
 (no step failed; the jobs did not get a runner in time); each was re-run
 and passed. A cancelled required check blocks a merge like a failed one.
