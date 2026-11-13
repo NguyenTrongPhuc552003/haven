@@ -8,13 +8,13 @@ Primary target board:
 - NXP i.MX95 Dev Kit
 
 Purpose:
-- Provide the board-specific setup needed to execute the validation runbook in [docs/porting/IMX95_VALIDATION_RUNBOOK.md](/Users/trongphucnguyen/Documents/haven/docs/porting/IMX95_VALIDATION_RUNBOOK.md).
+- Provide the board-specific setup needed to execute the validation runbook in [docs/porting/IMX95_VALIDATION_RUNBOOK.md](/Users/user/Documents/haven/docs/porting/IMX95_VALIDATION_RUNBOOK.md).
 - Establish one checked-in candidate configuration for initial Linux plus FreeRTOS bring-up.
 
 ## Board baseline
 
 Reference configuration:
-- [configs/arm64/imx95-devkit.yaml](/Users/trongphucnguyen/Documents/haven/configs/arm64/imx95-devkit.yaml)
+- [configs/arm64/imx95-devkit.yaml](/Users/user/Documents/haven/configs/arm64/imx95-devkit.yaml)
 
 Host assumptions:
 - macOS or Linux host with serial terminal access.
@@ -53,7 +53,7 @@ If `screen` is unavailable, use any equivalent serial logger that preserves raw 
 ## Initial bring-up sequence
 
 1. Run `./scripts/test.sh` locally before touching hardware.
-2. Validate [configs/arm64/imx95-devkit.yaml](/Users/trongphucnguyen/Documents/haven/configs/arm64/imx95-devkit.yaml) and compare every reserved range with the board manual.
+2. Validate [configs/arm64/imx95-devkit.yaml](/Users/user/Documents/haven/configs/arm64/imx95-devkit.yaml) and compare every reserved range with the board manual.
 3. Load the hypervisor image and confirm early boot logs appear on UART.
 4. Start the Linux partition and verify a minimal health signal:
    - boot completes without panic
@@ -88,7 +88,7 @@ Store the following under `build/evidence/imx95/` or an equivalent retained path
 
 ## Open items before formal campaign
 
-1. Replace candidate memory ranges in [configs/arm64/imx95-devkit.yaml](/Users/trongphucnguyen/Documents/haven/configs/arm64/imx95-devkit.yaml) with board-manual-confirmed values.
+1. Replace candidate memory ranges in [configs/arm64/imx95-devkit.yaml](/Users/user/Documents/haven/configs/arm64/imx95-devkit.yaml) with board-manual-confirmed values.
 2. Add exact serial adapter identifiers once the lab setup is fixed.
 3. Define the acceptance threshold for RTOS latency during Linux stress.
 4. Link collected evidence into the thesis traceability material after the first successful board run.

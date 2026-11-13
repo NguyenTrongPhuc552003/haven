@@ -19,7 +19,7 @@ HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
 HAVEN: ERET -> partition A entry IPA=0x40000000
 HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)
 [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
-[    0.000000] Linux version 6.18.0-dirty (trongphucnguyen@Phucs-MacBook-Pro.local) (Homebrew clang version 23.1.5, Homebrew LLD 23.1.5) #1 SMP PREEMPT Wed Nov  4 21:39:14 +07 2026
+[    0.000000] Linux version 6.18.0-dirty (user@host) (Homebrew clang version 23.1.5, Homebrew LLD 23.1.5) #1 SMP PREEMPT Wed Nov  4 21:39:14 +07 2026
 [    0.000000] KASLR disabled due to lack of seed
 [    0.000000] Machine model: linux,dummy-virt
 [    0.000000] earlycon: pl11 at MMIO 0x0000000009000000 (options '')

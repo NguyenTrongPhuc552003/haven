@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/irq/ownership.c	2026-09-26 15:24:52
+--- /Users/user/Documents/workspace/haven/src/core/irq/ownership.c	2026-09-26 15:24:52
 +++ /tmp/gic-I6-0kpe9qzi/src/core/irq/ownership.c	2026-11-02 12:53:17
 @@ -62,7 +62,6 @@
  		if (st != HV_OK) {

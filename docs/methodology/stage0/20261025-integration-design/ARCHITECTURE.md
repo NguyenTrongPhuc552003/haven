@@ -69,7 +69,7 @@ containment, not circular source/library dependencies.
 
 ## Missing Linux guest capability
 
-The local source candidate `/Users/trongphucnguyen/kdal-qemu/kernel/linux-6.6.80`
+The local source candidate `/Users/user/kdal-qemu/kernel/linux-6.6.80`
 exists, but has no `.config`, built `Image`, generated release header or
 `Module.symvers`. No matching KDAL module is in its shared module directory.
 [guest-input-inventory.json](guest-input-inventory.json) pins inspected files

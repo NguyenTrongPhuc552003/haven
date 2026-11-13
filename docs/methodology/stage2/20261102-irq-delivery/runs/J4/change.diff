@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/irq.c	2026-11-02 13:19:22
+--- /Users/user/Documents/workspace/haven/arch/arm64/irq.c	2026-11-02 13:19:22
 +++ /tmp/g2-J4-gce9_q6h/arch/arm64/irq.c	2026-11-02 13:19:40
 @@ -297,7 +297,7 @@
  		} else {
@@ -9,7 +9,7 @@
  			    inject_hw(intid, 0xa0U) == HV_OK) {
  				write_sysreg(iar,
  					     icc_eoir1_el1); /* drop only */
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 13:16:21
+--- /Users/user/Documents/workspace/haven/src/core/partition.c	2026-11-02 13:16:21
 +++ /tmp/g2-J4-gce9_q6h/src/core/partition.c	2026-11-02 13:19:40
 @@ -263,7 +263,7 @@
   * ----------------------------------------------------------------------- */
