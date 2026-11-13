@@ -543,3 +543,20 @@ a change is committed or pushed from a machine).
 | W7 | `baseline --check` in all three | 0 new, 0 fixed |
 | W8 | engine unit tests | pass, with tests for L8 and `--fail-on-new` |
 
+### Results (fix list part 1; haven #113, #114; ELMOS #26; KDAL #31)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| W1 | HAVEN's weekly run, started on demand: success in 2 min 6 s; no sanitizer report under AddressSanitizer, UBSan and LeakSanitizer | holds |
+| W2 | ELMOS's weekly run: success in 3 min 52 s; no race, no fuzz failure in 60 s per target | holds |
+| W3 | KDAL's weekly run: 3 LeakSanitizer reports from `kdalc` (direct leaks of 2,560 and twice 20,480 bytes, allocated at `compiler/lexer.c:140`); the compiler's e2e test failed on them and the run failed, after 12 min | holds |
+| W4 | the same run lists Coccinelle's 146 findings one by one (all `coccinelle/warning`, MINOR) | holds |
+| W5 | `deep --fail-on-new` exit 0 for HAVEN and ELMOS, on the Mac and in CI | holds |
+| W6 | cache key `cppcheck-2.22.0`: ELMOS's weekly run restored the cache its `main` run had just saved; KDAL's runs restore it; HAVEN's two runs after the change started a minute apart, before either saved | holds for ELMOS and KDAL; HAVEN not yet observed |
+| W7 | `baseline --check`: 0 new, 0 fixed in all three | holds |
+| W8 | 29 engine unit tests pass on macOS and in CI | holds |
+
+The leaks in `kdalc` go to the fix list with the 13 analyzer reports of
+`compiler/` and `tools/kdality/`; until they are fixed KDAL's weekly run
+shows red, which is its purpose.
+
