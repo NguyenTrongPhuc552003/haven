@@ -117,3 +117,35 @@ Records cite the file from now on instead of repeating the values. Not
 yet [P]: KDAL's and ELMOS's own CI pin the same package themselves (KDAL
 `ci.yml`); reading this file from those repositories, or checking that
 their pins agree with it, is a later step if wanted.
+
+## First pin update: SDK run 4 to run 5 (design and expectations, 2026-11-13)
+
+Owner-approved (2026-11-13): move HAVEN's pins to ELMOS SDK run 5 with one
+reviewed change to `ecosystem.lock.json`, which also exercises the checks
+above on a real update.
+
+Run 5 facts (ELMOS `docs/developer/sdk-ci.md`, run 5 results): built from
+ELMOS `8ae143705c0ce083499cb0ef3d0808893c73a104`, pushed as
+`elmos-sdk:linux-6.18-5`, digest
+`sha256:cea68ea3dc184f408c9462142f69a2ac6253dc9c5f9add1627afa64fc093cf74`
+(run log). The kernel source, configuration and build names are those of
+run 4; only the root filesystem's `/init` changed, and HAVEN's job does not
+use that root filesystem (its initramfs comes from KDAL's scripts, E4).
+
+Change: `elmos_sdk.tag`, `digest`, `elmos_commit` and `run` set to run 5;
+`haven.tested_from` set to the HAVEN commit the change is made on
+(`67efc5e`), since the update changes no HAVEN code. Nothing else changes;
+`ci.yml` is not edited (E5: it holds no pinned literal).
+
+| Row | Check | Expected |
+| - | - | - |
+| U1 | `ecosystem.py check-workflow` on the pull request | passes with the workflow unchanged |
+| U2 | `oras resolve` of `linux-6.18-5` | equals the pinned digest; the pull by digest succeeds |
+| U3 | `check-sdk` | passes: the manifest names `8ae1437...` and run 5 |
+| U4 | kernel and module | banner `Linux version 6.18.0 (haven@ci)`; `kdal.ko` vermagic `6.18.0 SMP preempt mod_unload aarch64`, as with run 4 |
+| U5 | Linux in partition A | `N = 2` and `N = 3` OK with the same markers as run 4 |
+| U6 | other jobs | unchanged, green |
+| U7 | reproducibility of the kernel (hypothesis, recorded either way) | if the job log shows `Image.gz`'s hash, it equals run 4's (same source, configuration, toolchain and fixed build names); not judged if the log does not show it |
+
+KDAL's own CI still names `linux-6.18-4` until it reads this file (ecosystem
+step in progress); that difference is expected for now and recorded.
