@@ -122,6 +122,14 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
+   "key": "0b6d17b4b6bd6eb53ef078c7",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-gic-readback/run_gic.py",
+   "severity": "MAJOR",
+   "message": "24 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:72"
+  },
+  {
    "key": "0c61462719cd5b3510780142",
    "tool": "ruff",
    "rule": "E701",
@@ -218,12 +226,12 @@
    "message": "Multiple statements on one line (semicolon)"
   },
   {
-   "key": "1a95b0f400c668e6dc61f13b",
+   "key": "19994cd725cff22ecf2927c1",
    "tool": "jscpd",
    "rule": "duplicate",
-   "file": "analysis/latency_analyzer.py",
+   "file": "docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py",
    "severity": "MAJOR",
-   "message": "16 lines duplicated from analysis/jitter_plot.py:23"
+   "message": "24 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:72"
   },
   {
    "key": "1b2318b8a57f06e0edc97e89",
@@ -314,6 +322,14 @@
    "message": "2 adjacent parameters of 'hv_memcmp' of similar type ('const void *') are easily swapped by mistake"
   },
   {
+   "key": "1f093a6b570ddc9d810ae1ef",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from docs/methodology/stage2/20261107-readback-v8/rerun_v8.py:45"
+  },
+  {
    "key": "1f370e94b7c4f9a90086a4d9",
    "tool": "lizard",
    "rule": "complexity",
@@ -344,14 +360,6 @@
    "file": "src/common/string.c",
    "severity": "MAJOR",
    "message": "2 adjacent parameters of 'hv_memcpy' of convertible types are easily swapped by mistake"
-  },
-  {
-   "key": "234bd6e9544d22c7c0a054d7",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-irq-delivery/run_irq.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
   },
   {
    "key": "23cd16cd2279408e2568042f",
@@ -442,6 +450,14 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
+   "key": "2b3123afa89fd9ad82984c86",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from docs/methodology/stage2/20261107-readback-v8/rerun_v8.py:8"
+  },
+  {
    "key": "2b797338062b729a8a93be5b",
    "tool": "clang-tidy",
    "rule": "bugprone-reserved-identifier",
@@ -498,6 +514,14 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
+   "key": "331c8170f71d628110132090",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261107-dt-check-pairs/run_dt_pairs.py",
+   "severity": "MAJOR",
+   "message": "30 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:24"
+  },
+  {
    "key": "34d1f7b697641eec618fbc59",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -538,6 +562,14 @@
    "message": "Ambiguous variable name: `l`"
   },
   {
+   "key": "36dd85e56f3dd266f44fd668",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py",
+   "severity": "MAJOR",
+   "message": "26 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases.py:54"
+  },
+  {
    "key": "386911ed9353db624d0e03f4",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -570,14 +602,6 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "3ab19a06dca4673bb82f6434",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-irq-delivery/run_irq.py",
-   "severity": "MAJOR",
-   "message": "35 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:65"
-  },
-  {
    "key": "3bdde0cd105ff950e388247b",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -592,14 +616,6 @@
    "file": "drivers/iommu/smmu_v3.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "3cde2e742f8f881cf6d7181c",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-gic-readback/run_gic.py",
-   "severity": "MAJOR",
-   "message": "24 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:72"
   },
   {
    "key": "3e1873e99724f513dbb8bbd3",
@@ -672,14 +688,6 @@
    "file": "drivers/irqchip/gic_v3.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "4300721ea2d91189b7841917",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-irq-delivery/run_irq.py",
-   "severity": "MAJOR",
-   "message": "30 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:123"
   },
   {
    "key": "43277e6e9bfe2de938f47dfd",
@@ -762,14 +770,6 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "49839787c5170e6d5fbd3560",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-secondary-cpu/run_b3.py",
-   "severity": "MAJOR",
-   "message": "21 lines duplicated from stage2/20261102-budgets/run_budget.py:51"
-  },
-  {
    "key": "49c36cd25980010de7161c0d",
    "tool": "ruff",
    "rule": "E741",
@@ -818,14 +818,6 @@
    "message": "Double quote to prevent globbing and word splitting."
   },
   {
-   "key": "4ef704e6f508d9f95e9fe224",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-el2-memory/run_a1.py",
-   "severity": "MAJOR",
-   "message": "26 lines duplicated from stage2/20261102-budgets/run_budget.py:46"
-  },
-  {
    "key": "4f8b7665a1f7a66346e89164",
    "tool": "lizard",
    "rule": "complexity",
@@ -840,6 +832,14 @@
    "file": "arch/arm64/mmu_el2.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5051616553a9720699000a5d",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "src/guest/rtos/freertos_integration.c",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from src/guest/rtos/freertos_integration.c:240"
   },
   {
    "key": "5145c64f7ffabc3fbdbdffa1",
@@ -898,6 +898,14 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
+   "key": "57c4b3657e2be6aadaba986e",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-irq-delivery/run_irq.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
    "key": "59830f558253ae17e8d5d1bc",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -944,6 +952,14 @@
    "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
    "severity": "MINOR",
    "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "5bda5b207e9c3916bf8b43c1",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-el2-memory/run_a1.py",
+   "severity": "MAJOR",
+   "message": "26 lines duplicated from docs/methodology/stage2/20261102-budgets/run_budget.py:46"
   },
   {
    "key": "5d818a4c3b74980cb1ceee84",
@@ -1026,30 +1042,6 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "658f4d72cb9b37846281fa58",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage1/20261101-a1-readback/run_cases_v2.py",
-   "severity": "MAJOR",
-   "message": "26 lines duplicated from stage1/20261101-a1-readback/run_cases.py:54"
-  },
-  {
-   "key": "66152d337f75ad3a60758fcf",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261107-dt-check-same-node/run_dt_same.py",
-   "severity": "MAJOR",
-   "message": "30 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:24"
-  },
-  {
-   "key": "66c33370a5d8ddf95d81f846",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-readback-v4/run_v4.py",
-   "severity": "MAJOR",
-   "message": "20 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:76"
-  },
-  {
    "key": "66e0fc970424fef7d615b8e4",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -1064,14 +1056,6 @@
    "file": "drivers/iommu/smmu_v3.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "674bbd8585698c48d4662379",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "readback/readback.py",
-   "severity": "MAJOR",
-   "message": "16 lines duplicated from qemu/partition-b-check.py:66"
   },
   {
    "key": "676d8adb486555f42313fa57",
@@ -1154,6 +1138,14 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
+   "key": "6dedf0c4a4379599d10cbba3",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-a1-cases-v3/run_cases_v3.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
    "key": "6e4c7609ab35a2f26088cce7",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1192,6 +1184,14 @@
    "file": "drivers/iommu/smmu_v3.c",
    "severity": "MAJOR",
    "message": "result of multiplication in type 'uint32_t' (aka 'unsigned int') is used as a pointer offset after an implicit widening conversion to type 'size_t'"
+  },
+  {
+   "key": "7132149726ca29c9983760ad",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-irq-delivery/run_irq.py",
+   "severity": "MAJOR",
+   "message": "30 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:123"
   },
   {
    "key": "729f08de507287f373d954b6",
@@ -1274,14 +1274,6 @@
    "message": "Ambiguous variable name: `l`"
   },
   {
-   "key": "7634ee8cd1e05032f2f1c4bf",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261107-dt-check-same-node/run_dt_same.py",
-   "severity": "MAJOR",
-   "message": "19 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:6"
-  },
-  {
    "key": "7653d3cbff129c45cb8094c7",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -1298,6 +1290,14 @@
    "message": "Multiple statements on one line (semicolon)"
   },
   {
+   "key": "77a7fd86b19e8252e200a37b",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261107-dt-check-same-node/run_dt_same.py",
+   "severity": "MAJOR",
+   "message": "19 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:6"
+  },
+  {
    "key": "7821828283b4e1d8fab4ce91",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -1306,20 +1306,20 @@
    "message": "2 adjacent parameters of 'hv_arch_dma_context_map' of similar type ('uint32_t') are easily swapped by mistake"
   },
   {
-   "key": "786d803737c207d6c0fad5c4",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage1/20261102-smmu-bugfix/run_checks.py",
-   "severity": "MAJOR",
-   "message": "24 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:72"
-  },
-  {
    "key": "78e2ece4f544e483d9376705",
    "tool": "clang-tidy",
    "rule": "clang-analyzer-optin.performance.Padding",
    "file": "src/guest/drivers/uart.c",
    "severity": "MINOR",
    "message": "Excessive padding in 'hv_uart_port_t' (8 padding bytes, where 0 is optimal). Optimal fields order: stats, partition, allocated, tx_head, tx_tail, rx_head, rx_tail, config, tx_buffer, rx_buffer, consider reordering the fields or adding explicit padding members"
+  },
+  {
+   "key": "78ff76b272bab11efb90234a",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-irq-delivery/run_irq.py",
+   "severity": "MAJOR",
+   "message": "35 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:65"
   },
   {
    "key": "79107351e8c3da076201f3ea",
@@ -1352,14 +1352,6 @@
    "file": "arch/arm64/mm.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "7bf158d4c4f6785f21ae410e",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261107-dt-check-pairs/run_dt_pairs.py",
-   "severity": "MAJOR",
-   "message": "30 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:24"
   },
   {
    "key": "7c6f843996bf5f0a3266f075",
@@ -1424,6 +1416,14 @@
    "file": "src/core/irq/vgic.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8106e38d762625d0a88606f2",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-g2-dma/run_g2.py",
+   "severity": "MAJOR",
+   "message": "37 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:44"
   },
   {
    "key": "843af5ee2debed685865c498",
@@ -1594,6 +1594,14 @@
    "message": "Ambiguous variable name: `l`"
   },
   {
+   "key": "8f42143024e38fb2c62eb531",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-partition-b/run_partb.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
    "key": "8faf62de72c5b7ab66b31ad8",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -1608,6 +1616,14 @@
    "file": "src/core/irq/vgic.c",
    "severity": "MAJOR",
    "message": "3 adjacent parameters of 'prio_access' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "908d391e7a98dc7d95aa6971",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261107-dt-check-same-node/run_dt_same.py",
+   "severity": "MAJOR",
+   "message": "30 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:24"
   },
   {
    "key": "90d4c163c3444fedea04565c",
@@ -1650,14 +1666,6 @@
    "message": "Ambiguous variable name: `l`"
   },
   {
-   "key": "9771bb737322e52410cd9637",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-g2-dma/run_g2.py",
-   "severity": "MAJOR",
-   "message": "22 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:92"
-  },
-  {
    "key": "97e43f9d39127144cdb99f49",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1680,6 +1688,14 @@
    "file": "docs/methodology/stage2/20261107-linux-with-b/run_with_b.py",
    "severity": "MINOR",
    "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "99a305cfb4fde253dc08c3c9",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "tools/readback/readback.py",
+   "severity": "MAJOR",
+   "message": "16 lines duplicated from scripts/qemu/partition-b-check.py:66"
   },
   {
    "key": "9ad0f9d41d6b84b788ceac06",
@@ -1794,14 +1810,6 @@
    "message": "haven_init: 118 lines > 100"
   },
   {
-   "key": "a525fdb8a58848601da5a3df",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-dma-hardening/run_hardening.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
-  },
-  {
    "key": "a6a625b57e385d6091e2c019",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1816,14 +1824,6 @@
    "file": "arch/arm64/irq.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "a71a61e7c998f94ca66f4b5a",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261107-dt-check-pairs/run_dt_pairs.py",
-   "severity": "MAJOR",
-   "message": "19 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:6"
   },
   {
    "key": "a78b65180867b5717c209810",
@@ -1898,14 +1898,6 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "af78c83fcbe81ecc6e46271a",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-gic-readback/run_gic.py",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:152"
-  },
-  {
    "key": "af853b8fce31acbf684b181a",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1930,12 +1922,12 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "b0a87080c53d3a86975f72a4",
+   "key": "b21422b96bf43c548769358b",
    "tool": "jscpd",
    "rule": "duplicate",
-   "file": "readback/readback.py",
+   "file": "tools/readback/readback.py",
    "severity": "MAJOR",
-   "message": "16 lines duplicated from stage1/20261101-a1-readback/readback.py:112"
+   "message": "16 lines duplicated from docs/methodology/stage1/20261101-a1-readback/readback.py:112"
   },
   {
    "key": "b282c65309b6f297416bc808",
@@ -2024,14 +2016,6 @@
    "file": "drivers/iommu/smmu_v3.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "b9ff069fba0cde3a17d3737f",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-a1-cases-v3/run_cases_v3.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
   },
   {
    "key": "bae4da50a978ac512539427c",
@@ -2306,28 +2290,12 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "cede24f7b958511caa25d70b",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261107-readback-v9/rerun_v9.py",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from stage2/20261107-readback-v8/rerun_v8.py:8"
-  },
-  {
    "key": "d000a8b1690f32f385d27186",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
    "file": "arch/arm64/mm.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
-  },
-  {
-   "key": "d0c3b9f8b012839c05d59bef",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-partition-b/run_partb.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
   },
   {
    "key": "d13821402008566e32dea36f",
@@ -2394,12 +2362,28 @@
    "message": "Multiple statements on one line (semicolon)"
   },
   {
+   "key": "d674c09f2683be7b652a5a4e",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261107-dt-check-pairs/run_dt_pairs.py",
+   "severity": "MAJOR",
+   "message": "19 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:6"
+  },
+  {
    "key": "d765834f6944b30828a90a78",
    "tool": "clang-tidy",
    "rule": "bugprone-invalid-enum-default-initialization",
    "file": "src/guest/rtos/freertos_integration.c",
    "severity": "CRITICAL",
    "message": "enum value of type 'hv_shared_access_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator"
+  },
+  {
+   "key": "d8384ddab2bd92622d138ce4",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-g2-dma/run_g2.py",
+   "severity": "MAJOR",
+   "message": "22 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:92"
   },
   {
    "key": "d857280d080694764bb9391b",
@@ -2474,14 +2458,6 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
-   "key": "dfd0781960b2ec29f17a04f3",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "guest/rtos/freertos_integration.c",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from guest/rtos/freertos_integration.c:240"
-  },
-  {
    "key": "e01e297ae5239c26d95a6716",
    "tool": "shellcheck",
    "rule": "SC2034",
@@ -2512,6 +2488,14 @@
    "file": "arch/arm64/mm.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e11af3be5c539f58cba737ff",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "tools/analysis/latency_analyzer.py",
+   "severity": "MAJOR",
+   "message": "16 lines duplicated from tools/analysis/jitter_plot.py:23"
   },
   {
    "key": "e12709b656e8e0bb862f6099",
@@ -2570,14 +2554,6 @@
    "message": "Multiple statements on one line (semicolon)"
   },
   {
-   "key": "e5efe972bf52ee34e064da0a",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261107-readback-v9/rerun_v9.py",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from stage2/20261107-readback-v8/rerun_v8.py:45"
-  },
-  {
    "key": "e71adfaf49f6cd527b4d3e1b",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -2602,6 +2578,14 @@
    "message": "Multiple statements on one line (colon)"
   },
   {
+   "key": "e90191f51e9199e1a37f5be8",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-gic-readback/run_gic.py",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:152"
+  },
+  {
    "key": "e945351ec5270d1ebefa0dd6",
    "tool": "ruff",
    "rule": "E741",
@@ -2616,14 +2600,6 @@
    "file": "tools/analysis/evidence_report.py",
    "severity": "MAJOR",
    "message": "`sys` imported but unused"
-  },
-  {
-   "key": "e9e680568592f514294e16e0",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "stage2/20261102-g2-dma/run_g2.py",
-   "severity": "MAJOR",
-   "message": "37 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:44"
   },
   {
    "key": "ea567d64d5ea444a0a3a35d9",
@@ -2674,6 +2650,14 @@
    "message": "use of a signed integer operand with a binary bitwise operator"
   },
   {
+   "key": "ef26f8ff94229e59d02a5a5b",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-dma-hardening/run_hardening.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
    "key": "ef874768cc0081979a9b611b",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -2706,6 +2690,14 @@
    "message": "Ambiguous variable name: `l`"
   },
   {
+   "key": "f69868cf05550c75971737cc",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-readback-v4/run_v4.py",
+   "severity": "MAJOR",
+   "message": "20 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:76"
+  },
+  {
    "key": "f69a71f59f87f26f27abb45e",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -2728,6 +2720,14 @@
    "file": "arch/arm64/mm.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "f91bd4852a3d24164f4b8730",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "docs/methodology/stage2/20261102-secondary-cpu/run_b3.py",
+   "severity": "MAJOR",
+   "message": "21 lines duplicated from docs/methodology/stage2/20261102-budgets/run_budget.py:51"
   },
   {
    "key": "f98ee7311bf9f7dee9433483",

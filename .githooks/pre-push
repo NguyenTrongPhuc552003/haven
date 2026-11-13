@@ -21,6 +21,6 @@ echo "[hook:pre-push] testing"
 ./scripts/dev/test.sh
 
 echo "[hook:pre-push] quality gate"
-./scripts/gate pre-push
+./scripts/gate pre-push --remote "$1"
 
 echo "[hook:pre-push] ok"
