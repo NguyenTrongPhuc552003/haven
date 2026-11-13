@@ -19,36 +19,24 @@ import sys
 OEM = b"CIXTEK"
 
 
-def unpack(chunk, size):
-    """Decode one .lzma stream of known size, fed in pieces.
-
-    The Windows CI job (2026-11-11) found no stream where Linux and macOS
-    found two. Suspected cause: that liblzma rejects the bytes after a
-    stream of known size. The stream is complete once `size` bytes are out,
-    so decoding stops there instead of reading the trailing bytes.
-    """
-    dec = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
-    out = bytearray()
-    try:
-        for i in range(0, len(chunk), 0x10000):
-            out += dec.decompress(chunk[i:i + 0x10000], max_length=size - len(out))
-            if len(out) >= size or dec.eof:
-                break
-    except lzma.LZMAError:
-        return None
-    return bytes(out) if len(out) >= size else None
-
-
 def streams(d):
     """The raw bytes, then every LZMA stream that decompresses."""
     yield "raw", d
     for m in re.finditer(rb"\x5d\x00\x00[\x00-\xff][\x00-\x04]", d):
         o = m.start()
         size = struct.unpack_from("<Q", d, o + 5)[0]
-        if not 0x1000 < size < 0x8000000:
+        # EDK2 records the size (no end marker); size ~0 means "unknown,
+        # ends with an end marker", which other encoders write
+        if size == 0xFFFFFFFFFFFFFFFF:
+            size = 0x8000000
+        elif not 0x1000 < size < 0x8000000:
             continue
-        dec = unpack(d[o:o + min(len(d) - o, size + 0x400000)], size)
-        if dec is not None and len(dec) > 0x1000:
+        try:
+            dec = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE).decompress(
+                d[o:o + min(len(d) - o, size + 0x400000)], max_length=size)
+        except lzma.LZMAError:
+            continue
+        if len(dec) > 0x1000:
             yield f"lzma@{o:#x}", dec
 
 
