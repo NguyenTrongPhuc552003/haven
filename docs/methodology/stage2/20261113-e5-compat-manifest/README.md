@@ -87,3 +87,33 @@ not touched.
 Verdict rule as before. Not shown: what happens when a pin is changed on
 purpose (the first such change is the test), or the other repositories
 reading this file (they do not yet).
+
+## Results (2026-11-13, macOS host and CI)
+
+Expectations merged first (haven `7b7f882`, pull request 81); the change
+after that (commit `cea197d`, merged as `484271b`, pull request 83, CI
+green on every job). C1 to C4 on the macOS host with a throwaway script
+(copies of `ci.yml` and fake manifests outside the repository); C5 to C7
+from CI run 43340529914 (pull request event), log read through the API.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| C1 | keys `schema`, `elmos_sdk` (`package`, `tag`, `digest`, `elmos_commit`, `run`), `kdal` (`repository`, `commit`), `ci` (`runner`, `qemu`), `haven` (`tested_from`), with the table's values; `outputs` prints them | as expected |
+| C2 | new `ci.yml`: `OK ... (runner ubuntu-24.04)`, exit 0; `runs-on: ubuntu-latest`: `FAIL: linux-partition runs-on 'ubuntu-latest', pinned 'ubuntu-24.04'`, exit 1; KDAL commit written into `ref:`: `FAIL: ... names the KDAL commit (f11e87e48f91...) itself`, exit 1 | as expected |
+| C3 | `f11e87e`, `linux-6.18-4`, `b2eaad5`, `4eb897c`: 0 matches each in `ci.yml` | as expected |
+| C4 | `check-sdk`: run 4 exit 0, run 3 exit 1; `check-qemu`: the E4 line exit 0, the Mac's `QEMU emulator version 11.1.3` `FAIL: QEMU '11.1.3', pinned 8.2.2`, exit 1 | as expected |
+| C5 | `OK: .github/workflows/ci.yml takes its pins ...`; `Pulled [registry] ghcr.io/nguyentrongphuc552003/elmos-sdk@sha256:b2eaad50...` (by digest); the resolve comparison passed (the step would have stopped with `FAIL: ... resolves to`); `OK: SDK built from ELMOS 4eb897c, run 4`; `OK: QEMU 8.2.2 (QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18))`; `N = 2: OK (5 markers)`, `N = 3: OK (6 markers)`; DMA grant withheld as in E4 | as expected |
+| C6 | 1 min 31 s (00:52:37 to 00:54:08 UTC) | as expected |
+| C7 | the other four jobs passed; the change is `ci.yml`, `ecosystem.lock.json` and `scripts/ci/ecosystem.py` only | as expected |
+
+**Verdict.** 7 of 7 rows hold. `ecosystem.lock.json` is now the only
+copy of the pins in haven: `ci.yml` reads them and CI fails if a copy
+appears, the runner differs, the tag moves, the package's manifest or
+the runner's QEMU disagrees. No token string in the job log. [I] `oras
+logout` runs from the step's `trap` at exit; it prints nothing on
+success (as in E4), so the log cannot show it.
+
+Records cite the file from now on instead of repeating the values. Not
+yet [P]: KDAL's and ELMOS's own CI pin the same package themselves (KDAL
+`ci.yml`); reading this file from those repositories, or checking that
+their pins agree with it, is a later step if wanted.
