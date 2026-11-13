@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 01:21:00
+--- /Users/user/Documents/workspace/haven/src/core/partition.c	2026-11-02 01:21:00
 +++ /tmp/smmufix-F3-ieikvg09/src/core/partition.c	2026-11-02 02:04:07
 @@ -22,6 +22,7 @@
  

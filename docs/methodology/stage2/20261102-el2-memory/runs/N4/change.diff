@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 23:13:28
+--- /Users/user/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 23:13:28
 +++ /tmp/a1-N4-5_pma1no/src/platform/qemu-virt/platform.c	2026-11-02 23:16:42
 @@ -40,7 +40,7 @@
  const struct hv_el2_region hv_el2_regions[] = {

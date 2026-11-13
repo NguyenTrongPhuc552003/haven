@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 14:45:21
+--- /Users/user/Documents/workspace/haven/src/core/partition.c	2026-11-02 14:45:21
 +++ /tmp/partb-K2-e5rllrm9/src/core/partition.c	2026-11-02 14:46:47
 @@ -334,8 +334,6 @@
  	 * values: in QEMU HCR_EL2.RW = 0 made the ERET below an illegal

@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/drivers/iommu/smmu_v3.c	2026-11-02 01:21:00
+--- /Users/user/Documents/workspace/haven/drivers/iommu/smmu_v3.c	2026-11-02 01:21:00
 +++ /tmp/a1v2-S2-paymua2_/drivers/iommu/smmu_v3.c	2026-11-02 01:37:32
 @@ -272,8 +272,6 @@
  	smmu_write32(base, SMMU_STRTAB_BASE_CFG, strtab_cfg);

@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 23:13:28
+--- /Users/user/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 23:13:28
 +++ /tmp/a1-N2-h5__dvuj/src/platform/qemu-virt/platform.c	2026-11-02 23:15:56
 @@ -41,6 +41,7 @@
  	{0x0000000000UL, 0x40000000UL, HV_EL2_DEVICE},

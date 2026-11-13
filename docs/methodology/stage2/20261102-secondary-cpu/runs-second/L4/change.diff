@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 22:26:48
+--- /Users/user/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 22:26:48
 +++ /tmp/b3-L4-ohr2_k30/src/platform/qemu-virt/platform.c	2026-11-02 22:36:28
 @@ -26,7 +26,7 @@
   * Logical CPU map (asm/cpu_map.h): QEMU virt with -smp 4 numbers its CPUs

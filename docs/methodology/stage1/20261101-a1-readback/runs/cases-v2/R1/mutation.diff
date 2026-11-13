@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:25:23
+--- /Users/user/Documents/workspace/haven/arch/arm64/include/asm/s2_attrs.h	2026-11-01 16:25:23
 +++ /tmp/a1v2-R1-8culj30y/arch/arm64/include/asm/s2_attrs.h	2026-11-02 01:37:15
 @@ -24,8 +24,7 @@
  		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);

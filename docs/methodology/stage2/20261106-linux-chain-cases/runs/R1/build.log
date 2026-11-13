@@ -15,7 +15,7 @@ Preset CMake variables:
 -- Haven PSCI conduit: HAVEN_PSCI_CONDUIT_NONE (profile qemu-direct)
 -- Configuring done (0.1s)
 -- Generating done (0.0s)
--- Build files have been written to: /tmp/chain-work-hlzyw_81/build-_Users_trongphucnguyen_Documents_workspace_haven_docs_methodology_stage2_20261106_linux_chain_cases_heldout_R1_patch
+-- Build files have been written to: /tmp/chain-work-hlzyw_81/build-_Users_user_Documents_workspace_haven_docs_methodology_stage2_20261106_linux_chain_cases_heldout_R1_patch
 [1/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/context.S.obj
 [2/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/boot.S.obj
 [3/47] Building ASM object CMakeFiles/haven.dir/arch/arm64/entry.S.obj
@@ -70,4 +70,4 @@ Preset CMake variables:
 /opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: haven.elf has a LOAD segment with RWX permissions
 /opt/homebrew/Cellar/aarch64-unknown-linux-gnu/15.2.0/toolchain/bin/../lib/gcc/aarch64-unknown-linux-gnu/15.2.0/../../../../aarch64-unknown-linux-gnu/bin/ld: warning: .note.gnu.build-id section discarded, --build-id ignored
    text	   data	    bss	    dec	    hex	filename
-  39436	    104	5251560	5291100	 50bc5c	/tmp/chain-work-hlzyw_81/build-_Users_trongphucnguyen_Documents_workspace_haven_docs_methodology_stage2_20261106_linux_chain_cases_heldout_R1_patch/haven.elf
+  39436	    104	5251560	5291100	 50bc5c	/tmp/chain-work-hlzyw_81/build-_Users_user_Documents_workspace_haven_docs_methodology_stage2_20261106_linux_chain_cases_heldout_R1_patch/haven.elf

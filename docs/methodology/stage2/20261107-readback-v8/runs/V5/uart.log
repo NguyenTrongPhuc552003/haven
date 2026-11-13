@@ -19,4 +19,4 @@ HAVEN: PSCI CPU_ON failed for CPU 2 - partition B inactive
 HAVEN: ERET -> partition A entry IPA=0x40000000
 HAVEN: CPU 0 budget enforced by the EL2 timer (partition A)
 [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
-[    0.000000] Linux version 6.18.0-dirty (trongphucnguyen@Phucs-MacBook-Pro.local) (Homebrew clang version 2
+[    0.000000] Linux version 6.18.0-dirty (user@host) (Homebrew clang version 2
