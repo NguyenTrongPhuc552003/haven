@@ -97,9 +97,13 @@ def cppcheck(ctx, files):
     if not exe:
         return missing(ctx, "cppcheck")
     inc = sum((["-I", d] for d in ctx.cfg.get("c_include", [])), [])
-    code, _, err = run([exe, "--enable=warning,performance,portability", "--inline-suppr", "--quiet",
-                     "--suppress=missingIncludeSystem", "--suppress=missingInclude",
-                     "--template={file}\t{line}\t{severity}\t{id}\t{message}"] + inc + files, ctx.root)
+    # a profile may widen the checks (KDAL keeps its old job's style checks
+    # and their suppressions)
+    conf = ctx.cfg.get("cppcheck", {})
+    sup = ["--suppress=" + s for s in ["missingIncludeSystem", "missingInclude"] + conf.get("suppress", [])]
+    code, _, err = run([exe, "--enable=" + conf.get("enable", "warning,performance,portability"),
+                        "--inline-suppr", "--quiet"] + sup +
+                       ["--template={file}\t{line}\t{severity}\t{id}\t{message}"] + inc + files, ctx.root)
     return checked("cppcheck", code, err, rules.parse_cppcheck(err, ctx.root))
 
 

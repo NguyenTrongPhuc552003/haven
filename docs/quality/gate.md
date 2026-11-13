@@ -59,7 +59,7 @@ this to run `checkpatch.pl` on the kernel module only. Tools per language:
 
 | Language | Tools |
 | - | - |
-| C | cppcheck, clang-tidy (needs a compile database), checkpatch.pl (kernel C), lizard, jscpd |
+| C | cppcheck (a profile may set its `enable` list and suppressions), clang-tidy (needs a compile database), checkpatch.pl (kernel C), lizard, jscpd |
 | Go | gofmt, golangci-lint (govet, staticcheck, errcheck, ineffassign, unused), govulncheck, lizard, jscpd |
 | Python | ruff, jscpd |
 | Shell | shellcheck |
