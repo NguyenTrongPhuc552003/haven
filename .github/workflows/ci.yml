@@ -43,6 +43,8 @@ jobs:
         run: ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation
       - name: Read-back grant formats and demand check (Python)
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/readback -p "test_*.py" -v
+      - name: Firmware image scanners (Python)
+        run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/fwscan -p "test_*.py" -v
 
   arm64-qemu:
     name: ARM64 build and QEMU boot
