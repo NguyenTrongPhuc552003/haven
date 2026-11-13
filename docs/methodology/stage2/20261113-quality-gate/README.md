@@ -1,7 +1,9 @@
 # Quality gate for HAVEN, ELMOS and KDAL (Q, G0 to G5)
 
-**Status:** design and expectations for G1 (HAVEN), merged before any gate
-code and before any measurement of the tree (owner-approved 2026-11-13: the
+**Status:** G1 (HAVEN) done, results below; expectations C1 to C5 for the
+fix of limitations L1 and L2 recorded before its code. Design and G1
+expectations were merged before any gate code and before any measurement of
+the tree (owner-approved 2026-11-13: the
 gate replaces item Q's plain audit; Q's audit is the first baseline).
 Expectations for G2 to G5 are added here, each before its own code. The
 user-facing description is `docs/quality/gate.md`.
@@ -65,6 +67,81 @@ Predictions about the tree are ranges, recorded either way.
 | T3 | CI job "quality gate" | under 5 min |
 | B1 | HAVEN images | byte-identical to `main` (no C change) |
 
-## Results
+## Results (G1, HAVEN; runs of 2026-11-13 on `main` 2605d18 and 89371e7)
 
-Added after G1's runs.
+Observed on the Mac with the pinned tool versions of `quality/gate.json`,
+and in the CI job "quality gate" (#96, #97). The Mac and CI report the same
+counts: CRITICAL 4, MAJOR 289, MINOR 76 (369 findings, 349 distinct keys,
+see limitation L1).
+
+| Row | Expected | Observed | Verdict |
+| - | - | - | - |
+| Q1 | 10 to 40 | 13 functions over complexity 15 (and 2 over 100 lines) | holds |
+| Q2 | 1 % to 5 % of the C lines | C alone 0.18 %; C and Python 3.0 % (the copies are the run scripts under `docs/methodology/`) | prediction error (C has far less copying than predicted) |
+| Q3 | 0 to 20 | 0 at warning level or above; 2 "could not analyse" reports (INFO) | holds |
+| Q4 | 5 to 60; 0 analyzer-confirmed memory errors in the trusted code | 248 (CRITICAL 4, MAJOR 243, MINOR 1); 1 analyzer null dereference at `el2_exceptions.c:371` | prediction error on the count; the dereference is on a path that cannot run (`hv_psci_call` never returns START_VCPU), an inference from reading the code, to be removed by a guard (fix list) |
+| Q5 | 20 to 200 | 74 under the explicit rule set of `ruff.toml` (388 under ruff's defaults, which change with the ruff version) | holds |
+| Q6 | 10 to 80 | 7 | prediction error |
+| Q7 | 0 | 4 absolute home-directory paths of a build container in two committed `host-ctest.log` files (BLOCKER); replaced by `/home/user/` in #96 | prediction error |
+| S1 | `pre-commit` exits 1, BLOCKER | exit 1, BLOCKER `secret/github-token` | holds |
+| S2 | `pre-commit` exits 1, BLOCKER | exit 1, BLOCKER `path/home` (first seed was a `*.log`, which is ignored by git; repeated as `.txt`) | holds |
+| S3 | `pre-push` exits 1; `pre-commit` passes | as expected | holds |
+| S4 | `pre-push` exits 1 (new MAJOR) | first run: not caught (jscpd paths relative to the scanned directory); after #97: exit 1, `src/seed/copy.c:6: 36 lines duplicated from src/core/partition.c:405` | held after a fix |
+| S5 | `pre-push` exits 1 (CRITICAL) from a `bugprone` seed | the `bugprone` memset seeds did not fire (the checks do not match `__builtin_memset`, which HAVEN's code uses); a null-dereference seed gave CRITICAL from cppcheck and the analyzer and exit 1 | not as planned: the CRITICAL path is shown with a different seed |
+| S6 | `ci` exits 0, every finding known | exit 0 | holds |
+| S7 | fixed finding disappears; `baseline --check` reports it | as expected | holds |
+| T1 | unit tests pass, standard library only | 12 tests pass on macOS (Python 3.9) and in CI (Ubuntu); a 12th test for the base branch was added in #97 | holds |
+| T2 | `pre-commit` under 10 s; `pre-push` under 3 min | `pre-commit` 0.05 s with 3 staged C files; `pre-push` 1.0 s with 3 changed C files; whole-tree `ci` 5.7 s | holds |
+| T3 | under 5 min | 2 min 39 s, most of it installing the pinned tools | holds |
+| B1 | images byte-identical | no C, assembly or linker file changed in #96 or #97 | holds by construction, not measured |
+
+### Calibrations made after the first run (before the baseline was committed)
+
+The severity map was changed once, after looking at the first whole-tree
+run; each change is a judgement, recorded here so that it can be reviewed:
+
+- `bugprone-signed-bitwise` (195 of the 248 clang-tidy findings) and
+  `bugprone-easily-swappable-parameters` (39) are MAJOR, not CRITICAL: the
+  first flags almost every register mask written with signed constants, the
+  second almost every function taking two addresses. They stay in the
+  baseline as debt rather than block.
+- `clang-analyzer-optin.performance.*` and
+  `clang-analyzer-security.insecureAPI.*` are MINOR (padding and
+  `memcpy` advice, not defects in a freestanding kernel).
+- cppcheck's "could not analyse" reports (`syntaxError`,
+  `preprocessorErrorDirective`, `unknownMacro`) are INFO: they say the tool
+  did not look, not that the code is wrong.
+- ruff runs an explicit rule set (`ruff.toml`: E4, E7, E9, F), because the
+  default set changed the count between versions. The ruff mapping first
+  read any rule starting with "F" as Pyflakes and so mapped `FURB` rules to
+  MAJOR; it now requires "F" followed by a digit.
+- gitleaks reported the baseline's hashes and `__pycache__` files; they are
+  allowlisted in `.gitleaks.toml`. gitleaks built with `go install` reports
+  no version, so CI installs the release binary.
+
+### Limitations found (not fixed in G1)
+
+- **L1, identical findings share one key.** The key is tool, rule, file and
+  the normalised source line, so two findings on identical lines in one
+  file have one key: the tree has 369 findings and 349 keys. A new copy of
+  an already-known flawed line in the same file is therefore treated as
+  known. Proposed fix: the baseline stores a count per key and a stage
+  blocks when the current count is higher.
+- **L2, a tool that fails silently reports nothing.** The runners read the
+  tool's output and ignore its exit status and error output, so a crash or
+  a bad flag gives zero findings and the stage passes. Proposed fix: a
+  failure exit with no parsed findings becomes a MAJOR `gate/tool-failed`
+  finding (blocking in `pre-push` and `ci`).
+- **L3, the base branch** (fixed in #97): `pre-push` compared with
+  `origin/main` first, which on a clone with an old mirror as `origin`
+  made old duplicates look new.
+
+### Expectations for the L1 and L2 fix, before its code
+
+| Row | Check | Expected |
+| - | - | - |
+| C1 | seeded: a second copy of a line that already has a known MAJOR finding, in the same file | `pre-push` exits 1 (count 2 against baseline count 1); before the fix it exits 0 |
+| C2 | the tree as it is, baseline regenerated with counts | `ci` exits 0; 349 keys, counts summing to 369 |
+| C3 | seeded: a tool run that exits with an error and prints nothing (a wrong flag in a scratch copy of `gate.json`) | `pre-push` exits 1 with `gate/tool-failed` (MAJOR) |
+| C4 | engine unit tests | pass, with tests for C1 and C3 added |
+| C5 | baseline schema | `haven-gate-baseline/2`; a `/1` baseline is still read (count 1 per key) |
