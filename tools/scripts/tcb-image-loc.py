@@ -54,7 +54,9 @@ def main():
     for r in rows:
         if len(r) >= 5 and r[1].startswith("/"):
             print(f"{os.path.relpath(r[1], root):50s} {r[4]:>6s}")
-    total = [r for r in rows if len(r) >= 5 and r[1] == "SUM"][-1]
+    # cloc's CSV puts "SUM" in the second column ("N,SUM,...") but, with
+    # --by-file, in the first ("SUM,,...")
+    total = [r for r in rows if len(r) >= 5 and "SUM" in (r[0], r[1])][-1]
     print(f"{len(files)} files, {total[4]} code lines, {total[3]} comment lines, {total[2]} blank lines")
     return 0
 
