@@ -1,0 +1,69 @@
+GNU objcopy (GNU Binutils for Ubuntu) 2.42
+build.sh: build-efi/haven-probe.efi (38162 bytes)
+build-efi/haven-probe.efi: PE32+ executable (EFI application) Aarch64 (stripped to external PDB), for MS Windows, 4 sections
+uefi-probe-check: firmware /usr/share/qemu-efi-aarch64/QEMU_EFI.fd
+probe: HAVEN-PROBE 1
+probe: CurrentEL 0x0000000000000002
+probe: HCR_EL2 0x0000000008000038
+probe: SCTLR_EL2 0x000000000000100d
+probe: TCR_EL2 0x0000000080853510
+probe: CNTHCTL_EL2 0x0000000000000003
+probe: ID_AA64MMFR1_EL1 0x0010011010312122
+probe: ID_AA64MMFR4_EL1 0x0000000000000000
+probe: ID_AA64PFR0_EL1 0x1201001121110222
+probe: MPIDR_EL1 0x0000000080000000
+probe: MIDR_EL1 0x00000000000f0510
+probe: CNTFRQ_EL0 0x0000000003b9aca0
+probe: DAIF 0x0000000000000300
+probe: probe_at 0x00000000bc738194
+probe: mem 0x0000000040000000 pages 0x0000000000004000 attr 0x0000000000000008 Conventional
+probe: mem 0x0000000044000000 pages 0x0000000000000020 attr 0x0000000000000008 BootServicesData
+probe: mem 0x0000000044020000 pages 0x00000000000035c8 attr 0x0000000000000008 Conventional
+probe: mem 0x00000000475e8000 pages 0x0000000000000022 attr 0x0000000000000008 BootServicesData
+probe: mem 0x000000004760a000 pages 0x0000000000000037 attr 0x0000000000000008 BootServicesCode
+probe: mem 0x0000000047641000 pages 0x00000000000008b1 attr 0x0000000000000008 BootServicesData
+probe: mem 0x0000000047ef2000 pages 0x0000000000000004 attr 0x0000000000000008 BootServicesCode
+probe: mem 0x0000000047ef6000 pages 0x0000000000000101 attr 0x0000000000000008 BootServicesData
+probe: mem 0x0000000047ff7000 pages 0x0000000000000003 attr 0x0000000000000008 BootServicesCode
+probe: mem 0x0000000047ffa000 pages 0x0000000000000006 attr 0x0000000000000008 BootServicesData
+probe: mem 0x0000000048000000 pages 0x000000000007430e attr 0x0000000000000008 Conventional
+probe: mem 0x00000000bc30e000 pages 0x00000000000000d2 attr 0x0000000000000008 LoaderCode
+probe: mem 0x00000000bc3e0000 pages 0x0000000000000010 attr 0x0000000000000008 ACPIReclaim
+probe: mem 0x00000000bc3f0000 pages 0x0000000000000080 attr 0x8000000000000008 RuntimeServicesCode
+probe: mem 0x00000000bc470000 pages 0x00000000000001c0 attr 0x8000000000000008 RuntimeServicesData
+probe: mem 0x00000000bc630000 pages 0x0000000000000100 attr 0x8000000000000008 RuntimeServicesCode
+probe: mem 0x00000000bc730000 pages 0x0000000000000007 attr 0x0000000000000008 Conventional
+probe: mem 0x00000000bc737000 pages 0x000000000000000d attr 0x0000000000000008 LoaderCode
+probe: mem 0x00000000bc744000 pages 0x0000000000001db2 attr 0x0000000000000008 Conventional
+probe: mem 0x00000000be4f6000 pages 0x000000000000001e attr 0x0000000000000008 BootServicesData
+probe: mem 0x00000000be514000 pages 0x0000000000000003 attr 0x0000000000000008 Conventional
+probe: mem 0x00000000be517000 pages 0x0000000000000028 attr 0x0000000000000008 BootServicesData
+probe: mem 0x00000000be53f000 pages 0x0000000000000003 attr 0x0000000000000008 Conventional
+probe: mem 0x00000000be542000 pages 0x00000000000010e2 attr 0x0000000000000008 BootServicesData
+probe: mem 0x00000000bf624000 pages 0x0000000000000107 attr 0x0000000000000008 Conventional
+probe: mem 0x00000000bf72b000 pages 0x00000000000004d5 attr 0x0000000000000008 BootServicesCode
+probe: mem 0x00000000bfc00000 pages 0x0000000000000190 attr 0x8000000000000008 RuntimeServicesCode
+probe: mem 0x00000000bfd90000 pages 0x0000000000000250 attr 0x8000000000000008 RuntimeServicesData
+probe: mem 0x00000000bffe0000 pages 0x000000000000001f attr 0x0000000000000008 Conventional
+probe: mem 0x00000000bffff000 pages 0x0000000000000001 attr 0x0000000000000008 BootServicesData
+probe: mem 0x0000000004000000 pages 0x0000000000004000 attr 0x8000000000000001 MMIO
+probe: mem 0x0000000009010000 pages 0x0000000000000001 attr 0x8000000000000001 MMIO
+probe: table other 0x00000000fc1bcdb0 at 0x00000000bf623718
+probe: table other 0x0000000005ad34ba at 0x0000000047623130
+probe: table other 0x000000007739f24c at 0x00000000bf621018
+probe: table other 0x000000004c19049f at 0x0000000047624148
+probe: table other 0x0000000049152e77 at 0x00000000476256c8
+probe: table SMBIOS3 0x00000000f2fd1544 at 0x00000000bfed0000
+probe: table other 0x00000000dcfa911d at 0x00000000be57d018
+probe: table ACPI20 0x000000008868e871 at 0x00000000bc3e0018
+probe: table other 0x00000000d719b2cb at 0x00000000bffdb398
+probe: end
+ok      P1 probe ran and QEMU powered off (rc=0)
+ok      P2 CurrentEL 2
+ok      P3 HCR_EL2 TGE=1 E2H=0
+ok      P4 SCTLR_EL2 M=1 C=1 I=1
+ok      P5 MPIDR 0x80000000, CNTFRQ non-zero, VH=1
+ok      P6 conventional memory inside QEMU RAM
+ok      P7 ACPI 2.0 or device tree table listed
+ok      P8 shell continued after the probe (reset -s ran)
+uefi-probe-check: PASS

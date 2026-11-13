@@ -104,3 +104,47 @@ results and before the loader code, because they depend on P6.
 
 Anything about the Orange Pi 6 Plus: QEMU's EDK2 is not CIX's firmware. The
 same probe on the board is probe P2 of `cix-p1-loading.md`.
+
+## Results: L0 (2026-11-13)
+
+Code: pull request #82 (merge `a87c80b`). Evidence: the CI job "ARM64
+build and QEMU boot" of that pull request, step "UEFI probe at EL2 in QEMU
+(L0, L1)" (Ubuntu 24.04, QEMU 8.2.2, Ubuntu's `QEMU_EFI.fd`), kept in
+`runs/ci-ubuntu2404-qemu822.txt`.
+
+**Order of work.** The probe was run once on the Mac (QEMU 11.1.3,
+Homebrew's EDK2) on 2026-11-11 at 21:36 local time, before this record's
+expectations were merged (#68, 2026-11-12). The expectations had been
+written before that run and were not changed after it, except T2's runner
+assumption, which was corrected from what CI showed (Ubuntu 26.04 at the
+time, pinned back to 24.04 by #67), not from the probe. That run's output
+is kept as `runs/mac-qemu1113-before-record.txt`; the verdicts below come
+from the CI run.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| T1 | macOS binutils 2.45: `objcopy -O pei-aarch64-little --subsystem efi-app` gave an AArch64 EFI application (Mac run, before the record) | as expected (observed before the record merged) |
+| T2 | CI: `GNU objcopy (GNU Binutils for Ubuntu) 2.42`; `PE32+ executable (EFI application) Aarch64`, 38,162 bytes | as expected: the objcopy route works; no hand-written header needed |
+| P1 | `probe: HAVEN-PROBE 1` and `probe: end`; QEMU exited with 0 | as expected |
+| P2 | `CurrentEL 0x2` | as expected |
+| P3 | `HCR_EL2 0x8000038`: TGE (bit 27) set, E2H (bit 34) clear; also FMO, IMO, AMO (bits 3 to 5) set | as expected |
+| P4 | `SCTLR_EL2 0x100d`: M, C, I set | as expected |
+| P5 | `MPIDR_EL1 0x80000000`; `CNTFRQ_EL0 0x3b9aca0` (62.5 MHz); `ID_AA64MMFR1_EL1` VH = 1 | as expected |
+| P6 | conventional memory 0x4800_0000 to 0xBC30_E000 (0x7430E pages), so 0x8000_0000 to 0xA100_0000 is free | as expected; L1b's addresses are free in CI too |
+| P7 | `table ACPI20` and `table SMBIOS3` listed (no device tree with `-cpu max` defaults) | as expected |
+| P8 | QEMU exited 0 after `reset -s` | as expected |
+| C1 | the new step passed; the other jobs passed unchanged | as expected |
+
+Observations outside the rows:
+
+- `CNTFRQ_EL0` differs between the two QEMUs: 62.5 MHz in CI (QEMU 8.2.2)
+  and 1 GHz on the Mac (QEMU 11.1.3). The board's own value is probe P2 of
+  `../../../porting/cix-p1-loading.md`.
+- The firmware loaded the probe at 0xBC73_8194 in CI and 0xBCB4_C190 on the
+  Mac: an image without relocation entries but built with `-fpie` is loaded
+  wherever the firmware likes. The loader (L1b) must therefore not assume
+  its own address, and claims HAVEN's fixed addresses with
+  `AllocatePages(AllocateAddress)` as the loading study proposes.
+
+L1b (the loader rehearsal) gets its expectations in a new section of this
+record before any loader code.
