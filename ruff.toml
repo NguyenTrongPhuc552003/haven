@@ -1,0 +1,6 @@
+# Ruff for the quality gate (docs/quality/gate.md): an explicit rule set, so
+# the findings do not depend on the defaults of the installed ruff version.
+target-version = "py39"
+
+[lint]
+select = ["E4", "E7", "E9", "F"]

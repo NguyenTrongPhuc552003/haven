@@ -1,0 +1,2797 @@
+{
+ "schema": "haven-gate-baseline/1",
+ "findings": [
+  {
+   "key": "002ee6f2bc05c65b7063acb0",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 's2_map_table' of similar type ('uint64_t') are easily swapped by mistake"
+  },
+  {
+   "key": "00827bb58242f37ce279f45e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/pci/ecam.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "020af254a77e269f4bd2d37c",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-linux-with-b/run_with_b.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "02b3f5aca1358f0c3cd4ba33",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "02bed2d32ccc490ab110af93",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "033b80ea984d47325e0c4e7b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "04da2f9c89dbb1b3f1ca5ec3",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "050df5bf8e90be61f4c76c43",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "056ab0614a44d4d3bccef149",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "056b1570af75e0877373b0c9",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "08bb5fe8305fc2d0373d8391",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0a4cbdb99daaf5b07007b0ef",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0a5d7b432977499a80bd3059",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0a89e8010576ad9a1fc86630",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0b3aa5116f7f0679a0a3d1c7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/budget_hw.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0c61462719cd5b3510780142",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "0e8978fce438d820f7e2bcb2",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/gicr_frames.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0f58c294336587e6f5df4d9f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "0f7cfe7bf654e02c67e6c20b",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "10d5a831e0239c600efa7942",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "scripts/qemu/partition-b-check.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "1262d061479baf8948492411",
+   "tool": "ruff",
+   "rule": "E401",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple imports on one line"
+  },
+  {
+   "key": "13ab1126489b2731475687dd",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "1430f4a6d9ea2f17a57bfe9e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "145d4bffb367f163441ddd2d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_arch_stage2_enable' of similar type ('uint32_t') are easily swapped by mistake"
+  },
+  {
+   "key": "168c5e680e358ad33842989e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1792218419248e535d518d27",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1962c8df43702cb69e5d5a50",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "1a95b0f400c668e6dc61f13b",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "analysis/latency_analyzer.py",
+   "severity": "MAJOR",
+   "message": "16 lines duplicated from analysis/jitter_plot.py:23"
+  },
+  {
+   "key": "1b2318b8a57f06e0edc97e89",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/init.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1b45c34124a9cde41cc694c7",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "1b5a0917cafb78dca647302f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1bea1a29e185ff567582bf3f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/timer.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1bfb23717fe653cd4c4eab60",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/sysreg_trap.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1d1f005f7a1b52f01b22e80b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-implicit-widening-of-multiplication-result",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "result of multiplication in type 'uint32_t' (aka 'unsigned int') is used as a pointer offset after an implicit widening conversion to type 'size_t'"
+  },
+  {
+   "key": "1da6ca18641be47bb18dcbe4",
+   "tool": "ruff",
+   "rule": "F401",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MAJOR",
+   "message": "`re` imported but unused"
+  },
+  {
+   "key": "1dedf6a014999b0b930eb774",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "1eac572e24da537cb86ab388",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-cpu-assignment/run_cpus.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "1ee4eb7162d7112fa9dfa46e",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "read_ich_lr: cyclomatic complexity 17 > 15"
+  },
+  {
+   "key": "1ee596f340c322e5729e07fc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/common/string.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_memcmp' of similar type ('const void *') are easily swapped by mistake"
+  },
+  {
+   "key": "1f370e94b7c4f9a90086a4d9",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "boot/efi/probe.c",
+   "severity": "MAJOR",
+   "message": "mem_type: cyclomatic complexity 16 > 15"
+  },
+  {
+   "key": "2038b9d6eaa821dee9c574c0",
+   "tool": "shellcheck",
+   "rule": "SC2086",
+   "file": "scripts/qemu/qemu-smoke.sh",
+   "severity": "MINOR",
+   "message": "Double quote to prevent globbing and word splitting."
+  },
+  {
+   "key": "209192ea4c48bedd1d896805",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "224cbcefd5b5afcf386cb81d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/common/string.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_memcpy' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "234bd6e9544d22c7c0a054d7",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-irq-delivery/run_irq.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
+   "key": "23cd16cd2279408e2568042f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-invalid-enum-default-initialization",
+   "file": "src/guest/drivers/uart.c",
+   "severity": "CRITICAL",
+   "message": "enum value of type 'hv_uart_baud_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator"
+  },
+  {
+   "key": "23f0728c75344b00b65068a8",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "hv_handle_sync: cyclomatic complexity 23 > 15"
+  },
+  {
+   "key": "24e5d235f245b90302f55986",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/dma/smmu.c",
+   "severity": "MAJOR",
+   "message": "hv_smmu_configure_dma_window: cyclomatic complexity 17 > 15"
+  },
+  {
+   "key": "2569e6d114d8f4cdc444d73f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "261c7487ea859e5c5d463d6c",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "26e331b696e1edc8ba8e86ca",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "27e5b5f93b6b4e63897b0a58",
+   "tool": "ruff",
+   "rule": "E731",
+   "file": "docs/methodology/stage2/20261102-partition-b/run_partb.py",
+   "severity": "MINOR",
+   "message": "Do not assign a `lambda` expression, use a `def`"
+  },
+  {
+   "key": "2853339d74eb93fb4b3653ed",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "28b7a1b81e82d27059827094",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'set_enable' of similar type ('hv_u32') are easily swapped by mistake"
+  },
+  {
+   "key": "28db736a34de07f31098f8f4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "2a3351817a35a925f99aa56e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "2b797338062b729a8a93be5b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-reserved-identifier",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "declaration uses identifier '_start', which is reserved in the global namespace"
+  },
+  {
+   "key": "2c1b683d81293026b3ae414f",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "scripts/qemu/uefi-boot-check.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "2c2cb1ade4434911da2e9ae5",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "2cd6f7bfc0bbf5865723d7f0",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/dma/smmu.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_smmu_check_dma_access' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "2d126b778bbc8ec524501888",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "2ec1016f71caf4c00fdd5d48",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/common/string.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_memmove' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "30e8a841a8060455190d1f75",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "34d1f7b697641eec618fbc59",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "35497734d1fb7605ba5f8130",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/iommu/iommu_policy.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_iommu_release_group' of similar type ('hv_u32') are easily swapped by mistake"
+  },
+  {
+   "key": "36587459431ee7b660b7e70a",
+   "tool": "shellcheck",
+   "rule": "SC2086",
+   "file": "scripts/qemu/qemu-run.sh",
+   "severity": "MINOR",
+   "message": "Double quote to prevent globbing and word splitting."
+  },
+  {
+   "key": "36a1f8058bae10007e718e34",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "36bd50e2b613b91af1630350",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "386911ed9353db624d0e03f4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "38ccb8b2f153b00fc2a811cb",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261108-el3-readback/run_el3.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "39abbf09f538ae9bd8d6e95e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "3a7499c15fd150acbb31c35f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/dma/smmu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "3ab19a06dca4673bb82f6434",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-irq-delivery/run_irq.py",
+   "severity": "MAJOR",
+   "message": "35 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:65"
+  },
+  {
+   "key": "3bdde0cd105ff950e388247b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "3be6c0b517adc92875d2cf6f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "3cde2e742f8f881cf6d7181c",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-gic-readback/run_gic.py",
+   "severity": "MAJOR",
+   "message": "24 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:72"
+  },
+  {
+   "key": "3e1873e99724f513dbb8bbd3",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "scripts/qemu/partition-b-check.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "3e584fac3639a11bfc7e29ff",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "3e981f4e89ac91a756e0617a",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261108-multi-vcpu/run_smp1.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "3eda99b547ccd0384214f0dd",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "3f71a4c44a216d7054a36b48",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "40259d1b0667ec6ad246eaae",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "402d9fa2c9bcf7f5af87862e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-multi-level-implicit-pointer-conversion",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "multilevel pointer conversion from 'hv_exc_handler_t *' (aka 'int (**)(hv_exc_context_t *)') to 'void *', please use explicit cast"
+  },
+  {
+   "key": "415d9df550606fb4d9f55cf2",
+   "tool": "lizard",
+   "rule": "function-length",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "hv_handle_sync: 113 lines > 100"
+  },
+  {
+   "key": "42de33ab0589b18050309b3b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "4300721ea2d91189b7841917",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-irq-delivery/run_irq.py",
+   "severity": "MAJOR",
+   "message": "30 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:123"
+  },
+  {
+   "key": "43277e6e9bfe2de938f47dfd",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/pci/ecam.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "44e147e5452d96251a730c2c",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "461a6bd444f4103af1460f52",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "463ee966d7b609c4de9b0a08",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/uart/pl011.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "4696d96c63b57a7eb4342c0b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "46b6af4bc972f307e90e0952",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "46fdc591139f74f690a79626",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "47b56acc75aef75b6029a746",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "47fda73728ff962a7f9179fc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/gicr_frames.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "48385be6b9d80729fb37c1fe",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "49839787c5170e6d5fbd3560",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-secondary-cpu/run_b3.py",
+   "severity": "MAJOR",
+   "message": "21 lines duplicated from stage2/20261102-budgets/run_budget.py:51"
+  },
+  {
+   "key": "49c36cd25980010de7161c0d",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-pipeline-linux/run_pipeline_linux.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "4a438abeaeddd85b33884840",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "4b9ccf851b17e3c9237eacd8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "4d41303ec1034e7de53c5801",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_stage2_partition_contains_pa' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "4e8a4279a2ee7b378a426c06",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "4eb7744af8c7a697d36c0023",
+   "tool": "shellcheck",
+   "rule": "SC2086",
+   "file": "scripts/release/try/try.sh",
+   "severity": "MINOR",
+   "message": "Double quote to prevent globbing and word splitting."
+  },
+  {
+   "key": "4ef704e6f508d9f95e9fe224",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-el2-memory/run_a1.py",
+   "severity": "MAJOR",
+   "message": "26 lines duplicated from stage2/20261102-budgets/run_budget.py:46"
+  },
+  {
+   "key": "4f8b7665a1f7a66346e89164",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "validate_new_regions: cyclomatic complexity 18 > 15"
+  },
+  {
+   "key": "4fb1e972b6334ec4b4379bed",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5145c64f7ffabc3fbdbdffa1",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/common/printk.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'puthex' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "514a7995090cd42f0e8c10b7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "51c33eded16311c6769f6c0f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "528fafbb29e3c512db585be2",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/time/timer.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_timer_check_deadline' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "54479f31b977b39d462e9e2a",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261109-qemu-console/run_console.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "555e74efbcb4e54c0953fa2f",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "55f41a9c027bedfb287cd0be",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "59830f558253ae17e8d5d1bc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5a0d5f9dfe9dcce67baf0f10",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5b0743028560e230e4feea78",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5b3f38da0944445d993c0344",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5b43d75e92f64d02b7248cb7",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261109-qemu-console/run_console.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "5bafe9f7c22f67d865d16824",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "5d818a4c3b74980cb1ceee84",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5e543fd498df4449c813f6bf",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5e7e66e327419bd4da188dea",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5eb791a63e3fc4b95c993ebd",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "5eeabda8fe4ceec46fbe9278",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "60778aaa3b1e4ffd3c825cd7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/common/printk.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "615e1dd6264fca9bd28ce9de",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "620e70261f18950e4385d0d4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'smmu_invalidate_ste' of similar type ('uint32_t') are easily swapped by mistake"
+  },
+  {
+   "key": "633c68a530509dca54f9dadc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/psci.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "64986259c449193bd927bd90",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "658f4d72cb9b37846281fa58",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage1/20261101-a1-readback/run_cases_v2.py",
+   "severity": "MAJOR",
+   "message": "26 lines duplicated from stage1/20261101-a1-readback/run_cases.py:54"
+  },
+  {
+   "key": "66152d337f75ad3a60758fcf",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261107-dt-check-same-node/run_dt_same.py",
+   "severity": "MAJOR",
+   "message": "30 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:24"
+  },
+  {
+   "key": "66c33370a5d8ddf95d81f846",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-readback-v4/run_v4.py",
+   "severity": "MAJOR",
+   "message": "20 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:76"
+  },
+  {
+   "key": "66e0fc970424fef7d615b8e4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "drivers/uart/pl011.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'uart_init' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "6711730daccc5e6b3068b1f3",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "674bbd8585698c48d4662379",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "readback/readback.py",
+   "severity": "MAJOR",
+   "message": "16 lines duplicated from qemu/partition-b-check.py:66"
+  },
+  {
+   "key": "676d8adb486555f42313fa57",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6834abc8c406563f588c2dee",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "69d1ce4ae160adbd92e517b8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "69dec000b06ebb786110ef0e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_range_contains' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "69f0ba02d530cb585b76a207",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "6a9057759da6a47dfdee688c",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/sysreg_trap.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6a9455b920c8945a0983a1f9",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v8/rerun_v8.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "6c6127fe97110f1d001b3fb1",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6d03342ac81bc77c50035749",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6d2224c51b65ea3061141d37",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6e4c7609ab35a2f26088cce7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6f2935a14fb53c390fd6ccd7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6f2c679124a15c325d4ff9d4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "6fb59eb466480b9d74989696",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/iommu/iommu_policy.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_iommu_assign_group' of similar type ('hv_u32') are easily swapped by mistake"
+  },
+  {
+   "key": "7009d68dc70a6f5dcee6b444",
+   "tool": "clang-tidy",
+   "rule": "bugprone-implicit-widening-of-multiplication-result",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "result of multiplication in type 'uint32_t' (aka 'unsigned int') is used as a pointer offset after an implicit widening conversion to type 'size_t'"
+  },
+  {
+   "key": "729f08de507287f373d954b6",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "72b08eb5a98a9ecd9d17d70b",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "boot/efi/boot.c",
+   "severity": "MAJOR",
+   "message": "efi_main: cyclomatic complexity 19 > 15"
+  },
+  {
+   "key": "7365d957fdcaba61d98066a2",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/uart/pl011.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "73a9143da5cc4271346b6623",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "74240e3f2a0581caf11b0f01",
+   "tool": "clang-tidy",
+   "rule": "clang-analyzer-core.NullDereference",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "CRITICAL",
+   "message": "Array access (via field 'state') results in a null pointer dereference"
+  },
+  {
+   "key": "74542762e73bb469f8452fd7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "749daee66196bcd19fcbf0c3",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "75272a8f17a7c63b179c4335",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "7599246df9299ccc82eae7ef",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261102-partition-b/run_partb.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "75b9cdc5268ed5a5f231e543",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-linux-with-b/run_with_b.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "7634ee8cd1e05032f2f1c4bf",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261107-dt-check-same-node/run_dt_same.py",
+   "severity": "MAJOR",
+   "message": "19 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:6"
+  },
+  {
+   "key": "7653d3cbff129c45cb8094c7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'gic_v3_configure_irq' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "77095054efc0f54b19482b21",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "7821828283b4e1d8fab4ce91",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_arch_dma_context_map' of similar type ('uint32_t') are easily swapped by mistake"
+  },
+  {
+   "key": "786d803737c207d6c0fad5c4",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage1/20261102-smmu-bugfix/run_checks.py",
+   "severity": "MAJOR",
+   "message": "24 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:72"
+  },
+  {
+   "key": "78e2ece4f544e483d9376705",
+   "tool": "clang-tidy",
+   "rule": "clang-analyzer-optin.performance.Padding",
+   "file": "src/guest/drivers/uart.c",
+   "severity": "MINOR",
+   "message": "Excessive padding in 'hv_uart_port_t' (8 padding bytes, where 0 is optimal). Optimal fields order: stats, partition, allocated, tx_head, tx_tail, rx_head, rx_tail, config, tx_buffer, rx_buffer, consider reordering the fields or adding explicit padding members"
+  },
+  {
+   "key": "79107351e8c3da076201f3ea",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "7ae2d5827161ee873a80d0bc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/uart/pl011.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "7b1c206b78652e8ef4ea4cf1",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "7b25a1a8d63e1eb1606e0df9",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "7bf158d4c4f6785f21ae410e",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261107-dt-check-pairs/run_dt_pairs.py",
+   "severity": "MAJOR",
+   "message": "30 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:24"
+  },
+  {
+   "key": "7c6f843996bf5f0a3266f075",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "7dff203f455e4110ae1483bd",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "7e1f0f530ecbb1e3c4470d03",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "7f3e1e7f140601f384471e6d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "80043f4dfe4133272f3a10e3",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8090283af546c081c2e33f10",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/mmio.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "809eacc4342061daf23f6c04",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8100e93bde4f7e4f6a12dcc0",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "843af5ee2debed685865c498",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/mmio.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "84db81853c02177922c00a21",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage1/20261101-a1-readback/readback.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "84e74f39478c4c2bd64d99a3",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8518c05be8724d085b24db59",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'hv_handle_fiq' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "85c04d1b0f3be70d364411d1",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "hv_handle_psci_call: cyclomatic complexity 24 > 15"
+  },
+  {
+   "key": "86979ea4f462e5f3e716c02d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "871035840024875a24aed0b5",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "871c2345fa650e39b4589d87",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/exc/psci.c",
+   "severity": "MAJOR",
+   "message": "hv_psci_call: cyclomatic complexity 18 > 15"
+  },
+  {
+   "key": "87fe8f510acf9e7a9b85d5c7",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/exc/psci.c",
+   "severity": "MAJOR",
+   "message": "hv_psci_call_vcpus: cyclomatic complexity 17 > 15"
+  },
+  {
+   "key": "8813e595046b31930e1f4827",
+   "tool": "shellcheck",
+   "rule": "SC2086",
+   "file": "scripts/qemu/qemu-smoke.sh",
+   "severity": "MINOR",
+   "message": "Double quote to prevent globbing and word splitting."
+  },
+  {
+   "key": "8834aa1d863301fc6bce06f7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/common/string.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_memset' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "889668ae3e006c8a584c727d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "89d2becd6854fe4e906d9bff",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/smp.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_arch_cpu_wait_ready' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "89dd4ab6e80117e8bce7150c",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "8b2f1b982b19cedb631e57f6",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "8cd02da97f67344e49892292",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/pci/ecam.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8d0bd9a22fc9d86d73f4cd66",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8d9b22fa47388df66e8e5fbc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8de9956342478ce766cccf83",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "8e082922ab849443612f16ab",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-cpu-assignment/run_cpus.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "8e1d6ab8b4969c22bb4cac62",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v8/rerun_v8.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "8faf62de72c5b7ab66b31ad8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'gic_v3_set_ppi_priority' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "8fe26c34e9e0dec110292144",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'prio_access' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "90d4c163c3444fedea04565c",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "917a6f98055362e907ed49b2",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/gic.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "928664430705996aed951a14",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_vgic_init' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "942e2202065869bf45198dd6",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/dma/smmu.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'dma_windows_overlap' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "954008aa34dbf86bb733e77a",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-cpu-assignment/run_cpus.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "9771bb737322e52410cd9637",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-g2-dma/run_g2.py",
+   "severity": "MAJOR",
+   "message": "22 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:92"
+  },
+  {
+   "key": "97e43f9d39127144cdb99f49",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "97e84dfbbde33b97b16c5d61",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'write_ich_lr' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "999d19e0a99961fb46c46e6d",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-linux-with-b/run_with_b.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "9ad0f9d41d6b84b788ceac06",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "9b145b9e4d23075e49d8ec2d",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "9b4433ce96bec74267a26c30",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "9c5c1ed8261218a52713bf7c",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "9cf8c4a4b14b31d18a9af31c",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/iommu/iommu_policy.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_iommu_check_group' of similar type ('hv_u32') are easily swapped by mistake"
+  },
+  {
+   "key": "9d4c2ea445b881c7f24bdbc8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-implicit-widening-of-multiplication-result",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "result of multiplication in type 'unsigned int' is used as a pointer offset after an implicit widening conversion to type 'size_t'"
+  },
+  {
+   "key": "9dc8a3f403a7d05b0e2da567",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_arch_stop_cpu' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "a086b4d9071459d305d0d3c6",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "a0d9dd4778821af62e6195ba",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "a1257e79b36dae9da3c58dbe",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/common/string.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "a1828f25c03a3a173e3bff4f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "a2e308e5757c66d46da3563d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/timer.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "a4f550255fc0c507a510a0cf",
+   "tool": "clang-tidy",
+   "rule": "bugprone-branch-clone",
+   "file": "src/common/printk.c",
+   "severity": "MAJOR",
+   "message": "conditional operator with identical true and false expressions"
+  },
+  {
+   "key": "a5224ef5400ebbcdbba5d86d",
+   "tool": "lizard",
+   "rule": "function-length",
+   "file": "src/core/init.c",
+   "severity": "MAJOR",
+   "message": "haven_init: 118 lines > 100"
+  },
+  {
+   "key": "a525fdb8a58848601da5a3df",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-dma-hardening/run_hardening.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
+   "key": "a6a625b57e385d6091e2c019",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "a6c9aaa57740b96c9c0e2bf8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "a71a61e7c998f94ca66f4b5a",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261107-dt-check-pairs/run_dt_pairs.py",
+   "severity": "MAJOR",
+   "message": "19 lines duplicated from stage2/20261107-dt-check-blind/run_dt_blind.py:6"
+  },
+  {
+   "key": "a78b65180867b5717c209810",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-dt-check-same-node/run_dt_same.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "a7a4d8627c8901d573065ae9",
+   "tool": "clang-tidy",
+   "rule": "bugprone-reserved-identifier",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "declaration uses identifier '__bss_end', which is a reserved identifier"
+  },
+  {
+   "key": "a7d5b66bd56ab3e0e8f71102",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "a87c68e864e2de5542ef572e",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261102-interference/run_pipeline.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "a9f7688358cbc547b9c2e347",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "aa2870769539eca0548efbcf",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/guest/rtos/freertos_integration.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'hv_freertos_register_task' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "abd39c1bc4f1a399395fc8d6",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "abf78df40c0e1ce946b372af",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "adb3ec7fb1c8aae51dd3f0b4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "af78c83fcbe81ecc6e46271a",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-gic-readback/run_gic.py",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from stage1/20261101-a1-readback/run_cases_v2.py:152"
+  },
+  {
+   "key": "af853b8fce31acbf684b181a",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "affa571d7518e7990acd82df",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b046495a10bef098f924b417",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b0a87080c53d3a86975f72a4",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "readback/readback.py",
+   "severity": "MAJOR",
+   "message": "16 lines duplicated from stage1/20261101-a1-readback/readback.py:112"
+  },
+  {
+   "key": "b282c65309b6f297416bc808",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "drivers/pci/ecam.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'pci_ecam_place_bar' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "b2f2fa202e1f7084e71587f2",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b37af4d33b142ed54df708b0",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/uart/pl011.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b39dfc9616a2aba76c07d826",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b518f938a07aa0dd58221384",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "b5bb25322f8fc5a001994950",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b5f39919604e57cd323ce087",
+   "tool": "ruff",
+   "rule": "E731",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
+   "severity": "MINOR",
+   "message": "Do not assign a `lambda` expression, use a `def`"
+  },
+  {
+   "key": "b68695d84a0ab0d50eeefb34",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b864ddf843b138e5fde9e558",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mmu_el2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b866a9f2bc93dd82ee0a38f2",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "write_ich_lr: cyclomatic complexity 17 > 15"
+  },
+  {
+   "key": "b9b2270c7f01217e6027dec4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "b9ff069fba0cde3a17d3737f",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-a1-cases-v3/run_cases_v3.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
+   "key": "bae4da50a978ac512539427c",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-linux-with-b/run_with_b.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "baea6cf60a5d5ab820773aea",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "baf09d2104c1c97c15a77fe5",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/budget_hw.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "bbcca2c9e0e456fb351d12ee",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "bbf3c6e44a44f7c99bf35157",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "arch/arm64/smp.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_arch_cpu_prepare_start' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "bc6300f2d0ef8cb8adeea3bc",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "bcbc9497cb7c447a160bc0c8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'ste_write_s2' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "bec95ae14aa80ebebff442f1",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_fatal_exception' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "c00e71e4109e04a4f58f11a7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/gicr_frames.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c00ffc41ad9bdb90e0874726",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/common/printk.c",
+   "severity": "MAJOR",
+   "message": "hv_printk: cyclomatic complexity 20 > 15"
+  },
+  {
+   "key": "c0c5eaaf03ff399eaeae40e7",
+   "tool": "ruff",
+   "rule": "E731",
+   "file": "scripts/qemu/uefi-boot-check.py",
+   "severity": "MINOR",
+   "message": "Do not assign a `lambda` expression, use a `def`"
+  },
+  {
+   "key": "c1264e4b16841aa9e18ef38f",
+   "tool": "shellcheck",
+   "rule": "SC2034",
+   "file": "scripts/ci/ci-validate.sh",
+   "severity": "MAJOR",
+   "message": "run_ok appears unused. Verify use (or export if used externally)."
+  },
+  {
+   "key": "c1e44f192bd5971cf28c9297",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "irq_regs: cyclomatic complexity 20 > 15"
+  },
+  {
+   "key": "c1f056d44afbcc641d774d22",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c203d574cf4a167be5942690",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v8/rerun_v8.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "c21ecb4bcbdf9f15e0693130",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c303a050f566f961cbeda7bd",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/gic.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c5821130fb9a1a1050b02778",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c614027a037db5a1070e0500",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c6b2169b66a476b467834e11",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c6b8b997f062eaa2772273b5",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c7ccc3d79982e01065a00027",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "c8d2d0be2f5260d6ae4c9b7d",
+   "tool": "ruff",
+   "rule": "E731",
+   "file": "scripts/qemu/partition-b-check.py",
+   "severity": "MINOR",
+   "message": "Do not assign a `lambda` expression, use a `def`"
+  },
+  {
+   "key": "c8ef074f6aec949f0c3d28a4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c908918f8a05b2b01730c198",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c97485dd23309ced9986f5a6",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/guest/rtos/freertos_integration.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'hv_freertos_allocate_shared_region' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "c9a1ed43ee993addf5d5df00",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "c9c46466e6adaace91bf7144",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ca4c332f90ba647ffc71e0ad",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/pci/ecam.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "caf020d7d9947870ec4d768e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/psci.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "cb6c5cda76fe8993df29afc0",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "cd89c784d33fb1fd24ae5d1f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ce0e0bba2c5070cb4b92e739",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/mmio.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ce6d0876e35568b6187b6587",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "cede24f7b958511caa25d70b",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from stage2/20261107-readback-v8/rerun_v8.py:8"
+  },
+  {
+   "key": "d000a8b1690f32f385d27186",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d0c3b9f8b012839c05d59bef",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-partition-b/run_partb.py",
+   "severity": "MAJOR",
+   "message": "29 lines duplicated from stage1/20261102-smmu-bugfix/run_checks.py:63"
+  },
+  {
+   "key": "d13821402008566e32dea36f",
+   "tool": "shellcheck",
+   "rule": "SC2086",
+   "file": "scripts/compile/build-arm64.sh",
+   "severity": "MINOR",
+   "message": "Double quote to prevent globbing and word splitting."
+  },
+  {
+   "key": "d14029e922f690510e6e7af7",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/timer.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d18d346c4852284ea4155b58",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-dt-check-pairs/run_dt_pairs.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "d2f30cdf2e165c921604a304",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/mmio.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d459a0ca4e0c33429645648e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/init.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d48ad38a1bd6df9ce42621f5",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "d4a4c8f6167e42e737cf9204",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d620dbb4c3b7bea85b7fbb3c",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "d765834f6944b30828a90a78",
+   "tool": "clang-tidy",
+   "rule": "bugprone-invalid-enum-default-initialization",
+   "file": "src/guest/rtos/freertos_integration.c",
+   "severity": "CRITICAL",
+   "message": "enum value of type 'hv_shared_access_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator"
+  },
+  {
+   "key": "d857280d080694764bb9391b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d97691896c2b1a3c49d9b566",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d97dd80dc44b1077faf2f6d4",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "d9ff7cb97b16b988e6fb1a2a",
+   "tool": "ruff",
+   "rule": "F401",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/heldout_random_linux.py",
+   "severity": "MAJOR",
+   "message": "`sys` imported but unused"
+  },
+  {
+   "key": "da1ee7a5e4b948555493d31e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/pci/ecam.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "dafeb06456d3fda34ba56c3e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "db51cb9068d66dc92936559e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "dd01ab4fb3129c313f8bbaf8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/cpu.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "dd3b2099ecfb6ce319641d81",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "dfd0781960b2ec29f17a04f3",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "guest/rtos/freertos_integration.c",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from guest/rtos/freertos_integration.c:240"
+  },
+  {
+   "key": "e01e297ae5239c26d95a6716",
+   "tool": "shellcheck",
+   "rule": "SC2034",
+   "file": "scripts/ci/ci-validate.sh",
+   "severity": "MAJOR",
+   "message": "run_fail appears unused. Verify use (or export if used externally)."
+  },
+  {
+   "key": "e072c164a088e991acf2ac31",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e11031f09ceedd90913a2d7f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e113298491db8a29189ff4ec",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e12709b656e8e0bb862f6099",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/time/timer.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_timer_set_deadline' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "e15950002e5d6e9b19eedd9b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e1cf9f0a480e9549f24ce473",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/common/string.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e22ace4cd4ba5c2e1babfc03",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/common/printk.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e2846fa6509c243e893681d3",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_range_overlaps' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "e2ac17b1032268b20599ae72",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e2f22073efff4856de913195",
+   "tool": "ruff",
+   "rule": "E702",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (semicolon)"
+  },
+  {
+   "key": "e5efe972bf52ee34e064da0a",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261107-readback-v9/rerun_v9.py",
+   "severity": "MAJOR",
+   "message": "17 lines duplicated from stage2/20261107-readback-v8/rerun_v8.py:45"
+  },
+  {
+   "key": "e71adfaf49f6cd527b4d3e1b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/irqchip/gic_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "e74d7ca9d388c3948d36e777",
+   "tool": "ruff",
+   "rule": "F841",
+   "file": "docs/methodology/stage2/20261102-a1-cases-v3/heldout_random.py",
+   "severity": "MAJOR",
+   "message": "Local variable `lines` is assigned to but never used"
+  },
+  {
+   "key": "e78f05b8f7898ba55e5b06c5",
+   "tool": "ruff",
+   "rule": "E701",
+   "file": "docs/methodology/stage0/20261025-boundaries/run_probes.py",
+   "severity": "MINOR",
+   "message": "Multiple statements on one line (colon)"
+  },
+  {
+   "key": "e945351ec5270d1ebefa0dd6",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-readback-v8/rerun_v8.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "e9a900c950c9eb8c69e4606e",
+   "tool": "ruff",
+   "rule": "F401",
+   "file": "tools/analysis/evidence_report.py",
+   "severity": "MAJOR",
+   "message": "`sys` imported but unused"
+  },
+  {
+   "key": "e9e680568592f514294e16e0",
+   "tool": "jscpd",
+   "rule": "duplicate",
+   "file": "stage2/20261102-g2-dma/run_g2.py",
+   "severity": "MAJOR",
+   "message": "37 lines duplicated from stage2/20261102-dma-hardening/run_hardening.py:44"
+  },
+  {
+   "key": "ea567d64d5ea444a0a3a35d9",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "eacfde15b65d1d120e22f65d",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ec8845a9d00d5ffeb5c2bd70",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ecfba65721290ef91414e0bd",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ee26ce0e38e9e25bfbb59a9e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/exc/mmio.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_frame_set' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "ee643661f14825f6a3337275",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/include/asm/s2_attrs.h",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ef874768cc0081979a9b611b",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'hv_handle_serror' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "efd99c14dee716dff4c6239f",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/partition.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "f0684ad37cd6261c7189abee",
+   "tool": "clang-tidy",
+   "rule": "bugprone-invalid-enum-default-initialization",
+   "file": "src/core/dma/smmu.c",
+   "severity": "CRITICAL",
+   "message": "enum value of type 'hv_dma_access_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator"
+  },
+  {
+   "key": "f51ff21481907da3e153eebb",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261107-cpu-assignment/run_cpus.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "f69a71f59f87f26f27abb45e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "2 adjacent parameters of 'hv_handle_psci_call' of convertible types are easily swapped by mistake"
+  },
+  {
+   "key": "f6d1a3113fbf0156f0137b3e",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261102-partition-b/run_partb.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  },
+  {
+   "key": "f9097cb6c0d1b4b8615804c8",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/mm.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "f98ee7311bf9f7dee9433483",
+   "tool": "lizard",
+   "rule": "complexity",
+   "file": "src/core/init.c",
+   "severity": "MAJOR",
+   "message": "haven_init: cyclomatic complexity 16 > 15"
+  },
+  {
+   "key": "f99c03578318d9118df4ec37",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/mm/stage2.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "fbba5a99db82a63b674c2565",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "src/core/irq/vgic.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "fcdfbb47a3cd48e1b56bfaea",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "arch/arm64/irq.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "fcfe7b20396db3a221e5b379",
+   "tool": "ruff",
+   "rule": "E731",
+   "file": "docs/methodology/stage2/20261102-budgets/run_budget.py",
+   "severity": "MINOR",
+   "message": "Do not assign a `lambda` expression, use a `def`"
+  },
+  {
+   "key": "fdc1ef62e0b48a238a74e873",
+   "tool": "clang-tidy",
+   "rule": "bugprone-signed-bitwise",
+   "file": "drivers/iommu/smmu_v3.c",
+   "severity": "MAJOR",
+   "message": "use of a signed integer operand with a binary bitwise operator"
+  },
+  {
+   "key": "ff2ab598103aa8bf72c3871e",
+   "tool": "clang-tidy",
+   "rule": "bugprone-easily-swappable-parameters",
+   "file": "src/core/exc/el2_exceptions.c",
+   "severity": "MAJOR",
+   "message": "3 adjacent parameters of 'hv_handle_irq' of similar type ('hv_u64') are easily swapped by mistake"
+  },
+  {
+   "key": "ffcbf2022472491b84e9bbd6",
+   "tool": "ruff",
+   "rule": "E741",
+   "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
+   "severity": "MINOR",
+   "message": "Ambiguous variable name: `l`"
+  }
+ ]
+}

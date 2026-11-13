@@ -1,4 +1,4 @@
-Test project /home/claude/b-bp
+Test project /home/user/b-bp
       Start  1: test_core_stubs
  1/21 Test  #1: test_core_stubs ..................   Passed    0.00 sec
       Start  2: test_smmu_dma
@@ -49,5 +49,5 @@ Total Test time (real) =  10.15 sec
 The following tests FAILED:
 	 19 - bench_temporal_isolation (Timeout)
 Errors while running CTest
-Output from these tests are in: /home/claude/b-bp/Testing/Temporary/LastTest.log
+Output from these tests are in: /home/user/b-bp/Testing/Temporary/LastTest.log
 Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.

@@ -20,4 +20,7 @@ echo "[hook:pre-push] building"
 echo "[hook:pre-push] testing"
 ./scripts/dev/test.sh
 
+echo "[hook:pre-push] quality gate"
+./scripts/gate pre-push
+
 echo "[hook:pre-push] ok"

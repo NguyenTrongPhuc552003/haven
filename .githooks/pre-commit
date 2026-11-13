@@ -19,4 +19,7 @@ printf "%s\n" "$staged" | while IFS= read -r f; do
 	if [ -n "$f" ] && [ -f "$f" ]; then git add -- "$f"; fi
 done
 
+echo "[hook:pre-commit] quality gate"
+./scripts/gate pre-commit
+
 echo "[hook:pre-commit] ok"

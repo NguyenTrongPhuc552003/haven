@@ -1,0 +1,5 @@
+#!/bin/sh
+# The quality gate for this repository (docs/quality/gate.md).
+# Usage: scripts/gate pre-commit | pre-push | ci | deep | baseline | doctor | install
+root="$(cd "$(dirname "$0")/.." && pwd)"
+exec python3 "$root/tools/gate/gate.py" --root "$root" "$@"
