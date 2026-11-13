@@ -287,6 +287,83 @@ def checkpatch(ctx, files):
     return failed("checkpatch", f"exit {code}: {err}") if code > 1 or (code and not found) else found
 
 
+SAN_FLAGS = "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined"
+
+
+def sanitizers(ctx, files):
+    """Build the profile's preset with AddressSanitizer and UBSan and run its
+    tests; reports go to log files, so a test script that hides stderr does
+    not hide them (LeakSanitizer does not run on macOS on Apple silicon)."""
+    conf = ctx.cfg.get("sanitizers")
+    if not conf:
+        return []
+    build = os.path.join(ctx.root, conf["build"])
+    logs = os.path.join(build, "sanitizer-logs")
+    shutil.rmtree(logs, ignore_errors=True)
+    os.makedirs(logs, exist_ok=True)
+    code, _, err = run(["cmake", "--preset", conf["preset"], "-B", build, f"-DCMAKE_C_FLAGS={SAN_FLAGS}",
+                        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"], ctx.root)
+    if not code:
+        code, _, err = run(["cmake", "--build", build], ctx.root)
+    if code:
+        return failed("sanitizers", f"build exit {code}: {err}")
+    env = dict(os.environ, ASAN_OPTIONS=f"log_path={logs}/asan:detect_leaks=0",
+               UBSAN_OPTIONS=f"log_path={logs}/ubsan:print_stacktrace=1:halt_on_error=1")
+    env.update({k: v.format(build=build) for k, v in conf.get("env", {}).items()})
+    test = [a.format(build=build) for a in conf["test"]]
+    code, so, err = run(test, ctx.root, env)
+    text = ""
+    for name in sorted(os.listdir(logs)):
+        with open(os.path.join(logs, name), errors="replace") as f:
+            text += f.read()
+    found = rules.parse_sanitizers(text + so + err, ctx.root, tracked_path(ctx))
+    if code:
+        shown = " ".join(a.format(build=conf["build"]) for a in conf["test"])
+        found.append(Finding("sanitizer", "tests-failed", "", 0, "MAJOR", f"{shown}: exit {code}", code=shown))
+    return found
+
+
+def tracked_path(ctx):
+    """A resolver for paths printed without their directories: the one
+    tracked file with that name, else the path as printed."""
+    by_name = {}
+    for f in subprocess.run(["git", "-C", ctx.root, "ls-files"], capture_output=True,
+                            text=True).stdout.splitlines():
+        by_name.setdefault(os.path.basename(f), []).append(f)
+
+    def resolve(path):
+        if os.path.exists(os.path.join(ctx.root, path)):
+            return path
+        hits = by_name.get(os.path.basename(path), [])
+        return hits[0] if len(hits) == 1 else path
+    return resolve
+
+
+def go_race(ctx, files):
+    if not os.path.exists(os.path.join(ctx.root, "go.mod")):
+        return []
+    exe = which(ctx, "go")
+    if not exe:
+        return missing(ctx, "go")
+    code, so, err = run([exe, "test", "-race", "-count=1", "./..."], ctx.root)
+    found = rules.parse_go_test(so + err, "go-race", ctx.root)
+    return checked("go-race", code, err, found)
+
+
+def go_fuzz(ctx, files):
+    exe = which(ctx, "go")
+    conf = ctx.cfg.get("fuzz", {})
+    if not conf.get("targets") or not exe:
+        return [] if not conf.get("targets") else missing(ctx, "go")
+    out = []
+    for t in conf["targets"]:
+        code, so, err = run([exe, "test", "-run=^$", f"-fuzz=^{t['name']}$",
+                             f"-fuzztime={conf.get('seconds', 60)}s", t["package"]], ctx.root)
+        found = rules.parse_go_fuzz(so + err, t["name"], t["package"])
+        out += checked("go-fuzz", code, err, found)
+    return out
+
+
 def tcb(ctx, files):
     conf = ctx.cfg.get("tcb")
     if not conf:
@@ -305,11 +382,11 @@ def tcb(ctx, files):
 RUNNERS = {"scan": scan, "cppcheck": cppcheck, "clang-tidy": clang_tidy, "lizard": lizard,
            "jscpd": jscpd, "ruff": ruff, "shellcheck": shellcheck, "gitleaks": gitleaks, "tcb": tcb,
            "gofmt": gofmt, "golangci-lint": golangci_lint, "govulncheck": govulncheck,
-           "checkpatch": checkpatch}
+           "checkpatch": checkpatch, "sanitizers": sanitizers, "go-race": go_race, "go-fuzz": go_fuzz}
 # the paths each tool reads unless a profile's "tool_paths" names its own
 # (None: every file of the stage)
 PATH_KEYS = {"cppcheck": ["c_paths"], "clang-tidy": ["c_paths"], "lizard": ["c_paths", "go_paths"],
              "ruff": ["py_paths"], "shellcheck": ["sh_paths"], "gofmt": ["go_paths"],
              "golangci-lint": ["go_paths"], "checkpatch": ["c_paths"]}
 # a tool that runs on another pinned tool: its version is checked too
-NEEDS = {"gofmt": ["go"], "golangci-lint": ["go"], "govulncheck": ["go"]}
+NEEDS = {"gofmt": ["go"], "golangci-lint": ["go"], "govulncheck": ["go"], "go-race": ["go"], "go-fuzz": ["go"]}

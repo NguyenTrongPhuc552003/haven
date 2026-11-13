@@ -73,3 +73,20 @@ and their `scripts/gate` fetches only `tools/gate/` at that commit into
 `~/.cache/haven-gate/<commit>/`, once, then runs it on their own tree with
 their own profile and baseline. A newer engine is taken by changing the
 pinned commit in a reviewed pull request.
+
+## The deep tier
+
+`scripts/gate deep` runs on a developer's machine, never blocks, and adds
+checks too slow or too machine-bound for every push:
+
+| Repository | Deep checks |
+| - | - |
+| HAVEN | the host tests built with AddressSanitizer and UBSan (`build-deep/`) |
+| KDAL | the compiler's e2e test against `kdalc` built with AddressSanitizer and UBSan |
+| ELMOS | `go test -race`, and 60 s of fuzzing for each target in the profile; a failing input is kept under the package's `testdata/fuzz/`, so plain `go test` replays it |
+
+Sanitizer reports go to log files under `build-deep/sanitizer-logs/`, so a
+test script that hides its error output does not hide them. LeakSanitizer
+does not run on macOS on Apple silicon. KDAL's kernel checks (sparse,
+Coccinelle) need a configured kernel tree and run in its CI job instead.
+

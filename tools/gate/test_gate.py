@@ -228,6 +228,53 @@ class GoAndKernel(unittest.TestCase):
         self.assertIsNone(gate.tool_paths(cfg, "jscpd"))
 
 
+# Formats of AddressSanitizer, UBSan, the Go race detector and Go fuzzing
+# as printed by clang 23 and Go 1.27 (trimmed).
+ASAN = """==1==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6020 at pc 0x1 bp 0x2 sp 0x3
+WRITE of size 4 at 0x6020 thread T0
+    #0 0x100 in __asan_memcpy (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x1)
+    #1 0x101 in fill /repo/tests/unit/test_x.c:12:5
+    #2 0x102 in main /repo/tests/unit/test_x.c:30:2
+"""
+UBSAN = "/repo/src/core/a.c:7:9: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'\n"
+RACE = """==================
+WARNING: DATA RACE
+Write at 0x00c by goroutine 8:
+  example.com/m/p.TestRace.func1()
+      /repo/p/race_test.go:11 +0x3c
+--- FAIL: TestRace (0.00s)
+    testing.go:1490: race detected during execution of test
+"""
+FUZZ = """--- FAIL: FuzzParseSums (0.21s)
+    --- FAIL: FuzzParseSums (0.00s)
+        fuzz_test.go:101: unsafe name accepted: "/"
+
+    Failing input written to testdata/fuzz/FuzzParseSums/a8c0651f3f18f888
+"""
+
+
+class Deep(unittest.TestCase):
+    def test_sanitizers(self):
+        out = [(f.rule, f.file, f.line, f.severity) for f in rules.parse_sanitizers(ASAN + UBSAN, "/repo")]
+        self.assertEqual(out, [("asan/heap-buffer-overflow", "tests/unit/test_x.c", 12, "CRITICAL"),
+                               ("ubsan", "src/core/a.c", 7, "CRITICAL")])
+        short = ASAN.replace("/repo/tests/unit/test_x.c", "test_x.c")
+        out = rules.parse_sanitizers(short, "/repo", lambda p: "tests/unit/" + p if "/" not in p else p)
+        self.assertEqual(out[0].file, "tests/unit/test_x.c")
+
+    def test_race(self):
+        out = [(f.rule, f.file, f.line, f.severity) for f in rules.parse_go_test(RACE, "go-race", "/repo")]
+        self.assertEqual(out, [("data-race", "p/race_test.go", 11, "CRITICAL"), ("test-failed", "", 0, "MAJOR")])
+
+    def test_fuzz(self):
+        out = rules.parse_go_fuzz(FUZZ, "FuzzParseSums", "./core/domain/demo")
+        self.assertEqual([(f.rule, f.file, f.severity) for f in out],
+                         [("FuzzParseSums", "core/domain/demo/testdata/fuzz/FuzzParseSums/a8c0651f3f18f888",
+                           "CRITICAL")])
+        self.assertIn("unsafe name", out[0].message)
+        self.assertEqual(rules.parse_go_fuzz("ok\n", "FuzzX"), [])
+
+
 if __name__ == "__main__":
     unittest.main()
 
