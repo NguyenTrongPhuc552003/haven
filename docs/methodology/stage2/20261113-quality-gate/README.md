@@ -1,7 +1,7 @@
 # Quality gate for HAVEN, ELMOS and KDAL (Q, G0 to G5)
 
-**Status:** G1 (HAVEN) done, results below; expectations C1 to C5 for the
-fix of limitations L1 and L2 recorded before its code. Design and G1
+**Status:** G1 (HAVEN) done, results below; limitations L1 and L2 fixed in
+#99 (expectations C1 to C5 recorded before its code, all held). Design and G1
 expectations were merged before any gate code and before any measurement of
 the tree (owner-approved 2026-11-13: the
 gate replaces item Q's plain audit; Q's audit is the first baseline).
@@ -145,3 +145,14 @@ run; each change is a judgement, recorded here so that it can be reviewed:
 | C3 | seeded: a tool run that exits with an error and prints nothing (a wrong flag in a scratch copy of `gate.json`) | `pre-push` exits 1 with `gate/tool-failed` (MAJOR) |
 | C4 | engine unit tests | pass, with tests for C1 and C3 added |
 | C5 | baseline schema | `haven-gate-baseline/2`; a `/1` baseline is still read (count 1 per key) |
+
+### Results for C1 to C5 (#99)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| C1 | line 23 of `src/core/exc/mmio.c` (a known `bugprone-signed-bitwise` MAJOR) copied below itself: `pre-push` exit 1, both instances listed, "new CRITICAL or MAJOR 2"; the same branch with `main`'s engine and baseline: exit 0 | holds |
+| C2 | `baseline` wrote 349 keys with counts summing to 369; `ci` exit 0, "new CRITICAL or MAJOR 0" | holds |
+| C3 | `clang_tidy.checks` set to `-*` in a seeded `gate.json`: `pre-push` exit 1, `MAJOR gate/tool-failed: clang-tidy: exit 1: Error: no checks enabled.` | holds |
+| C4 | 14 unit tests pass on the Mac (2 added: counts, tool failure) | holds |
+| C5 | the baseline is written as `haven-gate-baseline/2`; a `/1` file is read at one per key (unit test) | holds |
+
