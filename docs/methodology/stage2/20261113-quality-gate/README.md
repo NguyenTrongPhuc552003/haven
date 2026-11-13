@@ -427,3 +427,43 @@ network.
 | F2 | a kept fuzz input | replayed by plain `go test` in CI |
 | G4b | owner-approved: a pull request on ELMOS whose gate fails | GitHub refuses the merge (`mergeStateStatus` BLOCKED, `gh pr merge` refused); the pull request is closed and its branch deleted afterwards |
 
+### G5 amendment after KDAL's first kernel-check run (owner-approved 2026-11-13)
+
+Observed on branch `gate-deep` (no pull request), before this amendment:
+sparse reported 33 "symbol was not declared. Should it be static?"
+warnings (16 init and exit functions declared by hand in `src/core/kdal.c`,
+the QEMU ring helpers declared by hand in each example driver, MMIO and
+virtio helpers no other file calls, and `kdal_gpu_accel_ops`, reached by a
+KUnit test through `extern`); Coccinelle about 146 MINOR reports; the gate
+step took 6.4 min and the job 12 min (4.7 min of it installing tools, most
+of that a cppcheck rebuild because the cache key is the whole profile's
+hash). Findings of tools that run only in CI cannot reach a baseline written
+on the Mac, and a later baseline written there would drop them as fixed.
+
+- **D16, baselines and tools that did not run.** `baseline` keeps the
+  existing entries of every tool that did not run (no kernel tree, not
+  installed). `baseline --add-reported LOG` adds findings printed by a CI
+  run, only for tools that did not run locally, listing each one added.
+- **D17, declare instead of accept.** One internal header,
+  `include/kdal/core/internal.h`, declares the module's cross-file
+  functions and objects; the definitions, `kdal.c`, the drivers and the
+  KUnit test include it instead of declaring them by hand.
+- **D18, Coccinelle weekly.** Coccinelle leaves the required check for a
+  weekly scheduled KDAL workflow (and on demand) that runs `scripts/gate
+  deep` with the kernel tree and blocks nothing. sparse stays in the
+  required check. The cppcheck cache key becomes the pinned cppcheck
+  version.
+
+| Row | Check | Expected |
+| - | - | - |
+| A1 | HAVEN, KDAL, ELMOS: `baseline --check` after D16 | 0 new, 0 fixed |
+| A2 | KDAL on the Mac: a baseline with a sparse entry, regenerated without a kernel tree | the sparse entry stays |
+| A3 | `--add-reported` with a log line from a tool that ran locally (clang-tidy) | refused, nothing added |
+| A4 | engine unit tests | pass, with tests for A2 and A3 |
+| A5 | KDAL after D17, in CI: sparse | 0 "not declared" warnings |
+| A6 | KDAL after D17: checkpatch `AVOID_EXTERNS` | 0 (was 19) |
+| A7 | KDAL after D17: module build and KUnit | 40 of 40 cases pass, as before |
+| A8 | KDAL "quality gate" job after D18 | under 6 min |
+| A9 | the weekly workflow, started on demand | completes, reports Coccinelle findings, fails nothing |
+| K9 | seeded on a pushed branch (no pull request, deleted after): a `__user` pointer dereferenced directly in `src/` | the branch's "quality gate" run fails with a new sparse finding |
+
