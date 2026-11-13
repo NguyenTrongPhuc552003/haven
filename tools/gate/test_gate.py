@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import findings as fd  # noqa: E402
 import rules  # noqa: E402
 import gate  # noqa: E402
+import tools  # noqa: E402
 
 # built at run time so this file holds no literal token
 TOKEN = "ghp" + "_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"
@@ -102,7 +103,7 @@ class Identity(unittest.TestCase):
         blk = fd.Finding("scan", "github-token", "f.c", 4, "BLOCKER", "m", code="tok")
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "baseline.json")
-            self.assertEqual(fd.save_baseline(p, [old, blk]), 1)  # BLOCKER never kept
+            self.assertEqual(fd.save_baseline(p, [old, blk]), (1, 1))  # BLOCKER never kept
             base = fd.load_baseline(p)
             self.assertEqual(json.load(open(p))["schema"], fd.BASELINE_SCHEMA)
         allf = [old, new, crit, blk]
@@ -110,6 +111,38 @@ class Identity(unittest.TestCase):
         self.assertEqual(fd.blocking(allf, base, "pre-push"), [new, crit, blk])
         self.assertEqual(fd.blocking(allf, base, "ci"), [new, crit, blk])
         self.assertEqual(fd.blocking(allf, base, "deep"), [])
+
+    def test_identical_findings_are_counted(self):
+        # L1: two findings on identical lines of one file share a key; a third
+        # copy must block although its key is known
+        a = fd.Finding("t", "r", "f.c", 1, "MAJOR", "m", code="x <<= 1;")
+        b = fd.Finding("t", "r", "f.c", 9, "MAJOR", "m", code="x <<= 1;")
+        c = fd.Finding("t", "r", "f.c", 20, "MAJOR", "m", code="x <<= 1;")
+        tool = fd.Finding("gate", "tool-failed", "", 0, "MAJOR", "m", code="ruff")
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "baseline.json")
+            self.assertEqual(fd.save_baseline(p, [a, b, tool]), (1, 2))  # the gate's own finding not kept
+            base = fd.load_baseline(p)
+            with open(p, "w") as f:
+                json.dump({"schema": "haven-gate-baseline/1", "findings": [{"key": a.key}]}, f)
+            old = fd.load_baseline(p)
+        self.assertEqual(base, {a.key: 2})
+        self.assertEqual(old, {a.key: 1})
+        self.assertEqual(fd.blocking([a, b], base, "pre-push"), [])
+        self.assertEqual(fd.blocking([a, b, c], base, "pre-push"), [a, b, c])
+        self.assertEqual(fd.blocking([a, b], old, "ci"), [a, b])
+        self.assertEqual(fd.blocking([tool], base, "pre-push"), [tool])
+
+
+class ToolFailure(unittest.TestCase):
+    def test_failure_without_findings_is_reported(self):
+        # L2: an error exit with nothing parsed must not look like a clean run
+        f = fd.Finding("t", "r", "f.c", 1, "MAJOR", "m", code="x")
+        self.assertEqual(tools.checked("cppcheck", 0, "", []), [])
+        self.assertEqual(tools.checked("cppcheck", 1, "", [f]), [f])
+        out = tools.checked("clang-tidy", 1, "Error: no checks enabled.", [])
+        self.assertEqual([(x.tool, x.rule, x.severity) for x in out], [("gate", "tool-failed", "MAJOR")])
+        self.assertIn("no checks enabled", out[0].message)
 
 
 if __name__ == "__main__":

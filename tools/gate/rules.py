@@ -73,20 +73,17 @@ def parse_cppcheck(text, root="."):
 TIDY_LINE = re.compile(r"^(.+?):(\d+):\d+: (warning|error): (.*) \[([\w.,-]+)\]$")
 # bugprone and cert checks that are about style or naming rather than likely
 # bugs: MAJOR instead of CRITICAL
+# Calibrated on HAVEN's first baseline (2026-11-13, record
+# .../20261113-quality-gate/): signed-bitwise is hygiene (undefined only when a
+# shift reaches the sign bit), MAJOR not CRITICAL.
 TIDY_MAJOR = {
     "bugprone-easily-swappable-parameters", "bugprone-reserved-identifier",
     "cert-dcl37-c", "cert-dcl51-cpp", "bugprone-narrowing-conversions",
     "bugprone-assignment-in-if-condition", "bugprone-macro-parentheses",
     "bugprone-implicit-widening-of-multiplication-result", "cert-err33-c",
     "bugprone-branch-clone", "bugprone-multi-level-implicit-pointer-conversion",
+    "bugprone-signed-bitwise", "hicpp-signed-bitwise",
 }
-
-
-# Calibrated on HAVEN's first baseline (2026-11-13, record
-# .../20261113-quality-gate/): signed-bitwise is hygiene (undefined only when
-# a shift reaches the sign bit), MAJOR not CRITICAL; the analyzer's opt-in
-# performance checks (padding) are MINOR.
-TIDY_MAJOR |= {"bugprone-signed-bitwise", "hicpp-signed-bitwise"}
 
 
 def tidy_severity(check):
