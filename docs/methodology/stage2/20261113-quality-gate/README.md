@@ -332,3 +332,35 @@ step and the gate).
 | H9 | KDAL with D9 | `baseline --check` after the style options: 0 new (the old job's suppressions hold) |
 | H10 | ELMOS and KDAL CONTRIBUTING | say how to install the hooks, what each stage checks, how to update the baseline and the pinned engine, and link `docs/quality/gate.md` |
 
+### Results (G3 and G4; haven #104, #105; ELMOS #23; KDAL #29)
+
+All 10 G3 rows held; H5 (c) held only as worded (see below).
+
+| Row | Observed | Verdict |
+| - | - | - |
+| H1 | ELMOS: `core.hooksPath` = `.githooks`; a commit staging a GitHub token pattern: `BLOCKER scan/github-token`, commit exit 1 | holds |
+| H2 | ELMOS: `git push` with an unformatted Go file: `gofmt/unformatted`, "failed to push some refs"; nothing reached GitHub | holds |
+| H3 | KDAL: subject "bad subject" refused by `.githooks/commit-msg` (exit 1) | holds |
+| H4 | KDAL: `git push` with a checkpatch ERROR in `src/core/registry.c`: `OPEN_BRACE`, `SPACING`, push refused; nothing reached GitHub | holds |
+| H5 | (a) old cppcheck command exit 0; gate with KDAL's style options: 0 new findings. (b) old shellcheck: 0; gate under `scripts/` at MAJOR or above: 0. (c) every file the old fallback warned about has a gate checkpatch finding, but not for the same reason: the fallback's 33 "lines over 120 characters" in 10 files were byte counts of UTF-8 box-drawing comment lines (`─` is 3 bytes), about 70 characters wide; checkpatch, now at the same 120-column limit instead of ignoring `LONG_LINE`, correctly reports none | holds; (c) was a weak row |
+| H6 | `git grep` finds none of the removed names (the baseline was regenerated, so not even there) | holds |
+| H7 | KDAL's build, smoke and KUnit jobs and ELMOS's vet, test, build and e2fsck jobs passed unchanged | holds |
+| H8 | HAVEN `baseline --check` after #104: 0 new, 0 fixed | holds |
+| H9 | KDAL with the style options: 0 new; 5 fixed (shellcheck findings in the removed scripts); baseline 494 findings, 418 keys | holds |
+| H10 | both CONTRIBUTING files (and KDAL's website copy) describe install, stages, baseline and the pinned engine, and link `docs/quality/gate.md` | holds |
+
+**Not predicted:** KDAL's first G3 run failed before any check, because
+GitHub's raw files answered 429 (Too Many Requests) to the anonymous
+checkpatch download from the runner; the Mac got 429 too that day, through
+3.5 minutes of retries. `ci-setup.sh` now fetches from git.kernel.org first
+(the pinned SHA-256 values match), sends a named User-Agent (git.kernel.org
+answers 403 to Python's default), keeps an already verified copy, and KDAL's
+job caches the files (#105, KDAL #29).
+
+**G4:** "quality gate" is a required status check (from GitHub Actions) on
+`main` in haven, ELMOS and KDAL since 2026-11-13; KDAL's "style and static
+analysis" is no longer required and its job is gone. Checked by reading the
+rulesets back. A pull request with a failing gate being refused a merge was
+not tried (it would leave a public test pull request); the evidence is the
+configuration and GitHub's documented meaning of a required check.
+
