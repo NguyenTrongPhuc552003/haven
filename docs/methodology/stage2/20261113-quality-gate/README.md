@@ -467,3 +467,45 @@ on the Mac, and a later baseline written there would drop them as fixed.
 | A9 | the weekly workflow, started on demand | completes, reports Coccinelle findings, fails nothing |
 | K9 | seeded on a pushed branch (no pull request, deleted after): a `__user` pointer dereferenced directly in `src/` | the branch's "quality gate" run fails with a new sparse finding |
 
+### Results (G5; haven #107 to #111; ELMOS #24 (closed test), #25; KDAL #30)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| Z1 | HAVEN: 30 host tests (CI's selection) pass under AddressSanitizer and UBSan, 0 reports | holds |
+| Z2 | KDAL: the compiler's e2e test against sanitized `kdalc` (linked to the ASan runtime): 39 checks pass, 0 reports. Inference: the analyzer's null-dereference paths in `compiler/lexer.c` are not reached by the example drivers; fuzzing `kdalc` would test them | prediction error |
+| Z3 | ELMOS `go test -race`: 0 races, tests pass | holds |
+| Z4 | seeded heap overflow in `tests/unit/test_gicr_frames.c`: CRITICAL `asan/heap-buffer-overflow` at line 99, plus the failing test (MAJOR). First run named only the base name (macOS's symbolizer); the engine now resolves it to the tracked path | holds after a fix |
+| Z5 | seeded race: CRITICAL `data-race` at `core/config/race_seed_test.go:13`, plus the failing test | holds |
+| Z6 | `deep` on the Mac: HAVEN 7 s (build already present), KDAL 15 s, ELMOS 1 min 56 s with fuzzing | holds |
+| Z7 | `baseline --check` after G5a: 0 new, 0 fixed in all three | holds |
+| K7 | sparse on KDAL's module: 33 warnings, all "symbol was not declared"; after D17: 0 | prediction error, fixed |
+| K8 | Coccinelle: MINOR rose by 146 with Coccinelle in the run (243 against 97; MINOR findings are not printed, so the 146 is a difference of totals) | prediction error |
+| K9 | seeded `__user` dereference on a pushed branch: its "quality gate" failed with one new finding, `sparse/warning src/core/registry.c:219: dereference of noderef expression`; branch deleted | holds |
+| K10 | first run: job 12 min, gate step 6.4 min; after D18: job 3 min 23 s | failed, then held after D18 |
+| K11 | on the Mac `deep` reports sparse and Coccinelle as INFO "not run" and every other count as before; the `ci` stage, meant for CI, reports them MAJOR | holds for `deep` |
+| F1 | 60 s each: `FuzzUntar` 0 failures; `FuzzParseSums` 1: the name "/" accepted (`filepath.Base("/")` is "/") | holds |
+| F2 | the kept input failed plain `go test` before the fix and passes after it (ELMOS #25) | holds |
+| G4b | ELMOS #24 (an unformatted file): with "quality gate" failing, GitHub refused the merge ("the base branch policy prohibits the merge"); a required macOS job of the same pull request had been cancelled at that time, which also blocks, so the refusal is not shown to come from the gate alone | holds, confounded |
+| A1 | `baseline --check` with the D16 engine: 0 new, 0 fixed in all three | holds |
+| A2 | unit test; on KDAL's real tree the Mac's `baseline` reports "did not run here, entries kept: sparse" | holds |
+| A3 | unit test: a clang-tidy line from a CI log is refused | holds |
+| A4 | 27 engine unit tests pass | holds |
+| A5 | sparse in CI after D17: 0 findings | holds |
+| A6 | checkpatch `AVOID_EXTERNS`: 0 (19 before); with them one more finding, 20 in all, left the baseline | holds |
+| A7 | KUnit: 40 of 40 cases in 6 suites | holds |
+| A8 | "quality gate" job: 3 min 23 s | holds |
+| A9 | KDAL's weekly workflow started on demand after #30: success in 8 min 13 s; `gate deep` reported CRITICAL 13, MAJOR 383, MINOR 224 (146 more MINOR than the required check: Coccinelle), no sanitizer report on Linux either, blocked nothing | holds |
+
+Count: of the 24 rows, 19 held (Z4 after a fix), 3 were prediction errors
+(Z2, K7, K8), K10 failed and held after D18, and G4b held but confounded. (The commit message that added this table says "17 held, 2 of
+them after a fix"; that count is wrong.)
+
+**L8, the deep report lists no findings.** `deep` blocks nothing, and the
+report lists only blocking findings and INFO, so a weekly run shows
+Coccinelle's findings as a count only. Proposed fix: `deep` lists every
+finding not in the baseline, at every severity (fix list).
+
+**Not predicted.** GitHub cancelled four macOS jobs during these runs
+(no step failed; the jobs did not get a runner in time); each was re-run
+and passed. A cancelled required check blocks a merge like a failed one.
+
