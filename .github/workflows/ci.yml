@@ -46,6 +46,33 @@ jobs:
       - name: Firmware image scanners (Python)
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/fwscan -p "test_*.py" -v
 
+
+  # The quality gate (docs/quality/gate.md): every tool at the version pinned
+  # in quality/gate.json, the whole tree against quality/baseline.json.
+  quality-gate:
+    name: quality gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu cloc pipx
+      - name: Cached cppcheck build
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/cppcheck-*
+          key: cppcheck-${{ hashFiles('quality/gate.json') }}
+      - name: Install the gate's tools (pinned versions)
+        run: tools/gate/ci-setup.sh cppcheck clang-tidy lizard jscpd ruff shellcheck gitleaks
+      - name: Gate unit tests
+        run: python3 -m unittest discover -s tools/gate -p "test_*.py" -v
+      - name: Tool versions
+        run: scripts/gate doctor
+      - name: Quality gate (whole tree)
+        run: scripts/gate ci --json gate-report.json
+
   arm64-qemu:
     name: ARM64 build and QEMU boot
     runs-on: ubuntu-24.04

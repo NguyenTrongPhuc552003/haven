@@ -1,0 +1,120 @@
+{
+  "schema": "haven-gate-config/1",
+  "c_paths": [
+    "arch",
+    "src",
+    "drivers",
+    "include",
+    "boot"
+  ],
+  "c_include": [
+    "include",
+    "arch/arm64/include",
+    "src/platform/qemu-virt"
+  ],
+  "py_paths": [
+    "tools",
+    "scripts",
+    "docs/methodology"
+  ],
+  "sh_paths": [
+    "scripts",
+    ".githooks"
+  ],
+  "sh_files": [
+    ".githooks/commit-msg",
+    ".githooks/pre-commit",
+    ".githooks/pre-push"
+  ],
+  "exclude": [
+    "data/"
+  ],
+  "scan_exclude": [
+    "tools/gate/test_gate.py"
+  ],
+  "jscpd_formats": "c,python",
+  "jscpd_ignore": [
+    "**/test_*.py"
+  ],
+  "limits": {
+    "ccn": 15,
+    "length": 100,
+    "dup_lines": 15
+  },
+  "tool_dirs": [
+    "/opt/homebrew/opt/llvm/bin",
+    "~/.local/bin"
+  ],
+  "clang_tidy": {
+    "build": "build-gate",
+    "configure": [
+      "cmake",
+      "--preset",
+      "arm64-qemu",
+      "-B",
+      "build-gate"
+    ],
+    "checks": "-*,bugprone-*,cert-*,clang-analyzer-*",
+    "header_filter": "(arch|src|drivers|include|boot)/",
+    "extra_args": [
+      "--target=aarch64-linux-gnu",
+      "-Wno-unknown-warning-option"
+    ]
+  },
+  "tcb": {
+    "build": "build-gate",
+    "configure": [
+      "cmake",
+      "--preset",
+      "arm64-qemu",
+      "-B",
+      "build-gate"
+    ],
+    "tool": "tools/scripts/tcb-image-loc.py"
+  },
+  "stages": {
+    "pre-commit": [
+      "scan"
+    ],
+    "pre-push": [
+      "scan",
+      "cppcheck",
+      "clang-tidy",
+      "lizard",
+      "jscpd",
+      "ruff",
+      "shellcheck"
+    ],
+    "ci": [
+      "scan",
+      "gitleaks",
+      "cppcheck",
+      "clang-tidy",
+      "lizard",
+      "jscpd",
+      "ruff",
+      "shellcheck",
+      "tcb"
+    ],
+    "deep": [
+      "scan",
+      "gitleaks",
+      "cppcheck",
+      "clang-tidy",
+      "lizard",
+      "jscpd",
+      "ruff",
+      "shellcheck",
+      "tcb"
+    ]
+  },
+  "versions": {
+    "cppcheck": "2.22.0",
+    "clang-tidy": "23.1",
+    "lizard": "1.26.0",
+    "jscpd": "5.4.3",
+    "ruff": "0.17.5",
+    "shellcheck": "0.11.0",
+    "gitleaks": "8.30.1"
+  }
+}
