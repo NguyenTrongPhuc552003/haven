@@ -96,6 +96,8 @@ jobs:
   # Linux with KDAL in partition A on 2 and 3 vCPUs, partition B beside it
   # (docs/methodology/stage2/20261112-e4-ci-linux). Kernel: the pinned
   # private ELMOS SDK package; kdal.ko built against it at a pinned KDAL.
+  # Every pin comes from ecosystem.lock.json (docs/methodology/stage2/
+  # 20261113-e5-compat-manifest); runs-on is checked against it.
   linux-partition:
     name: Linux in partition A (QEMU, ELMOS SDK kernel)
     runs-on: ubuntu-24.04
@@ -105,21 +107,30 @@ jobs:
       packages: read
     steps:
       - uses: actions/checkout@v4
+      - name: Pins from ecosystem.lock.json
+        id: pins
+        run: |
+          python3 scripts/ci/ecosystem.py check-workflow .github/workflows/ci.yml
+          python3 scripts/ci/ecosystem.py outputs | tee -a "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          repository: NguyenTrongPhuc552003/kdal
-          ref: f11e87e48f91726e7391b7bc153ab63da5e00d8b
+          repository: ${{ steps.pins.outputs.kdal_repository }}
+          ref: ${{ steps.pins.outputs.kdal_commit }}
           path: kdal
       - uses: oras-project/setup-oras@v2
-      - name: Pull the pinned ELMOS SDK kernel (private package)
+      - name: Pull the pinned ELMOS SDK kernel by digest (private package)
         env:
-          # pinned run tag: a new SDK build reaches HAVEN only through a reviewed change
-          SDK: ghcr.io/nguyentrongphuc552003/elmos-sdk:linux-6.18-4
+          SDK_REF: ${{ steps.pins.outputs.sdk_ref }}
+          SDK_TAG: ${{ steps.pins.outputs.sdk_tag }}
+          SDK_DIGEST: ${{ steps.pins.outputs.sdk_digest }}
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+          trap 'oras logout ghcr.io' EXIT
+          got=$(oras resolve "$SDK_TAG")
+          [ "$got" = "$SDK_DIGEST" ] || { echo "FAIL: $SDK_TAG resolves to $got, pinned $SDK_DIGEST"; exit 1; }
           mkdir -p build/sdk
-          oras pull "$SDK" -o build/sdk
-          oras logout ghcr.io
+          oras pull "$SDK_REF" -o build/sdk
+          python3 scripts/ci/ecosystem.py check-sdk build/sdk
           python3 -c 'import json;m=json.load(open("build/sdk/manifest.json"));print("SDK", m["linux"]["version_string"], "elmos", m["elmos_commit"], "run", m["run"])'
       - name: Install tools
         run: |
@@ -128,8 +139,8 @@ jobs:
             cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
             qemu-system-arm device-tree-compiler clang lld llvm make bc flex bison \
             libelf-dev libssl-dev xz-utils curl
-          qemu-system-aarch64 --version | head -1
-      - name: Prepare the SDK kernel and build kdal.ko (KDAL f11e87e)
+          python3 scripts/ci/ecosystem.py check-qemu "$(qemu-system-aarch64 --version | head -1)"
+      - name: Prepare the SDK kernel and build kdal.ko (pinned KDAL)
         run: |
           set -o pipefail
           kdal/scripts/ci/kernel-prepare.sh "$PWD/build/sdk" | tail -2 > build/kpaths
