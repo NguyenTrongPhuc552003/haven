@@ -145,6 +145,89 @@ class ToolFailure(unittest.TestCase):
         self.assertIn("no checks enabled", out[0].message)
 
 
+# Recorded on the Mac (2026-11-13): golangci-lint 2.15.0 and checkpatch.pl
+# from Linux v6.18 on small probe files. The govulncheck "finding" objects
+# follow its documented v1.0.0 protocol (a probe module had none).
+GOLANGCI = {"Issues": [
+     {
+      "FromLinter": "errcheck",
+      "Text": "Error return value of `os.Remove` is not checked",
+      "Pos": {
+       "Filename": "a.go",
+       "Line": 9
+      }
+     },
+     {
+      "FromLinter": "govet",
+      "Text": "printf: fmt.Printf format %d reads arg #1, but call has 0 args",
+      "Pos": {
+       "Filename": "a.go",
+       "Line": 13
+      }
+     },
+     {
+      "FromLinter": "ineffassign",
+      "Text": "ineffectual assignment to x",
+      "Pos": {
+       "Filename": "a.go",
+       "Line": 10
+      }
+     },
+     {
+      "FromLinter": "unused",
+      "Text": "func unused is unused",
+      "Pos": {
+       "Filename": "a.go",
+       "Line": 16
+      }
+     }
+    ]}
+CHECKPATCH = """t.c:1: WARNING:SPDX_LICENSE_TAG: Missing or malformed SPDX-License-Identifier tag in line 1
+t.c:2: ERROR:OPEN_BRACE: open brace '{' following function definitions go on the next line
+t.c:3: CHECK:SPACING: spaces preferred around that '+'
+"""
+GOVULN = """{"config": {"protocol_version": "v1.0.0"}}
+{"finding": {"osv": "GO-2026-0001", "fixed_version": "v1.2.4",
+ "trace": [{"module": "example.com/m", "version": "v1.2.3"}]}}
+{"finding": {"osv": "GO-2026-0001", "fixed_version": "v1.2.4",
+ "trace": [{"module": "example.com/m", "version": "v1.2.3", "package": "example.com/m/p", "function": "Parse"}]}}
+{"finding": {"osv": "GO-2026-0002", "trace": [{"module": "example.com/n", "version": "v0.1.0"}]}}
+"""
+
+
+class GoAndKernel(unittest.TestCase):
+    def test_gofmt(self):
+        out = rules.parse_gofmt("core/a.go\ncmd/b.go\n")
+        self.assertEqual([(f.file, f.severity) for f in out], [("core/a.go", "MAJOR"), ("cmd/b.go", "MAJOR")])
+
+    def test_golangci(self):
+        out = {f.rule: f.severity for f in rules.parse_golangci(GOLANGCI)}
+        self.assertEqual(out, {"errcheck": "MAJOR", "govet": "CRITICAL", "ineffassign": "MAJOR",
+                               "unused": "MAJOR"})
+        sa = rules.parse_golangci({"Issues": [{"FromLinter": "staticcheck", "Text": "SA4006: x never used",
+                                               "Pos": {"Filename": "a.go", "Line": 3}},
+                                              {"FromLinter": "staticcheck", "Text": "S1002: omit comparison",
+                                               "Pos": {"Filename": "a.go", "Line": 4}}]})
+        self.assertEqual([(f.rule, f.severity) for f in sa],
+                         [("staticcheck/SA4006", "CRITICAL"), ("staticcheck/S1002", "MINOR")])
+
+    def test_govulncheck(self):
+        out = {f.rule: f.severity for f in rules.parse_govulncheck(GOVULN)}
+        self.assertEqual(out, {"GO-2026-0001": "CRITICAL", "GO-2026-0002": "INFO"})
+
+    def test_checkpatch(self):
+        out = [(f.rule, f.line, f.severity) for f in rules.parse_checkpatch(CHECKPATCH)]
+        self.assertEqual(out, [("SPDX_LICENSE_TAG", 1, "MINOR"), ("OPEN_BRACE", 2, "MAJOR"),
+                               ("SPACING", 3, "INFO")])
+
+    def test_tool_paths(self):
+        cfg = {"c_paths": ["src", "tools"], "go_paths": ["core"], "tool_paths": {"checkpatch": ["src"]}}
+        self.assertEqual(gate.tool_paths(cfg, "checkpatch"), ["src"])
+        self.assertEqual(gate.tool_paths(cfg, "cppcheck"), ["src", "tools"])
+        self.assertEqual(gate.tool_paths(cfg, "lizard"), ["src", "tools", "core"])
+        self.assertIsNone(gate.tool_paths(cfg, "jscpd"))
+
+
 if __name__ == "__main__":
     unittest.main()
 

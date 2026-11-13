@@ -74,13 +74,24 @@ def in_paths(files, paths):
     return [f for f in files if any(f == p or f.startswith(p.rstrip("/") + "/") for p in paths)]
 
 
+def tool_paths(cfg, name):
+    """The paths a tool reads: the profile's "tool_paths" entry, else its
+    languages' paths; None means every file of the stage."""
+    if name in cfg.get("tool_paths", {}):
+        return cfg["tool_paths"][name]
+    keys = tools.PATH_KEYS.get(name)
+    return None if keys is None else [p for k in keys for p in cfg.get(k, [])]
+
+
 def collect(ctx, files):
-    out = []
-    kinds = {"cppcheck": "c_paths", "clang-tidy": "c_paths", "lizard": "c_paths",
-             "ruff": "py_paths", "shellcheck": "sh_paths"}
+    out, checked = [], set()
     for name in ctx.cfg["stages"][ctx.stage if ctx.stage != "baseline" else "ci"]:
-        sel = in_paths(files, ctx.cfg.get(kinds[name], [])) if name in kinds else files
-        out += tools.version_check(ctx, name)
+        paths = tool_paths(ctx.cfg, name)
+        sel = files if paths is None else in_paths(files, paths)
+        for t in [name] + tools.NEEDS.get(name, []):
+            if t not in checked:
+                checked.add(t)
+                out += tools.version_check(ctx, t)
         out += tools.RUNNERS[name](ctx, sel)
     return out
 

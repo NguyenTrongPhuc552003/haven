@@ -3,6 +3,7 @@
 findings, using the parsers in rules.py. A tool that is not installed, or
 that fails without reporting anything, gives one finding of its own (see
 missing() and checked())."""
+import hashlib
 import json
 import os
 import shutil
@@ -15,6 +16,7 @@ from findings import Finding
 C_EXT = (".c", ".h")
 PY_EXT = (".py",)
 SH_EXT = (".sh",)
+GO_EXT = (".go",)
 
 
 def run(cmd, cwd, env=None):
@@ -31,7 +33,7 @@ def which(ctx, name):
     return shutil.which(name)
 
 
-VERSION_ARG = {"gitleaks": ["version"]}
+VERSION_ARG = {"gitleaks": ["version"], "go": ["version"], "govulncheck": ["-version"]}
 
 
 def version_check(ctx, tool):
@@ -128,14 +130,15 @@ def clang_tidy(ctx, files):
 
 
 def lizard(ctx, files):
-    files = [f for f in files if f.endswith(C_EXT)]
+    # the language follows the extension (C and Go)
+    files = [f for f in files if f.endswith(C_EXT + GO_EXT)]
     if not files:
         return []
     exe = which(ctx, "lizard")
     if not exe:
         return missing(ctx, "lizard")
     lim = ctx.cfg.get("limits", {})
-    code, so, err = run([exe, "--csv", "-l", "c"] + files, ctx.root)
+    code, so, err = run([exe, "--csv"] + files, ctx.root)
     return checked("lizard", code, err, rules.parse_lizard(so, lim.get("ccn", 15), lim.get("length", 100)))
 
 
@@ -144,8 +147,11 @@ def jscpd(ctx, files):
     if not exe:
         return missing(ctx, "jscpd")
     lim = ctx.cfg.get("limits", {})
-    paths = [p for p in ctx.cfg.get("c_paths", []) + ctx.cfg.get("py_paths", [])
-             if os.path.exists(os.path.join(ctx.root, p))]
+    # the whole tree's language paths (or the profile's own), so a copy from
+    # an unchanged file is found
+    paths = ctx.cfg.get("tool_paths", {}).get("jscpd") or [
+        p for k in ("c_paths", "py_paths", "go_paths") for p in ctx.cfg.get(k, [])]
+    paths = [p for p in paths if os.path.exists(os.path.join(ctx.root, p))]
     with tempfile.TemporaryDirectory() as out:
         code, _, err = run([exe, "--silent", "--absolute", "--min-lines", str(lim.get("dup_lines", 15)), "--reporters", "json",
              "--output", out, "--format", ctx.cfg.get("jscpd_formats", "c,python")] +
@@ -207,6 +213,76 @@ def gitleaks(ctx, files):
             return rules.parse_gitleaks(json.load(f))
 
 
+def go_packages(files):
+    """golangci-lint checks whole packages: the directories of the files."""
+    return sorted({"./" + (os.path.dirname(f) or ".") for f in files})
+
+
+def gofmt(ctx, files):
+    files = [f for f in files if f.endswith(GO_EXT)]
+    if not files:
+        return []
+    exe = which(ctx, "gofmt")
+    if not exe:
+        return missing(ctx, "gofmt")
+    code, so, err = run([exe, "-l"] + files, ctx.root)
+    return failed("gofmt", f"exit {code}: {err}") if code else rules.parse_gofmt(so)
+
+
+def golangci_lint(ctx, files):
+    files = [f for f in files if f.endswith(GO_EXT)]
+    if not files:
+        return []
+    exe = which(ctx, "golangci-lint")
+    if not exe:
+        return missing(ctx, "golangci-lint")
+    conf = ctx.cfg.get("golangci", {})
+    # the packages of the files given (in CI every package under the Go
+    # paths, so vendored code outside them is not linted)
+    code, so, err = run([exe, "run", "--default=none", "--enable=" + ",".join(conf.get("linters", [])),
+                         "--max-issues-per-linter=0", "--max-same-issues=0", "--show-stats=false",
+                         "--output.json.path=stdout"] + go_packages(files), ctx.root)
+    # exit 1 means issues were found
+    try:
+        data = json.loads(so)
+    except ValueError:
+        return failed("golangci-lint", f"exit {code}: {err}")
+    return rules.parse_golangci(data, ctx.root)
+
+
+def govulncheck(ctx, files):
+    if not os.path.exists(os.path.join(ctx.root, "go.mod")):
+        return []
+    exe = which(ctx, "govulncheck")
+    if not exe:
+        return missing(ctx, "govulncheck")
+    code, so, err = run([exe, "-json", "./..."], ctx.root)
+    return failed("govulncheck", f"exit {code}: {err}") if code else rules.parse_govulncheck(so)
+
+
+def checkpatch(ctx, files):
+    files = [f for f in files if f.endswith(C_EXT)]
+    conf = ctx.cfg.get("checkpatch")
+    if not files or not conf:
+        return []
+    d = os.path.expanduser(conf["dir"])
+    script = os.path.join(d, "checkpatch.pl")
+    if not os.path.exists(script):
+        return missing(ctx, "checkpatch")
+    with open(script, "rb") as f:
+        got = hashlib.sha256(f.read()).hexdigest()
+    if got != conf["sha256"]["checkpatch.pl"]:
+        sev = "MAJOR" if ctx.stage == "ci" else "INFO"
+        return [Finding("gate", "tool-version", "", 0, sev,
+                        f"checkpatch: pinned {conf['tag']} ({conf['sha256']['checkpatch.pl'][:12]}), "
+                        f"found {got[:12]}", code="checkpatch")]
+    # exit 1 means findings were reported
+    code, so, err = run(["perl", script, "--no-tree", "--file", "--terse", "--show-types", "--showfile",
+                         "--no-summary", "--color=never"] + conf.get("args", []) + files, ctx.root)
+    found = rules.parse_checkpatch(so, ctx.root)
+    return failed("checkpatch", f"exit {code}: {err}") if code > 1 or (code and not found) else found
+
+
 def tcb(ctx, files):
     conf = ctx.cfg.get("tcb")
     if not conf:
@@ -223,4 +299,13 @@ def tcb(ctx, files):
 
 
 RUNNERS = {"scan": scan, "cppcheck": cppcheck, "clang-tidy": clang_tidy, "lizard": lizard,
-           "jscpd": jscpd, "ruff": ruff, "shellcheck": shellcheck, "gitleaks": gitleaks, "tcb": tcb}
+           "jscpd": jscpd, "ruff": ruff, "shellcheck": shellcheck, "gitleaks": gitleaks, "tcb": tcb,
+           "gofmt": gofmt, "golangci-lint": golangci_lint, "govulncheck": govulncheck,
+           "checkpatch": checkpatch}
+# the paths each tool reads unless a profile's "tool_paths" names its own
+# (None: every file of the stage)
+PATH_KEYS = {"cppcheck": ["c_paths"], "clang-tidy": ["c_paths"], "lizard": ["c_paths", "go_paths"],
+             "ruff": ["py_paths"], "shellcheck": ["sh_paths"], "gofmt": ["go_paths"],
+             "golangci-lint": ["go_paths"], "checkpatch": ["c_paths"]}
+# a tool that runs on another pinned tool: its version is checked too
+NEEDS = {"gofmt": ["go"], "golangci-lint": ["go"], "govulncheck": ["go"]}
