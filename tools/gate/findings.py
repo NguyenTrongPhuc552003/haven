@@ -118,9 +118,9 @@ def save_baseline(path, findings, kept=()):
     return len(keep), sum(n.values())
 
 
-def new_keys(findings, baseline):
-    """CRITICAL and MAJOR keys found more often than the baseline accepts."""
-    n = collections.Counter(f.key for f in findings if f.severity in ("CRITICAL", "MAJOR"))
+def new_keys(findings, baseline, levels=("CRITICAL", "MAJOR")):
+    """Keys at these levels found more often than the baseline accepts."""
+    n = collections.Counter(f.key for f in findings if f.severity in levels)
     return {k for k, c in n.items() if c > baseline.get(k, 0)}
 
 

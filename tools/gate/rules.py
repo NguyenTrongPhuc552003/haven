@@ -282,6 +282,7 @@ def parse_checkpatch(text, root="."):
 # ---- sanitizers: AddressSanitizer and UBSan reports (log files or output) ----
 
 ASAN_HEAD = re.compile(r"ERROR: AddressSanitizer: ([\w-]+)")
+LEAK_HEAD = re.compile(r"^(Direct|Indirect) leak of (\d+) byte")
 ASAN_FRAME = re.compile(r"#\d+ 0x[0-9a-f]+ in (\S+) (\S+?):(\d+)(?::\d+)?$")
 UBSAN_LINE = re.compile(r"^(\S+?):(\d+):\d+: runtime error: (.*)$")
 
@@ -299,17 +300,27 @@ def parse_sanitizers(text, root=".", resolve=None):
     maps a path as the symbolizer printed it (macOS's prints a base name)
     to the repository path."""
     out, lines = [], text.splitlines()
+
+    def first_frame(i):
+        for fr in lines[i + 1:i + 60]:
+            f = ASAN_FRAME.search(fr.strip())
+            if f and _in_tree(f.group(2), root):
+                return _in_tree(f.group(2), root, resolve), int(f.group(3))
+        return "", 0
+
     for i, line in enumerate(lines):
         m = ASAN_HEAD.search(line)
         if m:
-            where = ("", 0)
-            for fr in lines[i + 1:i + 60]:
-                f = ASAN_FRAME.search(fr.strip())
-                if f and _in_tree(f.group(2), root):
-                    where = (_in_tree(f.group(2), root, resolve), int(f.group(3)))
-                    break
+            where = first_frame(i)
             out.append(Finding("sanitizer", f"asan/{m.group(1)}", where[0], where[1], "CRITICAL",
                                line.split("ERROR: ", 1)[1][:200], root=root))
+            continue
+        m = LEAK_HEAD.match(line.strip())
+        if m:
+            # LeakSanitizer: one finding per leak, at its allocation site in the tree
+            where = first_frame(i)
+            out.append(Finding("sanitizer", f"lsan/{m.group(1).lower()}-leak", where[0], where[1], "CRITICAL",
+                               line.strip()[:200], root=root))
             continue
         m = UBSAN_LINE.match(line.strip())
         if m and _in_tree(m.group(1), root):
