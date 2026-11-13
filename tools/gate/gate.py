@@ -13,7 +13,9 @@ Usage, from a repository's root (through its scripts/gate):
   gate doctor              list the tools found and missing
   gate install             point git at the repository's hooks
 Options: --root DIR (default: current directory), --json FILE (write the report),
-  --remote NAME (pre-push: compare with NAME/main; the hook passes the remote).
+  --remote NAME (pre-push: compare with NAME/main; the hook passes the remote),
+  --add-reported LOG (baseline: also accept the findings a CI run printed in LOG,
+  only for tools that cannot run here; each one is listed).
 Standard library only; Python 3.9 or later.
 """
 import collections
@@ -96,6 +98,19 @@ def collect(ctx, files):
     return out
 
 
+def not_run(found):
+    """The tools whose checks did not run (not installed, no kernel tree):
+    their baseline entries cannot be judged here, so they are kept."""
+    names = set()
+    for f in found:
+        if f.tool == "gate" and f.rule in ("missing-tool", "not-run"):
+            names.add(f.message.split(":")[0].split()[0])
+    for runner, needs in tools.NEEDS.items():
+        if names & set(needs):
+            names.add(runner)
+    return names
+
+
 def report(found, block, new_keys, stage):
     counts = {lv: 0 for lv in fd.LEVELS}
     for f in found:
@@ -112,7 +127,7 @@ def report(found, block, new_keys, stage):
 
 
 def main(argv):
-    root, out_json, remote = ".", None, None
+    root, out_json, remote, add_reported = ".", None, None, None
     args = []
     it = iter(argv)
     for a in it:
@@ -122,6 +137,8 @@ def main(argv):
             out_json = next(it)
         elif a == "--remote":
             remote = next(it)
+        elif a == "--add-reported":
+            add_reported = next(it)
         else:
             args.append(a)
     if not args:
@@ -147,8 +164,22 @@ def main(argv):
     if cmd == "baseline":
         ctx = Ctx(root, cfg, "baseline")
         found = collect(ctx, tracked(root, cfg))
-        old = collections.Counter(fd.load_baseline(os.path.join(root, BASELINE)))
-        now = fd.counts(found)
+        skipped = not_run(found)
+        entries = fd.load_baseline_entries(os.path.join(root, BASELINE))
+        kept = [e for e in entries if e["tool"] in skipped]
+        if add_reported:
+            with open(add_reported, errors="replace") as f:
+                reported = fd.parse_reported(f.read(), root)
+            for r in reported:
+                ok = r.tool in skipped
+                print(f"gate baseline: {'adding' if ok else 'refusing (the tool ran here)'}: {r}")
+            reported = [r for r in reported if r.tool in skipped]
+            found += reported
+            kept = [e for e in kept if e["key"] not in {r.key for r in reported}]
+        if skipped:
+            print(f"gate baseline: did not run here, entries kept: {', '.join(sorted(skipped))} ({len(kept)})")
+        old = collections.Counter({e["key"]: e.get("count", 1) for e in entries if e["tool"] not in skipped})
+        now = fd.counts([f for f in found if f.tool not in skipped])
         blockers = [f for f in found if f.severity == "BLOCKER"]
         for f in blockers + [f for f in found if f.tool == "gate" and f.severity != "INFO"]:
             print(f)
@@ -156,7 +187,7 @@ def main(argv):
               f"({sum((now - old).values())} not in the current baseline, "
               f"{sum((old - now).values())} fixed); BLOCKER {len(blockers)} (never accepted into a baseline)")
         if "--check" not in args:
-            keys, n = fd.save_baseline(os.path.join(root, BASELINE), found)
+            keys, n = fd.save_baseline(os.path.join(root, BASELINE), found, kept)
             print(f"gate baseline: wrote {BASELINE} ({n} findings, {keys} keys)")
         if out_json:
             with open(out_json, "w") as f:
