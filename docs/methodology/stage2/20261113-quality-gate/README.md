@@ -95,6 +95,11 @@ see limitation L1).
 | T3 | under 5 min | 2 min 39 s, most of it installing the pinned tools | holds |
 | B1 | images byte-identical | no C, assembly or linker file changed in #96 or #97 | holds by construction, not measured |
 
+Correction: the commit message of #98 counts these rows as "13 of the 21
+held" and "5 prediction errors". There are 18 rows: 12 held, S4 held after a
+fix, S5 was shown with another seed and 4 were prediction errors (Q2, Q4,
+Q6, Q7). The table above is right; the pushed message is left as it is.
+
 ### Calibrations made after the first run (before the baseline was committed)
 
 The severity map was changed once, after looking at the first whole-tree
@@ -155,4 +160,76 @@ run; each change is a judgement, recorded here so that it can be reviewed:
 | C3 | `clang_tidy.checks` set to `-*` in a seeded `gate.json`: `pre-push` exit 1, `MAJOR gate/tool-failed: clang-tidy: exit 1: Error: no checks enabled.` | holds |
 | C4 | 14 unit tests pass on the Mac (2 added: counts, tool failure) | holds |
 | C5 | the baseline is written as `haven-gate-baseline/2`; a `/1` file is read at one per key (unit test) | holds |
+
+## G2: ELMOS and KDAL profiles (design and expectations, before any run on their trees)
+
+Owner-approved 2026-11-13. Known before writing this: ELMOS has 74 Go files
+(11.2k lines, 10 test files), example C under `examples/` and vendored
+headers under `assets/libraries/`; KDAL has 45 C and 12 header files
+(11.6k lines): a kernel module (`src/`, `include/`, `tests/kunit/`,
+`examples/`) and userspace C built with CMake (`compiler/`,
+`tools/kdality/`), 34 shell scripts and 1 Python file. No gate tool has been
+run on either tree.
+
+### Design decisions
+
+- **D1, one engine.** `tools/gate/` stays in haven. ELMOS and KDAL pin a
+  haven commit in their `quality/gate.json` (`engine.commit`); their
+  `scripts/gate` fetches only `tools/gate/` at that commit into the user's
+  cache (`~/.cache/haven-gate/<commit>/`) and runs it. CI does the same. No
+  copy of the engine lives in ELMOS or KDAL; moving to a newer engine is a
+  one-line change of the pin, reviewed like any other.
+- **D2, paths per tool.** A profile may give a tool its own paths
+  (`tool_paths`), because KDAL's kernel C and userspace C need different
+  tools. Without it a tool keeps its language's paths.
+- **D3, tool installation from the profile.** `ci-setup.sh` installs only the
+  tools a profile pins in `versions`, so each repository's CI installs what it
+  uses.
+- **D4, ELMOS's Go tools.** `gofmt` (an unformatted file is MAJOR);
+  golangci-lint with an explicit linter set (govet, staticcheck, errcheck,
+  ineffassign, unused) instead of separate `go vet` and `staticcheck` runs:
+  the same checks in one run with one version pin. Severities: govet and
+  staticcheck's `SA` checks CRITICAL; errcheck, ineffassign, unused MAJOR;
+  staticcheck's `S1`, `ST1` and `QF` style checks MINOR. govulncheck: a
+  vulnerability in code ELMOS calls is CRITICAL, one only in a required
+  module is INFO. The Go version is pinned like the tools (it decides the
+  standard library govulncheck checks). lizard and jscpd also read Go.
+- **D5, KDAL's kernel C.** `checkpatch.pl` from Linux v6.18 (pinned by tag
+  and the script's SHA-256) on the kernel module: ERROR MAJOR, WARNING
+  MINOR, CHECK INFO. cppcheck, lizard and jscpd on all C; clang-tidy only on
+  the userspace C, through CMake's compile database. The kernel C has no
+  compile database without a kernel build, so clang-tidy and sparse on it
+  belong to the deep tier (G5).
+- **D6, scope of G2.** Profiles, baselines and a CI job "quality gate" in each
+  repository. KDAL's existing lint job and both repositories' hooks are left
+  alone until G3.
+
+### Expectations
+
+| Row | Check | Expected |
+| - | - | - |
+| E1 | ELMOS: files `gofmt` would change | 0 to 3 |
+| E2 | ELMOS: golangci-lint findings | 10 to 120, errcheck the largest group, govet 0 to 5 |
+| E3 | ELMOS: govulncheck, vulnerabilities in called code | 0 to 2 |
+| E4 | ELMOS: Go functions over complexity 15 | 5 to 30 |
+| E5 | ELMOS: duplicated Go lines | 1 % to 6 % |
+| K1 | KDAL: checkpatch on the kernel module | ERROR 0 to 30, WARNING 20 to 200 |
+| K2 | KDAL: cppcheck at warning level or above | 0 to 15 |
+| K3 | KDAL: clang-tidy on the userspace C | 20 to 200 |
+| K4 | KDAL: C functions over complexity 15 | 10 to 40 (the compiler's parser and the tools' command handlers) |
+| K5 | KDAL: duplicated C lines | 1 % to 5 % |
+| K6 | KDAL: shellcheck findings | 20 to 150 |
+| P1 | both: secrets, personal names, home paths in the tree | 0 |
+| P2 | both: Mac and CI counts | identical per severity |
+| S1 | seeded, ELMOS: a new Go function ignoring an error return | `pre-push` exits 1 (errcheck, MAJOR) |
+| S2 | seeded, ELMOS: an unformatted Go file | `pre-push` exits 1 (gofmt, MAJOR) |
+| S3 | seeded, KDAL: a kernel C change with a checkpatch ERROR | `pre-push` exits 1 |
+| S4 | seeded, KDAL: a 30-line block copied into a new file | `pre-push` exits 1 (jscpd) |
+| S5 | seeded: `engine.commit` set to a commit that does not exist | `scripts/gate` exits 2 with a message naming the pin; it never passes |
+| S6 | both trees as they are, with their new baselines | `ci` exits 0 |
+| T1 | engine unit tests, with recorded output of each new tool | pass on macOS and in CI, standard library only |
+| T2 | `pre-push` on the Mac with 3 changed files | under 30 s (golangci-lint checks whole packages) |
+| T3 | first engine fetch on the Mac | under 10 s; later runs fetch nothing |
+| T4 | CI job "quality gate" in ELMOS and in KDAL | under 6 min each |
+| B1 | HAVEN images | byte-identical to `main` (the engine change is Python only) |
 
