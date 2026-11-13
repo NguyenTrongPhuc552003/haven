@@ -40,7 +40,11 @@ it is what every contribution passes.
     scripts/gate doctor       # lists the tools found and missing
 
 A missing tool is reported as a finding of its own (MAJOR in CI, INFO on a
-developer's machine), so a check is never skipped silently in CI.
+developer's machine), so a check is never skipped silently in CI. A tool
+that is installed but fails is MAJOR everywhere (`gate/tool-failed`).
+
+    tools/gate/ci-setup.sh    # installs every tool the profile pins (Linux CI;
+                              # its checkpatch step also works on macOS)
 
 ## Configuration
 
@@ -48,3 +52,24 @@ developer's machine), so a check is never skipped silently in CI.
 they cover and the limits (for example the complexity limit). The engine
 maps each tool's output to the scale above; the mapping is in
 `tools/gate/rules.py`, one table per tool.
+
+A tool reads the paths of its language (`c_paths`, `go_paths`, `py_paths`,
+`sh_paths`) unless the profile gives it its own under `tool_paths`; KDAL uses
+this to run `checkpatch.pl` on the kernel module only. Tools per language:
+
+| Language | Tools |
+| - | - |
+| C | cppcheck, clang-tidy (needs a compile database), checkpatch.pl (kernel C), lizard, jscpd |
+| Go | gofmt, golangci-lint (govet, staticcheck, errcheck, ineffassign, unused), govulncheck, lizard, jscpd |
+| Python | ruff, jscpd |
+| Shell | shellcheck |
+| Every file | the engine's scan (secrets, personal names, home paths), gitleaks |
+
+## Other repositories
+
+ELMOS and KDAL run this engine without a copy of it: their
+`quality/gate.json` names a haven commit (`engine.repo`, `engine.commit`),
+and their `scripts/gate` fetches only `tools/gate/` at that commit into
+`~/.cache/haven-gate/<commit>/`, once, then runs it on their own tree with
+their own profile and baseline. A newer engine is taken by changing the
+pinned commit in a reviewed pull request.

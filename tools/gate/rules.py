@@ -4,6 +4,7 @@ findings. Pure functions over text, so the tests feed recorded outputs.
 The scale is BLOCKER, CRITICAL, MAJOR, MINOR, INFO (docs/quality/gate.md)."""
 import csv
 import io
+import json
 import re
 
 from findings import Finding
@@ -196,3 +197,83 @@ def parse_gitleaks(data):
     return [Finding("gitleaks", d.get("RuleID", "secret"), d.get("File", ""), d.get("StartLine", 0),
                     "BLOCKER", d.get("Description", "secret"), code=d.get("Fingerprint", ""))
             for d in data or []]
+
+
+# ---- gofmt -l: the files gofmt would change ----
+
+def parse_gofmt(text):
+    return [Finding("gofmt", "unformatted", f, 0, "MAJOR", "gofmt would change this file", code=f)
+            for f in text.split() if f.endswith(".go")]
+
+
+# ---- golangci-lint run --output.json.path=stdout: Issues[] ----
+
+GO_CRITICAL = {"govet", "typecheck"}
+
+
+def golangci_severity(linter, text):
+    if linter in GO_CRITICAL:
+        return "CRITICAL"
+    if linter == "staticcheck":
+        # SA: likely bugs; S1, ST1, QF: simplifications and style
+        return "CRITICAL" if text.startswith("SA") else "MINOR"
+    return "MAJOR"  # errcheck, ineffassign, unused
+
+
+def parse_golangci(data, root="."):
+    out = []
+    for i in data.get("Issues") or []:
+        linter, text, pos = i.get("FromLinter", "golangci"), i.get("Text", ""), i.get("Pos", {})
+        # staticcheck prefixes its check ("SA4006: ..."); keep it as the rule
+        m = re.match(r"((?:SA|S|ST|QF)\d+): ", text)
+        rule = f"{linter}/{m.group(1)}" if m else linter
+        sev = golangci_severity(linter, m.group(1) if m else "")
+        out.append(Finding("golangci-lint", rule, pos.get("Filename", ""), pos.get("Line", 0), sev,
+                           text.splitlines()[0] if text else linter, root=root))
+    return out
+
+
+# ---- govulncheck -json: a stream of JSON objects; "finding" ones matter ----
+
+def parse_govulncheck(text):
+    """One finding per vulnerability: CRITICAL when a trace reaches a function
+    (ELMOS calls the vulnerable code), INFO when only a module is affected."""
+    dec, i, by_osv = json.JSONDecoder(), 0, {}
+    while True:
+        while i < len(text) and text[i].isspace():
+            i += 1
+        if i >= len(text):
+            break
+        obj, i = dec.raw_decode(text, i)
+        f = obj.get("finding")
+        if not f:
+            continue
+        called = any(fr.get("function") for fr in f.get("trace", []))
+        top = (f.get("trace") or [{}])[0]
+        prev = by_osv.get(f["osv"])
+        if prev is None or (called and not prev[0]):
+            by_osv[f["osv"]] = (called, top, f.get("fixed_version", ""))
+    out = []
+    for osv, (called, top, fixed) in sorted(by_osv.items()):
+        where = ".".join(x for x in (top.get("package"), top.get("function")) if x) or top.get("module", "")
+        msg = f"{osv} in {where} ({top.get('module', '')}@{top.get('version', '')}, fixed in {fixed or 'none'})"
+        out.append(Finding("govulncheck", osv, "go.mod", 0, "CRITICAL" if called else "INFO", msg,
+                           code=osv))
+    return out
+
+
+# ---- checkpatch.pl --terse --show-types --showfile: "file:line: LEVEL:TYPE: message" ----
+
+CHECKPATCH_LINE = re.compile(r"^(.+?):(\d+): (ERROR|WARNING|CHECK):([A-Z0-9_]+): (.*)$")
+CHECKPATCH = {"ERROR": "MAJOR", "WARNING": "MINOR", "CHECK": "INFO"}
+
+
+def parse_checkpatch(text, root="."):
+    out = []
+    for line in text.splitlines():
+        m = CHECKPATCH_LINE.match(line.strip())
+        if m:
+            path, ln, level, kind, msg = m.groups()
+            out.append(Finding("checkpatch", kind, path, int(ln), CHECKPATCH[level], msg, root=root))
+    return out
+
