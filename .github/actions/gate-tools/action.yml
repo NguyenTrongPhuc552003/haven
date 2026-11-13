@@ -1,0 +1,44 @@
+# The quality gate's tools for a Linux CI job: build tools, the pinned tool
+# versions of the repository's quality/gate.json (cppcheck build and
+# checkpatch files cached), then `scripts/gate doctor`. Used by haven's own
+# jobs, and by ELMOS and KDAL as
+# NguyenTrongPhuc552003/haven/.github/actions/gate-tools@<their engine commit>,
+# so the action and the engine they pin are the same commit (one copy).
+name: gate tools
+description: Install the quality gate's pinned tools for the checked-out repository
+inputs:
+  packages:
+    description: extra Ubuntu packages the repository's checks need
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Build tools
+      shell: bash
+      run: |
+        sudo apt-get -o Acquire::Retries=5 update -qq
+        sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends cmake ninja-build pipx ${{ inputs.packages }}
+    - name: Pinned cppcheck version (the cache key)
+      id: pins
+      shell: bash
+      run: echo "cppcheck=$(python3 -c 'import json;print(json.load(open("quality/gate.json"))["versions"].get("cppcheck", "none"))')" >> "$GITHUB_OUTPUT"
+    - name: Cached cppcheck build
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/cppcheck-*
+        key: cppcheck-${{ steps.pins.outputs.cppcheck }}
+    - name: Cached checkpatch files (pinned by SHA-256)
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/haven-gate
+        key: checkpatch-${{ hashFiles('quality/gate.json') }}
+    - name: The engine and the pinned tools
+      shell: bash
+      run: |
+        # haven carries the engine; ELMOS and KDAL fetch it at their pin
+        if [ -f tools/gate/gate.py ]; then d=.; else d="$(scripts/gate engine-dir)"; fi
+        bash "$d/tools/gate/ci-setup.sh"
+    - name: Tool versions
+      shell: bash
+      run: scripts/gate doctor

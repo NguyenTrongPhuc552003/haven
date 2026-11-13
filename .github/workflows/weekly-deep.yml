@@ -1,0 +1,28 @@
+# Weekly, and on demand: the quality gate's deep tier in CI (the owner's
+# machine is not always on): the host tests under AddressSanitizer, UBSan
+# and LeakSanitizer, and every other check on the whole tree. Not a
+# required check; it fails when it finds something the baseline does not
+# hold (BLOCKER, CRITICAL or MAJOR), so the run shows red and GitHub
+# notifies the owner.
+name: weekly deep checks
+
+on:
+  schedule:
+    - cron: "17 2 * * 1" # Mondays 02:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deep:
+    name: deep tier (sanitizers; reports, fails on new findings)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: The gate's tools
+        uses: ./.github/actions/gate-tools
+        with:
+          packages: gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu cloc
+      - name: Deep tier
+        run: scripts/gate deep --fail-on-new

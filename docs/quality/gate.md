@@ -76,8 +76,13 @@ pinned commit in a reviewed pull request.
 
 ## The deep tier
 
-`scripts/gate deep` runs on a developer's machine, never blocks, and adds
-checks too slow or too machine-bound for every push:
+`scripts/gate deep` adds checks too slow for every pull request. It runs
+weekly in CI in each repository (workflow "weekly deep checks", Mondays and
+on demand), so it does not depend on anyone's machine being on, and it can
+also be run by hand. It blocks no pull request; it lists every finding the
+baseline does not hold, and with `--fail-on-new` (as in the weekly
+workflows) it exits 1 when one of them is BLOCKER, CRITICAL or MAJOR, so the
+scheduled run shows red. Its checks:
 
 | Repository | Deep checks |
 | - | - |
@@ -87,6 +92,10 @@ checks too slow or too machine-bound for every push:
 
 Sanitizer reports go to log files under `build-deep/sanitizer-logs/`, so a
 test script that hides its error output does not hide them. LeakSanitizer
-does not run on macOS on Apple silicon. KDAL's kernel checks (sparse,
-Coccinelle) need a configured kernel tree and run in its CI job instead.
+runs on Linux (the CI runs) and not on macOS on Apple silicon. KDAL's kernel
+checks need its pinned kernel tree: sparse runs in the required "quality
+gate" job, Coccinelle in the weekly one.
+
+ELMOS and KDAL use this repository's `.github/actions/gate-tools` at the
+commit their profile pins, so the CI setup has one copy.
 

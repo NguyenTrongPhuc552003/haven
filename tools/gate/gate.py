@@ -15,7 +15,9 @@ Usage, from a repository's root (through its scripts/gate):
 Options: --root DIR (default: current directory), --json FILE (write the report),
   --remote NAME (pre-push: compare with NAME/main; the hook passes the remote),
   --add-reported LOG (baseline: also accept the findings a CI run printed in LOG,
-  only for tools that cannot run here; each one is listed).
+  only for tools that cannot run here; each one is listed),
+  --fail-on-new (deep: exit 1 when a BLOCKER, CRITICAL or MAJOR finding is not
+  in the baseline, so a scheduled CI run that finds something fails visibly).
 Standard library only; Python 3.9 or later.
 """
 import collections
@@ -111,7 +113,7 @@ def not_run(found):
     return names
 
 
-def report(found, block, new_keys, stage):
+def report(found, block, new_keys, stage, baseline=None):
     counts = {lv: 0 for lv in fd.LEVELS}
     for f in found:
         counts[f.severity] += 1
@@ -119,6 +121,11 @@ def report(found, block, new_keys, stage):
     for f in found:
         if f.severity == "INFO":
             print(f"INFO     {f.tool}/{f.rule}: {f.message}")
+    if stage == "deep":
+        # deep blocks nothing, so it lists what it found that the baseline
+        # does not hold, at every level (a weekly CI run is read from this)
+        unlisted = fd.new_keys(found, baseline or {}, ("BLOCKER", "CRITICAL", "MAJOR", "MINOR"))
+        block = [f for f in found if f.key in unlisted]
     for f in block:
         print(f)
     summary = ", ".join(f"{lv} {counts[lv]}" for lv in reversed(fd.LEVELS))
@@ -127,7 +134,7 @@ def report(found, block, new_keys, stage):
 
 
 def main(argv):
-    root, out_json, remote, add_reported = ".", None, None, None
+    root, out_json, remote, add_reported, fail_on_new = ".", None, None, None, False
     args = []
     it = iter(argv)
     for a in it:
@@ -139,6 +146,8 @@ def main(argv):
             remote = next(it)
         elif a == "--add-reported":
             add_reported = next(it)
+        elif a == "--fail-on-new":
+            fail_on_new = True
         else:
             args.append(a)
     if not args:
@@ -201,12 +210,18 @@ def main(argv):
     found = collect(ctx, files_for(root, cfg, cmd, remote))
     block = fd.blocking(found, baseline, cmd)
     new = fd.new_keys(found, baseline)
-    report(found, block, new, cmd)
+    report(found, block, new, cmd, baseline)
     if out_json:
         with open(out_json, "w") as f:
             json.dump({"stage": cmd, "findings": [dict(x.as_dict(), line=x.line, new=x.key in new)
                                                   for x in found],
                        "blocking": [x.key for x in block]}, f, indent=1)
+    if fail_on_new:
+        failing = fd.new_keys(found, baseline, ("BLOCKER", "CRITICAL", "MAJOR"))
+        if failing:
+            print(f"gate {cmd}: {len(failing)} BLOCKER, CRITICAL or MAJOR finding(s) not in the baseline "
+                  "(--fail-on-new)")
+            return 1
     return 1 if block else 0
 
 

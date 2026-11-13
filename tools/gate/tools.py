@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 
 import rules
@@ -308,7 +309,9 @@ def sanitizers(ctx, files):
         code, _, err = run(["cmake", "--build", build], ctx.root)
     if code:
         return failed("sanitizers", f"build exit {code}: {err}")
-    env = dict(os.environ, ASAN_OPTIONS=f"log_path={logs}/asan:detect_leaks=0",
+    # LeakSanitizer works on Linux; on macOS on Apple silicon it does not run
+    leaks = 1 if sys.platform.startswith("linux") else 0
+    env = dict(os.environ, ASAN_OPTIONS=f"log_path={logs}/asan:detect_leaks={leaks}",
                UBSAN_OPTIONS=f"log_path={logs}/ubsan:print_stacktrace=1:halt_on_error=1")
     env.update({k: v.format(build=build) for k, v in conf.get("env", {}).items()})
     test = [a.format(build=build) for a in conf["test"]]

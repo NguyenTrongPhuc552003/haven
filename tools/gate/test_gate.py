@@ -353,6 +353,46 @@ class CiOnlyTools(unittest.TestCase):
             self.assertEqual(tools_in, {"sparse"})
 
 
+LSAN = """==9==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x7f in malloc (/lib/libasan.so.8+0xfe)
+    #1 0x55 in lexer_push /repo/compiler/lexer.c:447:12
+    #2 0x56 in main /repo/compiler/main.c:30:2
+
+Indirect leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x7f in malloc (/lib/libasan.so.8+0xfe)
+    #1 0x57 in tok_new /repo/compiler/lexer.c:90:9
+"""
+
+
+class DeepReport(unittest.TestCase):
+    def test_leaks(self):
+        out = [(f.rule, f.file, f.line) for f in rules.parse_sanitizers(LSAN, "/repo")]
+        self.assertEqual(out, [("lsan/direct-leak", "compiler/lexer.c", 447),
+                               ("lsan/indirect-leak", "compiler/lexer.c", 90)])
+
+    def test_deep_lists_every_level_and_fail_on_new(self):
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "quality"))
+            with open(os.path.join(d, "quality", "gate.json"), "w") as f:
+                json.dump({"stages": {"deep": ["scan"]}}, f)
+            subprocess.run(["git", "init", "-q", d], check=True)
+            with open(os.path.join(d, "a.txt"), "w") as f:
+                f.write("see /Users/someone/x\n")
+            subprocess.run(["git", "-C", d, "add", "a.txt"], check=True)
+            for extra, want in (([], 0), (["--fail-on-new"], 1)):
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    code = gate.main(["--root", d, "deep"] + extra)
+                # the scan's home path is a BLOCKER: deep lists it and blocks nothing,
+                # --fail-on-new turns it into a failing exit
+                self.assertEqual(code, want)
+                self.assertIn("BLOCKER  scan/", out.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
 
