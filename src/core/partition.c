@@ -290,31 +290,32 @@ static const struct hv_partition_mem part_b_mem_cfg = {
  * other partition can claim the same IRQ (hv_irq_assign contract).
  * ----------------------------------------------------------------------- */
 
-/* vCPUs of partition A (CMake HAVEN_PART_A_VCPUS, multi-vcpu.md). vCPU 0
- * runs on CPU 0, vCPU 1 on PART_A_CPU1; CPU 2 is partition B's. */
+/* vCPUs of partition A (CMake HAVEN_PART_A_VCPUS, multi-vcpu.md), each
+ * pinned to the physical CPU PART_A_CPU(i) of the platform's memory.h (at
+ * most PART_A_MAX_VCPUS). vCPU i's guest MPIDR is logical CPU i's
+ * (the device tree's cpu node i) wherever it runs. */
 #ifndef HAVEN_PART_A_VCPUS
 #define HAVEN_PART_A_VCPUS 1
 #endif
-#if HAVEN_PART_A_VCPUS < 1 || HAVEN_PART_A_VCPUS > 2
-#error "HAVEN_PART_A_VCPUS must be 1 or 2 (CPU 2 is partition B's)"
+#if HAVEN_PART_A_VCPUS < 1 || HAVEN_PART_A_VCPUS > PART_A_MAX_VCPUS
+#error "HAVEN_PART_A_VCPUS must be from 1 to the platform's PART_A_MAX_VCPUS"
 #endif
 #if HAVEN_PART_A_VCPUS > 1 && !defined(HAVEN_PART_A_DTB_IPA)
 #error "a multi-vCPU partition A needs a Linux guest (HAVEN_PART_A_DTB_IPA)"
 #endif
-/* Physical CPU vCPU 1 is pinned to. Its guest MPIDR stays that of logical
- * CPU 1 (the device tree's cpu@1) wherever it runs. */
+/* qemu-virt's knob: the physical CPU of vCPU 1 (SMP2 pinning cases). */
 #ifndef PART_A_CPU1
 #define PART_A_CPU1 1U
 #endif
-#if HAVEN_PART_A_VCPUS > 1 && PART_A_CPU1 == 0
-#error "PART_A_CPU1 must not be CPU 0 (vCPU 0)"
+#if HAVEN_PART_A_VCPUS > 1 && PART_A_CPU(1U) == 0
+#error "vCPU 1 must not be on CPU 0 (vCPU 0)"
 #endif
-#if HAVEN_PART_A_VCPUS > 1 && defined(PART_B_SIZE) && PART_A_CPU1 == PART_B_CPU
-#error "PART_A_CPU1 must not be partition B's CPU"
+#if HAVEN_PART_A_VCPUS > 1 && defined(PART_B_SIZE) && \
+	PART_A_CPU(1U) == PART_B_CPU
+#error "vCPU 1 must not be on partition B's CPU"
 #endif
-#if HAVEN_PART_A_VCPUS > 1 && defined(PART_A_LAST_CPU) && \
-	PART_A_CPU1 > PART_A_LAST_CPU
-#error "PART_A_CPU1 must be one of partition A's CPUs"
+#if HAVEN_PART_A_VCPUS > 2 && PART_A_CPU(1U) == PART_A_CPU(2U)
+#error "vCPUs 1 and 2 must not share a CPU"
 #endif
 #ifdef HAVEN_PART_A_DTB_IPA
 _Static_assert(HAVEN_PART_A_DTB_IPA >= PART_A_IPA_BASE &&
@@ -330,12 +331,7 @@ static const struct hv_irq_route part_a_irqs[] = {
 	/* Linux guest: its architected timer is the EL1 virtual timer on
 	 * CPU 0 (partition B owns the same PPI on CPU 2). */
 	{.irq_id = 27U, .owner_partition_id = PARTITION_A_ID, .target_cpu = 0U},
-#if HAVEN_PART_A_VCPUS > 1
-	/* vCPU 1: the same PPI on its CPU. */
-	{.irq_id = 27U,
-	 .owner_partition_id = PARTITION_A_ID,
-	 .target_cpu = PART_A_CPU1},
-#endif
+/* vCPUs 1 to N-1: the same PPI on their CPUs (partitions_launch) */
 #endif
 };
 
@@ -463,12 +459,11 @@ extern hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq);
 extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
 
 static struct hv_vgic part_a_vgic[HAVEN_PART_A_VCPUS];
-/* Physical CPU of each vCPU (static pinning, multi-vcpu.md). */
-#if HAVEN_PART_A_VCPUS > 1
-static const hv_u32 part_a_cpu[HAVEN_PART_A_VCPUS] = {0U, PART_A_CPU1};
-#else
-static const hv_u32 part_a_cpu[HAVEN_PART_A_VCPUS] = {0U};
-#endif
+/* Each CPU registers the distributor and every vCPU's redistributor
+ * frame (Linux scans them for its own affinity). */
+_Static_assert(HAVEN_PART_A_VCPUS *(HAVEN_PART_A_VCPUS + 1) <=
+		       HV_MMIO_MAX_REGIONS,
+	       "HV_MMIO_MAX_REGIONS too small for partition A's vCPUs");
 
 static int part_a_owns(hv_u32 cpu, hv_u32 intid)
 {
@@ -501,8 +496,9 @@ extern int hv_arch_cpu_prepare_start(uint32_t cpu, uint64_t timeout_us);
 extern void hv_arch_cpu_off_self(uint32_t cpu);
 extern void hv_arch_delay_us(uint64_t us);
 
-static struct hv_vgic *const part_a_peers[HAVEN_PART_A_VCPUS] = {
-	&part_a_vgic[0], &part_a_vgic[1]};
+_Static_assert(HAVEN_PART_A_VCPUS <= HV_PSCI_MAX_VCPUS,
+	       "HV_PSCI_MAX_VCPUS too small for partition A's vCPUs");
+static struct hv_vgic *part_a_peers[HAVEN_PART_A_VCPUS]; /* filled at setup */
 static struct hv_psci_vcpus part_a_vcpus;
 static hv_u64 part_a_entry[HAVEN_PART_A_VCPUS];
 static hv_u64 part_a_context[HAVEN_PART_A_VCPUS];
@@ -545,7 +541,7 @@ static int part_a_gicr(void *ctx, hv_u64 off, hv_u32 size, int write,
 static int part_a_index(hv_u32 cpu)
 {
 	for (hv_u32 i = 0; i < HAVEN_PART_A_VCPUS; i++)
-		if (part_a_cpu[i] == cpu)
+		if (PART_A_CPU(i) == cpu)
 			return (int)i;
 	return -1;
 }
@@ -599,7 +595,7 @@ int hv_partition_start_vcpu(hv_u32 index, hv_u64 entry, hv_u64 context)
 
 	if (index == 0U || index >= HAVEN_PART_A_VCPUS)
 		return HV_PSCI_INTERNAL_FAILURE;
-	cpu = part_a_cpu[index]; /* static pinning */
+	cpu = PART_A_CPU(index); /* static pinning */
 	if (entry < PART_A_IPA_BASE || entry >= PART_A_IPA_BASE + PART_A_SIZE)
 		return HV_PSCI_INVALID_ADDRESS;
 	if (hv_arch_logical_mpidr(cpu) == HV_ARCH_NO_CPU) {
@@ -666,11 +662,11 @@ void hv_partition_stop_vcpus(hv_u32 cpu)
 	if (part_a_index(cpu) < 0)
 		return;
 	for (hv_u32 i = 0; i < HAVEN_PART_A_VCPUS; i++) {
-		if (part_a_cpu[i] == cpu || part_a_vcpus.state[i] != HV_VCPU_ON)
+		if (PART_A_CPU(i) == cpu || part_a_vcpus.state[i] != HV_VCPU_ON)
 			continue;
-		if (!hv_arch_stop_cpu(part_a_cpu[i], PART_A_STOP_US))
+		if (!hv_arch_stop_cpu(PART_A_CPU(i), PART_A_STOP_US))
 			hv_printk("HAVEN: CPU %u did not stop within %u ms\n",
-				  (unsigned)part_a_cpu[i],
+				  (unsigned)PART_A_CPU(i),
 				  (unsigned)(PART_A_STOP_US / 1000U));
 	}
 }
@@ -689,27 +685,31 @@ static void part_a_vgic_setup(void)
 	__asm__ volatile("mrs %0, vmpidr_el2" : "=r"(mpidr));
 	hv_vgic_init(&part_a_vgic[0], 0U, mpidr, &hooks);
 #if HAVEN_PART_A_VCPUS > 1
-	/* vCPU 1's redistributor frame follows vCPU 0's; the distributor
-	 * model is vCPU 0's, shared by both. */
-	/* Hardware CPU: the one vCPU 1 is pinned to; affinity: its guest
-	 * MPIDR, which GICR_TYPER reports to the guest. */
-	hv_vgic_init(&part_a_vgic[1], PART_A_CPU1, hv_arch_logical_mpidr(1U),
-		     &hooks);
-	part_a_vgic[0].last_frame = 0U;
-	hv_vgic_set_peers(part_a_peers, HAVEN_PART_A_VCPUS);
-	part_a_vcpus.count = HAVEN_PART_A_VCPUS;
+	/* vCPU c's redistributor frame follows vCPU c-1's (only the last
+	 * reports GICR_TYPER.Last); the distributor model is vCPU 0's,
+	 * shared by all. Hardware CPU: the one vCPU c is pinned to;
+	 * affinity: its guest MPIDR, which GICR_TYPER reports. */
+	part_a_peers[0] = &part_a_vgic[0];
 	part_a_vcpus.mpidr[0] = mpidr;
 	part_a_vcpus.state[0] = HV_VCPU_ON;
-	part_a_vcpus.mpidr[1] = hv_arch_logical_mpidr(1U);
-	part_a_vcpus.state[1] = HV_VCPU_OFF;
+	for (hv_u32 c = 1U; c < HAVEN_PART_A_VCPUS; c++) {
+		hv_vgic_init(&part_a_vgic[c], PART_A_CPU(c),
+			     hv_arch_logical_mpidr(c), &hooks);
+		part_a_vgic[c - 1U].last_frame = 0U;
+		part_a_peers[c] = &part_a_vgic[c];
+		part_a_vcpus.mpidr[c] = hv_arch_logical_mpidr(c);
+		part_a_vcpus.state[c] = HV_VCPU_OFF;
+	}
+	hv_vgic_set_peers(part_a_peers, HAVEN_PART_A_VCPUS);
+	part_a_vcpus.count = HAVEN_PART_A_VCPUS;
 #endif
 	for (hv_u32 c = 0; c < HAVEN_PART_A_VCPUS; c++) {
-		if (hv_mmio_register(part_a_cpu[c], PART_A_VGICD_IPA,
+		if (hv_mmio_register(PART_A_CPU(c), PART_A_VGICD_IPA,
 				     HV_VGIC_GICD_SIZE, PART_A_GICD,
 				     &part_a_vgic[0]) != HV_OK)
 			hv_panic("partition A GIC emulation setup failed");
 		for (hv_u32 f = 0; f < HAVEN_PART_A_VCPUS; f++)
-			if (hv_mmio_register(part_a_cpu[c],
+			if (hv_mmio_register(PART_A_CPU(c),
 					     PART_A_VGICR_IPA +
 						     f * HV_VGIC_GICR_SIZE,
 					     HV_VGIC_GICR_SIZE, PART_A_GICR,
@@ -722,9 +722,12 @@ static void part_a_vgic_setup(void)
 		  (unsigned long)PART_A_VGICD_IPA,
 		  (unsigned long)PART_A_VGICR_IPA);
 #if HAVEN_PART_A_VCPUS > 1
-	hv_printk("HAVEN: partition A has %u vCPUs, vCPU 1 on CPU %u; it "
-		  "waits for the guest's PSCI CPU_ON\n",
-		  (unsigned)HAVEN_PART_A_VCPUS, (unsigned)PART_A_CPU1);
+	hv_printk("HAVEN: partition A has %u vCPUs\n",
+		  (unsigned)HAVEN_PART_A_VCPUS);
+	for (hv_u32 c = 1U; c < HAVEN_PART_A_VCPUS; c++)
+		hv_printk("HAVEN: partition A vCPU %u on CPU %u waits for the "
+			  "guest's PSCI CPU_ON\n",
+			  (unsigned)c, (unsigned)PART_A_CPU(c));
 #endif
 }
 #endif
@@ -802,6 +805,19 @@ void partitions_launch(void)
 			hv_panic("partition A IRQ assignment failed");
 		}
 	}
+#if defined(HAVEN_PART_A_DTB_IPA) && HAVEN_PART_A_VCPUS > 1
+	/* vCPUs 1 to N-1: the virtual timer PPI on their CPUs, before the
+	 * GIC models are set up (they disable what the partition owns). */
+	for (i = 1U; i < HAVEN_PART_A_VCPUS; ++i) {
+		const struct hv_irq_route vtimer = {
+			.irq_id = 27U,
+			.owner_partition_id = PARTITION_A_ID,
+			.target_cpu = PART_A_CPU(i)};
+
+		if (hv_irq_assign(&vtimer) != HV_OK)
+			hv_panic("partition A IRQ assignment failed");
+	}
+#endif
 	hv_printk("HAVEN: partition A IRQs assigned (SPI " HV_STR(
 		PART_A_UART_INTID) " -> CPU 0)\n");
 #if defined(HAVEN_PART_A_DTB_IPA) && defined(HAVEN_ARCH_ARM64)

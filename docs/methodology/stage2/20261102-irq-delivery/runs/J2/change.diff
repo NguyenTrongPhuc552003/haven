@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/irq.c	2026-11-02 13:19:22
+--- /Users/user/Documents/workspace/haven/arch/arm64/irq.c	2026-11-02 13:19:22
 +++ /tmp/g2-J2-on_xj_v1/arch/arm64/irq.c	2026-11-02 13:19:38
 @@ -297,7 +297,7 @@
  		} else {

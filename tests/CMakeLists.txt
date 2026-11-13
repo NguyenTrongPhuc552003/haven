@@ -78,6 +78,13 @@ haven_test(test_partition_layout_cix
          ${_S}/core/partition.c
     DEFINES HAVEN_PLATFORM_CIX_P1 HAVEN_PART_A_DTB_IPA=0x110000000
 )
+# ... with 8 vCPUs (docs/methodology/stage2/20261112-multi-vcpu-n)
+haven_test(test_partition_layout_cix8
+    SRCS ${_T}/unit/test_partition_layout.c
+         ${_S}/core/partition.c
+    DEFINES HAVEN_PLATFORM_CIX_P1 HAVEN_PART_A_DTB_IPA=0x110000000
+            HAVEN_PART_A_VCPUS=8
+)
 haven_test(test_sysreg_trap
     SRCS ${_T}/unit/test_sysreg_trap.c
          ${_S}/core/exc/sysreg_trap.c

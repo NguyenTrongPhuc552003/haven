@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-11-02 13:13:58
+--- /Users/user/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-11-02 13:13:58
 +++ /tmp/v3-I8-2kbty9yo/drivers/irqchip/gic_v3.c	2026-11-02 13:40:41
 @@ -85,8 +85,7 @@
  	/* Enable affinity routing and Group 1 (Non-secure layout, as Linux

@@ -1,13 +1,13 @@
 read at: time limit (20 s, partition A did not print 'IRQ test done')
 Traceback (most recent call last):
-  File "/Users/trongphucnguyen/Documents/workspace/haven/tools/readback/readback.py", line 664, in <module>
+  File "/Users/user/Documents/workspace/haven/tools/readback/readback.py", line 664, in <module>
     sys.exit(main())
              ~~~~^^
-  File "/Users/trongphucnguyen/Documents/workspace/haven/tools/readback/readback.py", line 606, in main
+  File "/Users/user/Documents/workspace/haven/tools/readback/readback.py", line 606, in main
     walk(snap["image"], root, 1, 0, leaves)
     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/trongphucnguyen/Documents/workspace/haven/tools/readback/readback.py", line 240, in walk
+  File "/Users/user/Documents/workspace/haven/tools/readback/readback.py", line 240, in walk
     d = rd64(mem, table_pa + 8 * i)
-  File "/Users/trongphucnguyen/Documents/workspace/haven/tools/readback/readback.py", line 234, in rd64
+  File "/Users/user/Documents/workspace/haven/tools/readback/readback.py", line 234, in rd64
     raise ValueError(f"PA {pa:#x} outside the dumped image")
 ValueError: PA 0x0 outside the dumped image

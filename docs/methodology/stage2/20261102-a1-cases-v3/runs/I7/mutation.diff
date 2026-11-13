@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-11-02 13:13:58
+--- /Users/user/Documents/workspace/haven/drivers/irqchip/gic_v3.c	2026-11-02 13:13:58
 +++ /tmp/v3-I7-2wxvrrmw/drivers/irqchip/gic_v3.c	2026-11-02 13:40:33
 @@ -76,7 +76,7 @@
  	/* Default priority: Linux-level for all SPIs */

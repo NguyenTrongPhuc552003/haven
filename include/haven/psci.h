@@ -71,7 +71,11 @@ hv_psci_action_t hv_psci_call(const hv_u64 x[4], hv_u64 mpidr, hv_u64 *ret);
 /* Multi-vCPU partitions (docs/architecture/multi-vcpu.md): the calling
  * partition's vCPUs, each pinned to one CPU. AFFINITY_INFO returns these
  * state values directly (PSCI: 0 ON, 1 OFF, 2 ON_PENDING). */
+#ifdef HAVEN_PSCI_MAX_VCPUS /* per platform (CMake): 8 on cix-p1 */
+#define HV_PSCI_MAX_VCPUS HAVEN_PSCI_MAX_VCPUS
+#else
 #define HV_PSCI_MAX_VCPUS 4U
+#endif
 #define HV_VCPU_ON 0U
 #define HV_VCPU_OFF 1U
 #define HV_VCPU_ON_PENDING 2U

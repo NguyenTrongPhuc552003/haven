@@ -1,5 +1,5 @@
 {
-  "root": "/Users/trongphucnguyen/kdal-qemu/kernel/linux-6.6.80",
+  "root": "/Users/user/kdal-qemu/kernel/linux-6.6.80",
   "git_directory": false,
   "files": {
     "Makefile": {

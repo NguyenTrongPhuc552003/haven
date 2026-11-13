@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/init.c	2026-11-02 12:57:50
+--- /Users/user/Documents/workspace/haven/src/core/init.c	2026-11-02 12:57:50
 +++ /tmp/g2-H6-sv1f_vgp/src/core/init.c	2026-11-02 13:00:05
 @@ -104,7 +104,7 @@
  		    gic_v3_configure_irq(irq, GIC_PRIO_HYPERVISOR, 1) ==

@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 12:57:50
+--- /Users/user/Documents/workspace/haven/src/core/partition.c	2026-11-02 12:57:50
 +++ /tmp/g2-H4-yq2c81wr/src/core/partition.c	2026-11-02 13:00:03
 @@ -199,6 +199,7 @@
  			}

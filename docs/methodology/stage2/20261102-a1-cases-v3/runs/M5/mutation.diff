@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/memory.h	2026-11-02 12:55:19
+--- /Users/user/Documents/workspace/haven/src/platform/qemu-virt/memory.h	2026-11-02 12:55:19
 +++ /tmp/v3-M5-dzwazhdp/src/platform/qemu-virt/memory.h	2026-11-02 13:40:07
 @@ -30,7 +30,7 @@
   * Distinct IPA base from A so cross-partition access faults are detectable. */

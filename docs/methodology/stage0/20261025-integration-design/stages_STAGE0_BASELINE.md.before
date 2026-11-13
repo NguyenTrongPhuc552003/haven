@@ -151,7 +151,7 @@ that their claims were verified on hardware.
 ### HAVEN ARM64 build and QEMU experiment
 
 - The standard `arm64-qemu` preset could not configure `haven/build`: its
-  pre-existing CMake cache refers to `/Users/trongphucnguyen/Documents/haven`,
+  pre-existing CMake cache refers to `/Users/user/Documents/haven`,
   while the current source is under `Documents/workspace/haven`. The existing
   cache and old generated binaries were left untouched.
 - An isolated build in `/private/tmp/haven-stage0-qemu` completed all 32 Ninja

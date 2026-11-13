@@ -36,7 +36,7 @@
    "arguments": {
     "val": 2147483648,
     "size": 8388608,
-    "filename": "/Users/trongphucnguyen/Documents/workspace/haven/docs/methodology/stage2/20261102-partition-b/runs/K1/readback-v3-max/haven-image.bin"
+    "filename": "/Users/user/Documents/workspace/haven/docs/methodology/stage2/20261102-partition-b/runs/K1/readback-v3-max/haven-image.bin"
    }
   },
   "reply": {
@@ -192,7 +192,7 @@
    "arguments": {
     "val": 2151776256,
     "size": 16384,
-    "filename": "/Users/trongphucnguyen/Documents/workspace/haven/docs/methodology/stage2/20261102-partition-b/runs/K1/readback-v3-max/stream-table.bin"
+    "filename": "/Users/user/Documents/workspace/haven/docs/methodology/stage2/20261102-partition-b/runs/K1/readback-v3-max/stream-table.bin"
    }
   },
   "reply": {

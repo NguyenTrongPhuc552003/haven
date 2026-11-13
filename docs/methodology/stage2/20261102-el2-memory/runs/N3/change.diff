@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/arch/arm64/boot.S	2026-11-02 23:13:28
+--- /Users/user/Documents/workspace/haven/arch/arm64/boot.S	2026-11-02 23:13:28
 +++ /tmp/a1-N3-cdd29p9s/arch/arm64/boot.S	2026-11-02 23:15:59
 @@ -115,6 +115,7 @@
          movz    x7, #(EL2_TCR_VALUE & 0xffff)

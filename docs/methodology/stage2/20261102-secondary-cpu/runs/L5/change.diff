@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 22:26:48
+--- /Users/user/Documents/workspace/haven/src/platform/qemu-virt/platform.c	2026-11-02 22:26:48
 +++ /tmp/b3-L5-oi5zb_g3/src/platform/qemu-virt/platform.c	2026-11-02 22:42:16
 @@ -27,7 +27,7 @@
   * in MPIDR Aff0 (0 to 3, Aff1 = 0); CPU 0 boots.

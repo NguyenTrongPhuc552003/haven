@@ -1,4 +1,4 @@
---- /Users/trongphucnguyen/Documents/workspace/haven/src/core/partition.c	2026-11-02 22:39:37
+--- /Users/user/Documents/workspace/haven/src/core/partition.c	2026-11-02 22:39:37
 +++ /tmp/b3-L3-f41jz1xa/src/core/partition.c	2026-11-02 22:40:52
 @@ -343,6 +343,14 @@
  	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);

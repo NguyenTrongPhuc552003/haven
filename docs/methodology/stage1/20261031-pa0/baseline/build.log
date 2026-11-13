@@ -8,14 +8,14 @@
 [8/127] Building C object tests/CMakeFiles/test_smmu_dma.dir/unit/test_smmu_dma.c.o
 [9/127] Building C object tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o
 FAILED: [code=1] tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o 
-/usr/bin/cc  -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
-/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
+/usr/bin/cc  -I/private/tmp/claude-501/-Users-user-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/include -I/private/tmp/claude-501/-Users-user-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src -g -std=gnu11 -std=c11 -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-but-set-variable -MD -MT tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o -MF tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o.d -o tests/CMakeFiles/test_el2_exceptions.dir/__/src/core/exc/el2_exceptions.c.o -c /private/tmp/claude-501/-Users-user-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c
+/private/tmp/claude-501/-Users-user-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:58: error: unused parameter 'esr' [-Werror,-Wunused-parameter]
   360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
       |                                                          ^
-/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
+/private/tmp/claude-501/-Users-user-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:360:70: error: unused parameter 'far' [-Werror,-Wunused-parameter]
   360 | void __attribute__((noreturn)) hv_fatal_exception(hv_u64 esr, hv_u64 far,
       |                                                                      ^
-/private/tmp/claude-501/-Users-trongphucnguyen-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
+/private/tmp/claude-501/-Users-user-Documents-workspace/b87b41b0-3e4d-4b69-8bcb-b998228474d2/scratchpad/pa0/src/src/core/exc/el2_exceptions.c:361:16: error: unused parameter 'elr' [-Werror,-Wunused-parameter]
   361 |                                                   hv_u64 elr, hv_u64 sp)
       |                                                          ^
 3 errors generated.
