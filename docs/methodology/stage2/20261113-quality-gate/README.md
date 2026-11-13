@@ -494,12 +494,16 @@ on the Mac, and a later baseline written there would drop them as fixed.
 | A6 | checkpatch `AVOID_EXTERNS`: 0 (19 before); with them one more finding, 20 in all, left the baseline | holds |
 | A7 | KUnit: 40 of 40 cases in 6 suites | holds |
 | A8 | "quality gate" job: 3 min 23 s | holds |
-| A9 | not observed yet: the weekly workflow can be started on demand only once it is on `main` | open |
+| A9 | KDAL's weekly workflow started on demand after #30: success in 8 min 13 s; `gate deep` reported CRITICAL 13, MAJOR 383, MINOR 224 (146 more MINOR than the required check: Coccinelle), no sanitizer report on Linux either, blocked nothing | holds |
 
-Count: of the 24 rows, 18 held (Z4 after a fix), 3 were prediction errors
-(Z2, K7, K8), K10 failed and held after D18, G4b held but confounded, and A9
-is open. (The commit message that added this table says "17 held, 2 of
+Count: of the 24 rows, 19 held (Z4 after a fix), 3 were prediction errors
+(Z2, K7, K8), K10 failed and held after D18, and G4b held but confounded. (The commit message that added this table says "17 held, 2 of
 them after a fix"; that count is wrong.)
+
+**L8, the deep report lists no findings.** `deep` blocks nothing, and the
+report lists only blocking findings and INFO, so a weekly run shows
+Coccinelle's findings as a count only. Proposed fix: `deep` lists every
+finding not in the baseline, at every severity (fix list).
 
 **Not predicted.** GitHub cancelled four macOS jobs during these runs
 (no step failed; the jobs did not get a runner in time); each was re-run
