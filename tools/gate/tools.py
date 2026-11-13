@@ -133,7 +133,7 @@ def jscpd(ctx, files):
     paths = [p for p in ctx.cfg.get("c_paths", []) + ctx.cfg.get("py_paths", [])
              if os.path.exists(os.path.join(ctx.root, p))]
     with tempfile.TemporaryDirectory() as out:
-        run([exe, "--silent", "--min-lines", str(lim.get("dup_lines", 15)), "--reporters", "json",
+        run([exe, "--silent", "--absolute", "--min-lines", str(lim.get("dup_lines", 15)), "--reporters", "json",
              "--output", out, "--format", ctx.cfg.get("jscpd_formats", "c,python")] +
             sum((["--ignore", g] for g in ctx.cfg.get("jscpd_ignore", [])), []) + paths, ctx.root)
         report = os.path.join(out, "jscpd-report.json")
@@ -141,6 +141,12 @@ def jscpd(ctx, files):
             return []
         with open(report) as f:
             data = json.load(f)
+    # jscpd names files relative to the path it was given, which loses the
+    # top directory when several are given: report absolute paths, then make
+    # them relative to the repository root
+    for d in data.get("duplicates", []):
+        for side in ("firstFile", "secondFile"):
+            d[side]["name"] = os.path.relpath(d[side]["name"], ctx.root)
     only = None if ctx.stage in ("ci", "deep", "baseline") else set(files)
     return rules.parse_jscpd(data, only)
 

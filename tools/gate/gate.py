@@ -12,7 +12,8 @@ Usage, from a repository's root (through its scripts/gate):
                            (--check: report how it would change, write nothing)
   gate doctor              list the tools found and missing
   gate install             point git at the repository's hooks
-Options: --root DIR (default: current directory), --json FILE (write the report).
+Options: --root DIR (default: current directory), --json FILE (write the report),
+  --remote NAME (pre-push: compare with NAME/main; the hook passes the remote).
 Standard library only; Python 3.9 or later.
 """
 import json
@@ -44,18 +45,22 @@ def tracked(root, cfg):
     return [f for f in git(root, "ls-files").splitlines() if f and not f.startswith(excl)]
 
 
-def base_ref(root):
-    for ref in ("origin/main", "github/main", "main"):
-        if git(root, "rev-parse", "--verify", "--quiet", ref).strip():
-            return ref
-    return None
+def base_ref(root, remote=None):
+    """main on the remote being pushed to; without one, the newest main among
+    the remotes (a clone may keep an old remote whose main is far behind)."""
+    if remote and git(root, "rev-parse", "--verify", "--quiet", f"{remote}/main").strip():
+        return f"{remote}/main"
+    refs = git(root, "for-each-ref", "--format=%(refname:short)", "refs/remotes/*/main").split()
+    if not refs:
+        return "main" if git(root, "rev-parse", "--verify", "--quiet", "main").strip() else None
+    return max(refs, key=lambda r: int(git(root, "log", "-1", "--format=%ct", r).strip() or 0))
 
 
-def files_for(root, cfg, stage):
+def files_for(root, cfg, stage, remote=None):
     if stage == "pre-commit":
         names = git(root, "diff", "--cached", "--name-only", "--diff-filter=ACM").splitlines()
     elif stage == "pre-push":
-        ref = base_ref(root)
+        ref = base_ref(root, remote)
         mb = git(root, "merge-base", "HEAD", ref).strip() if ref else ""
         names = git(root, "diff", "--name-only", "--diff-filter=ACM", f"{mb}...HEAD").splitlines() if mb else []
     else:
@@ -97,7 +102,7 @@ def report(found, block, baseline, stage):
 
 
 def main(argv):
-    root, out_json = ".", None
+    root, out_json, remote = ".", None, None
     args = []
     it = iter(argv)
     for a in it:
@@ -105,6 +110,8 @@ def main(argv):
             root = next(it)
         elif a == "--json":
             out_json = next(it)
+        elif a == "--remote":
+            remote = next(it)
         else:
             args.append(a)
     if not args:
@@ -149,7 +156,7 @@ def main(argv):
         return 2
     ctx = Ctx(root, cfg, cmd)
     baseline = fd.load_baseline(os.path.join(root, BASELINE))
-    found = collect(ctx, files_for(root, cfg, cmd))
+    found = collect(ctx, files_for(root, cfg, cmd, remote))
     block = fd.blocking(found, baseline, cmd)
     report(found, block, baseline, cmd)
     if out_json:

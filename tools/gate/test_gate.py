@@ -3,6 +3,7 @@
 severity scale, finding identity, baseline and stage policy."""
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -11,6 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import findings as fd  # noqa: E402
 import rules  # noqa: E402
+import gate  # noqa: E402
 
 # built at run time so this file holds no literal token
 TOKEN = "ghp" + "_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"
@@ -112,3 +114,23 @@ class Identity(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BaseRef(unittest.TestCase):
+    def test_pushed_remote_then_newest_main(self):
+        with tempfile.TemporaryDirectory() as d:
+            env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t",
+                       GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@t")
+
+            def run(*a, when=None):
+                e = dict(env, GIT_COMMITTER_DATE=when) if when else env
+                return subprocess.run(["git", "-C", d] + list(a), env=e, check=True,
+                                      capture_output=True, text=True).stdout.strip()
+            run("init", "-q")
+            run("commit", "-q", "--allow-empty", "-m", "old", when="2026-01-01T00:00:00")
+            run("update-ref", "refs/remotes/stale/main", "HEAD")
+            run("commit", "-q", "--allow-empty", "-m", "new", when="2026-06-01T00:00:00")
+            run("update-ref", "refs/remotes/fresh/main", "HEAD")
+            self.assertEqual(gate.base_ref(d), "fresh/main")
+            self.assertEqual(gate.base_ref(d, "stale"), "stale/main")
+            self.assertEqual(gate.base_ref(d, "absent"), "fresh/main")
