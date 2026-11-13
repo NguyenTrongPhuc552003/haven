@@ -275,6 +275,40 @@ class Deep(unittest.TestCase):
         self.assertEqual(rules.parse_go_fuzz("ok\n", "FuzzX"), [])
 
 
+# Kernel checks: lines in the forms sparse 0.6 and coccicheck MODE=report
+# print (from their documentation; recorded output replaces them after the
+# first CI run).
+SPARSE = """/k/src/core/chardev.c:88:13: warning: incorrect type in argument 1 (different address spaces)
+/k/src/core/chardev.c:90:9: warning: unused variable 'x' [-Wunused-variable]
+/k/src/core/kdal.c:12:1: error: undefined identifier 'foo'
+/usr/src/linux/include/linux/x.h:1:1: warning: outside the tree
+"""
+COCCI = """/k/src/core/registry.c:40:8-14: WARNING: kzalloc should be used for buf, instead of kmalloc/memset
+/k/src/core/debugfs.c:12:1-5: ERROR: missing put_device; call of_find_device_by_node on line 10
+please check for false positives in the output before submitting a patch.
+"""
+
+
+class Kernel(unittest.TestCase):
+    def test_sparse(self):
+        out = [(f.rule, f.file, f.line, f.severity) for f in rules.parse_sparse(SPARSE, "/k")]
+        self.assertEqual(out, [("warning", "src/core/chardev.c", 88, "MAJOR"),
+                               ("error", "src/core/kdal.c", 12, "CRITICAL")])
+
+    def test_coccinelle(self):
+        out = [(f.rule, f.file, f.line, f.severity) for f in rules.parse_coccinelle(COCCI, "/k")]
+        self.assertEqual(out, [("warning", "src/core/registry.c", 40, "MINOR"),
+                               ("error", "src/core/debugfs.c", 12, "MAJOR")])
+
+    def test_not_run_without_a_tree(self):
+        class Ctx:
+            cfg = {"kernel": {"env": "GATE_TEST_NO_SUCH_VAR", "make": ["make"]}}
+            stage, root = "ci", "."
+        res, out = tools.kernel_make(Ctx(), "sparse", [])
+        self.assertIsNone(res)
+        self.assertEqual([(f.rule, f.severity) for f in out], [("not-run", "MAJOR")])
+
+
 if __name__ == "__main__":
     unittest.main()
 

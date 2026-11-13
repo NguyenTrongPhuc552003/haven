@@ -33,7 +33,8 @@ def which(ctx, name):
     return shutil.which(name)
 
 
-VERSION_ARG = {"gitleaks": ["version"], "go": ["version"], "govulncheck": ["-version"]}
+VERSION_ARG = {"gitleaks": ["version"], "go": ["version"], "govulncheck": ["-version"], "sparse": ["--version"],
+               "spatch": ["--version"]}
 
 
 def version_check(ctx, tool):
@@ -364,6 +365,39 @@ def go_fuzz(ctx, files):
     return out
 
 
+def kernel_make(ctx, tool, extra):
+    """make in the profile's kernel tree (path in the environment variable
+    the profile names); None and a finding when there is no tree."""
+    conf = ctx.cfg.get("kernel", {})
+    kdir = os.environ.get(conf.get("env", ""), "")
+    if not conf or not kdir:
+        sev = "MAJOR" if ctx.stage == "ci" else "INFO"
+        return None, [Finding("gate", "not-run", "", 0, sev,
+                              f"{tool}: no kernel tree ({conf.get('env', 'kernel.env')} unset)", code=tool)]
+    cmd = [a.format(kdir=kdir, root=ctx.root) for a in conf["make"]] + extra
+    return run(cmd, ctx.root), []
+
+
+def sparse(ctx, files):
+    if not which(ctx, "sparse"):
+        return missing(ctx, "sparse")
+    res, out = kernel_make(ctx, "sparse", ["C=2", "CHECK=sparse", "modules"])
+    if res is None:
+        return out
+    code, so, err = res
+    return checked("sparse", code, err[-2000:], rules.parse_sparse(so + err, ctx.root))
+
+
+def coccinelle(ctx, files):
+    if not which(ctx, "spatch"):
+        return missing(ctx, "spatch")
+    res, out = kernel_make(ctx, "coccinelle", ["coccicheck", "MODE=report"])
+    if res is None:
+        return out
+    code, so, err = res
+    return checked("coccinelle", code, err[-2000:], rules.parse_coccinelle(so + err, ctx.root))
+
+
 def tcb(ctx, files):
     conf = ctx.cfg.get("tcb")
     if not conf:
@@ -382,11 +416,13 @@ def tcb(ctx, files):
 RUNNERS = {"scan": scan, "cppcheck": cppcheck, "clang-tidy": clang_tidy, "lizard": lizard,
            "jscpd": jscpd, "ruff": ruff, "shellcheck": shellcheck, "gitleaks": gitleaks, "tcb": tcb,
            "gofmt": gofmt, "golangci-lint": golangci_lint, "govulncheck": govulncheck,
-           "checkpatch": checkpatch, "sanitizers": sanitizers, "go-race": go_race, "go-fuzz": go_fuzz}
+           "checkpatch": checkpatch, "sanitizers": sanitizers, "go-race": go_race, "go-fuzz": go_fuzz,
+           "sparse": sparse, "coccinelle": coccinelle}
 # the paths each tool reads unless a profile's "tool_paths" names its own
 # (None: every file of the stage)
 PATH_KEYS = {"cppcheck": ["c_paths"], "clang-tidy": ["c_paths"], "lizard": ["c_paths", "go_paths"],
              "ruff": ["py_paths"], "shellcheck": ["sh_paths"], "gofmt": ["go_paths"],
              "golangci-lint": ["go_paths"], "checkpatch": ["c_paths"]}
 # a tool that runs on another pinned tool: its version is checked too
-NEEDS = {"gofmt": ["go"], "golangci-lint": ["go"], "govulncheck": ["go"], "go-race": ["go"], "go-fuzz": ["go"]}
+NEEDS = {"coccinelle": ["spatch"], "gofmt": ["go"], "golangci-lint": ["go"], "govulncheck": ["go"],
+         "go-race": ["go"], "go-fuzz": ["go"]}

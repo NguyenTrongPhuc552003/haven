@@ -352,3 +352,39 @@ def parse_go_fuzz(text, target, package="."):
     path = os.path.normpath(os.path.join(package, m.group(1))) if m else ""
     return [Finding("go-fuzz", target, path, 0, "CRITICAL", (why or "fuzz target failed")[:200], code=target)]
 
+
+# ---- sparse (make C=2 CHECK=sparse): "file:line:col: warning: msg" ----
+# The same build prints compiler warnings in that form too; they end with
+# the flag that enabled them ("[-Wfoo]") and are left out.
+
+SPARSE_LINE = re.compile(r"^(\S+?):(\d+):\d+: (warning|error): (.*)$")
+
+
+def parse_sparse(text, root="."):
+    out = []
+    for line in text.splitlines():
+        m = SPARSE_LINE.match(line.strip())
+        if not m or re.search(r"\[-W[\w-]+\]$", m.group(4)):
+            continue
+        path = _in_tree(m.group(1), root)
+        if path:
+            out.append(Finding("sparse", "warning" if m.group(3) == "warning" else "error", path, int(m.group(2)),
+                               "MAJOR" if m.group(3) == "warning" else "CRITICAL", m.group(4)[:200], root=root))
+    return out
+
+
+# ---- coccicheck MODE=report: "file:line:col-col: LEVEL: msg" ----
+
+COCCI_LINE = re.compile(r"^(\S+?):(\d+):\d+-\d+: (?:(ERROR|WARNING|INFO): ?)?(.*)$")
+
+
+def parse_coccinelle(text, root="."):
+    out = []
+    for line in text.splitlines():
+        m = COCCI_LINE.match(line.strip())
+        path = m and _in_tree(m.group(1), root)
+        if path:
+            out.append(Finding("coccinelle", (m.group(3) or "report").lower(), path, int(m.group(2)),
+                               "MAJOR" if m.group(3) == "ERROR" else "MINOR", m.group(4)[:200], root=root))
+    return out
+

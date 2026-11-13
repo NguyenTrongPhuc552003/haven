@@ -83,6 +83,12 @@ for t in "$@"; do
 	golangci-lint)
 		curl -fsSL "https://github.com/golangci/golangci-lint/releases/download/v$v/golangci-lint-$v-linux-amd64.tar.gz" |
 			tar -xz -C /tmp && install "/tmp/golangci-lint-$v-linux-amd64/golangci-lint" "$BIN/" ;;
+	sparse | spatch)
+		# Ubuntu 24.04's packages (sparse 0.6.4, coccinelle 1.1.1); the pin
+		# is checked against them, so a runner image change is noticed
+		pkg=$t
+		[ "$t" = spatch ] && pkg=coccinelle
+		sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends "$pkg" >/dev/null ;;
 	govulncheck)
 		GOBIN="$BIN" "$BIN/go" install "golang.org/x/vuln/cmd/govulncheck@v$v" ;;
 	lizard | ruff)
