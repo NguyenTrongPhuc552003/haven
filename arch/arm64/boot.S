@@ -46,6 +46,16 @@ _start:
         cmp     x4, #2
         b.ne    _el_wrong        /* Halt if not EL2 */
 
+        /* Refuse an entry state the code below cannot handle (L1b,
+         * docs/methodology/stage2/20261109-uefi-loading/): HCR_EL2.E2H set
+         * (VHE redirects EL1 register names to EL2) or the EL2 MMU on (the
+         * BSS clearing and the cache maintenance in mmu_el2.c assume it is
+         * off). Each refusal parks in its own loop, so the PC tells which. */
+        mrs     x4, hcr_el2
+        tbnz    x4, #34, _entry_e2h
+        mrs     x4, sctlr_el2
+        tbnz    x4, #0, _entry_mmu
+
         /* Set up EL2 stack: cpu0 uses the top of the first stack slot.
          * adrp gives the 4KB-page address; add supplies the page offset. */
         adrp    x4, cpu_stacks
@@ -294,6 +304,18 @@ hv_arch_psci_cpu_off:
         .align  3
 _el_wrong:
         /* Haven loaded at wrong exception level - spin forever */
+1:      wfi
+        b       1b
+
+        .align  3
+_entry_e2h:
+        /* Entered with HCR_EL2.E2H = 1 - spin forever */
+1:      wfi
+        b       1b
+
+        .align  3
+_entry_mmu:
+        /* Entered with SCTLR_EL2.M = 1 - spin forever */
 1:      wfi
         b       1b
 

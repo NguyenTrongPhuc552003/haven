@@ -94,12 +94,16 @@ jobs:
         run: |
           cmake --preset arm64-cix-p1 -B build-cix-p1-linux -DHAVEN_PART_A_DTB_IPA=0x110000000 -DHAVEN_PART_A_VCPUS=8
           cmake --build build-cix-p1-linux
-      - name: UEFI probe at EL2 in QEMU (L0, L1)
+      - name: UEFI probe and loader at EL2 in QEMU (L0, L1b)
         run: |
           sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends qemu-efi-aarch64
           boot/efi/build.sh build-efi
-          file build-efi/haven-probe.efi
+          file build-efi/*.efi
           scripts/qemu/uefi-probe-check.sh build-efi 180
+          python3 scripts/qemu/uefi-boot-check.py build-psci build-efi cortex-a72
+          python3 scripts/qemu/uefi-boot-check.py build-psci build-efi max
+          python3 scripts/qemu/uefi-boot-check.py build-psci build-efi max 120 --seed mmu
+          python3 scripts/qemu/uefi-boot-check.py build-psci build-efi max 120 --seed e2h
 
   # Linux with KDAL in partition A on 2 and 3 vCPUs, partition B beside it
   # (docs/methodology/stage2/20261112-e4-ci-linux). Kernel: the pinned
