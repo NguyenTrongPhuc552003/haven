@@ -233,3 +233,53 @@ run on either tree.
 | T4 | CI job "quality gate" in ELMOS and in KDAL | under 6 min each |
 | B1 | HAVEN images | byte-identical to `main` (the engine change is Python only) |
 
+### Results (G2; engine haven #101 at `400500b`, ELMOS #22, KDAL #28)
+
+The record has 24 G2 rows (the commit message of #100 says 25; that count
+is wrong). 20 held, P2 held after a fix, 3 were prediction errors (E4, E5,
+K3).
+
+| Row | Expected | Observed | Verdict |
+| - | - | - | - |
+| E1 | 0 to 3 | 0 | holds |
+| E2 | 10 to 120, errcheck largest, govet 0 to 5 | 22, all errcheck (8 of them in tests); govet, staticcheck, ineffassign, unused 0 | holds |
+| E3 | 0 to 2 | 1: GO-2026-6865 (a panic on two-block frames) in `github.com/klauspost/compress` v1.19.2, reached from `demo.Untar` through the zstd encoder; fixed in v1.20.2 | holds |
+| E4 | 5 to 30 | 3 (`writeCommandDocs` 17, `Untar` 16, `tarToExt4` 17) | prediction error |
+| E5 | 1 % to 6 % | 0 duplicated lines of 8,224 (tests excluded) | prediction error |
+| K1 | ERROR 0 to 30, WARNING 20 to 200 | ERROR 2, WARNING 60 (33 of them a missing SPDX tag) | holds |
+| K2 | 0 to 15 | 0 at warning level or above; `src/core/registry.c` not analysed (`list_for_each_entry` unknown, INFO) | holds, with a gap (L5) |
+| K3 | 20 to 200 | 337: `cert-err33-c` (unchecked `printf`-family returns) 314, 13 CRITICAL (4 null dereferences in `compiler/lexer.c`, a 0-byte `malloc` and a tainted index in `compiler/codegen.c`, a leak, tainted indexes in `tools/kdality/`) | prediction error |
+| K4 | 10 to 40 | 28 over complexity 15 (and 10 over 100 lines) | holds |
+| K5 | 1 % to 5 % | 3.76 % (392 of 10,427 lines) | holds |
+| K6 | 20 to 150 | 41 | holds |
+| P1 | 0 | 0 in both trees | holds |
+| P2 | identical per severity | ELMOS identical (CRITICAL 1, MAJOR 25). KDAL's first CI run had 10 more `cert-err33-c` than the Mac: all `snprintf` and `vsnprintf`, which macOS's fortified headers turn into `__builtin___snprintf_chk` macros the check does not match. With `-D_FORTIFY_SOURCE=0` for clang-tidy both report CRITICAL 13, MAJOR 384, MINOR 102 | held after a fix |
+| S1 | `pre-push` exit 1 (errcheck) | exit 1, `errcheck` on the seeded `os.Remove` (and `unused`) | holds |
+| S2 | `pre-push` exit 1 (gofmt) | exit 1, `gofmt/unformatted` | holds |
+| S3 | `pre-push` exit 1 | exit 1, checkpatch `OPEN_BRACE` and `SPACING` (ERROR, MAJOR) | holds |
+| S4 | `pre-push` exit 1 (jscpd) | exit 1, 34 lines duplicated from `tools/kdality/lint.c:62` | holds |
+| S5 | exit 2 naming the pin | exit 2: "cannot fetch the engine at 1111... (engine in quality/gate.json)" | holds |
+| S6 | `ci` exit 0 | exit 0 in both, on the Mac and in CI | holds |
+| T1 | unit tests pass | 19 pass on macOS and in CI | holds |
+| T2 | under 30 s with 3 changed files | 0.8 s in ELMOS and in KDAL, measured with 2 changed files each (golangci-lint's cache warm) | holds, measured with 2 files |
+| T3 | under 10 s, later runs fetch nothing | 1.9 s, then 0.03 s | holds |
+| T4 | under 6 min each | ELMOS 2 min 41 s (1 min 51 s with the cppcheck cache), KDAL 2 min 49 s to 3 min | holds |
+| B1 | HAVEN images byte-identical | #101 changed no C, assembly or linker file | holds by construction, not measured |
+
+### Limitations found in G2
+
+- **L4, host-dependent analysis of host C.** clang-tidy on userspace C reads
+  the host's C library headers, so macOS and Linux can differ (P2). Fortify
+  macros were the difference here; others may remain, and the Linux runner
+  is the reference when they differ.
+- **L5, cppcheck and kernel macros.** cppcheck stops on files using kernel
+  list macros (`registry.c`), reported as INFO. A cppcheck configuration
+  for the kernel macros, or the deep tier's sparse, would cover them.
+- **L6, gitleaks reads untracked files.** `gitleaks dir` scans the working
+  directory, so a developer's untracked build output can give findings that
+  CI, with a clean checkout, does not. Build and cache directories are
+  allowlisted.
+- **L7, the wrapper is copied.** `scripts/gate` is the same 34-line
+  bootstrap in ELMOS and KDAL. It is small and changes rarely, but nothing
+  checks that the copies agree.
+
