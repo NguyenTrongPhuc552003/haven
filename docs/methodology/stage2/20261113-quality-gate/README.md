@@ -364,3 +364,66 @@ rulesets back. A pull request with a failing gate being refused a merge was
 not tried (it would leave a public test pull request); the evidence is the
 configuration and GitHub's documented meaning of a required check.
 
+## G5: the deep tier (design and expectations, before code)
+
+Owner-approved 2026-11-13. Known before writing this: scan-build 23.1.5,
+sparse 0.6.4 and Coccinelle 1.3.3 are installed on the Mac, which has no
+Linux kernel tree; KDAL's KUnit CI job already downloads the Linux v6.18
+source and runs `modules_prepare`; HAVEN has a native `host-tests` CMake
+preset run by CTest; KDAL has an `asan` preset for its userspace tools and
+smoke tests in `scripts/ci/test.sh`; ELMOS has 31 Go tests and no fuzz
+targets; `demo.Untar` and `demo.parseSums` read files downloaded from the
+network.
+
+### Design decisions
+
+- **D11, no scan-build.** The `ci` stage already runs the Clang static
+  analyzer through clang-tidy's `clang-analyzer-*` checks with the same
+  LLVM; scan-build would report the same paths a second time.
+- **D12, sanitizers (G5a, Mac, `deep`).** A `sanitizers` runner configures
+  a profile's CMake preset into `build-deep/` with
+  `-fsanitize=address,undefined -fno-omit-frame-pointer
+  -fno-sanitize-recover=undefined`, builds it and runs the profile's test
+  command (HAVEN: CTest on `host-tests`; KDAL: its smoke tests against the
+  sanitized `kdalc` and `kdality`). Each AddressSanitizer or UBSan report
+  is CRITICAL, a failing test MAJOR. A `go-race` runner runs
+  `go test -race ./...` for ELMOS: a data race CRITICAL, a failing test
+  MAJOR. LeakSanitizer does not run on macOS on Apple silicon, so leaks are
+  not covered here.
+- **D13, sparse and Coccinelle in CI (G5b).** They need a configured kernel
+  tree, which only KDAL's CI has, and on that tree they take seconds to
+  minutes; the owner's rule is to run in CI what can run there. KDAL's
+  "quality gate" job prepares the same v6.18 tree (the KUnit job's script)
+  and the gate runs `make C=2 CHECK=sparse` and `make coccicheck
+  MODE=report` on the module. sparse warnings are MAJOR, its errors
+  CRITICAL; Coccinelle's ERROR reports MAJOR, others MINOR. On the Mac,
+  with no kernel tree, both report INFO "not run".
+- **D14, fuzzing (G5c, Mac, `deep`).** Go fuzz targets for `demo.Untar`
+  (with a property: no file is written outside the target directory) and
+  `demo.parseSums`. `deep` fuzzes each for 60 s; a crash or a property
+  failure is CRITICAL, and its input is kept under `testdata/fuzz/` so that
+  plain `go test` (CI) replays it from then on.
+- **D15, policy.** `deep` blocks nothing (as designed in G0); it prints the
+  report and writes JSON when asked. The `pre-push` and `ci` findings of the
+  three repositories do not change.
+
+### Expectations
+
+| Row | Check | Expected |
+| - | - | - |
+| Z1 | HAVEN host tests under ASan and UBSan | all pass; 0 to 2 sanitizer reports |
+| Z2 | KDAL smoke tests against sanitized `kdalc` and `kdality` | 1 to 5 sanitizer reports (the analyzer's null dereferences in `compiler/lexer.c` among the candidates) |
+| Z3 | ELMOS `go test -race` | 0 races; tests pass as in CI |
+| Z4 | seeded: a HAVEN host test writing one element past an array | `deep` reports a CRITICAL AddressSanitizer finding naming the test file |
+| Z5 | seeded: an ELMOS test with two goroutines writing one variable | `deep` reports a CRITICAL data race |
+| Z6 | `deep` time on the Mac | HAVEN, KDAL and ELMOS each under 5 min (fuzzing adds 2 min to ELMOS) |
+| Z7 | `baseline --check` in all three after G5 | 0 new, 0 fixed |
+| K7 | KDAL CI: sparse on the module | 0 to 20 warnings |
+| K8 | KDAL CI: Coccinelle report | 0 to 10 |
+| K9 | seeded on a pushed branch (no pull request, deleted after): a `__user` pointer dereferenced directly in `src/` | the branch's "quality gate" run fails with a new sparse finding |
+| K10 | KDAL "quality gate" job with the kernel tree | under 6 min |
+| K11 | KDAL on the Mac | sparse and Coccinelle give INFO "not run"; every other count equals CI's |
+| F1 | 60 s of fuzzing each for `Untar` and `parseSums` | 0 to 2 crashes or property failures |
+| F2 | a kept fuzz input | replayed by plain `go test` in CI |
+| G4b | owner-approved: a pull request on ELMOS whose gate fails | GitHub refuses the merge (`mergeStateStatus` BLOCKED, `gh pr merge` refused); the pull request is closed and its branch deleted afterwards |
+
