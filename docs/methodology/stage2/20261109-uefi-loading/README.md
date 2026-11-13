@@ -291,3 +291,44 @@ Runs: CI, Ubuntu 24.04, QEMU 8.2.2, Ubuntu's `QEMU_EFI.fd` (the versions in
   partition gets depends on whoever entered HAVEN. Not judged here; listed
   for the owner as an open question (HAVEN setting CNTHCTL_EL2 itself is an
   architectural change, not part of L1b).
+
+## Results: L1b (2026-11-13)
+
+Code: pull request #93 (merge `06b1644`). Verdicts from CI run 43389756570
+(Ubuntu 24.04, QEMU 8.2.2, Ubuntu's `QEMU_EFI.fd`), step "UEFI probe and
+loader at EL2 in QEMU (L0, L1b)". During development the same check also ran
+on the Mac (QEMU 11.1.3, Homebrew's EDK2) with the same outcome; that run is
+not a verdict (the record names CI as the reference).
+
+| Row | Observed | Verdict |
+| - | - | - |
+| B1 | `haven-boot.efi`, `haven-boot-seed-mmu.efi`, `haven-boot-seed-e2h.efi`: `PE32+ executable (EFI application) Aarch64`, 39,572 bytes each; `build.sh` found no relocation section and no `.got` | as expected |
+| B2 | sizes unchanged (45,008, 45,008, 43,536 bytes); but bytes from 0x800 on are **not** unchanged: 452, 452 and 448 bytes differ (same `SOURCE_DATE_EPOCH`, main `74916ae` against #93) | **prediction error**: C code in `.text` calls functions that live in `.boot.text` (`hv_arch_psci_cpu_on`, `hv_arch_secondary_start`) and takes `secondary_entry`'s address; the four added instructions move them by 16 bytes, so those `bl` and `adrp`/`add` encodings change. The prediction counted only where `.entry.text` starts, not references into `.boot.text`. Behaviour: every existing check passes (B3) |
+| B3 | every job and step green: qemu-direct boot, partition B on both CPU models, reproducibility, cix-p1 builds, L0 probe, Linux partition, host tests on three systems | as expected |
+| B4 | qemu 66 files, 7,555 code lines (+12); cix-p1 66 files, 7,543 (+12) | as expected |
+| B5 | `boot/efi/` without the probe: 589 code lines (cloc: `boot.c` 197, `efi.h` 133, `sha256.c` 82, `efi_lib.c` 56, `build.sh` 43, `handoff.S` 35, `layout.h` 22, `efi_lib.h` 16, `sha256.h` 5) | **prediction error** (expected 250 to 450): the estimate left out the full boot-services table in `efi.h` (shared with the probe), the helpers moved out of the probe into `efi_lib.c`, SHA-256 and the build script. The loader proper (`boot.c`, `handoff.S`, `layout.h`) is 254 |
+| U1 | `HAVEN-BOOT 1`, `CurrentEL 0x2`, the five `claim` lines at the listed addresses, on cortex-a72 and max | as expected |
+| U2 | three `load` lines; addresses, sizes and SHA-256 equal to the ESP's files (checked by the script) | as expected |
+| U3 | `haven-boot: exit-boot-services tries 1` in every run | as expected |
+| U4 | `haven-boot: jump` after the tries line | as expected |
+| U5 | `Haven hypervisor starting` after the jump, on both CPU models | as expected |
+| U6 | the four partition A lines | as expected |
+| U7 | all ten partition B checks (the same function as `partition-b-check.py`) | as expected |
+| U8 | 14.2 s per rehearsal | as expected |
+| K1 | seed `mmu`: HAVEN did not start; CPU 0 PC 0x800001fc, inside `_entry_mmu` at 0x800001f8 | as expected |
+| K2 | seed `e2h`: HAVEN did not start; CPU 0 PC 0x800001f4, inside `_entry_e2h` at 0x800001f0 | as expected |
+| C1 | the UEFI step took 71 s (L0 alone: about 14 s); the ARM64 job 1 min 55 s | as expected (growth under 5 minutes) |
+
+13 of 15 rows held; B2 and B5 are prediction errors, recorded and not
+edited. Two changes made while writing the code, both to avoid copies:
+the probe's console helpers moved to `boot/efi/efi_lib.c` (the probe's
+output is unchanged, P1 to P8 still pass), and `partition-b-check.py`'s
+status read and ten checks became functions that `uefi-boot-check.py`
+reuses. One small finding for the code-quality review: the pre-commit
+hook's message names `scripts/format.sh`, which does not exist; the script
+is `scripts/dev/format.sh`.
+
+What this still does not show is listed above ("What this will not show"):
+cache maintenance is not modelled by QEMU's TCG, and nothing here is CIX's
+firmware. The next evidence for the loader is the board (loading study,
+probes P1 to P8).
