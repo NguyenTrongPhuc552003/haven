@@ -19,19 +19,50 @@ export PATH="$BIN:$PATH"
 
 checkpatch_install() {
 	# scripts/checkpatch.pl and its two data files from the pinned Linux tag,
-	# each checked against the profile's SHA-256
+	# each checked against the profile's SHA-256. A file already there with
+	# the pinned hash (a cache) is kept. git.kernel.org first: GitHub's raw
+	# files answer 429 to anonymous requests from shared CI runners (and, on
+	# 2026-11-13, from the owner's Mac); a 429 is waited out, then the next
+	# source is tried
 	python3 - "$CFG" <<'PY'
-import hashlib, json, os, sys, urllib.request
+import hashlib, json, os, sys, time, urllib.error, urllib.request
 c = json.load(open(sys.argv[1]))["checkpatch"]
 d = os.path.expanduser(c["dir"])
 os.makedirs(d, exist_ok=True)
+
+
+SOURCES = ("https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/scripts/{name}?h={tag}",
+           "https://raw.githubusercontent.com/torvalds/linux/{tag}/scripts/{name}")
+
+
+def fetch(name, tag):
+    # git.kernel.org refuses Python's default User-Agent (403)
+    errs = []
+    for src in SOURCES:
+        req = urllib.request.Request(src.format(name=name, tag=tag), headers={"User-Agent": "haven-gate-ci-setup"})
+        for attempt in range(3):
+            try:
+                return urllib.request.urlopen(req, timeout=60).read()
+            except urllib.error.HTTPError as e:
+                if e.code != 429 or attempt == 2:
+                    errs.append(f"{req.full_url}: {e}")
+                    break
+                time.sleep(15 * (attempt + 1))
+            except urllib.error.URLError as e:
+                errs.append(f"{req.full_url}: {e}")
+                break
+    sys.exit(f"ci-setup: {name}: no source answered: " + "; ".join(errs))
+
+
 for name, want in c["sha256"].items():
-    url = f"https://raw.githubusercontent.com/torvalds/linux/{c['tag']}/scripts/{name}"
-    data = urllib.request.urlopen(url, timeout=60).read()
+    path = os.path.join(d, name)
+    if os.path.exists(path) and hashlib.sha256(open(path, "rb").read()).hexdigest() == want:
+        continue
+    data = fetch(name, c["tag"])
     got = hashlib.sha256(data).hexdigest()
     if got != want:
         sys.exit(f"ci-setup: {name} from {c['tag']}: SHA-256 {got}, pinned {want}")
-    with open(os.path.join(d, name), "wb") as f:
+    with open(path, "wb") as f:
         f.write(data)
 print(f"ci-setup: checkpatch {c['tag']} in {d}")
 PY
