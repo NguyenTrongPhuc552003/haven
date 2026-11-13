@@ -283,3 +283,52 @@ K3).
   bootstrap in ELMOS and KDAL. It is small and changes rarely, but nothing
   checks that the copies agree.
 
+## G3: hooks and one lint path in ELMOS and KDAL (design and expectations, before code)
+
+Owner-approved 2026-11-13, with G4 to G5 and the fix list, and with the
+`cert-err33-c` rule left at MAJOR (it marks ignored `snprintf` truncation as
+well as ignored `printf` output; the 314 existing reports stay in KDAL's
+baseline and only new ones block). Known before writing this: KDAL's
+ruleset requires the old lint job ("style and static analysis") by name;
+its lint scripts are referred to by a CMake target, `scripts/dev/test.sh`,
+the e2e developer-journey test, the pull-request template, CONTRIBUTING and
+the website's contributing page; KDAL installs hooks by copying them into
+`.git/hooks/`; ELMOS has no hooks and checks formatting twice (its own CI
+step and the gate).
+
+### Design decisions
+
+- **D7, one hook mechanism.** All three repositories keep their hooks in
+  `.githooks/` and set `core.hooksPath` with `scripts/gate install`.
+  KDAL's `commit-msg` hook moves there; `scripts/dev/install-hooks.sh` and
+  the copying into `.git/hooks/` are removed.
+- **D8, one lint path.** KDAL's `scripts/ci/checkpatch.sh`,
+  `scripts/ci/static_analysis.sh` and the CI job "style and static
+  analysis" are removed; the CMake `lint` target, the dev test, the e2e
+  test, the template and the documents point to `scripts/gate`. ELMOS's CI
+  drops its own format check (the gate's gofmt covers it) and keeps `go vet`
+  on its three operating systems (files built only for one of them); `task
+  dev:lint` runs `scripts/gate pre-push`.
+- **D9, cppcheck options per profile.** A profile may set cppcheck's
+  `enable` list and suppressions, so KDAL keeps the style checks and
+  suppressions of its old job. HAVEN's profile does not set them and keeps
+  its behaviour.
+- **D10, required checks.** KDAL's ruleset swaps "style and static
+  analysis" for "quality gate" before the old job is removed (that part of
+  G4 is done first for KDAL; haven and ELMOS add "quality gate" in G4).
+
+### Expectations
+
+| Row | Check | Expected |
+| - | - | - |
+| H1 | ELMOS: `scripts/gate install`, then a commit staging a file with a GitHub token pattern | `core.hooksPath` is `.githooks`; the commit is refused (hook exit 1) |
+| H2 | ELMOS: `git push` of a branch adding an unformatted Go file | refused by the pre-push hook |
+| H3 | KDAL: a commit with the subject "bad subject" after the move | refused by `.githooks/commit-msg` |
+| H4 | KDAL: `git push` of a branch with a checkpatch ERROR in `src/` | refused by the pre-push hook |
+| H5 | KDAL, the old job against the gate on `main` (`1a3818f`), before removal | (a) the old cppcheck command exits 0 and the gate with KDAL's style options adds 0 findings to the baseline; (b) the old shellcheck (warning and above, `scripts/` only) reports 0 and the gate reports 0 at MAJOR or above under `scripts/`; (c) every file the old `checkpatch.sh` fallback warns about also has a checkpatch finding in the gate |
+| H6 | KDAL after D8 | `git grep` finds no `install-hooks.sh`, `checkpatch.sh` or `static_analysis.sh` outside the gate's baseline |
+| H7 | KDAL's and ELMOS's other CI jobs after D7 and D8 | pass unchanged |
+| H8 | HAVEN after D9 | `baseline --check`: 0 new, 0 fixed |
+| H9 | KDAL with D9 | `baseline --check` after the style options: 0 new (the old job's suppressions hold) |
+| H10 | ELMOS and KDAL CONTRIBUTING | say how to install the hooks, what each stage checks, how to update the baseline and the pinned engine, and link `docs/quality/gate.md` |
+
