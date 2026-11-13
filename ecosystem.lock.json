@@ -2,10 +2,10 @@
   "schema": "haven-ecosystem-lock/1",
   "elmos_sdk": {
     "package": "ghcr.io/nguyentrongphuc552003/elmos-sdk",
-    "tag": "linux-6.18-4",
-    "digest": "sha256:b2eaad501c6888a5dfa89323bedc89d45f5d0711508b94d1a3ce89f0d82126eb",
-    "elmos_commit": "4eb897cb6e6f8f005b27e6049a452e55952b8525",
-    "run": 4
+    "tag": "linux-6.18-5",
+    "digest": "sha256:cea68ea3dc184f408c9462142f69a2ac6253dc9c5f9add1627afa64fc093cf74",
+    "elmos_commit": "8ae143705c0ce083499cb0ef3d0808893c73a104",
+    "run": 5
   },
   "kdal": {
     "repository": "NguyenTrongPhuc552003/kdal",
@@ -16,6 +16,6 @@
     "qemu": "8.2.2"
   },
   "haven": {
-    "tested_from": "9d537420bf8c569ea203c695aef0afd1294e3429"
+    "tested_from": "67efc5e861dac43733b2a45fe2dd5b6a6c07a219"
   }
 }
