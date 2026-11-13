@@ -16,6 +16,7 @@ Options: --root DIR (default: current directory), --json FILE (write the report)
   --remote NAME (pre-push: compare with NAME/main; the hook passes the remote).
 Standard library only; Python 3.9 or later.
 """
+import collections
 import json
 import os
 import subprocess
@@ -84,13 +85,11 @@ def collect(ctx, files):
     return out
 
 
-def report(found, block, baseline, stage):
+def report(found, block, new_keys, stage):
     counts = {lv: 0 for lv in fd.LEVELS}
-    new = 0
     for f in found:
         counts[f.severity] += 1
-        if f.severity in ("CRITICAL", "MAJOR") and f.key not in baseline:
-            new += 1
+    new = sum(1 for f in found if f.key in new_keys)
     for f in found:
         if f.severity == "INFO":
             print(f"INFO     {f.tool}/{f.rule}: {f.message}")
@@ -137,16 +136,17 @@ def main(argv):
     if cmd == "baseline":
         ctx = Ctx(root, cfg, "baseline")
         found = collect(ctx, tracked(root, cfg))
-        old = fd.load_baseline(os.path.join(root, BASELINE))
-        keys = {f.key for f in found if f.severity not in ("BLOCKER", "INFO")}
+        old = collections.Counter(fd.load_baseline(os.path.join(root, BASELINE)))
+        now = fd.counts(found)
         blockers = [f for f in found if f.severity == "BLOCKER"]
-        for f in blockers:
+        for f in blockers + [f for f in found if f.tool == "gate" and f.severity != "INFO"]:
             print(f)
-        print(f"gate baseline: {len(keys)} findings ({len(keys - set(old))} not in the current baseline, "
-              f"{len(set(old) - keys)} fixed); BLOCKER {len(blockers)} (never accepted into a baseline)")
+        print(f"gate baseline: {sum(now.values())} findings, {len(now)} keys "
+              f"({sum((now - old).values())} not in the current baseline, "
+              f"{sum((old - now).values())} fixed); BLOCKER {len(blockers)} (never accepted into a baseline)")
         if "--check" not in args:
-            n = fd.save_baseline(os.path.join(root, BASELINE), found)
-            print(f"gate baseline: wrote {BASELINE} ({n} findings)")
+            keys, n = fd.save_baseline(os.path.join(root, BASELINE), found)
+            print(f"gate baseline: wrote {BASELINE} ({n} findings, {keys} keys)")
         if out_json:
             with open(out_json, "w") as f:
                 json.dump([dict(x.as_dict(), line=x.line) for x in found], f, indent=1)
@@ -158,10 +158,11 @@ def main(argv):
     baseline = fd.load_baseline(os.path.join(root, BASELINE))
     found = collect(ctx, files_for(root, cfg, cmd, remote))
     block = fd.blocking(found, baseline, cmd)
-    report(found, block, baseline, cmd)
+    new = fd.new_keys(found, baseline)
+    report(found, block, new, cmd)
     if out_json:
         with open(out_json, "w") as f:
-            json.dump({"stage": cmd, "findings": [dict(x.as_dict(), line=x.line, new=x.key not in baseline)
+            json.dump({"stage": cmd, "findings": [dict(x.as_dict(), line=x.line, new=x.key in new)
                                                   for x in found],
                        "blocking": [x.key for x in block]}, f, indent=1)
     return 1 if block else 0

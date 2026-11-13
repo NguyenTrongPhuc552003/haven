@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """Runners: each takes the context and the files of its kind and returns
-findings, using the parsers in rules.py. A tool that is not installed gives
-one finding of its own (see missing())."""
+findings, using the parsers in rules.py. A tool that is not installed, or
+that fails without reporting anything, gives one finding of its own (see
+missing() and checked())."""
 import json
 import os
 import shutil
@@ -55,6 +56,19 @@ def missing(ctx, tool):
                     code=tool)]
 
 
+def failed(tool, why):
+    """MAJOR in every stage: the tool is installed but its checks did not run,
+    so a stage must not pass as if they had."""
+    return [Finding("gate", "tool-failed", "", 0, "MAJOR", f"{tool}: {why.strip()[-300:]}", code=tool)]
+
+
+def checked(tool, code, err, found):
+    """The parsed findings, or a tool-failed finding when the tool exited with
+    an error and reported nothing (a crash or a bad option looks like a clean
+    run otherwise)."""
+    return failed(tool, f"exit {code}: {err}") if code and not found else found
+
+
 def scan(ctx, files):
     names = [n for n in os.environ.get("GATE_PRIVATE_NAMES", "").split(",") if n]
     out = []
@@ -81,10 +95,10 @@ def cppcheck(ctx, files):
     if not exe:
         return missing(ctx, "cppcheck")
     inc = sum((["-I", d] for d in ctx.cfg.get("c_include", [])), [])
-    _, _, err = run([exe, "--enable=warning,performance,portability", "--inline-suppr", "--quiet",
+    code, _, err = run([exe, "--enable=warning,performance,portability", "--inline-suppr", "--quiet",
                      "--suppress=missingIncludeSystem", "--suppress=missingInclude",
                      "--template={file}\t{line}\t{severity}\t{id}\t{message}"] + inc + files, ctx.root)
-    return rules.parse_cppcheck(err, ctx.root)
+    return checked("cppcheck", code, err, rules.parse_cppcheck(err, ctx.root))
 
 
 def clang_tidy(ctx, files):
@@ -107,10 +121,10 @@ def clang_tidy(ctx, files):
     if not files:
         return []
     extra = sum((["--extra-arg=" + a] for a in conf.get("extra_args", [])), [])
-    _, so, _ = run([exe, "-p", build, "--quiet", f"--checks={conf['checks']}",
+    code, so, err = run([exe, "-p", build, "--quiet", f"--checks={conf['checks']}",
                     f"--header-filter={conf.get('header_filter', '.*')}"] + extra + files, ctx.root)
     rel = [line.replace(ctx.root.rstrip("/") + "/", "") for line in so.splitlines()]
-    return rules.parse_clang_tidy("\n".join(rel), ctx.root)
+    return checked("clang-tidy", code, err, rules.parse_clang_tidy("\n".join(rel), ctx.root))
 
 
 def lizard(ctx, files):
@@ -121,8 +135,8 @@ def lizard(ctx, files):
     if not exe:
         return missing(ctx, "lizard")
     lim = ctx.cfg.get("limits", {})
-    _, so, _ = run([exe, "--csv", "-l", "c"] + files, ctx.root)
-    return rules.parse_lizard(so, lim.get("ccn", 15), lim.get("length", 100))
+    code, so, err = run([exe, "--csv", "-l", "c"] + files, ctx.root)
+    return checked("lizard", code, err, rules.parse_lizard(so, lim.get("ccn", 15), lim.get("length", 100)))
 
 
 def jscpd(ctx, files):
@@ -133,12 +147,12 @@ def jscpd(ctx, files):
     paths = [p for p in ctx.cfg.get("c_paths", []) + ctx.cfg.get("py_paths", [])
              if os.path.exists(os.path.join(ctx.root, p))]
     with tempfile.TemporaryDirectory() as out:
-        run([exe, "--silent", "--absolute", "--min-lines", str(lim.get("dup_lines", 15)), "--reporters", "json",
+        code, _, err = run([exe, "--silent", "--absolute", "--min-lines", str(lim.get("dup_lines", 15)), "--reporters", "json",
              "--output", out, "--format", ctx.cfg.get("jscpd_formats", "c,python")] +
             sum((["--ignore", g] for g in ctx.cfg.get("jscpd_ignore", [])), []) + paths, ctx.root)
         report = os.path.join(out, "jscpd-report.json")
         if not os.path.exists(report):
-            return []
+            return failed("jscpd", f"exit {code}, no report: {err}")
         with open(report) as f:
             data = json.load(f)
     # jscpd names files relative to the path it was given, which loses the
@@ -158,7 +172,9 @@ def ruff(ctx, files):
     exe = which(ctx, "ruff")
     if not exe:
         return missing(ctx, "ruff")
-    _, so, _ = run([exe, "check", "--no-cache", "--output-format", "json", "--exit-zero"] + files, ctx.root)
+    code, so, err = run([exe, "check", "--no-cache", "--output-format", "json", "--exit-zero"] + files, ctx.root)
+    if code:
+        return failed("ruff", f"exit {code}: {err}")
     return rules.parse_ruff(json.loads(so or "[]"), ctx.root)
 
 
@@ -169,7 +185,10 @@ def shellcheck(ctx, files):
     exe = which(ctx, "shellcheck")
     if not exe:
         return missing(ctx, "shellcheck")
-    _, so, _ = run([exe, "-f", "json1", "-x"] + files, ctx.root)
+    # shellcheck exits 1 when it reports findings, 2 and above when it fails
+    code, so, err = run([exe, "-f", "json1", "-x"] + files, ctx.root)
+    if code > 1:
+        return failed("shellcheck", f"exit {code}: {err}")
     return rules.parse_shellcheck(json.loads(so or "{}"), ctx.root)
 
 
@@ -180,7 +199,10 @@ def gitleaks(ctx, files):
     with tempfile.TemporaryDirectory() as out:
         rep = os.path.join(out, "r.json")
         conf = [] if not os.path.exists(os.path.join(ctx.root, ".gitleaks.toml")) else ["-c", ".gitleaks.toml"]
-        run([exe, "dir", "--no-banner", "--exit-code", "0", "-f", "json", "-r", rep] + conf + ["."], ctx.root)
+        code, _, err = run([exe, "dir", "--no-banner", "--exit-code", "0", "-f", "json", "-r", rep] + conf + ["."],
+                           ctx.root)
+        if code or not os.path.exists(rep):
+            return failed("gitleaks", f"exit {code}: {err}")
         with open(rep) as f:
             return rules.parse_gitleaks(json.load(f))
 
