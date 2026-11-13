@@ -149,3 +149,21 @@ Change: `elmos_sdk.tag`, `digest`, `elmos_commit` and `run` set to run 5;
 
 KDAL's own CI still names `linux-6.18-4` until it reads this file (ecosystem
 step in progress); that difference is expected for now and recorded.
+
+### Results: first pin update (pull request #89, merge `88c4965`, CI run 43357887245)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| U1 | `OK: .github/workflows/ci.yml takes its pins from ecosystem.lock.json (runner ubuntu-24.04)`, locally and in CI | as expected |
+| U2 | the job pulled `elmos-sdk@sha256:cea68ea3...` (`SDK_REF`), digest as pinned | as expected |
+| U3 | `OK: SDK built from ELMOS 8ae1437, run 5` | as expected |
+| U4 | banner `Linux version 6.18.0 (haven@ci)`; vermagic `6.18.0 SMP preempt mod_unload aarch64` | as expected |
+| U5 | `N = 2: OK (5 markers)`, `N = 3: OK (6 markers)`; DMA grant withheld as in E4 | as expected |
+| U6 | every job green | as expected |
+| U7 | the job log does not print `Image.gz`'s hash, but the SDK runs' push logs do: run 3 uploaded blob `9421fa520e57...` (`Image.gz`), and runs 4 and 5 found that blob already in the registry (`Exists 9421fa520e57 Image.gz`), as for `config` (`886ded8c036c`), `Module.symvers` (`91a7b9e5f574`) and `kernel.release` (`b9c8e1d675b8`) | holds, observed through the registry rather than this job: the kernel files were byte-identical in three separate CI builds (runs 3, 4, 5) |
+
+Only `manifest.json`, `SHA256SUMS` and `rootfs.ext4.gz` differ between
+runs 4 and 5 (new blobs), as the run 5 change (the root filesystem's
+`/init`) and the run number predict. The reproducible kernel build is an
+observation of three runs on the same runner image and toolchain, not a
+guarantee for other toolchains.
