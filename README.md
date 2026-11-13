@@ -53,9 +53,9 @@ with prebuilt HAVEN images, the read-back tool and `try.sh`. Unpacked
 anywhere, `./try.sh` needs only `qemu-system-aarch64`, `python3` and `dtc`:
 it boots both partitions, reads back the enforced state, then boots a
 deliberately faulty image that passes the boot check and is caught only
-by read-back. Download it from the
-[try-20261103 release](https://github.com/NguyenTrongPhuc552003/haven/releases/tag/try-20261103)
-or build it yourself; see `scripts/release/try/README.md`.
+by read-back. Build it yourself; see `scripts/release/try/README.md`.
+(The `try-20261103` pre-release that offered a prebuilt archive was
+withdrawn on 2026-11-13; prebuilt bundles return with deliberate releases.)
 
 ## Quick start
 
