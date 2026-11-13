@@ -5,6 +5,7 @@ The scale is BLOCKER, CRITICAL, MAJOR, MINOR, INFO (docs/quality/gate.md)."""
 import csv
 import io
 import json
+import os
 import re
 
 from findings import Finding
@@ -276,4 +277,78 @@ def parse_checkpatch(text, root="."):
             path, ln, level, kind, msg = m.groups()
             out.append(Finding("checkpatch", kind, path, int(ln), CHECKPATCH[level], msg, root=root))
     return out
+
+
+# ---- sanitizers: AddressSanitizer and UBSan reports (log files or output) ----
+
+ASAN_HEAD = re.compile(r"ERROR: AddressSanitizer: ([\w-]+)")
+ASAN_FRAME = re.compile(r"#\d+ 0x[0-9a-f]+ in (\S+) (\S+?):(\d+)(?::\d+)?$")
+UBSAN_LINE = re.compile(r"^(\S+?):(\d+):\d+: runtime error: (.*)$")
+
+
+def _in_tree(path, root, resolve=None):
+    path = os.path.relpath(path, root) if os.path.isabs(path) else path
+    if path.startswith(".."):
+        return None
+    return resolve(path) if resolve else path
+
+
+def parse_sanitizers(text, root=".", resolve=None):
+    """One CRITICAL per report, placed at its first stack frame inside the
+    repository (AddressSanitizer) or at the reported line (UBSan). resolve
+    maps a path as the symbolizer printed it (macOS's prints a base name)
+    to the repository path."""
+    out, lines = [], text.splitlines()
+    for i, line in enumerate(lines):
+        m = ASAN_HEAD.search(line)
+        if m:
+            where = ("", 0)
+            for fr in lines[i + 1:i + 60]:
+                f = ASAN_FRAME.search(fr.strip())
+                if f and _in_tree(f.group(2), root):
+                    where = (_in_tree(f.group(2), root, resolve), int(f.group(3)))
+                    break
+            out.append(Finding("sanitizer", f"asan/{m.group(1)}", where[0], where[1], "CRITICAL",
+                               line.split("ERROR: ", 1)[1][:200], root=root))
+            continue
+        m = UBSAN_LINE.match(line.strip())
+        if m and _in_tree(m.group(1), root):
+            out.append(Finding("sanitizer", "ubsan", _in_tree(m.group(1), root, resolve), int(m.group(2)), "CRITICAL",
+                               m.group(3)[:200], root=root))
+    return out
+
+
+# ---- go test -race: data races and failing tests ----
+
+GO_FRAME = re.compile(r"^\s+(\S+\.go):(\d+)(?: \+0x[0-9a-f]+)?$")
+
+
+def parse_go_test(text, tool, root="."):
+    out, lines = [], text.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith("WARNING: DATA RACE"):
+            where = ("", 0)
+            for fr in lines[i + 1:i + 40]:
+                f = GO_FRAME.match(fr)
+                if f and _in_tree(f.group(1), root):
+                    where = (_in_tree(f.group(1), root), int(f.group(2)))
+                    break
+            out.append(Finding(tool, "data-race", where[0], where[1], "CRITICAL", "data race", root=root))
+        m = re.match(r"^\s*--- FAIL: (\S+)", line)
+        if m:
+            out.append(Finding(tool, "test-failed", "", 0, "MAJOR", m.group(1), code=m.group(1)))
+    return out
+
+
+# ---- go test -fuzz: a failing input ----
+
+def parse_go_fuzz(text, target, package="."):
+    """The failing input's path is relative to the package; the finding's is
+    relative to the repository."""
+    m = re.search(r"Failing input written to (\S+)", text)
+    if not m and "--- FAIL" not in text:
+        return []
+    why = next((ln.strip() for ln in text.splitlines() if ln.strip().startswith(("panic:", "Error", "fuzz_"))), "")
+    path = os.path.normpath(os.path.join(package, m.group(1))) if m else ""
+    return [Finding("go-fuzz", target, path, 0, "CRITICAL", (why or "fuzz target failed")[:200], code=target)]
 

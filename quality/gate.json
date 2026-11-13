@@ -105,7 +105,8 @@
       "jscpd",
       "ruff",
       "shellcheck",
-      "tcb"
+      "tcb",
+      "sanitizers"
     ]
   },
   "versions": {
@@ -116,5 +117,19 @@
     "ruff": "0.17.5",
     "shellcheck": "0.11.0",
     "gitleaks": "8.30.1"
+  },
+  "sanitizers": {
+    "preset": "host-tests",
+    "build": "build-deep",
+    "test": [
+      "ctest",
+      "--test-dir",
+      "{build}",
+      "--output-on-failure",
+      "--timeout",
+      "120",
+      "-E",
+      "bench_temporal_isolation"
+    ]
   }
 }
