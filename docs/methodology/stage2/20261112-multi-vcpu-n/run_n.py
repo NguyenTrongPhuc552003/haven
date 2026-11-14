@@ -6,6 +6,8 @@ Reuses ../20261108-multi-vcpu/run_smp1.py (its case set's tree, initramfs,
 QEMU command and stop condition); the tree gets N cpu nodes and N
 redistributor frames, HAVEN is built from the repository's HEAD with
 -DHAVEN_PART_A_VCPUS=N. Writes OUT/N<n>/uart.log and OUT/results.md.
+initramfs(), prepare() and boot() are also used by
+../20261114-console-drain/stress.py.
 """
 import importlib.util
 import os
@@ -20,6 +22,7 @@ spec = importlib.util.spec_from_file_location(
 smp1 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(smp1)
 rc = smp1.rc
+IPA = 0x48000000  # partition A's initramfs (IPA)
 
 
 def tree(s, n):
@@ -43,29 +46,48 @@ def build(repo, out, log, n):
     return out
 
 
-def main():
-    repo, ksrc, image, ko, out = (os.path.abspath(x) for x in sys.argv[1:6])
-    os.makedirs(out, exist_ok=True)
-    work = tempfile.mkdtemp(prefix="smpn-")
+def initramfs(ksrc, ko, work):
+    """WORK/initramfs.cpio: KDAL's kunit-init.c as /init, and kdal.ko."""
     init, cpio = os.path.join(work, "init"), os.path.join(work, "initramfs.cpio")
     subprocess.run(["clang", "--target=aarch64-linux-gnu", "-ffreestanding", "-nostdlib", "-static", "-O2",
                     "-fno-stack-protector", "-fuse-ld=lld", "-Wl,-e,_start", "-o", init,
                     os.path.join(ksrc, "scripts/ci/kunit-init.c")], check=True)
     subprocess.run([sys.executable, os.path.join(ksrc, "scripts/ci/mkcpio.py"), cpio, init, ko], check=True)
-    ipa = 0x48000000
+    return cpio
+
+
+def prepare(repo, cpio, n, d, work):
+    """Partition A's tree for n vCPUs (D/partition-a.dts) and HAVEN built for
+    n (log in D/build.log); returns (build directory, DTB path)."""
+    dts = os.path.join(d, "partition-a.dts")
+    with open(dts, "w") as fh:
+        fh.write(tree(rc.dts(rc.CASES["B0"][2], IPA, IPA + os.path.getsize(cpio)), n))
+    dtb = os.path.join(work, f"n{n}.dtb")
+    subprocess.run(["dtc", "-q", "-I", "dts", "-O", "dtb", "-o", dtb, dts], check=True)
+    return build(repo, os.path.join(work, f"build{n}"), os.path.join(d, "build.log"), n), dtb
+
+
+def boot(b, image, dtb, cpio, uart):
+    """One free boot; UART is written fresh (an old file would end the wait
+    early). Returns the seconds it took."""
+    if os.path.exists(uart):
+        os.remove(uart)
+    return smp1.free_boot(b, image, dtb, cpio, IPA + rc.PA_OFFSET, uart)
+
+
+def main():
+    repo, ksrc, image, ko, out = (os.path.abspath(x) for x in sys.argv[1:6])
+    os.makedirs(out, exist_ok=True)
+    work = tempfile.mkdtemp(prefix="smpn-")
+    cpio = initramfs(ksrc, ko, work)
     lines = []
     for n in (2, 3):
         d = os.path.join(out, f"N{n}")
         shutil.rmtree(d, ignore_errors=True)
         os.makedirs(d)
-        dts = os.path.join(d, "partition-a.dts")
-        with open(dts, "w") as fh:
-            fh.write(tree(rc.dts(rc.CASES["B0"][2], ipa, ipa + os.path.getsize(cpio)), n))
-        dtb = os.path.join(work, f"n{n}.dtb")
-        subprocess.run(["dtc", "-q", "-I", "dts", "-O", "dtb", "-o", dtb, dts], check=True)
-        b = build(repo, os.path.join(work, f"build{n}"), os.path.join(d, "build.log"), n)
+        b, dtb = prepare(repo, cpio, n, d, work)
         uart = os.path.join(d, "uart.log")
-        secs = smp1.free_boot(b, image, dtb, cpio, ipa + rc.PA_OFFSET, uart)
+        secs = boot(b, image, dtb, cpio, uart)
         t = open(uart, errors="replace").read()
         lines += [f"## N = {n} free boot ({secs} s)", ""]
         for label, pat in [("Linux CPUs", r"smp: Brought up|CPU[0-9]: Booted|failed to come online"),

@@ -26,17 +26,22 @@ def markers(n):
     return m + ["partition stopped by PSCI OFF", "partition B started"]
 
 
+def problems(text, n):
+    """Missing markers and forbidden lines in the UART text of a run with N
+    vCPUs (also used by docs/methodology/stage2/20261114-console-drain)."""
+    bad = [f"missing: {m}" for m in markers(n) if m not in text]
+    return bad + [f"found: {f}" for f in FORBIDDEN if f in text]
+
+
 def check(out, n):
     """Missing markers and forbidden lines of run N, or None if no log."""
     path = os.path.join(out, f"N{n}", "uart.log")
     if not os.path.exists(path):
         return None
     text = open(path, errors="replace").read()
-    bad = [f"missing: {m}" for m in markers(n) if m not in text]
-    bad += [f"found: {f}" for f in FORBIDDEN if f in text]
     banner = next((line.strip() for line in text.splitlines() if "Linux version" in line), "no banner")
     print(f"N = {n}: {banner[:100]}")
-    return bad
+    return problems(text, n)
 
 
 def main():

@@ -1,0 +1,68 @@
+# What a job needs to boot Linux in partition A on QEMU: the pins of
+# ecosystem.lock.json (checked against every workflow and action file),
+# KDAL at the pinned commit in kdal/, the pinned private ELMOS SDK kernel
+# pulled by digest into build/sdk, the tools, the kernel tree prepared and
+# kdal.ko built against it. Used by ci.yml's linux-partition job and by
+# linux-stress.yml (docs/methodology/stage2/20261114-console-drain, D2).
+# The calling job needs `packages: read` and runs on the pinned runner.
+name: linux-partition
+description: Pinned KDAL, ELMOS SDK kernel, tools and kdal.ko for booting Linux in partition A
+outputs:
+  kdir:
+    description: The prepared kernel tree
+    value: ${{ steps.build.outputs.kdir }}
+  image:
+    description: The kernel Image
+    value: ${{ steps.build.outputs.image }}
+runs:
+  using: composite
+  steps:
+    - name: Pins from ecosystem.lock.json
+      id: pins
+      shell: bash
+      run: |
+        python3 scripts/ci/ecosystem.py check-workflow .github/workflows/*.yml .github/actions/*/action.yml
+        python3 scripts/ci/ecosystem.py outputs | tee -a "$GITHUB_OUTPUT"
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ steps.pins.outputs.kdal_repository }}
+        ref: ${{ steps.pins.outputs.kdal_commit }}
+        path: kdal
+    - uses: oras-project/setup-oras@v2
+    - name: Pull the pinned ELMOS SDK kernel by digest (private package)
+      shell: bash
+      env:
+        SDK_REF: ${{ steps.pins.outputs.sdk_ref }}
+        SDK_TAG: ${{ steps.pins.outputs.sdk_tag }}
+        SDK_DIGEST: ${{ steps.pins.outputs.sdk_digest }}
+        TOKEN: ${{ github.token }}
+        ACTOR: ${{ github.actor }}
+      run: |
+        echo "$TOKEN" | oras login ghcr.io -u "$ACTOR" --password-stdin
+        trap 'oras logout ghcr.io' EXIT
+        got=$(oras resolve "$SDK_TAG")
+        [ "$got" = "$SDK_DIGEST" ] || { echo "FAIL: $SDK_TAG resolves to $got, pinned $SDK_DIGEST"; exit 1; }
+        mkdir -p build/sdk
+        oras pull "$SDK_REF" -o build/sdk
+        python3 scripts/ci/ecosystem.py check-sdk build/sdk
+        python3 -c 'import json;m=json.load(open("build/sdk/manifest.json"));print("SDK", m["linux"]["version_string"], "elmos", m["elmos_commit"], "run", m["run"])'
+    - name: Install tools
+      shell: bash
+      run: |
+        sudo apt-get -o Acquire::Retries=5 update -qq
+        sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+          cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+          qemu-system-arm device-tree-compiler clang lld llvm make bc flex bison \
+          libelf-dev libssl-dev xz-utils curl
+        python3 scripts/ci/ecosystem.py check-qemu "$(qemu-system-aarch64 --version | head -1)"
+    - name: Prepare the SDK kernel and build kdal.ko (pinned KDAL)
+      id: build
+      shell: bash
+      run: |
+        set -o pipefail
+        kdal/scripts/ci/kernel-prepare.sh "$PWD/build/sdk" | tail -2 > build/kpaths
+        make -C "$(sed -n 1p build/kpaths)" M="$PWD/kdal" ARCH=arm64 LLVM=1 modules > build/kdal-build.log 2>&1 ||
+          { tail -30 build/kdal-build.log; exit 1; }
+        modinfo -F vermagic kdal/kdal.ko
+        echo "kdir=$(sed -n 1p build/kpaths)" >> "$GITHUB_OUTPUT"
+        echo "image=$(sed -n 2p build/kpaths)" >> "$GITHUB_OUTPUT"
