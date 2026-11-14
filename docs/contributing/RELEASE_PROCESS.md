@@ -39,7 +39,7 @@ Complete this checklist manually before running `scripts/release.sh`.
 ### 2.1 Code quality
 
 ```
-[ ] All CI jobs green on the release commit (ci.yml, static-analysis.yml, benchmark.yml)
+[ ] All CI jobs green on the release commit (ci.yml, including "quality gate")
 [ ] No open Blocker-class findings in static analysis (STATIC_ANALYSIS_POLICY.md)
 [ ] All MISRA deviations documented in MISRA_DEVIATION_RECORD.md
 [ ] Isolation Guardian sign-off obtained for any TCB changes (if applicable)

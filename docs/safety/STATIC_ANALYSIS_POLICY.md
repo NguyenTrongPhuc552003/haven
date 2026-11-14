@@ -28,7 +28,7 @@
 | Version           | >= 2.13                                                                   |
 | Invocation        | `cppcheck --language=c --std=c11 --enable=all --error-exitcode=1 <paths>` |
 | MISRA integration | `--misra-c=misra-c:2012 --addon=misra.py` (if available)                  |
-| CI gate           | `static-analysis.yml` job `cppcheck`                                      |
+| CI gate           | job "quality gate", cppcheck runner (`tools/gate/`)                        |
 | Scope             | `src/core/`, `arch/arm64/`, `drivers/iommu/`, `drivers/irqchip/`          |
 
 cppcheck is the primary gate because it is available in all CI environments without
@@ -40,7 +40,7 @@ licensing cost and supports MISRA addon configuration.
 | ---------- | ---------------------------------------------------------- |
 | Version    | >= 17 (bundled with LLVM toolchain)                        |
 | Invocation | `clang --analyze -Xanalyzer -analyzer-output=text <paths>` |
-| CI gate    | `static-analysis.yml` job `clang-analyze`                  |
+| CI gate    | job "quality gate", clang-tidy `clang-analyzer-*` checks   |
 | Scope      | Same as cppcheck                                           |
 
 Clang is run as a secondary gate. Its findings complement cppcheck with
@@ -84,8 +84,8 @@ These are **advisory** - findings do not block merges but must be triaged within
 | `arch/arm64/partition.S` | Assembly                                        |
 | `arch/arm64/entry.S`     | Assembly                                        |
 
-Scope additions require a PR that updates this document and the CI workflow
-`static-analysis.yml` simultaneously.
+Scope additions require a PR that updates this document and the gate's
+profile (`quality/gate.json`) together.
 
 ---
 
@@ -166,46 +166,21 @@ At each milestone sign-off, the following coverage targets must be met:
 
 ## 8. CI Workflow Integration
 
-Static analysis runs locally with `scripts/ci/static-analysis.sh`; it is not yet part of CI.
-
-### Current gate configuration
-
-```yaml
-# Excerpt from static-analysis.yml
-jobs:
-  cppcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install cppcheck
-        run: sudo apt-get install -y cppcheck
-      - name: Run cppcheck
-        run: |
-          cppcheck --language=c --std=c11 \
-            --enable=warning,portability,performance \
-            --error-exitcode=1 \
-            arch/arm64/ src/core/ drivers/iommu/ drivers/irqchip/
-
-  clang-analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run clang --analyze
-        run: |
-          clang --analyze -Xanalyzer -analyzer-output=text \
-            arch/arm64/*.c src/core/*.c drivers/iommu/*.c drivers/irqchip/*.c
-```
+Static analysis runs in the quality gate (`scripts/gate`, design in
+`docs/quality/gate.md`): cppcheck, clang-tidy (including the Clang static
+analyzer's checks), lizard, jscpd, ruff, shellcheck, a secret and
+personal-name scan and gitleaks, rated BLOCKER to INFO. The CI job
+"quality gate" runs it on the whole tree and is a required check on
+`main`; the git hooks run the same checks on the changed files before a
+push; a weekly CI workflow adds the sanitizer builds. Findings that existed
+when the gate started are in `quality/baseline.json`; a new CRITICAL or
+MAJOR finding blocks the change.
 
 ### Adding a new tool
 
-To add a new static analysis tool:
-
-1. Add a new job to `static-analysis.yml`
-2. Update the scope definition in Section 3 of this document
-3. Run the tool locally and triage initial findings before merging
-4. Add any false positives to Section 6
-
----
+A tool is added to the gate's engine (`tools/gate/`): a runner, its
+severity table and unit tests with recorded output, then the profile
+(`quality/gate.json`) names it per stage and pins its version.
 
 ## 9. Relationship to MISRA Deviation Record
 

@@ -45,7 +45,7 @@ static struct {
 	hv_u64 phys_base;
 	hv_u32 vmid; /* SMMU TLB tag of this window */
 	int configured;
-} device_dma_config[HV_MAX_SMMU_STREAMS] = {0};
+} device_dma_config[HV_MAX_SMMU_STREAMS];
 
 /**
  * Check if two DMA windows overlap.

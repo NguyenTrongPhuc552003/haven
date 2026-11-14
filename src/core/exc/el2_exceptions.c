@@ -362,14 +362,20 @@ static void hv_handle_psci_call(hv_u32 ec, hv_u64 sp)
 		action = hv_psci_call(x, mpidr, &ret);
 	}
 	if (action == HV_PSCI_START_VCPU) {
-		/* Outside the lock: the start waits for the CPU. */
-		int rc = hv_partition_start_vcpu != NULL ?
+		/*
+		 * Outside the lock: the start waits for the CPU. Only the
+		 * vCPU table path asks for a start; the check keeps a start
+		 * without a table from writing through NULL.
+		 */
+		int rc = v != NULL && hv_partition_start_vcpu != NULL ?
 				 hv_partition_start_vcpu(index, x[2], x[3]) :
 				 HV_PSCI_INTERNAL_FAILURE;
 
-		hv_spin_lock(&psci_vcpus_lock);
-		v->state[index] = rc == 0 ? HV_VCPU_ON : HV_VCPU_OFF;
-		hv_spin_unlock(&psci_vcpus_lock);
+		if (v != NULL) {
+			hv_spin_lock(&psci_vcpus_lock);
+			v->state[index] = rc == 0 ? HV_VCPU_ON : HV_VCPU_OFF;
+			hv_spin_unlock(&psci_vcpus_lock);
+		}
 		ret = (hv_u64)(int64_t)rc;
 		action = HV_PSCI_RESUME;
 	}

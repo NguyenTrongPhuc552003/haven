@@ -156,25 +156,13 @@ static efi_status open_root(efi_handle image, struct efi_boot_services *bs,
 
 /* ---- main ---- */
 
-efi_status efi_main(efi_handle image, struct efi_system_table *st)
+/* 2. claim every range at its fixed address (released again on failure) */
+static efi_status claim_ranges(struct efi_boot_services *bs)
 {
-	struct efi_boot_services *bs = st->boot_services;
-	uint64_t el = (READ_SYSREG("CurrentEL") >> 2) & 3U;
-	struct efi_loaded_image *li;
-	struct efi_file *root;
-	uint64_t size, key, dsize, addr, self_base, self_size;
-	uint32_t dver;
+	uint64_t addr;
 	efi_status s;
-	unsigned int i, tries;
-	char line[] = TAG ": exit-boot-services tries 0\n";
+	unsigned int i;
 
-	con_init(st->con_out);
-	con_puts(TAG ": HAVEN-BOOT 1\n");
-	con_kv(TAG, "CurrentEL", el);
-	if (el != 2U)
-		return EFI_UNSUPPORTED;
-
-	/* 2. claim every range at its fixed address */
 	for (i = 0; i < NR_RANGES; i++) {
 		addr = ranges[i].base;
 		s = bs->allocate_pages(EFI_ALLOCATE_ADDRESS, ranges[i].type,
@@ -194,24 +182,41 @@ efi_status efi_main(efi_handle image, struct efi_system_table *st)
 		con_hex(ranges[i].size);
 		con_puts("\n");
 	}
+	return EFI_SUCCESS;
+}
 
-	/* 3. zero them; 4. load the images */
+/* 3. zero the ranges; 4. load the images into them */
+static efi_status load_ranges(efi_handle image, struct efi_boot_services *bs,
+			      struct efi_loaded_image **li)
+{
+	struct efi_file *root;
+	efi_status s;
+	unsigned int i;
+
 	for (i = 0; i < NR_RANGES; i++)
 		zero_range(ranges[i].base, ranges[i].size);
-	s = open_root(image, bs, &root, &li);
+	s = open_root(image, bs, &root, li);
 	for (i = 0; s == EFI_SUCCESS && i < NR_RANGES; i++)
 		if (ranges[i].file[0])
 			s = load_file(root, &ranges[i]);
-	if (s != EFI_SUCCESS) {
-		release(bs, NR_RANGES);
-		return s;
-	}
+	return s;
+}
 
-	self_base = (uint64_t)(uintptr_t)li->image_base;
-	self_size = li->image_size;
+/*
+ * 5. leave boot services; after the first call only GetMemoryMap and
+ * ExitBootServices may be used. Returns the number of tries, or 0 when the
+ * first memory map could not be read (boot services still usable). Does
+ * not return when a later try fails: there is nowhere safe to return to.
+ */
+static unsigned int leave_boot_services(efi_handle image,
+					struct efi_boot_services *bs,
+					efi_status *err)
+{
+	uint64_t size, key, dsize;
+	uint32_t dver;
+	efi_status s = EFI_LOAD_ERROR;
+	unsigned int tries;
 
-	/* 5. leave boot services; after the first call only GetMemoryMap and
-	 * ExitBootServices may be used */
 	con_puts(TAG ": exit-boot-services\n");
 	for (tries = 1; tries <= EBS_TRIES; tries++) {
 		size = sizeof(map_buf);
@@ -221,22 +226,22 @@ efi_status efi_main(efi_handle image, struct efi_system_table *st)
 		if (s == EFI_SUCCESS)
 			s = bs->exit_boot_services(image, key);
 		if (s == EFI_SUCCESS)
-			break;
+			return tries;
 		if (tries == 1 && s != EFI_INVALID_PARAMETER) {
 			con_puts(TAG ": no memory map\n");
-			release(bs, NR_RANGES);
-			return s;
+			*err = s;
+			return 0;
 		}
 	}
-	if (s != EFI_SUCCESS)
-		for (;;) /* boot services may be gone: nowhere safe to return */
-			__asm__ volatile("wfe");
+	for (;;) /* boot services may be gone: nowhere safe to return */
+		__asm__ volatile("wfe");
+}
 
-	/* 6. from here on, the UART only */
-	line[sizeof(line) - 3] = (char)('0' + tries);
-	uart_puts(line);
+/* 7. clean every claimed range and this image to the point of coherency */
+static void clean_all(uint64_t self_base, uint64_t self_size)
+{
+	unsigned int i;
 
-	/* 7. clean every claimed range and this image to the point of coherency */
 	for (i = 0; i < NR_RANGES; i++)
 		clean_range(ranges[i].base, ranges[i].size);
 	clean_range(self_base, self_size);
@@ -244,6 +249,43 @@ efi_status efi_main(efi_handle image, struct efi_system_table *st)
 			 :
 			 :
 			 : "memory");
+}
+
+efi_status efi_main(efi_handle image, struct efi_system_table *st)
+{
+	struct efi_boot_services *bs = st->boot_services;
+	uint64_t el = (READ_SYSREG("CurrentEL") >> 2) & 3U;
+	struct efi_loaded_image *li;
+	uint64_t self_base = 0, self_size = 0;
+	efi_status s;
+	unsigned int tries = 0;
+	char line[] = TAG ": exit-boot-services tries 0\n";
+
+	con_init(st->con_out);
+	con_puts(TAG ": HAVEN-BOOT 1\n");
+	con_kv(TAG, "CurrentEL", el);
+	if (el != 2U)
+		return EFI_UNSUPPORTED;
+
+	s = claim_ranges(bs);
+	if (s != EFI_SUCCESS)
+		return s;
+	s = load_ranges(image, bs, &li);
+	if (s == EFI_SUCCESS) {
+		/* read before boot services go: the protocol is theirs */
+		self_base = (uint64_t)(uintptr_t)li->image_base;
+		self_size = li->image_size;
+		tries = leave_boot_services(image, bs, &s);
+	}
+	if (s != EFI_SUCCESS || tries == 0) {
+		release(bs, NR_RANGES);
+		return s != EFI_SUCCESS ? s : EFI_LOAD_ERROR;
+	}
+
+	/* 6. from here on, the UART only */
+	line[sizeof(line) - 3] = (char)('0' + tries);
+	uart_puts(line);
+	clean_all(self_base, self_size);
 
 	/* 8. MMU and data cache off, then HAVEN */
 	haven_handoff(BOOT_ENTRY, BOOT_UART);

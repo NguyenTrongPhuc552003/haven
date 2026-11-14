@@ -1046,7 +1046,7 @@ The sections below describe work beyond the 12-month thesis window. They are cap
 
 **Theme:** Gate all merges on cppcheck + clang `--analyze`; establish a MISRA-C subset compliance baseline to support any future ISO 26262 or IEC 61508 claim.
 
-> **Status as of v0.6.0:** The CI workflow (`.github/workflows/static-analysis.yml`) and local script (`scripts/ci/static-analysis.sh`) are complete and passing. The remaining work is the MISRA-C rule selection and deviation documentation.
+> **Status as of v0.6.0:** a CI workflow and a local static-analysis script were complete and passing. Since 2026-11 both are replaced by the quality gate (`docs/quality/gate.md`), a required CI check. The remaining work is the MISRA-C rule selection and deviation documentation.
 
 **Static analysis gate (complete - `feat/static-analysis-gate`):**
 - cppcheck: `src/core/`, `src/guest/`, `drivers/` (except `drivers/linux/` - kernel module)
@@ -1291,7 +1291,7 @@ This section tracks completed milestones against the 12-month plan. Updated at e
 | #23    | `feat/secondary-cpu-bringup`           | Secondary CPU (CPU 2) PSCI bring-up, Partition B AMP launch                                         | v0.6.0     |
 | #24    | `feat/freertos-context-hardening`      | FreeRTOS context-switch state machine, task block/unblock, priority ceiling                         | v0.6.0     |
 | #25    | `chore/website-v0.6.0-sync`            | Changelog, architecture overview, thesis traceability updated for v0.6.0                            | v0.6.0     |
-| #26    | `feat/static-analysis-gate`            | cppcheck + clang `--analyze` CI gate; local `scripts/ci/static-analysis.sh`                         | v0.6.0     |
+| #26    | `feat/static-analysis-gate`            | cppcheck + clang `--analyze` CI gate and a local script (both replaced by the quality gate in 2026-11)                         | v0.6.0     |
 | #31    | `chore/cmake-migration`                | Full CMake >= 3.22 + Ninja migration; Makefile retired; CMakePresets.json with 4 presets            | v0.6.1     |
 | #32    | `docs/cmake-migration`                 | Docs and website updated to cmake preset commands; Getting-Started updated                          | v0.6.1     |
 | #33–34 | `fix/benchmark-baseline-and-make-refs` | benchmark-baseline.py corrected paths; remaining make→cmake cleanup in CI workflows, scripts, docs  | v0.6.1     |
