@@ -59,7 +59,7 @@ static hv_freertos_partition_t freertos_partitions[HV_MAX_FREERTOS_PARTITIONS] =
 	{0};
 static hv_task_t task_registry[HV_MAX_FREERTOS_TASKS_PER_PARTITION *
 			       HV_MAX_FREERTOS_PARTITIONS] = {0};
-static hv_shared_region_t shared_regions[HV_MAX_SHARED_REGIONS] = {0};
+static hv_shared_region_t shared_regions[HV_MAX_SHARED_REGIONS];
 static hv_u16 partition_count = 0;
 static hv_u16 task_count = 0;
 static hv_u16 region_count = 0;

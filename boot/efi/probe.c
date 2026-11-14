@@ -18,42 +18,31 @@ static void kv(const char *k, uint64_t v)
 
 #define READ(reg) READ_SYSREG(reg)
 
+/* UEFI memory types 0 to 14; a 2-D char array, not pointers, so the image
+ * needs no relocations (build.sh checks there are none) */
+static const char mem_type_names[][20] = {
+	"Reserved",
+	"LoaderCode",
+	"LoaderData",
+	"BootServicesCode",
+	"BootServicesData",
+	"RuntimeServicesCode",
+	"RuntimeServicesData",
+	"Conventional",
+	"Unusable",
+	"ACPIReclaim",
+	"ACPINVS",
+	"MMIO",
+	"MMIOPortSpace",
+	"PalCode",
+	"Persistent",
+};
+
 static const char *mem_type(uint32_t t)
 {
-	switch (t) {
-	case 0:
-		return "Reserved";
-	case 1:
-		return "LoaderCode";
-	case 2:
-		return "LoaderData";
-	case 3:
-		return "BootServicesCode";
-	case 4:
-		return "BootServicesData";
-	case 5:
-		return "RuntimeServicesCode";
-	case 6:
-		return "RuntimeServicesData";
-	case 7:
-		return "Conventional";
-	case 8:
-		return "Unusable";
-	case 9:
-		return "ACPIReclaim";
-	case 10:
-		return "ACPINVS";
-	case 11:
-		return "MMIO";
-	case 12:
-		return "MMIOPortSpace";
-	case 13:
-		return "PalCode";
-	case 14:
-		return "Persistent";
-	default:
-		return "Other";
-	}
+	return t < sizeof(mem_type_names) / sizeof(mem_type_names[0]) ?
+		       mem_type_names[t] :
+		       "Other";
 }
 
 static int guid_is(const struct efi_guid *g, uint32_t d1, uint16_t d2,

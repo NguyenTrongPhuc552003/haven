@@ -26,7 +26,7 @@ typedef struct {
 /**
  * UART port array.
  */
-static hv_uart_port_t uart_ports[HV_MAX_UART_PORTS] = {0};
+static hv_uart_port_t uart_ports[HV_MAX_UART_PORTS];
 
 /**
  * Port count.

@@ -137,15 +137,6 @@
    "count": 1
   },
   {
-   "key": "0b6d17b4b6bd6eb53ef078c7",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-gic-readback/run_gic.py",
-   "severity": "MAJOR",
-   "message": "24 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:72",
-   "count": 1
-  },
-  {
    "key": "0c61462719cd5b3510780142",
    "tool": "ruff",
    "rule": "E701",
@@ -254,15 +245,6 @@
    "count": 1
   },
   {
-   "key": "19994cd725cff22ecf2927c1",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py",
-   "severity": "MAJOR",
-   "message": "24 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:72",
-   "count": 1
-  },
-  {
    "key": "1b2318b8a57f06e0edc97e89",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -362,24 +344,6 @@
    "count": 1
   },
   {
-   "key": "1f093a6b570ddc9d810ae1ef",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from docs/methodology/stage2/20261107-readback-v8/rerun_v8.py:45",
-   "count": 1
-  },
-  {
-   "key": "1f370e94b7c4f9a90086a4d9",
-   "tool": "lizard",
-   "rule": "complexity",
-   "file": "boot/efi/probe.c",
-   "severity": "MAJOR",
-   "message": "mem_type: cyclomatic complexity 16 > 15",
-   "count": 1
-  },
-  {
    "key": "2038b9d6eaa821dee9c574c0",
    "tool": "shellcheck",
    "rule": "SC2086",
@@ -404,15 +368,6 @@
    "file": "src/common/string.c",
    "severity": "MAJOR",
    "message": "2 adjacent parameters of 'hv_memcpy' of convertible types are easily swapped by mistake",
-   "count": 1
-  },
-  {
-   "key": "23cd16cd2279408e2568042f",
-   "tool": "clang-tidy",
-   "rule": "bugprone-invalid-enum-default-initialization",
-   "file": "src/guest/drivers/uart.c",
-   "severity": "CRITICAL",
-   "message": "enum value of type 'hv_uart_baud_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator",
    "count": 1
   },
   {
@@ -506,15 +461,6 @@
    "count": 1
   },
   {
-   "key": "2b3123afa89fd9ad82984c86",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261107-readback-v9/rerun_v9.py",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from docs/methodology/stage2/20261107-readback-v8/rerun_v8.py:8",
-   "count": 1
-  },
-  {
    "key": "2b797338062b729a8a93be5b",
    "tool": "clang-tidy",
    "rule": "bugprone-reserved-identifier",
@@ -578,15 +524,6 @@
    "count": 2
   },
   {
-   "key": "331c8170f71d628110132090",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261107-dt-check-pairs/run_dt_pairs.py",
-   "severity": "MAJOR",
-   "message": "30 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:24",
-   "count": 1
-  },
-  {
    "key": "34d1f7b697641eec618fbc59",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -629,15 +566,6 @@
    "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
    "severity": "MINOR",
    "message": "Ambiguous variable name: `l`",
-   "count": 1
-  },
-  {
-   "key": "36dd85e56f3dd266f44fd668",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py",
-   "severity": "MAJOR",
-   "message": "26 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases.py:54",
    "count": 1
   },
   {
@@ -1010,15 +938,6 @@
    "count": 1
   },
   {
-   "key": "57c4b3657e2be6aadaba986e",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-irq-delivery/run_irq.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63",
-   "count": 1
-  },
-  {
    "key": "59830f558253ae17e8d5d1bc",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1070,15 +989,6 @@
    "file": "docs/methodology/stage2/20261106-linux-chain-cases/run_cases.py",
    "severity": "MINOR",
    "message": "Ambiguous variable name: `l`",
-   "count": 1
-  },
-  {
-   "key": "5bda5b207e9c3916bf8b43c1",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-el2-memory/run_a1.py",
-   "severity": "MAJOR",
-   "message": "26 lines duplicated from docs/methodology/stage2/20261102-budgets/run_budget.py:46",
    "count": 1
   },
   {
@@ -1280,15 +1190,6 @@
    "count": 1
   },
   {
-   "key": "6dedf0c4a4379599d10cbba3",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-a1-cases-v3/run_cases_v3.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63",
-   "count": 1
-  },
-  {
    "key": "6e4c7609ab35a2f26088cce7",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1334,30 +1235,12 @@
    "count": 1
   },
   {
-   "key": "7132149726ca29c9983760ad",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-irq-delivery/run_irq.py",
-   "severity": "MAJOR",
-   "message": "30 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:123",
-   "count": 1
-  },
-  {
    "key": "729f08de507287f373d954b6",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
    "file": "drivers/iommu/smmu_v3.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator",
-   "count": 1
-  },
-  {
-   "key": "72b08eb5a98a9ecd9d17d70b",
-   "tool": "lizard",
-   "rule": "complexity",
-   "file": "boot/efi/boot.c",
-   "severity": "MAJOR",
-   "message": "efi_main: cyclomatic complexity 19 > 15",
    "count": 1
   },
   {
@@ -1376,15 +1259,6 @@
    "file": "drivers/iommu/smmu_v3.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator",
-   "count": 1
-  },
-  {
-   "key": "74240e3f2a0581caf11b0f01",
-   "tool": "clang-tidy",
-   "rule": "clang-analyzer-core.NullDereference",
-   "file": "src/core/exc/el2_exceptions.c",
-   "severity": "CRITICAL",
-   "message": "Array access (via field 'state') results in a null pointer dereference",
    "count": 1
   },
   {
@@ -1451,15 +1325,6 @@
    "count": 1
   },
   {
-   "key": "77a7fd86b19e8252e200a37b",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261107-dt-check-same-node/run_dt_same.py",
-   "severity": "MAJOR",
-   "message": "19 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:6",
-   "count": 1
-  },
-  {
    "key": "7821828283b4e1d8fab4ce91",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -1475,15 +1340,6 @@
    "file": "src/guest/drivers/uart.c",
    "severity": "MINOR",
    "message": "Excessive padding in 'hv_uart_port_t' (8 padding bytes, where 0 is optimal). Optimal fields order: stats, partition, allocated, tx_head, tx_tail, rx_head, rx_tail, config, tx_buffer, rx_buffer, consider reordering the fields or adding explicit padding members",
-   "count": 1
-  },
-  {
-   "key": "78ff76b272bab11efb90234a",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-irq-delivery/run_irq.py",
-   "severity": "MAJOR",
-   "message": "35 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:65",
    "count": 1
   },
   {
@@ -1595,15 +1451,6 @@
    "count": 1
   },
   {
-   "key": "8106e38d762625d0a88606f2",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-g2-dma/run_g2.py",
-   "severity": "MAJOR",
-   "message": "37 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:44",
-   "count": 1
-  },
-  {
    "key": "843af5ee2debed685865c498",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -1645,7 +1492,7 @@
    "rule": "complexity",
    "file": "src/core/exc/el2_exceptions.c",
    "severity": "MAJOR",
-   "message": "hv_handle_psci_call: cyclomatic complexity 24 > 15",
+   "message": "hv_handle_psci_call: cyclomatic complexity 26 > 15",
    "count": 1
   },
   {
@@ -1793,15 +1640,6 @@
    "count": 1
   },
   {
-   "key": "8f42143024e38fb2c62eb531",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-partition-b/run_partb.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63",
-   "count": 1
-  },
-  {
    "key": "8faf62de72c5b7ab66b31ad8",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -1817,15 +1655,6 @@
    "file": "src/core/irq/vgic.c",
    "severity": "MAJOR",
    "message": "3 adjacent parameters of 'prio_access' of convertible types are easily swapped by mistake",
-   "count": 1
-  },
-  {
-   "key": "908d391e7a98dc7d95aa6971",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261107-dt-check-same-node/run_dt_same.py",
-   "severity": "MAJOR",
-   "message": "30 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:24",
    "count": 1
   },
   {
@@ -2160,15 +1989,6 @@
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator",
    "count": 2
-  },
-  {
-   "key": "b21422b96bf43c548769358b",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "tools/readback/readback.py",
-   "severity": "MAJOR",
-   "message": "16 lines duplicated from docs/methodology/stage1/20261101-a1-readback/readback.py:112",
-   "count": 1
   },
   {
    "key": "b282c65309b6f297416bc808",
@@ -2657,33 +2477,6 @@
    "count": 1
   },
   {
-   "key": "d674c09f2683be7b652a5a4e",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261107-dt-check-pairs/run_dt_pairs.py",
-   "severity": "MAJOR",
-   "message": "19 lines duplicated from docs/methodology/stage2/20261107-dt-check-blind/run_dt_blind.py:6",
-   "count": 1
-  },
-  {
-   "key": "d765834f6944b30828a90a78",
-   "tool": "clang-tidy",
-   "rule": "bugprone-invalid-enum-default-initialization",
-   "file": "src/guest/rtos/freertos_integration.c",
-   "severity": "CRITICAL",
-   "message": "enum value of type 'hv_shared_access_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator",
-   "count": 1
-  },
-  {
-   "key": "d8384ddab2bd92622d138ce4",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-g2-dma/run_g2.py",
-   "severity": "MAJOR",
-   "message": "22 lines duplicated from docs/methodology/stage2/20261102-dma-hardening/run_hardening.py:92",
-   "count": 1
-  },
-  {
    "key": "d857280d080694764bb9391b",
    "tool": "clang-tidy",
    "rule": "bugprone-signed-bitwise",
@@ -2900,15 +2693,6 @@
    "count": 1
   },
   {
-   "key": "e90191f51e9199e1a37f5be8",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-gic-readback/run_gic.py",
-   "severity": "MAJOR",
-   "message": "17 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:152",
-   "count": 1
-  },
-  {
    "key": "e945351ec5270d1ebefa0dd6",
    "tool": "ruff",
    "rule": "E741",
@@ -2981,15 +2765,6 @@
    "count": 1
   },
   {
-   "key": "ef26f8ff94229e59d02a5a5b",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-dma-hardening/run_hardening.py",
-   "severity": "MAJOR",
-   "message": "29 lines duplicated from docs/methodology/stage1/20261102-smmu-bugfix/run_checks.py:63",
-   "count": 1
-  },
-  {
    "key": "ef874768cc0081979a9b611b",
    "tool": "clang-tidy",
    "rule": "bugprone-easily-swappable-parameters",
@@ -3008,30 +2783,12 @@
    "count": 1
   },
   {
-   "key": "f0684ad37cd6261c7189abee",
-   "tool": "clang-tidy",
-   "rule": "bugprone-invalid-enum-default-initialization",
-   "file": "src/core/dma/smmu.c",
-   "severity": "CRITICAL",
-   "message": "enum value of type 'hv_dma_access_t' initialized with invalid value of 0, enum doesn't have a zero-value enumerator",
-   "count": 1
-  },
-  {
    "key": "f51ff21481907da3e153eebb",
    "tool": "ruff",
    "rule": "E741",
    "file": "docs/methodology/stage2/20261107-cpu-assignment/run_cpus.py",
    "severity": "MINOR",
    "message": "Ambiguous variable name: `l`",
-   "count": 1
-  },
-  {
-   "key": "f69868cf05550c75971737cc",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-readback-v4/run_v4.py",
-   "severity": "MAJOR",
-   "message": "20 lines duplicated from docs/methodology/stage1/20261101-a1-readback/run_cases_v2.py:76",
    "count": 1
   },
   {
@@ -3059,15 +2816,6 @@
    "file": "arch/arm64/mm.c",
    "severity": "MAJOR",
    "message": "use of a signed integer operand with a binary bitwise operator",
-   "count": 1
-  },
-  {
-   "key": "f91bd4852a3d24164f4b8730",
-   "tool": "jscpd",
-   "rule": "duplicate",
-   "file": "docs/methodology/stage2/20261102-secondary-cpu/run_b3.py",
-   "severity": "MAJOR",
-   "message": "21 lines duplicated from docs/methodology/stage2/20261102-budgets/run_budget.py:51",
    "count": 1
   },
   {

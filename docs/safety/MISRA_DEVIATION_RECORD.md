@@ -174,7 +174,7 @@ in source code. The suppression format is:
 ```
 
 Suppressions **without** a corresponding DR entry in this file are flagged as
-policy violations in the static analysis CI gate (`static-analysis.yml`).
+policy violations by the quality gate (`docs/quality/gate.md`).
 
 ---
 

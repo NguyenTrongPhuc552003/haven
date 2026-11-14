@@ -34,7 +34,8 @@
   ],
   "jscpd_formats": "c,python",
   "jscpd_ignore": [
-    "**/test_*.py"
+    "**/test_*.py",
+    "docs/methodology/**"
   ],
   "limits": {
     "ccn": 15,
