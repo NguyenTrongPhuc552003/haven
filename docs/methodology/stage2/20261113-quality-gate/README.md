@@ -607,3 +607,27 @@ instead of being edited (they are the record of what was run).
 | P4b | ELMOS after E1 | its tests and builds pass on Linux, macOS and Windows |
 | P5 | all three after parts 2 to 4 | `baseline --check` shows only the fixes above as fixed and nothing new |
 
+### Results (fix list parts 2 to 4; haven #117, #118; ELMOS #27, #28; KDAL #32)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| P2a | KDAL with `quality/cppcheck-kernel.h` (the kernel's list iteration macros): no `unknownMacro`, `registry.c` analysed, 0 new cppcheck findings, on the Mac and in CI | holds |
+| P2b | an untracked file with a token pattern in KDAL's tree: the new engine reports nothing; the previous engine reported a BLOCKER (`gitleaks/github-pat`) | holds |
+| P2c | ELMOS and KDAL: 0 drift findings in CI; a seeded one-line change to `scripts/gate`: MAJOR `gate/copy-drift` | holds |
+| P3a | HAVEN's CI after #117: CRITICAL 0 (was 4) | holds |
+| P3b | `haven.elf`, qemu-virt and cix-p1, `main` against `main` with only the H2 change: same SHA-256 for both | holds |
+| P3c | all CI jobs pass; trusted code 7,555 to 7,557 (qemu-virt) and 7,543 to 7,545 (cix-p1) | holds |
+| P3d | no lizard finding in `boot/efi/`; `uefi-probe-check` and the four `uefi-boot-check` runs (cortex-a72, max, seed mmu, seed e2h) pass in CI | holds |
+| P3e | no `scripts/format.sh` outside `docs/methodology/` | holds |
+| P3f | `scripts/ci/static-analysis.sh` gone; the safety policy, deviation record, release process and roadmap cited it or a `static-analysis.yml` workflow that does not exist, and now cite the gate; only CHANGELOG entries (history) keep the old names | holds |
+| P3g | 22 jscpd entries left the baseline (21 under `docs/methodology/` and one pair with a side there); 3 remain | prediction error by one |
+| P4a | ELMOS's CI after #27: govulncheck finds no vulnerability, CRITICAL 0 | holds |
+| P4b | ELMOS's tests and builds pass on Linux, macOS and Windows | holds |
+| P5 | `baseline --check`: HAVEN 28 fixed (4 CRITICAL, 2 complexity, 22 duplicates), ELMOS 1 fixed (the vulnerability), KDAL 0; nothing new in any | holds |
+
+**Not predicted.** One run of haven's "Linux in partition A" job (the push
+run of #118) failed because the Linux guest's `KDAL-DEMAND-END` marker was
+missing at 2 vCPUs; the pull-request run of the same commit passed, and a
+re-run passed. A check that sometimes misses a marker is recorded as an
+open flake to investigate, not dismissed.
+
