@@ -64,3 +64,25 @@ fix list part 5 printed "cannot create '}'".
 | T4 | a missing output directory; a device name that is not a safe file name | exit 1, the message names the directory or the name; no uninitialised text |
 | T5 | KDAL's CI | green; e2e loses its dt-gen SKIP; gate: no new CRITICAL or MAJOR; jscpd duplicates not up |
 | T6 | the summary `dt-gen` prints | the same reg size as the file's `reg` |
+
+## Owner's choice and an amendment (before code)
+
+Owner chose option B, 2026-11-14. Found while planning the test:
+
+- **F7, the e2e suite does not run in CI [from the code].** KDAL's CI runs
+  `scripts/ci/test.sh` (smoke tests), the gate and KUnit; `scripts/e2e/`
+  runs only by hand (`cmake --build ... --target e2e`). A check added
+  there alone would not run in CI.
+
+So T1 to T4 are one script, `scripts/ci/dtgen-check.sh KDALITY`, run by
+the smoke tests in CI (Linux and macOS, with `dtc` installed for T3) and
+by `scripts/e2e/test_compiler.sh` in place of its old block. The
+simplified-syntax input is a fixture, `tests/dtgen/led.kdh`, copied from
+the language guide. The file reader, lexer and parser calls that `lint`
+and `simulate` each repeat become one library function,
+`kdal_parse_file()`, which `dt-gen` uses too. T1 is shown by a CI run of
+the pull request's first commit (the script alone).
+
+| Row | Check | Expected |
+| - | - | - |
+| T7 | the parse helper | `lint` and `simulate` behave as before on the examples (their output unchanged); jscpd duplicates not up |
