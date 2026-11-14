@@ -750,3 +750,20 @@ print MISSING, and the programs they do call (`clang`, `cmake`, `perl`,
 | P5 | `doctor` in the CI logs of HAVEN, ELMOS and KDAL | no runner name printed as MISSING; every MISSING line names a program that is really absent; KDAL's libFuzzer line names `clang` |
 | P6 | engine unit tests; `baseline --check` in all three | pass; nothing new and nothing fixed |
 | P7 | ELMOS and KDAL re-pinned to the engine commit | their CI green |
+
+### Results (fix list part 6; haven #126; ELMOS #29; KDAL #35)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| P1 | `test_gate.Stale`: a newer `sub/CMakeLists.txt` makes the database stale, an older one does not, a missing database is stale | holds |
+| P2 | KDAL on the Mac, engine at #126: after `touch compiler/CMakeLists.txt` (time 1794620761), `ci` rewrote `build-gate/compile_commands.json` (time 1794620770) | holds |
+| P3 | "Done 137436 runs in 61 second(s)" gives one INFO `fuzz_lex_parse/summary` with "137436 runs in 61 s"; the crash and AddressSanitizer tests stay CRITICAL | holds |
+| P4 | KDAL's weekly run on demand at `2e84752`: green in 12 min 27 s; `INFO libfuzzer/fuzz_lex_parse/summary: fuzz_lex_parse: 113060 runs in 121 s, nothing found` | holds; Q8 of part 5 now shown |
+| P5 | `doctor` in CI: no MISSING line in HAVEN, ELMOS or KDAL (HAVEN printed `sanitizers MISSING` before); every line names a program; KDAL: `libfuzzer clang /usr/bin/clang` | holds |
+| P6 | 35 engine unit tests pass; the `ci` counts before and after the re-pin are the same (HAVEN MAJOR 265, MINOR 76; ELMOS 25, 0; KDAL 367, 78), new CRITICAL or MAJOR 0 | holds (counts compared, `baseline --check` not run separately) |
+| P7 | ELMOS #29 and KDAL #35 (engine `4d26a36`): CI green, merged | holds |
+
+**Found on the way.** In `test_gate.py`, `unittest.main()` stood above the
+`BaseRef` class, so running the file directly skipped `BaseRef` (CI uses
+`discover`, which ran it). Moved to the end in #126; the file run directly
+now runs every test.
