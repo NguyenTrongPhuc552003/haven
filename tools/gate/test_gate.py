@@ -3,6 +3,7 @@
 severity scale, finding identity, baseline and stage policy."""
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -391,6 +392,48 @@ class DeepReport(unittest.TestCase):
                 # --fail-on-new turns it into a failing exit
                 self.assertEqual(code, want)
                 self.assertIn("BLOCKER  scan/", out.getvalue())
+
+
+class Copies(unittest.TestCase):
+    """L7: a repository's copy of an engine template must not drift."""
+
+    def test_drift(self):
+        class Ctx:
+            stage = "ci"
+            root = None
+            cfg = {"copies": {"scripts/gate": "repo-gate.sh"}}
+        with tempfile.TemporaryDirectory() as d:
+            Ctx.root = d
+            os.makedirs(os.path.join(d, "scripts"))
+            with open(os.path.join(tools.TEMPLATES, "repo-gate.sh"), "rb") as f:
+                body = f.read()
+            with open(os.path.join(d, "scripts", "gate"), "wb") as f:
+                f.write(body)
+            self.assertEqual(tools.copies(Ctx(), []), [])
+            with open(os.path.join(d, "scripts", "gate"), "ab") as f:
+                f.write(b"# local change\n")
+            out = tools.copies(Ctx(), [])
+            self.assertEqual([(f.rule, f.file, f.severity) for f in out], [("copy-drift", "scripts/gate", "MAJOR")])
+
+
+class GitleaksTracked(unittest.TestCase):
+    """L6: gitleaks sees only the files it is given (tracked files)."""
+
+    @unittest.skipUnless(shutil.which("gitleaks"), "gitleaks not installed")
+    def test_untracked_file_is_not_scanned(self):
+        class Ctx:
+            stage, cfg = "ci", {}
+        import hashlib
+        # built at run time (no secret-like text in the file); random enough
+        # for gitleaks' entropy check
+        token = "ghp_" + hashlib.sha256(b"gate test").hexdigest()[:36].replace("a", "Q")
+        with tempfile.TemporaryDirectory() as d:
+            Ctx.root = d
+            for name in ("tracked.txt", "untracked.txt"):
+                with open(os.path.join(d, name), "w") as f:
+                    f.write(f"token = {token}\n" if name == "untracked.txt" else "nothing here\n")
+            self.assertEqual(tools.gitleaks(Ctx(), ["tracked.txt"]), [])
+            self.assertTrue(tools.gitleaks(Ctx(), ["tracked.txt", "untracked.txt"]))
 
 
 if __name__ == "__main__":
