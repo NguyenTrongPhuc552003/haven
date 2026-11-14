@@ -99,3 +99,11 @@ gate" job, Coccinelle in the weekly one.
 ELMOS and KDAL use this repository's `.github/actions/gate-tools` at the
 commit their profile pins, so the CI setup has one copy.
 
+The wrapper `scripts/gate` and the two hooks ELMOS and KDAL keep are copies
+of `tools/gate/templates/`; the `copies` check in their `ci` stage fails
+(MAJOR) when a copy differs from the templates of the engine they pin.
+gitleaks scans a copy of the tracked files, so a developer's untracked
+files give no findings. A profile may give cppcheck a header of macro
+definitions (`cppcheck.include`), as KDAL does for the kernel's list
+macros.
+

@@ -103,6 +103,9 @@ def cppcheck(ctx, files):
     # and their suppressions)
     conf = ctx.cfg.get("cppcheck", {})
     sup = ["--suppress=" + s for s in ["missingIncludeSystem", "missingInclude"] + conf.get("suppress", [])]
+    # a header of macro definitions cppcheck cannot get otherwise (KDAL:
+    # the kernel's list macros, without which it skips the file)
+    sup += ["--include=" + os.path.join(ctx.root, h) for h in conf.get("include", [])]
     code, _, err = run([exe, "--enable=" + conf.get("enable", "warning,performance,portability"),
                         "--inline-suppr", "--quiet"] + sup +
                        ["--template={file}\t{line}\t{severity}\t{id}\t{message}"] + inc + files, ctx.root)
@@ -205,14 +208,27 @@ def shellcheck(ctx, files):
 
 
 def gitleaks(ctx, files):
+    """gitleaks on a copy of the stage's files (tracked files in ci and
+    deep), so untracked files on a developer's machine give no findings CI
+    cannot see."""
     exe = which(ctx, "gitleaks")
     if not exe:
         return missing(ctx, "gitleaks")
     with tempfile.TemporaryDirectory() as out:
+        tree = os.path.join(out, "tree")
+        for f in files:
+            dst = os.path.join(tree, f)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            try:
+                shutil.copy2(os.path.join(ctx.root, f), dst)
+            except OSError:
+                continue
+        os.makedirs(tree, exist_ok=True)
         rep = os.path.join(out, "r.json")
-        conf = [] if not os.path.exists(os.path.join(ctx.root, ".gitleaks.toml")) else ["-c", ".gitleaks.toml"]
+        cfg_file = os.path.join(ctx.root, ".gitleaks.toml")
+        conf = ["-c", cfg_file] if os.path.exists(cfg_file) else []
         code, _, err = run([exe, "dir", "--no-banner", "--exit-code", "0", "-f", "json", "-r", rep] + conf + ["."],
-                           ctx.root)
+                           tree)
         if code or not os.path.exists(rep):
             return failed("gitleaks", f"exit {code}: {err}")
         with open(rep) as f:
@@ -401,6 +417,28 @@ def coccinelle(ctx, files):
     return checked("coccinelle", code, err[-2000:], rules.parse_coccinelle(so + err, ctx.root))
 
 
+TEMPLATES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+
+
+def copies(ctx, files):
+    """Files a repository keeps as copies of the engine's templates (ELMOS
+    and KDAL: the wrapper and the hooks). A copy that differs is MAJOR in
+    ci, so the copies cannot drift apart unnoticed (L7)."""
+    out = []
+    for path, name in sorted(ctx.cfg.get("copies", {}).items()):
+        try:
+            with open(os.path.join(ctx.root, path), "rb") as a, open(os.path.join(TEMPLATES, name), "rb") as b:
+                same = a.read() == b.read()
+        except OSError as e:
+            same, why = False, str(e)
+        else:
+            why = f"differs from the engine's templates/{name}"
+        if not same:
+            sev = "MAJOR" if ctx.stage == "ci" else "INFO"
+            out.append(Finding("gate", "copy-drift", path, 0, sev, why, code=path))
+    return out
+
+
 def tcb(ctx, files):
     conf = ctx.cfg.get("tcb")
     if not conf:
@@ -420,7 +458,7 @@ RUNNERS = {"scan": scan, "cppcheck": cppcheck, "clang-tidy": clang_tidy, "lizard
            "jscpd": jscpd, "ruff": ruff, "shellcheck": shellcheck, "gitleaks": gitleaks, "tcb": tcb,
            "gofmt": gofmt, "golangci-lint": golangci_lint, "govulncheck": govulncheck,
            "checkpatch": checkpatch, "sanitizers": sanitizers, "go-race": go_race, "go-fuzz": go_fuzz,
-           "sparse": sparse, "coccinelle": coccinelle}
+           "sparse": sparse, "coccinelle": coccinelle, "copies": copies}
 # the paths each tool reads unless a profile's "tool_paths" names its own
 # (None: every file of the stage)
 PATH_KEYS = {"cppcheck": ["c_paths"], "clang-tidy": ["c_paths"], "lizard": ["c_paths", "go_paths"],
