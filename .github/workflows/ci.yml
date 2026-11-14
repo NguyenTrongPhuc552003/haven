@@ -45,6 +45,8 @@ jobs:
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/readback -p "test_*.py" -v
       - name: Firmware image scanners (Python)
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/fwscan -p "test_*.py" -v
+      - name: Ecosystem pin checks (Python)
+        run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s scripts/ci -p "test_*.py" -v
 
 
   # The quality gate (docs/quality/gate.md): every tool at the version pinned
@@ -126,7 +128,9 @@ jobs:
   # (docs/methodology/stage2/20261112-e4-ci-linux). Kernel: the pinned
   # private ELMOS SDK package; kdal.ko built against it at a pinned KDAL.
   # Every pin comes from ecosystem.lock.json (docs/methodology/stage2/
-  # 20261113-e5-compat-manifest); runs-on is checked against it.
+  # 20261113-e5-compat-manifest); runs-on is checked against it. The setup is
+  # the linux-partition action, shared with linux-stress.yml
+  # (docs/methodology/stage2/20261114-console-drain).
   linux-partition:
     name: Linux in partition A (QEMU, ELMOS SDK kernel)
     runs-on: ubuntu-24.04
@@ -136,50 +140,15 @@ jobs:
       packages: read
     steps:
       - uses: actions/checkout@v4
-      - name: Pins from ecosystem.lock.json
-        id: pins
-        run: |
-          python3 scripts/ci/ecosystem.py check-workflow .github/workflows/ci.yml
-          python3 scripts/ci/ecosystem.py outputs | tee -a "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ steps.pins.outputs.kdal_repository }}
-          ref: ${{ steps.pins.outputs.kdal_commit }}
-          path: kdal
-      - uses: oras-project/setup-oras@v2
-      - name: Pull the pinned ELMOS SDK kernel by digest (private package)
-        env:
-          SDK_REF: ${{ steps.pins.outputs.sdk_ref }}
-          SDK_TAG: ${{ steps.pins.outputs.sdk_tag }}
-          SDK_DIGEST: ${{ steps.pins.outputs.sdk_digest }}
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
-          trap 'oras logout ghcr.io' EXIT
-          got=$(oras resolve "$SDK_TAG")
-          [ "$got" = "$SDK_DIGEST" ] || { echo "FAIL: $SDK_TAG resolves to $got, pinned $SDK_DIGEST"; exit 1; }
-          mkdir -p build/sdk
-          oras pull "$SDK_REF" -o build/sdk
-          python3 scripts/ci/ecosystem.py check-sdk build/sdk
-          python3 -c 'import json;m=json.load(open("build/sdk/manifest.json"));print("SDK", m["linux"]["version_string"], "elmos", m["elmos_commit"], "run", m["run"])'
-      - name: Install tools
-        run: |
-          sudo apt-get -o Acquire::Retries=5 update -qq
-          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
-            cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
-            qemu-system-arm device-tree-compiler clang lld llvm make bc flex bison \
-            libelf-dev libssl-dev xz-utils curl
-          python3 scripts/ci/ecosystem.py check-qemu "$(qemu-system-aarch64 --version | head -1)"
-      - name: Prepare the SDK kernel and build kdal.ko (pinned KDAL)
-        run: |
-          set -o pipefail
-          kdal/scripts/ci/kernel-prepare.sh "$PWD/build/sdk" | tail -2 > build/kpaths
-          make -C "$(sed -n 1p build/kpaths)" M="$PWD/kdal" ARCH=arm64 LLVM=1 modules > build/kdal-build.log 2>&1 ||
-            { tail -30 build/kdal-build.log; exit 1; }
-          modinfo -F vermagic kdal/kdal.ko
+      - name: Pinned KDAL, SDK kernel, tools and kdal.ko
+        id: lp
+        uses: ./.github/actions/linux-partition
       - name: Boot Linux in partition A (2 and 3 vCPUs)
+        env:
+          IMAGE: ${{ steps.lp.outputs.image }}
         run: |
           python3 docs/methodology/stage2/20261112-multi-vcpu-n/run_n.py "$PWD" "$PWD/kdal" \
-            "$(sed -n 2p build/kpaths)" "$PWD/kdal/kdal.ko" build/linux-runs
+            "$IMAGE" "$PWD/kdal/kdal.ko" build/linux-runs
           grep -h "DMA grant" build/linux-runs/N*/uart.log || true
       - name: Check the UART logs
         run: python3 scripts/qemu/linux-partition-check.py build/linux-runs

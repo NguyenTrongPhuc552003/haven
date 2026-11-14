@@ -5,8 +5,10 @@ HAVEN's CI to ELMOS and KDAL (docs/methodology/stage2/20261113-e5-compat-manifes
 
 Usage (from the repository root):
   ecosystem.py outputs                 pins as key=value lines (for $GITHUB_OUTPUT)
-  ecosystem.py check-workflow CI_YML   the linux-partition job's runs-on is the
-                                       pinned runner; no pinned literal in CI_YML
+  ecosystem.py check-workflow FILE...  no pinned literal in any FILE (workflows
+                                       and actions); every job that uses the
+                                       linux-partition action runs on the
+                                       pinned runner
   ecosystem.py check-sdk DIR           the pulled SDK's manifest.json names the
                                        pinned ELMOS commit and run
   ecosystem.py check-qemu LINE         `qemu-system-aarch64 --version` (first
@@ -43,23 +45,39 @@ def outputs(d):
         print(f"{key}={value}")
 
 
-def check_workflow(d, path):
-    text = open(path).read()
-    # the linux-partition job: from its key to the next job key (two spaces)
-    m = re.search(r"^  linux-partition:\n(.*?)(?=^  \S|\Z)", text, re.M | re.S)
-    if not m:
-        fail(f"{path}: no linux-partition job")
-    runs = re.search(r"^    runs-on:\s*(\S+)\s*$", m.group(1), re.M)
-    if not runs or runs.group(1) != d["ci"]["runner"]:
-        fail(f"linux-partition runs-on {runs.group(1) if runs else None!r}, pinned {d['ci']['runner']!r}")
-    s = d["elmos_sdk"]
+# the setup action of every job that boots Linux in partition A
+# (docs/methodology/stage2/20261114-console-drain)
+ACTION = "./.github/actions/linux-partition"
+
+
+def jobs(text):
+    """(name, body) of each job in a workflow: the keys two spaces in under `jobs:`."""
+    m = re.search(r"^jobs:\n(.*)", text, re.M | re.S)
+    return re.findall(r"^  ([\w-]+):\n(.*?)(?=^  \S|^\S|\Z)", m.group(1), re.M | re.S) if m else []
+
+
+def check_workflow(d, paths):
+    runner, s, users = d["ci"]["runner"], d["elmos_sdk"], 0
     # hashes also in their short (7-digit) form; the tag as written
-    for name, literal, short in (("KDAL commit", d["kdal"]["commit"], True), ("SDK tag", s["tag"], False),
-                                 ("SDK digest", s["digest"].split(":", 1)[1], True),
-                                 ("ELMOS commit", s["elmos_commit"], True)):
-        if literal in text or (short and literal[:7] in text):
-            fail(f"{path} names the {name} ({literal[:12]}...) itself; read it from ecosystem.lock.json")
-    print(f"OK: {path} takes its pins from ecosystem.lock.json (runner {d['ci']['runner']})")
+    literals = (("KDAL commit", d["kdal"]["commit"], True), ("SDK tag", s["tag"], False),
+                ("SDK digest", s["digest"].split(":", 1)[1], True), ("ELMOS commit", s["elmos_commit"], True))
+    for path in paths:
+        with open(path) as f:
+            text = f.read()
+        for name, literal, short in literals:
+            if literal in text or (short and literal[:7] in text):
+                fail(f"{path} names the {name} ({literal[:12]}...) itself; read it from ecosystem.lock.json")
+        for job, body in jobs(text):
+            if ACTION not in body:
+                continue
+            users += 1
+            runs = re.search(r"^    runs-on:\s*(\S+)\s*$", body, re.M)
+            if not runs or runs.group(1) != runner:
+                fail(f"{path}: job {job} uses {ACTION} on {runs.group(1) if runs else None!r}, pinned {runner!r}")
+    if not users:
+        fail(f"no job in {len(paths)} files uses {ACTION}")
+    print(f"OK: {len(paths)} files take their pins from ecosystem.lock.json; "
+          f"{users} jobs use {ACTION} on {runner}")
 
 
 def check_sdk(d, directory):
@@ -83,8 +101,8 @@ def main():
     cmd, args = (sys.argv[1], sys.argv[2:]) if len(sys.argv) > 1 else ("", [])
     if cmd == "outputs":
         outputs(d)
-    elif cmd == "check-workflow" and len(args) == 1:
-        check_workflow(d, args[0])
+    elif cmd == "check-workflow" and args:
+        check_workflow(d, args)
     elif cmd == "check-sdk" and len(args) == 1:
         check_sdk(d, args[0])
     elif cmd == "check-qemu" and len(args) == 1:

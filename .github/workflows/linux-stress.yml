@@ -1,0 +1,70 @@
+# Linux in partition A booted many times, on demand only
+# (docs/methodology/stage2/20261114-console-drain, D3 and D4): 10 shards
+# each boot N = 2 and N = 3 ROUNDS times with the setup of ci.yml's
+# linux-partition job; the summary job adds them up and fails if any boot
+# failed. Dispatched on main for the current pins, or on a branch to test
+# that branch's ecosystem.lock.json before it merges.
+name: linux-stress
+
+on:
+  workflow_dispatch:
+    inputs:
+      rounds:
+        description: Rounds per shard (each round boots N = 2 and N = 3)
+        required: true
+        default: "100"
+
+permissions:
+  contents: read
+
+jobs:
+  shard:
+    name: stress shard ${{ matrix.shard }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pinned KDAL, SDK kernel, tools and kdal.ko
+        id: lp
+        uses: ./.github/actions/linux-partition
+      - name: Boot N = 2 and N = 3, ${{ inputs.rounds }} rounds
+        env:
+          IMAGE: ${{ steps.lp.outputs.image }}
+          ROUNDS: ${{ inputs.rounds }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          python3 docs/methodology/stage2/20261114-console-drain/stress.py run "$PWD" "$PWD/kdal" \
+            "$IMAGE" "$PWD/kdal/kdal.ko" "$ROUNDS" "build/stress/shard-$SHARD"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stress-shard-${{ matrix.shard }}
+          path: build/stress
+          retention-days: 14
+
+  summary:
+    name: stress summary
+    needs: shard
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: stress-shard-*
+          path: build/stress
+          merge-multiple: true
+      - name: Add up the shards
+        run: python3 docs/methodology/stage2/20261114-console-drain/stress.py sum build/stress
+      - name: Every shard finished
+        if: needs.shard.result != 'success'
+        run: |
+          echo "FAIL: a shard did not finish (${{ needs.shard.result }})"
+          exit 1
