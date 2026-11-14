@@ -607,3 +607,49 @@ instead of being edited (they are the record of what was run).
 | P4b | ELMOS after E1 | its tests and builds pass on Linux, macOS and Windows |
 | P5 | all three after parts 2 to 4 | `baseline --check` shows only the fixes above as fixed and nothing new |
 
+## Fix list, part 5: KDAL's compiler and tools; `kdalc` fuzzing (design and expectations, before code)
+
+Owner-approved 2026-11-14. Known before writing this (from reading the
+code): `kdal_lex` returns a `realloc`ed token array that none of its three
+callers frees (LeakSanitizer's 3 leaks); its `arena` parameter is marked
+"reserved for future arena-based token allocation". When growing that
+array fails, `lx_emit` returns without a token and its callers still write
+`lx->tokens[lx->ntokens - 1]` (the 4 null dereferences). The code that
+reads a source file into memory exists three times (`compiler/codegen.c`,
+`tools/kdality/lint.c`, `simulate.c`): the `rewind`, 0-byte `malloc`,
+`errno` and three "tainted index" reports come from these copies, and
+jscpd reports one of them. `dtgen.c` converts with `sscanf` and `atoi`.
+
+- **K1, tokens in the arena.** `kdal_lex` copies the finished array into
+  the arena it is given and frees its own buffer, so the tokens live as
+  long as the AST that refers to them and no caller changes.
+- **K2, a failed token is not written.** `lx_emit` returns the new token or
+  NULL; its callers check.
+- **K3, one file reader.** `kdal_read_file()` in the compiler library
+  (`ftell` checked, `fseek` instead of `rewind`, the length bound stated),
+  used by `kdalc`, `lint` and `simulate`.
+- **K4, checked conversions.** `dtgen` uses `strtoul` and `strtol` with end
+  and range checks.
+- **K5, a fuzz target.** `compiler/fuzz/fuzz_lex_parse.c` (libFuzzer)
+  lexes, parses and checks any input; a `libfuzzer` runner in the engine
+  builds it with AddressSanitizer and UBSan (CMake option `KDAL_FUZZ`) and
+  runs it for 120 s in KDAL's weekly CI run, seeded with the examples; a
+  crash or leak is CRITICAL at the saved input.
+
+| Row | Check | Expected |
+| - | - | - |
+| Q1 | KDAL's weekly run after K1 | 0 LeakSanitizer reports from `kdalc` (3 before) |
+| Q2 | KDAL CRITICAL after K1 to K4 | 13 to 0, or at most 2 left, each with its reason written next to the code |
+| Q3 | jscpd after K3 | the `simulate.c` and `lint.c` duplicate gone; KDAL duplicates 19 to 18 or fewer |
+| Q4 | `kdalc` on the examples before and after K1 to K3 | generated C and Kbuild files byte-identical; the compiler's e2e test (39 checks) and the smoke tests pass |
+| Q5 | KUnit and the module build | unchanged (no kernel file touched): 40 of 40 |
+| Q6 | the fuzz target on the Mac, 60 s | runs; 0 to 3 crashes or leaks in the lexer and parser |
+| Q7 | seeded: a corpus file that reaches a deliberate abort in a scratch copy | the runner reports CRITICAL at that input |
+| Q8 | KDAL's weekly run after K5 | completes under 15 min; green if fuzzing finds nothing, red with the findings listed otherwise |
+| Q9 | engine unit tests | pass, with a test of the libFuzzer report parser |
+| Q10 | `baseline --check` in all three | only the fixes above as fixed, nothing new |
+
+**The flaky Linux-partition check** (approved alongside): first the guest
+logs of passing and failing runs are compared; a fix and its expectations
+follow the investigation, not this record.
+
