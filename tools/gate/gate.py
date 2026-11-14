@@ -121,12 +121,13 @@ def report(found, block, new_keys, stage, baseline=None):
     for f in found:
         if f.severity == "INFO":
             print(f"INFO     {f.tool}/{f.rule}: {f.message}")
+    listed = block
     if stage == "deep":
         # deep blocks nothing, so it lists what it found that the baseline
         # does not hold, at every level (a weekly CI run is read from this)
         unlisted = fd.new_keys(found, baseline or {}, ("BLOCKER", "CRITICAL", "MAJOR", "MINOR"))
-        block = [f for f in found if f.key in unlisted]
-    for f in block:
+        listed = [f for f in found if f.key in unlisted]
+    for f in listed:
         print(f)
     summary = ", ".join(f"{lv} {counts[lv]}" for lv in reversed(fd.LEVELS))
     print(f"gate {stage}: {summary}; new CRITICAL or MAJOR {new}; blocking {len(block)}")

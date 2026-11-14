@@ -439,6 +439,43 @@ def copies(ctx, files):
     return out
 
 
+def libfuzzer(ctx, files):
+    """Build the profile's libFuzzer targets with clang (CMake preset plus
+    the profile's options) and run each for N seconds from a working
+    corpus seeded with the profile's directories; a crash, a sanitizer
+    report or a leak (Linux) is CRITICAL at the input libFuzzer saved."""
+    conf = ctx.cfg.get("libfuzzer")
+    if not conf:
+        return []
+    cc = which(ctx, conf.get("cc", "clang"))
+    if not cc:
+        return missing(ctx, conf.get("cc", "clang"))
+    build = os.path.join(ctx.root, conf["build"])
+    code, _, err = run(["cmake", "--preset", conf["preset"], "-B", build, f"-DCMAKE_C_COMPILER={cc}"] +
+                       conf.get("cmake_args", []), ctx.root)
+    if not code:
+        code, _, err = run(["cmake", "--build", build, "--target"] + [t["name"] for t in conf["targets"]],
+                           ctx.root)
+    if code:
+        return failed("libfuzzer", f"build exit {code}: {err}")
+    leaks = 1 if sys.platform.startswith("linux") else 0
+    env = dict(os.environ, ASAN_OPTIONS=f"detect_leaks={leaks}", UBSAN_OPTIONS="print_stacktrace=1")
+    out = []
+    for t in conf["targets"]:
+        work = os.path.join(build, "corpus-" + t["name"])
+        art = os.path.join(build, "artifacts-" + t["name"])
+        shutil.rmtree(art, ignore_errors=True)
+        os.makedirs(work, exist_ok=True)
+        os.makedirs(art, exist_ok=True)
+        # -close_fd_mask=2: the target's own error messages stay out of the
+        # log; libFuzzer and the sanitizers keep a copy of stderr for theirs
+        code, so, err = run([os.path.join(build, t["binary"]), f"-max_total_time={conf.get('seconds', 60)}",
+                             "-close_fd_mask=2", f"-detect_leaks={leaks}", f"-artifact_prefix={art}{os.sep}", work] +
+                            [os.path.join(ctx.root, s) for s in t.get("seeds", [])], ctx.root, env)
+        out += checked("libfuzzer", code, err[-2000:], rules.parse_libfuzzer(so + err, t["name"], ctx.root))
+    return out
+
+
 def tcb(ctx, files):
     conf = ctx.cfg.get("tcb")
     if not conf:
@@ -458,7 +495,8 @@ RUNNERS = {"scan": scan, "cppcheck": cppcheck, "clang-tidy": clang_tidy, "lizard
            "jscpd": jscpd, "ruff": ruff, "shellcheck": shellcheck, "gitleaks": gitleaks, "tcb": tcb,
            "gofmt": gofmt, "golangci-lint": golangci_lint, "govulncheck": govulncheck,
            "checkpatch": checkpatch, "sanitizers": sanitizers, "go-race": go_race, "go-fuzz": go_fuzz,
-           "sparse": sparse, "coccinelle": coccinelle, "copies": copies}
+           "sparse": sparse, "coccinelle": coccinelle, "copies": copies,
+           "libfuzzer": libfuzzer}
 # the paths each tool reads unless a profile's "tool_paths" names its own
 # (None: every file of the stage)
 PATH_KEYS = {"cppcheck": ["c_paths"], "clang-tidy": ["c_paths"], "lizard": ["c_paths", "go_paths"],

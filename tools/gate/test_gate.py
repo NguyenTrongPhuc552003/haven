@@ -436,6 +436,30 @@ class GitleaksTracked(unittest.TestCase):
             self.assertTrue(tools.gitleaks(Ctx(), ["tracked.txt", "untracked.txt"]))
 
 
+# Recorded on the Mac (clang 23.1.5, libFuzzer): a seeded abort (trimmed).
+LIBFUZZER = """==38861== ERROR: libFuzzer: deadly signal
+    #4 0x000102230c08 in LLVMFuzzerTestOneInput seedfuzz.c:20
+SUMMARY: libFuzzer: deadly signal
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+artifact_prefix='/repo/build-fuzz/artifacts-fuzz_lex_parse/'; Test unit written to /repo/build-fuzz/artifacts-fuzz_lex_parse/crash-2453036b25
+"""
+LIBFUZZER_ASAN = """==7==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60 at pc 0x1
+SUMMARY: AddressSanitizer: heap-buffer-overflow /repo/compiler/lexer.c:40 in lx_cur
+Test unit written to ./crash-aa
+"""
+
+
+class LibFuzzer(unittest.TestCase):
+    def test_reports(self):
+        out = rules.parse_libfuzzer(LIBFUZZER, "fuzz_lex_parse", "/repo")
+        self.assertEqual([(f.rule, f.file, f.severity) for f in out],
+                         [("fuzz_lex_parse/deadly-signal", "build-fuzz/artifacts-fuzz_lex_parse/crash-2453036b25",
+                           "CRITICAL")])
+        asan = rules.parse_libfuzzer(LIBFUZZER_ASAN, "fuzz_lex_parse", "/repo")
+        self.assertEqual(asan[0].rule, "fuzz_lex_parse/heap-buffer-overflow")
+        self.assertEqual(rules.parse_libfuzzer("Done 137436 runs in 61 second(s)\n", "fuzz_lex_parse"), [])
+
+
 if __name__ == "__main__":
     unittest.main()
 

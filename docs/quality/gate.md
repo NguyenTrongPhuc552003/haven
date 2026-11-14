@@ -89,6 +89,7 @@ scheduled run shows red. Its checks:
 | HAVEN | the host tests built with AddressSanitizer and UBSan (`build-deep/`) |
 | KDAL | the compiler's e2e test against `kdalc` built with AddressSanitizer and UBSan |
 | ELMOS | `go test -race`, and 60 s of fuzzing for each target in the profile; a failing input is kept under the package's `testdata/fuzz/`, so plain `go test` replays it |
+| KDAL (also) | 120 s of libFuzzer on the compiler's lexer, parser and checks (`compiler/fuzz/`), built with clang, AddressSanitizer and UBSan |
 
 Sanitizer reports go to log files under `build-deep/sanitizer-logs/`, so a
 test script that hides its error output does not hide them. LeakSanitizer
