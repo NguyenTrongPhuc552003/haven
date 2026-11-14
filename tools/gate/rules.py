@@ -405,6 +405,7 @@ def parse_coccinelle(text, root="."):
 FUZZ_ERROR = re.compile(r"ERROR: (AddressSanitizer|LeakSanitizer|libFuzzer): ([^\n]+)")
 FUZZ_UBSAN = re.compile(r"SUMMARY: UndefinedBehaviorSanitizer: ([\w-]+)")
 FUZZ_UNIT = re.compile(r"Test unit written to (\S+)")
+FUZZ_DONE = re.compile(r"Done (\d+) runs in (\d+) second")
 
 
 def parse_libfuzzer(text, target, root="."):
@@ -414,7 +415,11 @@ def parse_libfuzzer(text, target, root="."):
     m = FUZZ_ERROR.search(text)
     u = FUZZ_UBSAN.search(text)
     if not (unit or m or u):
-        return []
+        done = FUZZ_DONE.search(text)
+        # a clean run says how much it ran (L10); INFO is never baselined
+        return [Finding("libfuzzer", target + "/summary", "", 0, "INFO",
+                        f"{target}: {done.group(1)} runs in {done.group(2)} s, nothing found",
+                        code=target + "/summary")] if done else []
     what = m.group(2).split(" on ")[0].strip() if m else ""  # "X on address ..."
     if m and m.group(1) != "libFuzzer":
         kind = f"{m.group(1)}: {what}"

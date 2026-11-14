@@ -112,6 +112,21 @@ def cppcheck(ctx, files):
     return checked("cppcheck", code, err, rules.parse_cppcheck(err, ctx.root))
 
 
+# what CMake reads: a newer one means the compile database may miss files
+CMAKE_INPUTS = ("*CMakeLists.txt", "*.cmake", "CMakePresets.json")
+
+
+def stale(ctx, db):
+    """True if the compile database DB is missing or older than a tracked
+    CMake input: a C file added to the build since then is not in it (L9)."""
+    if not os.path.exists(db):
+        return True
+    _, so, _ = run(["git", "ls-files", "-z", "--"] + list(CMAKE_INPUTS), ctx.root)
+    paths = [os.path.join(ctx.root, f) for f in so.split("\0") if f]
+    when = os.path.getmtime(db)
+    return any(os.path.getmtime(p) > when for p in paths if os.path.exists(p))
+
+
 def clang_tidy(ctx, files):
     files = [f for f in files if f.endswith(".c")]
     conf = ctx.cfg.get("clang_tidy")
@@ -120,12 +135,15 @@ def clang_tidy(ctx, files):
     exe = which(ctx, "clang-tidy")
     if not exe:
         return missing(ctx, "clang-tidy")
-    build = os.path.join(ctx.root, conf["build"])
-    if not os.path.exists(os.path.join(build, "compile_commands.json")):
+    db = os.path.join(ctx.root, conf["build"], "compile_commands.json")
+    build = os.path.dirname(db)
+    if stale(ctx, db):
         code, _, err = run(conf["configure"], ctx.root)
         if code:
             return [Finding("gate", "configure-failed", "", 0, "MAJOR", err.strip()[-300:], code="configure")]
-    with open(os.path.join(build, "compile_commands.json")) as f:
+        # CMake may leave an unchanged database untouched; mark it current
+        os.utime(db)
+    with open(db) as f:
         known = {os.path.relpath(e["file"], ctx.root) if os.path.isabs(e["file"]) else e["file"]
                  for e in json.load(f)}
     files = [f for f in files if f in known]
@@ -472,7 +490,11 @@ def libfuzzer(ctx, files):
         code, so, err = run([os.path.join(build, t["binary"]), f"-max_total_time={conf.get('seconds', 60)}",
                              "-close_fd_mask=2", f"-detect_leaks={leaks}", f"-artifact_prefix={art}{os.sep}", work] +
                             [os.path.join(ctx.root, s) for s in t.get("seeds", [])], ctx.root, env)
-        out += checked("libfuzzer", code, err[-2000:], rules.parse_libfuzzer(so + err, t["name"], ctx.root))
+        found = rules.parse_libfuzzer(so + err, t["name"], ctx.root)
+        # the INFO summary alone does not explain a failed run
+        if code and all(f.severity == "INFO" for f in found):
+            found = failed("libfuzzer", f"exit {code}: {err[-2000:]}") + found
+        out += found
     return out
 
 
@@ -505,3 +527,28 @@ PATH_KEYS = {"cppcheck": ["c_paths"], "clang-tidy": ["c_paths"], "lizard": ["c_p
 # a tool that runs on another pinned tool: its version is checked too
 NEEDS = {"coccinelle": ["spatch"], "gofmt": ["go"], "golangci-lint": ["go"], "govulncheck": ["go"],
          "go-race": ["go"], "go-fuzz": ["go"]}
+# the programs each runner calls itself, for doctor (a runner not named here
+# calls none); NEEDS and the libFuzzer profile's compiler are added
+PROGRAMS = {"cppcheck": ["cppcheck"], "clang-tidy": ["clang-tidy"], "lizard": ["lizard"], "jscpd": ["jscpd"],
+            "ruff": ["ruff"], "shellcheck": ["shellcheck"], "gitleaks": ["gitleaks"], "gofmt": ["gofmt"],
+            "golangci-lint": ["golangci-lint"], "govulncheck": ["govulncheck"], "checkpatch": ["perl"],
+            "sanitizers": ["cmake"], "libfuzzer": ["cmake"], "tcb": ["cmake"], "sparse": ["sparse", "make"],
+            "coccinelle": ["make"]}
+
+
+def programs(cfg, runner):
+    """The programs RUNNER calls under the profile CFG; checkpatch's script
+    as its absolute path."""
+    out = PROGRAMS.get(runner, []) + NEEDS.get(runner, [])
+    if runner == "libfuzzer":
+        out = [cfg.get("libfuzzer", {}).get("cc", "clang")] + out
+    if runner == "checkpatch" and cfg.get("checkpatch"):
+        out = out + [os.path.join(os.path.expanduser(cfg["checkpatch"]["dir"]), "checkpatch.pl")]
+    return list(dict.fromkeys(out))
+
+
+def locate(ctx, program):
+    """Where PROGRAM is (an absolute path: if it exists), or None."""
+    if os.path.isabs(program):
+        return program if os.path.exists(program) else None
+    return which(ctx, program)
