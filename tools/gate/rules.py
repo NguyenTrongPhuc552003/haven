@@ -399,3 +399,32 @@ def parse_coccinelle(text, root="."):
                                "MAJOR" if m.group(3) == "ERROR" else "MINOR", m.group(4)[:200], root=root))
     return out
 
+
+# ---- libFuzzer: the first error report and the saved input ----
+
+FUZZ_ERROR = re.compile(r"ERROR: (AddressSanitizer|LeakSanitizer|libFuzzer): ([^\n]+)")
+FUZZ_UBSAN = re.compile(r"SUMMARY: UndefinedBehaviorSanitizer: ([\w-]+)")
+FUZZ_UNIT = re.compile(r"Test unit written to (\S+)")
+
+
+def parse_libfuzzer(text, target, root="."):
+    """One CRITICAL per run that found something, at the input libFuzzer
+    saved (the file to keep as a regression test)."""
+    unit = FUZZ_UNIT.search(text)
+    m = FUZZ_ERROR.search(text)
+    u = FUZZ_UBSAN.search(text)
+    if not (unit or m or u):
+        return []
+    what = m.group(2).split(" on ")[0].strip() if m else ""  # "X on address ..."
+    if m and m.group(1) != "libFuzzer":
+        kind = f"{m.group(1)}: {what}"
+    elif u:
+        kind = f"UndefinedBehaviorSanitizer: {u.group(1)}"
+    elif m:
+        kind = f"libFuzzer: {what}"
+    else:
+        kind = "failure"
+    path = _in_tree(unit.group(1), root) or unit.group(1) if unit else ""
+    rule = target + "/" + kind.split(": ", 1)[-1].replace(" ", "-")
+    return [Finding("libfuzzer", rule, path, 0, "CRITICAL", f"{target}: {kind}", code=rule)]
+
