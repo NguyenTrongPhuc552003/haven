@@ -715,3 +715,38 @@ follow the investigation, not this record.
   (for the owner's decision): drain the console (`ioctl(1, TCSBRK, 1)`)
   before powering off.
 
+
+## Fix list, part 6: L9, L10 and `doctor` (design and expectations, before code)
+
+Owner-approved 2026-11-14. Known before writing this (from reading the
+code): `clang_tidy` runs the profile's `configure` command only when
+`compile_commands.json` is missing (L9). `parse_libfuzzer` returns nothing
+when the run found nothing, so a clean run and a run that never started
+look the same in the log (L10). `doctor` looks up every runner name of the
+profile's stages as a program, so runners that are not programs
+(`libfuzzer`, `sanitizers`, `copies`, `go-race`, `go-fuzz`, `checkpatch`)
+print MISSING, and the programs they do call (`clang`, `cmake`, `perl`,
+`go`) are not shown.
+
+- **P-L9, reconfigure when the build files changed.** `clang_tidy` also
+  runs `configure` when a tracked `CMakeLists.txt`, `*.cmake` file or
+  `CMakePresets.json` is newer than `compile_commands.json`.
+- **P-L10, a clean fuzz run says so.** `parse_libfuzzer` returns one INFO
+  finding, `<target>/summary`, with libFuzzer's run count and seconds
+  ("Done N runs in S second(s)") when nothing was found; INFO is never
+  baselined or blocking, like `jscpd/summary`.
+- **P-doctor, programs, not runners.** A table in `tools.py` names the
+  programs each runner calls (with `NEEDS` and the libFuzzer profile's
+  compiler); `doctor` prints one line per runner and program, with the
+  version check of that program, and "no program" for runners that call
+  none.
+
+| Row | Check | Expected |
+| - | - | - |
+| P1 | unit test of P-L9 | a scratch tree with `CMakeLists.txt` newer than its database runs `configure`; one with it older does not |
+| P2 | KDAL on the Mac after `touch compiler/CMakeLists.txt` | `scripts/gate pre-push` rewrites `build-gate/compile_commands.json` (its time is newer than the `touch` afterwards) |
+| P3 | unit tests of P-L10 | "Done 137436 runs in 61 second(s)" gives one INFO with 137436; the crash and leak tests stay CRITICAL |
+| P4 | KDAL's weekly run (on demand) after the re-pin | green; its log has `libfuzzer/fuzz_lex_parse/summary` with a run count above 0 and about 120 s (shows Q8) |
+| P5 | `doctor` in the CI logs of HAVEN, ELMOS and KDAL | no runner name printed as MISSING; every MISSING line names a program that is really absent; KDAL's libFuzzer line names `clang` |
+| P6 | engine unit tests; `baseline --check` in all three | pass; nothing new and nothing fixed |
+| P7 | ELMOS and KDAL re-pinned to the engine commit | their CI green |
