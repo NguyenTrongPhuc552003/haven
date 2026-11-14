@@ -677,3 +677,41 @@ jscpd reports one of them. `dtgen.c` converts with `sscanf` and `atoi`.
 logs of passing and failing runs are compared; a fix and its expectations
 follow the investigation, not this record.
 
+### Results (fix list part 5; haven #121; KDAL #33)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| Q1 | KDAL's weekly run after #33 (on demand): green, CRITICAL 0; no LeakSanitizer report from `kdalc` (3 before) | holds |
+| Q2 | KDAL CRITICAL 13 to 0, none left with a written exception | holds |
+| Q3 | duplicates 19 to 17 (the reader copies and the `lint`/`simulate` arena code) | holds |
+| Q4 | `kdalc` on the two examples: the 4 generated files byte-identical (SHA-256) before and after; e2e 39 checks and smoke tests pass | holds |
+| Q5 | KUnit 40 of 40 and the module build pass (no kernel file changed) | holds |
+| Q6 | 60 s on the Mac: 137,436 inputs, no crash, no sanitizer report | holds |
+| Q7 | a corpus input reaching a deliberate trap in a scratch copy: CRITICAL `libfuzzer/fuzz_lex_parse/deadly-signal` at the saved input | holds |
+| Q8 | the weekly run completed in 9 min 27 s and is green; but nothing in its log shows that fuzzing ran (the runner prints no run count, and `doctor` lists "libfuzzer" as a missing program) | not shown |
+| Q9 | 32 engine unit tests pass, with the libFuzzer report parser | holds |
+| Q10 | `baseline --check`: KDAL 29 fixed, nothing new; HAVEN and ELMOS unchanged | holds |
+
+**Found on the way.**
+- **L9, a stale compile database.** The gate configures its clang-tidy
+  build directory only when it is missing, so a C file added later is not
+  in the compile database and is not analysed: CI (fresh directory)
+  reported 3 findings in the new `compiler/source.c` that the Mac (old
+  directory) did not. Fixed in the code (#33); the engine should
+  reconfigure when a `CMakeLists.txt` is newer than the database.
+- **L10, the fuzz runner is silent when nothing is found.** It should
+  report the run count as INFO, and `doctor` should not list runner names
+  as programs.
+- **`dt-gen` fails on `examples/kdc_hello/uart_hello.kdh`** ("cannot create
+  '}'"), the same before and after #33: an existing bug, outside part 5.
+- **The flaky Linux-partition check (investigation).** In the failing run
+  the guest printed `KDAL-DEMAND-BEGIN` and the next console line is
+  "reboot: Power down": the JSON and `KDAL-DEMAND-END` never arrived. The
+  guest's `/init` (`kdal/scripts/ci/kunit-init.c`) writes the markers to
+  the console tty with `write()` and calls `reboot(POWER_OFF)` at once;
+  the kernel's own power-off message is written synchronously and can
+  overtake text still queued in the tty. Inference: at 2 vCPUs the
+  power-off ran before the UART had sent the queued lines. Proposed fix
+  (for the owner's decision): drain the console (`ioctl(1, TCSBRK, 1)`)
+  before powering off.
+
