@@ -134,6 +134,23 @@ def report(found, block, new_keys, stage, baseline=None):
     print(f"gate {stage}: {'FAIL' if block else 'PASS'}")
 
 
+def doctor(root, cfg):
+    """One line per runner of the profile's stages and program it calls,
+    with the program's version check; "no program" for a runner that calls
+    none."""
+    ctx = Ctx(root, cfg, "doctor")
+    lines = []
+    for runner in sorted({t for s in cfg["stages"].values() for t in s}):
+        progs = tools.programs(cfg, runner)
+        if not progs:
+            lines.append(f"{runner:14s} no program")
+        for p in progs:
+            bad = tools.version_check(ctx, p)
+            lines.append(f"{runner:14s} {os.path.basename(p):14s} {tools.locate(ctx, p) or 'MISSING'}"
+                         + (f"  ({bad[0].message})" if bad else ""))
+    return lines
+
+
 def main(argv):
     root, out_json, remote, add_reported, fail_on_new = ".", None, None, None, False
     args = []
@@ -164,12 +181,7 @@ def main(argv):
     with open(os.path.join(root, CONFIG)) as f:
         cfg = json.load(f)
     if cmd == "doctor":
-        names = sorted({t for s in cfg["stages"].values() for t in s} - {"scan", "tcb"})
-        for t in names:
-            ctx = Ctx(root, cfg, "doctor")
-            exe = tools.which(ctx, t)
-            bad = tools.version_check(ctx, t)
-            print(f"{t:12s} {exe or 'MISSING'}{'  (' + bad[0].message + ')' if bad else ''}")
+        print("\n".join(doctor(root, cfg)))
         return 0
     if cmd == "baseline":
         ctx = Ctx(root, cfg, "baseline")

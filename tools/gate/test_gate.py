@@ -457,11 +457,11 @@ class LibFuzzer(unittest.TestCase):
                            "CRITICAL")])
         asan = rules.parse_libfuzzer(LIBFUZZER_ASAN, "fuzz_lex_parse", "/repo")
         self.assertEqual(asan[0].rule, "fuzz_lex_parse/heap-buffer-overflow")
-        self.assertEqual(rules.parse_libfuzzer("Done 137436 runs in 61 second(s)\n", "fuzz_lex_parse"), [])
-
-
-if __name__ == "__main__":
-    unittest.main()
+        # a clean run: its run count as INFO (L10)
+        done = rules.parse_libfuzzer("Done 137436 runs in 61 second(s)\n", "fuzz_lex_parse")
+        self.assertEqual([(f.rule, f.severity) for f in done], [("fuzz_lex_parse/summary", "INFO")])
+        self.assertIn("137436 runs in 61 s", done[0].message)
+        self.assertEqual(rules.parse_libfuzzer("INFO: Seed: 1\n", "fuzz_lex_parse"), [])
 
 
 class BaseRef(unittest.TestCase):
@@ -482,3 +482,53 @@ class BaseRef(unittest.TestCase):
             self.assertEqual(gate.base_ref(d), "fresh/main")
             self.assertEqual(gate.base_ref(d, "stale"), "stale/main")
             self.assertEqual(gate.base_ref(d, "absent"), "fresh/main")
+
+
+class Stale(unittest.TestCase):
+    """L9: the clang-tidy database is remade when a CMake input is newer."""
+
+    def test_newer_cmake_input(self):
+        with tempfile.TemporaryDirectory() as d:
+            subprocess.run(["git", "-C", d, "init", "-q"], check=True)
+            os.makedirs(os.path.join(d, "sub", "build"))
+            cml = os.path.join(d, "sub", "CMakeLists.txt")
+            db = os.path.join(d, "sub", "build", "compile_commands.json")
+            for path in (cml, db):
+                with open(path, "w") as f:
+                    f.write("x\n")
+            subprocess.run(["git", "-C", d, "add", "sub/CMakeLists.txt"], check=True)
+            ctx = gate.Ctx(d, {}, "ci")
+            os.utime(cml, (1000, 1000))
+            os.utime(db, (2000, 2000))
+            self.assertFalse(tools.stale(ctx, db))
+            os.utime(cml, (3000, 3000))
+            self.assertTrue(tools.stale(ctx, db))
+            os.remove(db)
+            self.assertTrue(tools.stale(ctx, db))
+
+
+class Doctor(unittest.TestCase):
+    """doctor lists the programs a runner calls, not the runner's name."""
+
+    def test_programs(self):
+        cfg = {"libfuzzer": {"cc": "clang-18"}, "checkpatch": {"dir": "/opt/cp"}}
+        self.assertEqual(tools.programs(cfg, "libfuzzer"), ["clang-18", "cmake"])
+        self.assertEqual(tools.programs(cfg, "go-race"), ["go"])
+        self.assertEqual(tools.programs(cfg, "coccinelle"), ["make", "spatch"])
+        self.assertEqual(tools.programs(cfg, "checkpatch"), ["perl", os.path.join("/opt/cp", "checkpatch.pl")])
+        self.assertEqual(tools.programs(cfg, "copies"), [])
+
+    def test_no_runner_name_as_program(self):
+        cfg = {"stages": {"deep": ["copies", "sanitizers", "libfuzzer", "go-race"]},
+               "libfuzzer": {"cc": "no-such-cc-for-the-test"}}
+        lines = gate.doctor(".", cfg)
+        self.assertIn("copies         no program", lines)
+        cols = {tuple(line.split()[:2]) for line in lines}
+        for pair in (("libfuzzer", "no-such-cc-for-the-test"), ("libfuzzer", "cmake"), ("go-race", "go"),
+                     ("sanitizers", "cmake")):
+            self.assertIn(pair, cols)
+        self.assertIn("MISSING", next(x for x in lines if "no-such-cc-for-the-test" in x))
+
+
+if __name__ == "__main__":
+    unittest.main()
