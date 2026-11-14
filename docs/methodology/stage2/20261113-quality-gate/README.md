@@ -560,3 +560,50 @@ The leaks in `kdalc` go to the fix list with the 13 analyzer reports of
 `compiler/` and `tools/kdality/`; until they are fixed KDAL's weekly run
 shows red, which is its purpose.
 
+## Fix list, parts 2 to 4 (design and expectations, before code)
+
+Owner-approved 2026-11-14, with GitHub auto-merge turned on in the three
+repositories (a pull request merges itself when its required checks pass,
+so merging no longer waits for the owner's Mac) and with the historical
+run scripts under `docs/methodology/` left out of the copied-code check
+instead of being edited (they are the record of what was run).
+
+**Part 2, the gate.**
+- **L5:** a profile may give cppcheck a header of macro definitions
+  (`cppcheck.include`); KDAL's defines the kernel list macros, so
+  cppcheck reads `src/core/registry.c`.
+- **L6:** gitleaks scans a copy of the tracked files, so untracked files on
+  a developer's machine no longer give findings CI cannot see.
+- **L7:** the engine carries the templates of the wrapper and hooks ELMOS
+  and KDAL copy (`tools/gate/templates/`); in `ci` a copy that differs is
+  MAJOR (`gate/copy-drift`).
+
+**Part 3, HAVEN.**
+- **H1:** the PSCI start path checks `v` before writing `v->state`.
+- **H2:** the three `= {0}` initializers of static arrays (C already
+  zero-initializes static storage) are removed.
+- **H3:** `efi_main` and `mem_type` are split or table-driven.
+- **H4:** `scripts/dev/format.sh` names itself correctly.
+- **H5:** `scripts/ci/static-analysis.sh` is removed; the two documents that
+  cite it point to the gate.
+- **H6:** `docs/methodology/**` leaves jscpd's paths.
+
+**Part 4, ELMOS.**
+- **E1:** `github.com/klauspost/compress` from v1.19.2 to v1.20.2.
+
+| Row | Check | Expected |
+| - | - | - |
+| P2a | KDAL after L5 | no cppcheck `unknownMacro`; 0 to 3 new cppcheck findings in `registry.c`, accepted into the baseline with the change and listed |
+| P2b | L6: an untracked file with a token pattern in a working tree | `deep` on the Mac does not report it; CI's counts unchanged |
+| P2c | L7 in ELMOS and KDAL | 0 drift findings; a seeded one-line change to `scripts/gate` gives MAJOR `gate/copy-drift` in `ci` |
+| P3a | HAVEN after H1 and H2 | CRITICAL 4 to 0 |
+| P3b | `haven.elf` for qemu-virt and cix-p1 after H2 (against `main`) | byte-identical |
+| P3c | after H1 | QEMU boot, partition B and Linux-partition jobs pass; trusted code +0 to +4 lines |
+| P3d | after H3 | no lizard finding in `boot/efi/`; the UEFI loader and probe checks (U1 to U8, K) pass in CI; `haven.elf` byte-identical |
+| P3e | after H4 | no `scripts/format.sh` outside `docs/methodology/` |
+| P3f | after H5 | no reference to `static-analysis.sh` outside `docs/methodology/`; CI unchanged |
+| P3g | after H6 | the 21 jscpd baseline entries under `docs/methodology/` leave the baseline; 4 remain |
+| P4a | ELMOS after E1 | govulncheck: no vulnerability in called code; CRITICAL 1 to 0 |
+| P4b | ELMOS after E1 | its tests and builds pass on Linux, macOS and Windows |
+| P5 | all three after parts 2 to 4 | `baseline --check` shows only the fixes above as fixed and nothing new |
+
