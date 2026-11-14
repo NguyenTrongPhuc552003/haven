@@ -9,13 +9,13 @@
   },
   "kdal": {
     "repository": "NguyenTrongPhuc552003/kdal",
-    "commit": "f11e87e48f91726e7391b7bc153ab63da5e00d8b"
+    "commit": "5622c47246106fb42b3ef750e99d050d8bb51212"
   },
   "ci": {
     "runner": "ubuntu-24.04",
     "qemu": "8.2.2"
   },
   "haven": {
-    "tested_from": "67efc5e861dac43733b2a45fe2dd5b6a6c07a219"
+    "tested_from": "df625d3dbe455e1c116389ce015e7060b1ae8ebb"
   }
 }
