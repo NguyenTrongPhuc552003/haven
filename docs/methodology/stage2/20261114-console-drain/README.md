@@ -81,3 +81,38 @@ the failure rate after D1 is below about 0.15 % (exact 95 % bound). C1 is
 what tells us whether 2,000 boots are enough to see the fault at all. If
 C1 shows 0 failures, C3 says nothing about the fix: that outcome is
 recorded as such, and the fix then rests on its mechanism alone.
+
+## Results (haven #124, #127; KDAL #34)
+
+Campaigns: `linux-stress.yml`, 10 shards of 100 rounds, each round one
+boot at N = 2 and one at N = 3. "Before" on `main` at `842f989` (KDAL
+`f11e87e`); "after" on the branch of #127 at `45aee69` (KDAL `5622c47`,
+the commit with D1). The per-boot logs stay in CI.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| C1 | 21 of 2,000 boots failed (N = 2: 8 of 1,000; N = 3: 13 of 1,000), in 7 of 10 shards; every one misses `KDAL-DEMAND-END` and nothing else | holds |
+| C2 | KDAL's CI on `5622c47`: green; KUnit 40 of 40 (9 + 6 + 10 + 8 + 5 + 2 in its six suites), module build and `insmod` ok | holds |
+| C3 | 0 of 2,000 boots failed | holds |
+| C4 | #124's `linux-partition` job passes through the action; the boot step prints the same 16 result lines as before, differing only in kernel timestamps and interrupt counts, which differ between any two runs | holds |
+| C5 | mean seconds per boot, before and after: N = 2 2.48 and 2.59, N = 3 2.57 and 2.69 (0.11 s and 0.12 s more) | holds |
+| C6 | `scripts/ci/test_ecosystem.py` (7 tests: literals in any file, short hashes, another runner, every user's runner, no user, the real files) passes on Linux, macOS and Windows; CI: "5 files ... 2 jobs use ./.github/actions/linux-partition on ubuntu-24.04" | holds |
+
+**The two failure forms.** In 8 failing boots `KDAL-DEMAND-BEGIN` arrived
+and the rest of the demand output did not; in 13 it is missing too (the
+summary's classification). Two of shard 8's saved logs, read in full, show
+each form: `KDAL-DEMAND-BEGIN` and then the kernel's `reboot: Power down`
+(round 6, N = 2); `KDAL-CI: insmod ok` and then `reboot: Power down`
+(round 17, N = 3). Both fit the hypothesis: what `/init` had written was still queued when the machine
+powered off, and how much of it the UART had sent varied.
+
+**Strength of the result [inference].** Before: 21 in 2,000 is 1.05 %
+(exact 95 % interval 0.65 % to 1.60 %), in line with the 1 failure in 100
+CI runs measured first. After: 0 in 2,000, so below about 0.15 % (one-sided
+95 %). If D1 changed nothing, the chance of all 21 failures falling in the
+"before" campaign is 4.5e-7 (Fisher's exact test, one-sided). The cause
+is shown by the change that removes the fault, not observed directly in
+the tty layer; this is a QEMU result, on CI hosts.
+
+**Lock file.** #127 moved `kdal.commit` to `5622c47` and
+`haven.tested_from` to `df625d3`, the commit it was made on.
