@@ -48,14 +48,15 @@ in [`FINDINGS.md`](docs/methodology/stage0/20261025-corrections/FINDINGS.md).
 
 ## Try it without a cross compiler
 
-`scripts/release/make-try-bundle.sh` builds a small archive (about 70 KB)
-with prebuilt HAVEN images, the read-back tool and `try.sh`. Unpacked
-anywhere, `./try.sh` needs only `qemu-system-aarch64`, `python3` and `dtc`:
-it boots both partitions, reads back the enforced state, then boots a
-deliberately faulty image that passes the boot check and is caught only
-by read-back. Build it yourself; see `scripts/release/try/README.md`.
-(The `try-20261103` pre-release that offered a prebuilt archive was
-withdrawn on 2026-11-13; prebuilt bundles return with deliberate releases.)
+The try bundle is a small archive (about 90 KB) with prebuilt HAVEN images,
+the read-back tool and `try.sh`. Unpacked anywhere, `./try.sh` needs only
+`qemu-system-aarch64`, `python3` and `dtc`: it boots both partitions, reads
+back the enforced state, then boots a deliberately faulty image that passes
+the boot check and is caught only by read-back. Download it from the
+pre-release [`try-20261115.1`](https://github.com/NguyenTrongPhuc552003/haven/releases/tag/try-20261115.1),
+built and tested by CI (`.github/workflows/try-release.yml`), or build it
+yourself with `scripts/release/make-try-bundle.sh`; see
+`scripts/release/try/README.md`. `elmos demo haven` fetches and runs it.
 
 ## Quick start
 
