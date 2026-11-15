@@ -119,3 +119,31 @@ written; a mismatch is a prediction error, recorded and explained, never
 edited away. Not shown by this record: that the bundle runs on Windows
 (WSL2) or on Intel Macs; that the published release is fetched by `elmos
 demo haven` (that is the ELMOS pull request's check, after publication).
+
+## First run and amendment (2026-11-15, before the second run)
+
+[O] Run 43714943048 at `c07d6a7`, tag `try-20261115`: build, test-linux
+and mark succeeded; test-macos failed, so the draft is titled
+`[FAILED: do not publish]` (it stays a draft until the owner deletes it).
+
+- [O] test-macos (QEMU 11.1.3): both partition checks PASS, the EL2
+  finding present in step 3, no DMA finding; but step 2 reported
+  `CPU 1: CPU assignment drift (granted to partition 1, HAVEN runs no
+  partition)`, so `RESULT 1 finding(s)` instead of a clean result.
+- [F] The bundle carries `20261102-budgets/grant-budget.json`, which
+  grants CPU 1 to partition 1. Read-back checks CPU assignment since v10
+  (2026-11-07), after that grant was written; the qemu-psci build runs one
+  vCPU per partition, so CPU 1 runs nothing. `20261108-el3-readback/
+  grant-demo-cpus.json` is the same grant with CPU 1 unassigned, written
+  for this case. [I] The bundle, not read-back, is wrong: its grant no
+  longer matches its images.
+- [O] After the run the draft's `tag_name` reads `untagged-...`, although
+  the build job found it by `try-20261115`. [I] The mark job's edit (title
+  and notes only) dropped the intended tag; published like that, the
+  release would not get its tag.
+
+Amendment: the bundle carries `grant-demo-cpus.json`; the mark job's edit
+sends `tag_name` again and checks it; a tag may end in `.N`
+(`try-YYYYMMDD.N`) for another build on the same day, since a failed
+draft is not deleted by the workflow. Rows T1 to T9 apply unchanged to the
+second run.
