@@ -50,7 +50,9 @@ open(p, 'w').write(s.replace(old, old + '\t{0xA0800000UL, 0x200000UL, HV_EL2_NOR
 
 cp "$REPO/tools/readback/readback.py" "$REPO/tools/readback/grant.py" "$STAGE/tools/"
 cp "$REPO/scripts/qemu/partition-b-check.py" "$STAGE/tools/"
-cp "$REPO/docs/methodology/stage2/20261102-budgets/grant-budget.json" "$STAGE/grant.json"
+# the budget grant with CPU 1 unassigned: this build runs one vCPU per
+# partition, and read-back checks CPU assignment since v10 (E7 amendment)
+cp "$REPO/docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json" "$STAGE/grant.json"
 cp "$REPO/scripts/release/try/try.sh" "$REPO/scripts/release/try/README.md" "$STAGE/"
 chmod +x "$STAGE/try.sh"
 {
