@@ -1,0 +1,154 @@
+# The try bundle as a draft pre-release built by CI, on demand only
+# (docs/methodology/stage2/20261113-e7-releases). build makes the bundle,
+# checks that its image is the checkout's and that nothing private is in
+# it, and creates a DRAFT pre-release (visible only with write access, no
+# Git tag until published); test-linux and test-macos run it from the
+# draft; mark writes their results into the draft. Nothing here publishes
+# or deletes a release or uploads an Actions artifact: publishing is the
+# owner's.
+name: try-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, try-YYYYMMDD
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build the bundle and the draft
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+    env:
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # git describe needs the tags
+      - name: The tag is new
+        run: |
+          [[ "$TAG" =~ ^try-[0-9]{8}$ ]] || { echo "FAIL: '$TAG' is not try-YYYYMMDD"; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            echo "FAIL: the Git tag $TAG exists"; exit 1
+          fi
+          if gh api --paginate "repos/$GITHUB_REPOSITORY/releases" -q ".[].tag_name" | grep -qx "$TAG"; then
+            echo "FAIL: a release for $TAG exists"; exit 1
+          fi
+      - name: Install the cross toolchain
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+      - name: Build the bundle (T1)
+        run: |
+          scripts/release/make-try-bundle.sh dist
+          ls -l dist
+          cat dist/SHA256SUMS
+      - name: The bundle's image is the checkout's (T2)
+        run: |
+          cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci
+          cmake --build build-psci
+          mkdir -p build/unpacked
+          tar -xzf dist/*.tar.gz -C build/unpacked
+          cmp build-psci/haven.bin build/unpacked/*/images/good/haven.bin
+          echo "OK: images/good/haven.bin equals the checkout's qemu-psci build"
+      - name: Release notes
+        run: |
+          {
+            echo "The try bundle, built by CI from $GITHUB_SHA ($(git describe --tags --match "v*" --always))."
+            echo "Unpack it and run ./try.sh (README.md inside; QEMU 9.2 or later for the DMA part)."
+            echo
+            echo "SHA256SUMS:"
+            echo
+            sed 's/^/    /' dist/SHA256SUMS
+            echo
+            echo "Test results follow when this run's test jobs finish."
+          } > build/notes.md
+      - name: Nothing private in the assets (T3)
+        run: python3 scripts/release/check-public-assets.py dist build/notes.md
+      - name: Draft pre-release (T4)
+        id: draft
+        run: |
+          gh release create "$TAG" dist/*.tar.gz dist/*.tar.gz.sha256 dist/SHA256SUMS \
+            --draft --prerelease --target "$GITHUB_SHA" \
+            --title "HAVEN try bundle $TAG [untested]" --notes-file build/notes.md
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            -q ".[] | select(.draft and .tag_name == \"$TAG\") | .id" | head -1)
+          [ -n "$id" ] || { echo "FAIL: no draft for $TAG"; exit 1; }
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  test-linux:
+    name: run it (Linux, Ubuntu's QEMU)
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # a draft is readable only with write access
+    outputs:
+      qemu: ${{ steps.t.outputs.qemu }}
+      summary: ${{ steps.t.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: QEMU and dtc
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            qemu-system-arm device-tree-compiler
+      - id: t
+        uses: ./.github/actions/try-bundle-test
+        with:
+          release-id: ${{ needs.build.outputs.id }}
+          strict-dma: "false" # QEMU 8.2 has no SMMU stage 2 (T6)
+
+  test-macos:
+    name: run it (macOS, Homebrew's QEMU)
+    needs: build
+    runs-on: macos-15
+    permissions:
+      contents: write # a draft is readable only with write access
+    outputs:
+      qemu: ${{ steps.t.outputs.qemu }}
+      summary: ${{ steps.t.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: QEMU and dtc
+        run: brew install qemu dtc
+      - id: t
+        uses: ./.github/actions/try-bundle-test
+        with:
+          release-id: ${{ needs.build.outputs.id }}
+          strict-dma: "true" # T5
+
+  mark:
+    name: write the results into the draft (T7)
+    needs: [build, test-linux, test-macos]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          ID: ${{ needs.build.outputs.id }}
+          TAG: ${{ inputs.tag }}
+          MAC: ${{ needs.test-macos.result }}
+          MAC_QEMU: ${{ needs.test-macos.outputs.qemu }}
+          MAC_SUM: ${{ needs.test-macos.outputs.summary }}
+          LIN: ${{ needs.test-linux.result }}
+          LIN_QEMU: ${{ needs.test-linux.outputs.qemu }}
+          LIN_SUM: ${{ needs.test-linux.outputs.summary }}
+        run: |
+          if [ "$MAC" = success ]; then title="HAVEN try bundle $TAG"; else
+            title="HAVEN try bundle $TAG [FAILED: do not publish]"; fi
+          body=$(gh api "repos/$GITHUB_REPOSITORY/releases/$ID" -q .body)
+          body=$(printf '%s\n\nTested by run %s:\n\n- macOS, %s: %s (%s)\n- Linux, %s: %s (%s; QEMU before 9.2 withholds the DMA grant, so step 2 is not expected to be clean)\n' \
+            "${body%Test results follow*}" "$GITHUB_RUN_ID" "${MAC_QEMU:-?}" "$MAC" "${MAC_SUM:-no output}" \
+            "${LIN_QEMU:-?}" "$LIN" "${LIN_SUM:-no output}")
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$ID" -f name="$title" -f body="$body" -q '.name, .draft'

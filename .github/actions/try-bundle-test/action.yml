@@ -1,0 +1,63 @@
+# Run a try bundle from a draft release and check what try.sh prints
+# (docs/methodology/stage2/20261113-e7-releases, rows T5 and T6). The draft
+# is read by release id with the job's token (a draft is visible only with
+# write access); nothing is uploaded. The caller installs QEMU and dtc.
+name: try-bundle-test
+description: Download a draft release's try bundle, run try.sh, check its markers
+inputs:
+  release-id:
+    description: The draft release's id
+    required: true
+  strict-dma:
+    description: "true: step 2 must report the enforced state matching the grant (QEMU 9.2 or later)"
+    required: true
+outputs:
+  qemu:
+    description: The first line of qemu-system-aarch64 --version
+    value: ${{ steps.check.outputs.qemu }}
+  summary:
+    description: One line of results
+    value: ${{ steps.check.outputs.summary }}
+runs:
+  using: composite
+  steps:
+    - name: The draft's assets, checked against SHA256SUMS
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        ID: ${{ inputs.release-id }}
+        REPO: ${{ github.repository }}
+      run: |
+        mkdir -p try-assets try-run
+        gh api "repos/$REPO/releases/$ID/assets" -q '.[] | "\(.id) \(.name)"' |
+          while read -r aid name; do
+            gh api -H "Accept: application/octet-stream" "repos/$REPO/releases/assets/$aid" > "try-assets/$name"
+          done
+        (cd try-assets && shasum -a 256 -c SHA256SUMS)
+        tar -xzf try-assets/*.tar.gz -C try-run
+    - name: Run try.sh
+      shell: bash
+      run: |
+        set -o pipefail
+        cd try-run/*/ && ./try.sh | tee "$GITHUB_WORKSPACE/try.log"
+    - name: Check the output
+      id: check
+      shell: bash
+      env:
+        STRICT: ${{ inputs.strict-dma }}
+      run: |
+        log="$GITHUB_WORKSPACE/try.log"
+        qemu=$(qemu-system-aarch64 --version | head -1)
+        pass=$(grep -c '^partition-b-check: PASS (cortex-a72)' "$log" || true)
+        el2=$(grep -c 'FINDING EL2 / partition 2: partition memory mapped at EL2' "$log" || true)
+        r2=$(grep '^RESULT' "$log" | sed -n 1p)
+        r3=$(grep '^RESULT' "$log" | sed -n 2p)
+        summary="partition checks PASS $pass of 2; step 2: ${r2:-no RESULT}; step 3: ${r3:-no RESULT}, EL2 finding $el2"
+        echo "qemu=$qemu" >> "$GITHUB_OUTPUT"
+        echo "summary=$summary" >> "$GITHUB_OUTPUT"
+        echo "$qemu"; echo "$summary"
+        ok=1
+        [ "$pass" = 2 ] || ok=0
+        [ "$el2" -ge 1 ] || ok=0
+        if [ "$STRICT" = true ] && [ "$r2" != "RESULT enforced state matches the grant" ]; then ok=0; fi
+        [ "$ok" = 1 ] || { echo "FAIL: the markers above"; exit 1; }

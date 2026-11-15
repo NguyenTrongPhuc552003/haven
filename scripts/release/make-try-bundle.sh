@@ -6,11 +6,17 @@
 # qemu-psci images (correct, and with one seeded fault), symbol lists so no
 # cross binutils are needed, the check tools, the grant and try.sh.
 # Needs the ARM64 toolchain used by the arm64-qemu preset and an aarch64 nm.
+# Reproducible and anonymous (docs/methodology/stage2/20261113-e7-releases):
+# SOURCE_DATE_EPOCH is the HEAD commit time unless set, so the images are
+# those a checkout build gives; archive entries are owned by uid 0 and gid 0
+# with no names, gzip stores no name or time; SHA256SUMS lists the archive.
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=$(mkdir -p "${1:-dist}" && cd "${1:-dist}" && pwd)
-DESC=$(git -C "$REPO" describe --tags --always --dirty)
+DESC=$(git -C "$REPO" describe --tags --match 'v*' --always --dirty)
+SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-$(git -C "$REPO" log -1 --format=%ct)}
+export SOURCE_DATE_EPOCH
 NM=$(command -v aarch64-unknown-linux-gnu-nm || command -v aarch64-linux-gnu-nm)
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
@@ -49,11 +55,16 @@ cp "$REPO/scripts/release/try/try.sh" "$REPO/scripts/release/try/README.md" "$ST
 chmod +x "$STAGE/try.sh"
 {
 	echo "haven $DESC ($(git -C "$REPO" rev-parse HEAD))"
-	echo "built $(date -u +%Y-%m-%dT%H:%M:%SZ) on $(uname -sm)"
+	echo "SOURCE_DATE_EPOCH $SOURCE_DATE_EPOCH (the commit time unless set), built on $(uname -sm)"
 	"$(dirname "$NM")/$(basename "$NM" | sed 's/nm$/gcc/')" --version 2>/dev/null | head -1 || true
 	(cd "$STAGE" && find images tools grant.json try.sh -type f | sort | xargs shasum -a 256)
 } >"$STAGE/BUILD-INFO.txt"
 
-tar -C "$WORK" -czf "$OUT/$NAME.tar.gz" "$NAME"
-(cd "$OUT" && shasum -a 256 "$NAME.tar.gz" >"$NAME.tar.gz.sha256")
+if tar --version 2>/dev/null | grep -q GNU; then
+	tar -C "$WORK" --sort=name --owner=0 --group=0 --numeric-owner \
+		--mtime="@$SOURCE_DATE_EPOCH" -cf - "$NAME"
+else # BSD tar (macOS)
+	tar -C "$WORK" --uid 0 --gid 0 --uname '' --gname '' -cf - "$NAME"
+fi | gzip -n -9 >"$OUT/$NAME.tar.gz"
+(cd "$OUT" && shasum -a 256 "$NAME.tar.gz" | tee "$NAME.tar.gz.sha256" >SHA256SUMS)
 echo "$OUT/$NAME.tar.gz"

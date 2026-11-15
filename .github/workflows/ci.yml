@@ -47,6 +47,8 @@ jobs:
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/fwscan -p "test_*.py" -v
       - name: Ecosystem pin checks (Python)
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s scripts/ci -p "test_*.py" -v
+      - name: Public release asset checks (Python)
+        run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s scripts/release -p "test_*.py" -v
 
 
   # The quality gate (docs/quality/gate.md): every tool at the version pinned
