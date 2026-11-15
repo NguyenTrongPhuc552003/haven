@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag, try-YYYYMMDD
+        description: Release tag, try-YYYYMMDD or try-YYYYMMDD.N (another build that day)
         required: true
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0 # git describe needs the tags
       - name: The tag is new
         run: |
-          [[ "$TAG" =~ ^try-[0-9]{8}$ ]] || { echo "FAIL: '$TAG' is not try-YYYYMMDD"; exit 1; }
+          [[ "$TAG" =~ ^try-[0-9]{8}(\.[0-9]+)?$ ]] || { echo "FAIL: '$TAG' is not try-YYYYMMDD[.N]"; exit 1; }
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
             echo "FAIL: the Git tag $TAG exists"; exit 1
           fi
@@ -151,4 +151,8 @@ jobs:
           body=$(printf '%s\n\nTested by run %s:\n\n- macOS, %s: %s (%s)\n- Linux, %s: %s (%s; QEMU before 9.2 withholds the DMA grant, so step 2 is not expected to be clean)\n' \
             "${body%Test results follow*}" "$GITHUB_RUN_ID" "${MAC_QEMU:-?}" "$MAC" "${MAC_SUM:-no output}" \
             "${LIN_QEMU:-?}" "$LIN" "${LIN_SUM:-no output}")
-          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$ID" -f name="$title" -f body="$body" -q '.name, .draft'
+          # tag_name is sent again: an edit without it left the draft untagged
+          got=$(gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$ID" -f tag_name="$TAG" \
+            -f name="$title" -f body="$body" -q '"\(.tag_name) \(.draft) \(.name)"')
+          echo "$got"
+          [ "${got%% *}" = "$TAG" ] || { echo "FAIL: the draft's tag is ${got%% *}, not $TAG"; exit 1; }
