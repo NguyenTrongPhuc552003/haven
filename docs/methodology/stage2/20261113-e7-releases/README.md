@@ -147,3 +147,33 @@ sends `tag_name` again and checks it; a tag may end in `.N`
 (`try-YYYYMMDD.N`) for another build on the same day, since a failed
 draft is not deleted by the workflow. Rows T1 to T9 apply unchanged to the
 second run.
+
+## Results (haven #133, #135; second run 43715921762 at `13dd128`, tag `try-20261115.1`)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| T1 | build succeeds; `haven-try-v0.6.0-425-g13dd128.tar.gz`, 92,446 bytes (first run: 92,441) | name holds; size a prediction error (about 70 KB predicted from the old 72,276 bytes; the bundle has grown with the code since `ab6f825`) |
+| T2 | "OK: images/good/haven.bin equals the checkout's qemu-psci build" in both runs | holds |
+| T3 | `check-public-assets: 0 failure(s), 0 note(s)` on `dist/` and the notes, both runs | holds |
+| T4 | draft 446058609: `draft: true`, `prerelease: true`, target `13dd128`, the archive, its `.sha256` and `SHA256SUMS`; no `try-*` Git tag on GitHub; no Actions artifact for either run; nothing published | holds |
+| T5 | macOS, QEMU 11.1.3: both partition checks PASS; step 2 `RESULT enforced state matches the grant`; step 3 the EL2 finding and `RESULT 1 finding(s)` | holds on the second run; on the first run a prediction error, explained in the amendment (the bundle's grant, not the build) |
+| T6 | Linux, QEMU 8.2.2: both partition checks PASS; step 2 `RESULT 3 finding(s)` (PCI config and BAR not mapped, `SID 8: denied (STE abort)`); step 3 the EL2 finding among 4 | holds |
+| T7 | title "HAVEN try bundle try-20261115.1"; notes list both QEMU versions and both results; the tag kept (`tag_name` checked by the job) | holds |
+| T8 | on the Mac, the draft's assets (downloaded through the API, `SHA256SUMS` OK), `RELEASE_DENY` from the login and host name: exit 0; 22 entries, all `(0, 0, '', '')` | holds |
+| T9 | the old bundle could not be fetched: the Codeberg repository has no releases on 2026-11-15 (API: empty list; the `try-20261103` page 404). Stand-in: a directory packed the old way (macOS tar defaults) on the Mac: exit 1, rule (a) and rule (d) on every member | not shown on the old bundle; the check's two rules shown on the stand-in |
+
+**Found on the way.**
+- [O] macOS tar stores AppleDouble `._` members (extended attributes) that
+  `tar -t` does not list: the stand-in of 2 files and a directory had 6
+  members. The CI release uses GNU tar (none in the draft); the script's
+  macOS branch is changed to leave them out (`COPYFILE_DISABLE=1`).
+- [O] With the Codeberg release gone, `elmos demo haven` has no bundle to
+  fetch from either host until a new release is published.
+- [I] The draft of the first run (`try-20261115`, untagged, titled
+  `[FAILED: do not publish]`) stays until the owner deletes it.
+
+**For the owner (design item 4).** Publishing is yours: the draft
+`try-20261115.1` at `13dd128`, SHA-256 of the archive `c9fbbeab4d18eacb
+0272eb3ab2d9902110c312c48bbb547ef5c4b7fa2bcbc603`, tested as above. After
+publication: the ELMOS and haven-docs pull requests (design item 6) and
+haven's README line.
