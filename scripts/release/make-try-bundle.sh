@@ -65,8 +65,8 @@ chmod +x "$STAGE/try.sh"
 if tar --version 2>/dev/null | grep -q GNU; then
 	tar -C "$WORK" --sort=name --owner=0 --group=0 --numeric-owner \
 		--mtime="@$SOURCE_DATE_EPOCH" -cf - "$NAME"
-else # BSD tar (macOS)
-	tar -C "$WORK" --uid 0 --gid 0 --uname '' --gname '' -cf - "$NAME"
+else # BSD tar (macOS); COPYFILE_DISABLE: no AppleDouble ._ members
+	COPYFILE_DISABLE=1 tar -C "$WORK" --uid 0 --gid 0 --uname '' --gname '' -cf - "$NAME"
 fi | gzip -n -9 >"$OUT/$NAME.tar.gz"
 (cd "$OUT" && shasum -a 256 "$NAME.tar.gz" | tee "$NAME.tar.gz.sha256" >SHA256SUMS)
 echo "$OUT/$NAME.tar.gz"
