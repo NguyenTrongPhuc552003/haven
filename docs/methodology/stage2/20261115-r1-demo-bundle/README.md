@@ -61,3 +61,23 @@ expectations before code. Labels: **[F]** fact, **[O]** observation,
 
 Not shown by this record: that the bundle runs on the owner's Mac itself
 (the rehearsals in January do that), or on an Intel Mac.
+
+## Results (haven #139; run 43721059747 at `29d1afa`, draft `r1-demo-20261115`)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| D1 | `haven-r1-demo-v0.6.0-435-g29d1afa.tar.gz`, 15,281,672 bytes; every file of design item 2 present; `MANIFEST.sha256` checked after unpacking (build and macOS); the try archive `haven-try-v0.6.0-425-g13dd128.tar.gz: OK` against the release's `SHA256SUMS` | holds |
+| D2 | Ubuntu, QEMU 8.2.2, from the bundle: `N = 2: OK (5 markers)`, `N = 3: OK (6 markers)` | holds |
+| D3 | macOS, QEMU 11.1.3: both partition checks PASS, step 2 `RESULT enforced state matches the grant`, step 3 the EL2 finding (`RESULT 1 finding(s)`) | holds |
+| D4 | macOS, QEMU 11.1.3, from the draft: `N = 2: OK (5 markers)`, `N = 3: OK (6 markers)` | holds: scene D runs on the QEMU the demo uses |
+| D5 | draft 446095445, `draft: true`, title `... [private: do not publish]`; no `r1-demo` Git tag; no Actions artifact | holds |
+| D6 | the `linux-partition` job on `main` after #139: the same 16 result lines as before (kernel timestamps and interrupt counts removed) | holds |
+| D7 | 2 min 59 s (13:50:04 to 13:53:03 UTC) | holds |
+
+**For the owner [P].** Working rule 2 of `PLAN-2027.md` keeps CI outputs in
+private GHCR packages; this design used a never-published draft release,
+as E7 did for a bundle meant for publication. Both are private (a draft
+is visible only with write access), but the draft is not the mechanism
+the rule names and drafts collect in the release list. Proposed: the next
+run pushes the bundle as a private package (`oras push`, as ELMOS does
+for the SDK) instead of a draft, after the owner's choice.
