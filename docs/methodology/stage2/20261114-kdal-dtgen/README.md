@@ -86,3 +86,37 @@ the pull request's first commit (the script alone).
 | Row | Check | Expected |
 | - | - | - |
 | T7 | the parse helper | `lint` and `simulate` behave as before on the examples (their output unchanged); jscpd duplicates not up |
+
+## Results (KDAL #36)
+
+The pull request's first commit (`8ca8a38`) holds the check alone; the
+fix follows in `f629597` and `80220c6` (the first was committed before
+the pre-push gate stopped its push over 8 new MAJOR findings on edited
+lines, so the fix is two commits with the same subject). Merged as
+`8a8e041`.
+
+| Row | Observed | Verdict |
+| - | - | - |
+| T1 | CI on `8ca8a38`, Linux and macOS: the smoke tests fail; `dt-gen` refuses both `uart_hello.kdh` and `led.kdh` with "cannot create '}" (the uninitialised buffer of F2) | holds |
+| T2 | CI on `80220c6`, both systems: `UartHello.dtso` with `compatible = "kdal,UartHello"` and 6 registers; `led.dtso` with `compatible = "example,led-gpio"` and 2 registers | holds |
+| T3 | `dtc -@` compiles both outputs in CI (installed there; no "not installed" note) and on the Mac | holds |
+| T4 | a missing output directory: exit 1, the message names it; a file that does not parse: exit 1 with the parser's message | holds |
+| T5 | KDAL CI green; KUnit 40 of 40; gate MAJOR 367 to 326 (41 findings of the removed code fixed, baseline rewritten, none new); jscpd duplicated lines 344 to 324; on the Mac the e2e suite now passes dt-gen instead of skipping it | holds |
+| T6 | the reg size printed and written come from one function (`reg_size`); the check compares them for both inputs | holds |
+| T7 | `lint` on the 9 `.kdh` files and `simulate` on every `.kdc`: the 103 output lines identical before and after | holds |
+
+**Found on the way.**
+- **F8, `compatible` is ignored by the code generator [from the code].**
+  `compiler/codegen.c` always writes the driver's match string as
+  `kdal,<name>`; a `.kdh` that names its own (`led.kdh`:
+  `example,led-gpio`) gets an overlay its driver does not match. The
+  language guide says `compatible` is for OF matching, so the generator
+  is the one to change; for a later decision.
+- **F9, `argv[0]` taken as input [from the code].** The subcommands get
+  their own name as `argv[0]` and loop from 0, so `kdality dt-gen` with
+  no file reported "cannot resolve 'dt-gen'". Fixed in `dt-gen`; `lint`
+  and `simulate` have the same loop.
+- **F10, more failures counted as skips [observed, e2e on the Mac].**
+  `kdality compile i2c_sensor.kdc`, `lint common.kdh` and `test-gen` are
+  reported as "alpha" skips, the same masking as F4; with F7 (the suite
+  is not in CI) these may hide real failures.
