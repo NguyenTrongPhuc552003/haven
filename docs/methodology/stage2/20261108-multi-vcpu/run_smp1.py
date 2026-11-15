@@ -18,13 +18,16 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location(
     "cases", os.path.join(HERE, "..", "20261106-linux-chain-cases", "run_cases.py"))
 rc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rc)
+spec = importlib.util.spec_from_file_location(
+    "free_boot", os.path.join(HERE, "..", "..", "..", "..", "scripts", "qemu", "free_boot.py"))
+fb = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fb)
 GRANT = os.path.join(HERE, "grant-smp.json")
 ONLY = os.environ.get("ONLY", "").split(",") if os.environ.get("ONLY") else None
 
@@ -53,9 +56,9 @@ def build(repo, out, log):
     return out
 
 
-def free_boot(b, image, dtb, cpio, initrd_pa, uart, limit=120):
-    """As run_cases.boot, but waits for CPU 0's own stop line."""
-    cmd = ["qemu-system-aarch64", "-machine", "virt,virtualization=on,gic-version=3,iommu=smmuv3",
+def free_boot_cmd(b, image, dtb, cpio, initrd_pa, uart):
+    """The QEMU command of a free boot (also written into the R1 demo bundle)."""
+    return ["qemu-system-aarch64", "-machine", "virt,virtualization=on,gic-version=3,iommu=smmuv3",
            "-cpu", "cortex-a72", "-smp", "4", "-m", "2G", "-display", "none", "-monitor", "none",
            "-nic", "none", "-device", rc.DEV, "-serial", f"file:{uart}",
            "-device", f"loader,file={b}/haven.bin,addr=0x80000000,force-raw=on,cpu-num=0",
@@ -63,17 +66,12 @@ def free_boot(b, image, dtb, cpio, initrd_pa, uart, limit=120):
            "-device", f"loader,file={dtb},addr={rc.DTB_PA:#x},force-raw=on",
            "-device", f"loader,file={cpio},addr={initrd_pa:#x},force-raw=on",
            "-device", f"loader,file={b}/guest_b.bin,addr=0xA0800000,force-raw=on"]
-    q = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    t0 = time.time()
-    while time.time() - t0 < limit and q.poll() is None:
-        text = open(uart, errors="replace").read() if os.path.exists(uart) else ""
-        if "partition stopped by PSCI" in text or "EL2 FATAL" in text:
-            time.sleep(1.0)
-            break
-        time.sleep(0.25)
-    q.kill()
-    q.wait()
-    return round(time.time() - t0, 1)
+
+
+def free_boot(b, image, dtb, cpio, initrd_pa, uart, limit=120):
+    """As run_cases.boot, but waits for CPU 0's own stop line
+    (scripts/qemu/free_boot.py)."""
+    return fb.wait(free_boot_cmd(b, image, dtb, cpio, initrd_pa, uart), uart, limit)
 
 
 def pick(text, pat, n=4):

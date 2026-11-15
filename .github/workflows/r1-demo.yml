@@ -1,0 +1,160 @@
+# The R1 demo bundle: every scene's inputs, built and checked by CI, on
+# demand only (docs/methodology/stage2/20261115-r1-demo-bundle). build makes
+# the bundle with the linux-partition setup (pinned SDK kernel, kdal.ko),
+# runs scene D from it on Ubuntu's QEMU and keeps it in a DRAFT release, the
+# private channel: it holds the private SDK kernel and is never published.
+# test-macos runs scenes A to C (the published try release) and scene D
+# (the draft's bundle) with Homebrew's QEMU, the one the live demo uses;
+# mark writes both results into the draft. Nothing here publishes or
+# deletes a release or uploads an Actions artifact.
+name: r1-demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Draft tag, r1-demo-YYYYMMDD or r1-demo-YYYYMMDD.N
+        required: true
+      try-tag:
+        description: The published try release for scenes A to C
+        required: true
+        default: try-20261115.1
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build the bundle; scene D on Ubuntu's QEMU
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      packages: read
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+      scene-d: ${{ steps.scene.outputs.summary }}
+    env:
+      TAG: ${{ inputs.tag }}
+      TRY_TAG: ${{ inputs.try-tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # git describe needs the tags
+      - name: The tag is new
+        run: |
+          [[ "$TAG" =~ ^r1-demo-[0-9]{8}(\.[0-9]+)?$ ]] || { echo "FAIL: '$TAG' is not r1-demo-YYYYMMDD[.N]"; exit 1; }
+          if gh api --paginate "repos/$GITHUB_REPOSITORY/releases" -q ".[].tag_name" | grep -qx "$TAG"; then
+            echo "FAIL: a release for $TAG exists"; exit 1
+          fi
+      - name: Pinned KDAL, SDK kernel, tools and kdal.ko
+        id: lp
+        uses: ./.github/actions/linux-partition
+      - name: The try bundle of scenes A to C (D1)
+        run: |
+          mkdir -p build/try
+          gh release download "$TRY_TAG" -R "$GITHUB_REPOSITORY" -p '*.tar.gz' -p SHA256SUMS -D build/try
+          (cd build/try && sha256sum -c SHA256SUMS)
+      - name: Build the bundle (D1)
+        env:
+          IMAGE: ${{ steps.lp.outputs.image }}
+        run: |
+          python3 scripts/release/make-demo-bundle.py "$PWD" "$PWD/kdal" "$IMAGE" "$PWD/kdal/kdal.ko" \
+            build/try/haven-try-*.tar.gz dist | tee build/bundle-path
+          ls -l dist
+          (cd dist && f=$(basename "$(cat ../build/bundle-path)") && sha256sum "$f" > "$f.sha256")
+          mkdir -p build/unpacked && tar -xzf dist/*.tar.gz -C build/unpacked
+          (cd build/unpacked/* && sha256sum -c --quiet MANIFEST.sha256 && echo "MANIFEST: $(wc -l < MANIFEST.sha256) files OK")
+      - name: Scene D from the bundle, Ubuntu's QEMU (D2)
+        id: scene
+        run: |
+          set -o pipefail
+          python3 build/unpacked/*/run-scene-d.py build/scene-d | tee build/scene-d.log
+          echo "summary=$(qemu-system-aarch64 --version | head -1): $(grep -E '^N = [23]: (OK|FAIL)' build/scene-d.log | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+      - name: Show the UART logs on failure
+        if: failure()
+        run: for f in build/scene-d/N*/uart.log; do echo "== $f"; tail -40 "$f"; done
+      - name: Draft release, never published (D5)
+        id: draft
+        run: |
+          gh release create "$TAG" dist/*.tar.gz dist/*.tar.gz.sha256 --draft --target "$GITHUB_SHA" \
+            --title "R1 demo inputs $TAG [private: do not publish]" \
+            --notes "Built by CI from $GITHUB_SHA; holds the private SDK kernel. A draft is visible only with write access; do not publish. Test results follow."
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            -q ".[] | select(.draft and .tag_name == \"$TAG\") | .id" | head -1)
+          [ -n "$id" ] || { echo "FAIL: no draft for $TAG"; exit 1; }
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  test-macos:
+    name: every scene on macOS (Homebrew's QEMU)
+    needs: build
+    runs-on: macos-15
+    timeout-minutes: 30
+    permissions:
+      contents: write # a draft is readable only with write access
+    outputs:
+      try: ${{ steps.t.outputs.summary }}
+      qemu: ${{ steps.t.outputs.qemu }}
+      scene-d: ${{ steps.d.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: QEMU and dtc
+        run: brew install qemu dtc
+      - name: The try release's id
+        id: try
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRY_TAG: ${{ inputs.try-tag }}
+        run: echo "id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TRY_TAG" -q .id)" >> "$GITHUB_OUTPUT"
+      - name: Scenes A to C (D3)
+        id: t
+        uses: ./.github/actions/try-bundle-test
+        with:
+          release-id: ${{ steps.try.outputs.id }}
+          strict-dma: "true"
+      - name: Scene D from the draft's bundle (D4)
+        id: d
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ID: ${{ needs.build.outputs.id }}
+        run: |
+          set -o pipefail
+          mkdir -p demo-assets demo
+          gh api "repos/$GITHUB_REPOSITORY/releases/$ID/assets" -q '.[] | "\(.id) \(.name)"' |
+            while read -r aid name; do
+              gh api -H "Accept: application/octet-stream" "repos/$GITHUB_REPOSITORY/releases/assets/$aid" > "demo-assets/$name"
+            done
+          (cd demo-assets && shasum -a 256 -c ./*.sha256)
+          tar -xzf demo-assets/*.tar.gz -C demo
+          (cd demo/* && shasum -a 256 -c --quiet MANIFEST.sha256)
+          python3 demo/*/run-scene-d.py "$PWD/scene-d" | tee scene-d.log
+          echo "summary=$(grep -E '^N = [23]: (OK|FAIL)' scene-d.log | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+      - name: Show the UART logs on failure
+        if: failure()
+        run: for f in scene-d/N*/uart.log; do echo "== $f"; tail -40 "$f"; done
+
+  mark:
+    name: write the results into the draft
+    needs: [build, test-macos]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          ID: ${{ needs.build.outputs.id }}
+          TAG: ${{ inputs.tag }}
+          LINUX_D: ${{ needs.build.outputs.scene-d }}
+          MAC: ${{ needs.test-macos.result }}
+          MAC_QEMU: ${{ needs.test-macos.outputs.qemu }}
+          MAC_TRY: ${{ needs.test-macos.outputs.try }}
+          MAC_D: ${{ needs.test-macos.outputs.scene-d }}
+        run: |
+          body=$(printf 'Built by CI from %s; holds the private SDK kernel. A draft is visible only with write access; do not publish.\n\nRun %s:\n\n- Ubuntu, scene D: %s\n- macOS (%s), %s: scenes A to C: %s; scene D: %s\n' \
+            "$GITHUB_SHA" "$GITHUB_RUN_ID" "${LINUX_D:-no output}" "${MAC_QEMU:-?}" "$MAC" "${MAC_TRY:-no output}" "${MAC_D:-no output}")
+          # tag_name sent again: an edit without it leaves a draft untagged (E7)
+          got=$(gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$ID" -f tag_name="$TAG" -f body="$body" -q .tag_name)
+          [ "$got" = "$TAG" ] || { echo "FAIL: the draft's tag is $got"; exit 1; }
+          echo "$body"
