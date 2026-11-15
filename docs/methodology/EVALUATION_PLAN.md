@@ -1,5 +1,10 @@
 # Evaluation Plan
 
+> **Superseded** (2026-11-15) by the board evaluation plan,
+> [`stage3/20261115-board-evaluation-plan/`](stage3/20261115-board-evaluation-plan/README.md):
+> this evaluation plan was written for the i.MX95 Dev Kit, before the CIX P1 board
+> was chosen. Kept unchanged below as history.
+
 > **Predates the current research question (2026-11-02).** Written before the A1
 > read-back direction (2026-11-01) and not yet revised: statements here may not match
 > the code. Current state: [docs/README.md](../README.md).
