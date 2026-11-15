@@ -68,10 +68,7 @@ def prepare(repo, cpio, n, d, work):
 
 
 def boot(b, image, dtb, cpio, uart):
-    """One free boot; UART is written fresh (an old file would end the wait
-    early). Returns the seconds it took."""
-    if os.path.exists(uart):
-        os.remove(uart)
+    """One free boot (UART written fresh); returns the seconds it took."""
     return smp1.free_boot(b, image, dtb, cpio, IPA + rc.PA_OFFSET, uart)
 
 
