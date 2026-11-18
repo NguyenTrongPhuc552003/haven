@@ -127,3 +127,45 @@ cases are reported apart and together.
    about 5 minutes per case.
 3. Should M7 (EL3 read-back) be in the campaign, given that on the board
    it is uncertain (`../../../porting/cix-p1-ledger.md`, "Without J21")?
+
+## Owner's answers (2026-11-19)
+
+The owner approved the design and its three questions as proposed: about
+30 written, 60 random and at least 8 held-out cases; the held-out cases
+written with `HELDOUT-GUIDE.md` when step C3 comes; M7 (EL3 read-back) in
+the campaign.
+
+## Step C1: the tools, design and expectations (before code)
+
+`tools/campaign/` (Python standard library, like `tools/readback/`):
+
+- **`taxonomy.json`**: the classes of design item 1, each with an id
+  (for example `S2-EXTENT`), its enforcement point and the files where it
+  lives; frozen by hash with the case lists in C2.
+- **`mutate.py`**: `heldout_random.py`'s enumeration and draw, moved out
+  of the v3 record and freed from the Mac: the same five operators
+  (numeric constant +1 or one page; comparison swap; `&&`/`||` swap;
+  deletion of a call-only statement; `|`/`&` swap), the same fixed order,
+  the same shuffle by the SHA-256 of a seed text; the build check uses the
+  toolchain on `PATH` (CI's `aarch64-linux-gnu-`), not a Mac path. The
+  class of a drawn mutant is recorded after the draw by reading its diff.
+- **`run_case.py`**: one case: a patch applied to a clean copy of the
+  repository at the frozen commit, HAVEN built, methods M1 to M7 run,
+  one JSON file with each method's verdict and its evidence lines.
+- **`score.py`**: case files and expectations into the per-class tables of
+  design item 5, with exact (Clopper-Pearson) intervals.
+- **`.github/workflows/campaign.yml`**: on demand; cases sharded across
+  jobs; summary as the run's summary. The owner's held-out archive
+  reaches it as a repository secret (base64; GitHub masks secrets in
+  logs), checked against the SHA-256 committed in C3 before any case runs;
+  its patches are never printed until the results record.
+
+| Row | Check | Expected |
+| - | - | - |
+| K1 | `mutate.py` at commit `e47b722` with v3's seed text | 1,062 mutants; the first five of the shuffled order are R1 to R4 (indices 267, 781, 617, 43) and the one mutant v3 skipped, as `heldout-random/draw.json` records |
+| K2 | unit tests | each operator on a small C sample gives the expected mutants; two draws with one seed are identical; comments and non-`#define` preprocessor lines are never mutated |
+| K3 | `run_case.py` on the unchanged tree (no patch), in CI | every method: no finding and pass (the baseline is clean) |
+| K4 | `run_case.py` on v3's case M5 (partition B RAM 2 MiB larger) with today's tools | M6 reports extent drift on B RAM; M1 and M2 pass, as v3 found |
+| K5 | `score.py` unit tests | a synthetic set gives the expected table; 10 of 10 gives a lower bound of 0.692, 20 of 20 0.832 |
+| K6 | a 10-case dry run of the workflow | completes; its time extrapolated to the campaign's size is under 45 minutes |
+| K7 | the secret channel, with a test archive (not the owner's cases) | a wrong hash stops the job before any case; the right hash runs it; no patch text appears in the log |
