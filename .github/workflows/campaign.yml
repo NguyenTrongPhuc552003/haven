@@ -1,0 +1,112 @@
+# The core evaluation campaign in QEMU (docs/methodology/stage2/
+# 20261119-evaluation-campaign/): every case of a cases file through
+# tools/campaign/run_case.py, sharded across jobs, then tools/campaign/
+# score.py into the run's summary. On demand only. The held-out channel
+# (row K7) is a later C1 step.
+name: campaign
+
+on:
+  workflow_dispatch:
+    inputs:
+      cases:
+        description: Cases file (haven-campaign-cases/1) in the repository
+        required: true
+        default: tools/campaign/cases/k3-k4.json
+      shards:
+        description: Number of parallel jobs
+        required: true
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        env:
+          CASES: ${{ inputs.cases }}
+          SHARDS: ${{ inputs.shards }}
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          d = json.load(open(os.environ["CASES"]))
+          assert d["schema"] == "haven-campaign-cases/1", "not a cases file"
+          n = max(1, min(int(os.environ["SHARDS"]), len(d["cases"])))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"shards={json.dumps(list(range(n)))}\n")
+          print(len(d["cases"]), "cases in", n, "shards")
+          EOF
+
+  run:
+    needs: plan
+    name: cases shard ${{ matrix.shard }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross toolchain and QEMU
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-system-arm
+          qemu-system-aarch64 --version | head -1
+      - name: Run this shard's cases
+        env:
+          CASES: ${{ inputs.cases }}
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ strategy.job-total }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, subprocess, sys, time
+          d = json.load(open(os.environ["CASES"]))
+          shard, shards = int(os.environ["SHARD"]), int(os.environ["SHARDS"])
+          start = time.monotonic()
+          for i, c in enumerate(d["cases"]):
+              if i % shards != shard:
+                  continue
+              cmd = [sys.executable, "tools/campaign/run_case.py", "--case", c["case"], "--class", c["class"],
+                     "--source", c["source"], "--grant", c.get("grant", d["grant"]), "out"]
+              if c.get("patch"):
+                  cmd += ["--patch", c["patch"]]
+              subprocess.run(cmd, check=True)
+          print(f"shard {shard}: {time.monotonic() - start:.0f} s")
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cases-${{ matrix.shard }}
+          path: out/
+          retention-days: 14
+
+  summary:
+    needs: run
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cases-*
+          path: out
+          merge-multiple: true
+      - name: Score
+        env:
+          CASES: ${{ inputs.cases }}
+        run: |
+          python3 -c "import json,os; json.dump(json.load(open(os.environ['CASES'])).get('expect', {}), open('expect.json', 'w'))"
+          python3 tools/campaign/score.py --expect expect.json --json report.json out/*.json | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -c "import json,sys; d=json.load(open('report.json'))['disagreements']; sys.exit(1 if d else 0)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: report.json
+          retention-days: 14
