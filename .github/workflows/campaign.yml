@@ -47,19 +47,33 @@ jobs:
     name: cases shard ${{ matrix.shard }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    # amendment 3: Debian trixie's QEMU, newer than Ubuntu 24.04's 8.2.2,
+    # which has no SMMU stage 2 (HAVEN then withholds the DMA grant)
+    container: debian:trixie
     strategy:
       fail-fast: false
       matrix:
         shard: ${{ fromJSON(needs.plan.outputs.shards) }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Install cross toolchain and QEMU
+      - name: Install git, toolchains, QEMU and dtc
         run: |
-          sudo apt-get -o Acquire::Retries=5 update -qq
-          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
-            cmake ninja-build gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-system-arm \
-            device-tree-compiler
+          apt-get -o Acquire::Retries=5 update -qq
+          apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            git ca-certificates python3 patch cmake ninja-build gcc libc6-dev \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-system-arm device-tree-compiler
+      - uses: actions/checkout@v4
+      - name: QEMU 9.2 or later (row K8)
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           qemu-system-aarch64 --version | head -1
+          python3 - <<'EOF'
+          import re, subprocess, sys
+          out = subprocess.run(["qemu-system-aarch64", "--version"], capture_output=True, text=True).stdout
+          major, minor = map(int, re.search(r"version (\d+)\.(\d+)", out).groups())
+          if (major, minor) < (9, 2):
+              sys.exit(f"FAIL: QEMU {major}.{minor} is older than 9.2; no case runs")
+          print(f"QEMU {major}.{minor}: 9.2 or later")
+          EOF
       - name: Run this shard's cases
         env:
           CASES: ${{ inputs.cases }}

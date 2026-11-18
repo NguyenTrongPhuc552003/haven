@@ -1,13 +1,59 @@
 {
  "schema": "haven-campaign-cases/1",
- "source": "rows K3 and K4 of docs/methodology/stage2/20261119-evaluation-campaign/README.md",
+ "source": "rows K3 and K4 of docs/methodology/stage2/20261119-evaluation-campaign/README.md; amendment 3: control C7 twice more, for the M4 observation of the third run",
  "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
  "cases": [
-  {"case": "K3-BASELINE", "class": "CONTROL", "source": "written", "patch": null},
-  {"case": "K4-V3-M5", "class": "S2-EXTENT", "source": "written", "patch": "tools/campaign/cases/v3-M5.patch"}
+  {
+   "case": "K3-BASELINE",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": null
+  },
+  {
+   "case": "K4-V3-M5",
+   "class": "S2-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-M5.patch"
+  },
+  {
+   "case": "K3-V3-C7-a",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C7.patch"
+  },
+  {
+   "case": "K3-V3-C7-b",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C7.patch"
+  }
  ],
  "expect": {
-  "K3-BASELINE": {"M1": "pass", "M2": "pass", "M3": "pass", "M4": "pass", "M6": "pass"},
-  "K4-V3-M5": {"M1": "finding", "M2": "pass", "M6": "finding"}
+  "K3-BASELINE": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "K4-V3-M5": {
+   "M1": "finding",
+   "M2": "pass",
+   "M6": "finding"
+  },
+  "K3-V3-C7-a": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "K3-V3-C7-b": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  }
  }
 }
