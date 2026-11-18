@@ -97,3 +97,31 @@ Draft `r1-demo-20261115` stays until the owner deletes it.
 | D8 | the push | the package version exists under the tag; its digest is the one the macOS job pulls |
 | D9 | privacy | an `oras manifest fetch` without credentials is refused (the package is private); the job fails if it is not |
 | D10 | the rerun | D1 to D4 hold as before; no release, draft or Git tag is created |
+
+## Results of the amendment (run 44371877959 at `01e9eaa`, 2026-11-19)
+
+| Row | Observed | Verdict |
+| - | - | - |
+| D8 | pushed as `ghcr.io/nguyentrongphuc552003/haven-r1-demo:r1-demo-20261119`, digest `sha256:8e5848835a5085ca6bc682ac35a08bd82916da15caba43036a079b906a5640d8` | holds |
+| D9 | the anonymous fetch **succeeded**: the job failed with "the package can be fetched without credentials: it is public"; confirmed from the Mac without credentials (HTTP 200 for the manifest, against HTTP 403 for `elmos-sdk`) | **fails**: the package is public, with the private SDK kernel in it |
+| D10 | not shown: the macOS job was skipped after the failure | not shown |
+
+[O] The bundle, with the SDK kernel, was publicly downloadable from the
+push until the owner changed or deleted the package (owner informed at
+once; changing a package's visibility or deleting it is the owner's).
+[I] A package created by this public repository's workflow is public:
+working rule 2's "private by default" does not hold here (the ELMOS SDK
+package is private because the owner set it so, 2026-11-09). The check
+ran after the push, so it could only report the exposure, not prevent it.
+
+## Amendment 2: the visibility probe comes first (before code)
+
+The build job first pushes a probe (a one-line text file, nothing private)
+to the fixed tag `visibility-probe`, logs out and fetches it without
+credentials; only if that fetch is refused does it push the bundle. The
+check after the push stays.
+
+| Row | Check | Expected |
+| - | - | - |
+| D11 | a run while the package is public (seeded: the probe check alone, before the owner's fix) | the job stops before the bundle is pushed; only the probe is in the package |
+| D12 | a run after the owner set the package private | probe refused anonymously, bundle pushed, D9 holds, D1 to D4 hold |
