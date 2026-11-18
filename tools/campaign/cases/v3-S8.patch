@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..3bb5cd0 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -173,7 +173,7 @@ static const struct part_dma_grant dma_grants[] = {
+ 		.iova = PART_A_DMA_IPA,
+ 		.size = PART_A_DMA_SIZE,
+ 		.pa = PART_A_DMA_PA,
+-		.access = HV_DMA_RW,
++		.access = HV_DMA_RO,
+ 		.cfg_pa = PART_A_DMA_CFG_PA,
+ 		.bar = PART_A_DMA_BAR,
+ 		.bar_pa = PART_A_DMA_BAR_PA,

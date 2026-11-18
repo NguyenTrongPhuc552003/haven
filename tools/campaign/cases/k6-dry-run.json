@@ -1,0 +1,68 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "row K6 of docs/methodology/stage2/20261119-evaluation-campaign/README.md: a 10-case dry run (time), v3's other ten written cases as patches",
+ "grant": "docs/methodology/stage2/20261102-a1-cases-v3/grant-v3.json",
+ "cases": [
+  {
+   "case": "K6-V3-M3",
+   "class": "S2-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-M3.patch"
+  },
+  {
+   "case": "K6-V3-M4",
+   "class": "S2-TYPE",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-M4.patch"
+  },
+  {
+   "case": "K6-V3-S8",
+   "class": "SMMU-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-S8.patch"
+  },
+  {
+   "case": "K6-V3-S9",
+   "class": "SMMU-TAG",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-S9.patch"
+  },
+  {
+   "case": "K6-V3-I7",
+   "class": "GIC-PRIO",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-I7.patch"
+  },
+  {
+   "case": "K6-V3-I8",
+   "class": "GIC-GROUP",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-I8.patch"
+  },
+  {
+   "case": "K6-V3-P1",
+   "class": "SMMU-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-P1.patch"
+  },
+  {
+   "case": "K6-V3-P2",
+   "class": "S2-MISSING",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-P2.patch"
+  },
+  {
+   "case": "K6-V3-C6",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C6.patch"
+  },
+  {
+   "case": "K6-V3-C7",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C7.patch"
+  }
+ ],
+ "expect": {}
+}

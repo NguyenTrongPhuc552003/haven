@@ -1,0 +1,13 @@
+diff --git a/drivers/iommu/smmu_v3.c b/drivers/iommu/smmu_v3.c
+index c85d99c..86a6fd1 100644
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -171,7 +171,7 @@ static int cmdq_wait_space(uint32_t needed)
+  * the SMMU: cmdq_publish() does that). */
+ static void cmdq_insert(uint64_t dw0, uint64_t dw1)
+ {
+-	uint32_t idx = smmu.cmdq_prod & SMMU_CMDQ_IDX_MASK;
++	uint32_t idx = smmu.cmdq_prod % SMMU_CMDQ_ENTRIES;
+ 
+ 	smmu.cmdq[idx * CMDQ_ENT_DWORDS] = dw0;
+ 	smmu.cmdq[idx * CMDQ_ENT_DWORDS + 1] = dw1;
