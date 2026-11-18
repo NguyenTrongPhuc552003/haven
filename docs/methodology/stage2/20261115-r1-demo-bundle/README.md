@@ -81,3 +81,19 @@ is visible only with write access), but the draft is not the mechanism
 the rule names and drafts collect in the release list. Proposed: the next
 run pushes the bundle as a private package (`oras push`, as ELMOS does
 for the SDK) instead of a draft, after the owner's choice.
+
+## Amendment: a private GHCR package instead of the draft (2026-11-19, before code)
+
+Owner's choice (2026-11-19): the bundle follows working rule 2. Design:
+the build job pushes the bundle with `oras` as
+`ghcr.io/nguyentrongphuc552003/haven-r1-demo:<tag>` (the SDK's way); the
+macOS job pulls it by digest; the results go to the run's summary instead
+of a draft's notes; no release is created. The `tag` input keeps its form
+(`r1-demo-YYYYMMDD[.N]`) and a tag that exists in the package is refused.
+Draft `r1-demo-20261115` stays until the owner deletes it.
+
+| Row | Check | Expected |
+| - | - | - |
+| D8 | the push | the package version exists under the tag; its digest is the one the macOS job pulls |
+| D9 | privacy | an `oras manifest fetch` without credentials is refused (the package is private); the job fails if it is not |
+| D10 | the rerun | D1 to D4 hold as before; no release, draft or Git tag is created |
