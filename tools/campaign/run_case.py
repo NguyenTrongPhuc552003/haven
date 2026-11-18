@@ -24,9 +24,10 @@ M2, M4 and M6 run on every CPU model (cortex-a72 and max); a method has a
 finding when any CPU has one. Each method's verdict is pass, finding, n/a
 or error (the method could not judge: a probe failure, a timeout).
 
-Nothing is printed but the case id and each method's verdict: build logs
-and UART logs go to OUT/CASE/, and the patch is never echoed (held-out
-cases stay sealed until the results record).
+The job log gets the case id, each method's verdict and, for written and
+random cases, the evidence of each finding or error; build logs and UART
+logs go to OUT/CASE/, and the patch is never echoed (held-out cases print
+verdicts only and stay sealed until the results record).
 
 Usage: run_case.py --case ID --class CLS --source written|random|heldout
                    --grant GRANT [--patch FILE] [--repo DIR] OUT
@@ -201,6 +202,19 @@ def m6(src, cdir, grant, built):
     return r
 
 
+def evidence_lines(case):
+    """Evidence of each finding or error, for the job log.
+
+    Evidence names regions, tests and log lines, never patch text; held-out
+    cases still print nothing but verdicts (they stay sealed until the
+    results record).
+    """
+    if case["source"] == "heldout":
+        return []
+    return [f"{m} {r['verdict']}: {e}" for m, r in case["methods"].items()
+            if r["verdict"] in ("finding", "error") for e in r.get("evidence", [])]
+
+
 def run(args):
     repo = os.path.abspath(args.repo)
     out = os.path.abspath(args.out)
@@ -231,6 +245,8 @@ def run(args):
         json.dump(case, f, indent=1)
         f.write("\n")
     print(args.case, " ".join(f"{m}={r['verdict']}" for m, r in methods.items()))
+    for line in evidence_lines(case):
+        print("  " + line)
     return case
 
 

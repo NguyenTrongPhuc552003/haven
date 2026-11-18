@@ -1,7 +1,7 @@
 {
  "schema": "haven-campaign-cases/1",
  "source": "row K6 of docs/methodology/stage2/20261119-evaluation-campaign/README.md: a 10-case dry run (time), v3's other ten written cases as patches",
- "grant": "docs/methodology/stage2/20261102-a1-cases-v3/grant-v3.json",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
  "cases": [
   {
    "case": "K6-V3-M3",

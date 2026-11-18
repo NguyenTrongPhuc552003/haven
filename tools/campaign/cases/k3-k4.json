@@ -1,7 +1,7 @@
 {
  "schema": "haven-campaign-cases/1",
  "source": "rows K3 and K4 of docs/methodology/stage2/20261119-evaluation-campaign/README.md",
- "grant": "docs/methodology/stage2/20261102-a1-cases-v3/grant-v3.json",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
  "cases": [
   {"case": "K3-BASELINE", "class": "CONTROL", "source": "written", "patch": null},
   {"case": "K4-V3-M5", "class": "S2-EXTENT", "source": "written", "patch": "tools/campaign/cases/v3-M5.patch"}
