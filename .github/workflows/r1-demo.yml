@@ -1,19 +1,19 @@
 # The R1 demo bundle: every scene's inputs, built and checked by CI, on
 # demand only (docs/methodology/stage2/20261115-r1-demo-bundle). build makes
 # the bundle with the linux-partition setup (pinned SDK kernel, kdal.ko),
-# runs scene D from it on Ubuntu's QEMU and keeps it in a DRAFT release, the
-# private channel: it holds the private SDK kernel and is never published.
-# test-macos runs scenes A to C (the published try release) and scene D
-# (the draft's bundle) with Homebrew's QEMU, the one the live demo uses;
-# mark writes both results into the draft. Nothing here publishes or
-# deletes a release or uploads an Actions artifact.
+# runs scene D from it on Ubuntu's QEMU and pushes it as a PRIVATE GHCR
+# package (working rule 2: it holds the private SDK kernel), then checks
+# that an anonymous fetch is refused. test-macos pulls it by digest and
+# runs scenes A to C (the published try release) and scene D with
+# Homebrew's QEMU, the one the live demo uses; summary lists both results.
+# Nothing here creates a release or uploads an Actions artifact.
 name: r1-demo
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Draft tag, r1-demo-YYYYMMDD or r1-demo-YYYYMMDD.N
+        description: Package tag, r1-demo-YYYYMMDD or r1-demo-YYYYMMDD.N
         required: true
       try-tag:
         description: The published try release for scenes A to C
@@ -23,16 +23,19 @@ on:
 permissions:
   contents: read
 
+env:
+  PACKAGE: ghcr.io/nguyentrongphuc552003/haven-r1-demo
+
 jobs:
   build:
     name: build the bundle; scene D on Ubuntu's QEMU
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
-      contents: write
-      packages: read
+      contents: read
+      packages: write
     outputs:
-      id: ${{ steps.draft.outputs.id }}
+      digest: ${{ steps.push.outputs.digest }}
       scene-d: ${{ steps.scene.outputs.summary }}
     env:
       TAG: ${{ inputs.tag }}
@@ -42,12 +45,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # git describe needs the tags
-      - name: The tag is new
+      - name: The tag's form
         run: |
           [[ "$TAG" =~ ^r1-demo-[0-9]{8}(\.[0-9]+)?$ ]] || { echo "FAIL: '$TAG' is not r1-demo-YYYYMMDD[.N]"; exit 1; }
-          if gh api --paginate "repos/$GITHUB_REPOSITORY/releases" -q ".[].tag_name" | grep -qx "$TAG"; then
-            echo "FAIL: a release for $TAG exists"; exit 1
-          fi
       - name: Pinned KDAL, SDK kernel, tools and kdal.ko
         id: lp
         uses: ./.github/actions/linux-partition
@@ -75,16 +75,31 @@ jobs:
       - name: Show the UART logs on failure
         if: failure()
         run: for f in build/scene-d/N*/uart.log; do echo "== $f"; tail -40 "$f"; done
-      - name: Draft release, never published (D5)
-        id: draft
+      - name: Publish (private GHCR package) (D8)
+        id: push
         run: |
-          gh release create "$TAG" dist/*.tar.gz dist/*.tar.gz.sha256 --draft --target "$GITHUB_SHA" \
-            --title "R1 demo inputs $TAG [private: do not publish]" \
-            --notes "Built by CI from $GITHUB_SHA; holds the private SDK kernel. A draft is visible only with write access; do not publish. Test results follow."
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
-            -q ".[] | select(.draft and .tag_name == \"$TAG\") | .id" | head -1)
-          [ -n "$id" ] || { echo "FAIL: no draft for $TAG"; exit 1; }
-          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "$GH_TOKEN" | oras login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          trap 'oras logout ghcr.io' EXIT
+          if oras manifest fetch "$PACKAGE:$TAG" > /dev/null 2>&1; then
+            echo "FAIL: $PACKAGE:$TAG exists"; exit 1
+          fi
+          cd dist
+          oras push "$PACKAGE:$TAG" \
+            --artifact-type application/vnd.haven.r1-demo.v1 \
+            --annotation "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --annotation "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            ./*.tar.gz ./*.tar.gz.sha256
+          digest=$(oras resolve "$PACKAGE:$TAG")
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "published $PACKAGE:$TAG at $digest"
+      - name: Privacy check, anonymous fetch must be refused (D9)
+        run: |
+          oras logout ghcr.io 2>/dev/null || true
+          if oras manifest fetch "$PACKAGE:$TAG" > /dev/null 2>&1; then
+            echo "FAIL: the package can be fetched without credentials: it is public" >&2
+            exit 1
+          fi
+          echo "anonymous fetch refused, as expected"
 
   test-macos:
     name: every scene on macOS (Homebrew's QEMU)
@@ -92,7 +107,8 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 30
     permissions:
-      contents: write # a draft is readable only with write access
+      contents: read
+      packages: read
     outputs:
       try: ${{ steps.t.outputs.summary }}
       qemu: ${{ steps.t.outputs.qemu }}
@@ -113,18 +129,18 @@ jobs:
         with:
           release-id: ${{ steps.try.outputs.id }}
           strict-dma: "true"
-      - name: Scene D from the draft's bundle (D4)
+      - uses: oras-project/setup-oras@v2
+      - name: Scene D from the package, pulled by digest (D4)
         id: d
         env:
           GH_TOKEN: ${{ github.token }}
-          ID: ${{ needs.build.outputs.id }}
+          DIGEST: ${{ needs.build.outputs.digest }}
         run: |
           set -o pipefail
           mkdir -p demo-assets demo
-          gh api "repos/$GITHUB_REPOSITORY/releases/$ID/assets" -q '.[] | "\(.id) \(.name)"' |
-            while read -r aid name; do
-              gh api -H "Accept: application/octet-stream" "repos/$GITHUB_REPOSITORY/releases/assets/$aid" > "demo-assets/$name"
-            done
+          echo "$GH_TOKEN" | oras login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          oras pull "$PACKAGE@$DIGEST" -o demo-assets
+          oras logout ghcr.io
           (cd demo-assets && shasum -a 256 -c ./*.sha256)
           tar -xzf demo-assets/*.tar.gz -C demo
           (cd demo/* && shasum -a 256 -c --quiet MANIFEST.sha256)
@@ -134,27 +150,22 @@ jobs:
         if: failure()
         run: for f in scene-d/N*/uart.log; do echo "== $f"; tail -40 "$f"; done
 
-  mark:
-    name: write the results into the draft
+  summary:
+    name: both results in the run's summary
     needs: [build, test-macos]
     if: always() && needs.build.result == 'success'
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
     steps:
       - env:
-          GH_TOKEN: ${{ github.token }}
-          ID: ${{ needs.build.outputs.id }}
           TAG: ${{ inputs.tag }}
+          DIGEST: ${{ needs.build.outputs.digest }}
           LINUX_D: ${{ needs.build.outputs.scene-d }}
           MAC: ${{ needs.test-macos.result }}
           MAC_QEMU: ${{ needs.test-macos.outputs.qemu }}
           MAC_TRY: ${{ needs.test-macos.outputs.try }}
           MAC_D: ${{ needs.test-macos.outputs.scene-d }}
         run: |
-          body=$(printf 'Built by CI from %s; holds the private SDK kernel. A draft is visible only with write access; do not publish.\n\nRun %s:\n\n- Ubuntu, scene D: %s\n- macOS (%s), %s: scenes A to C: %s; scene D: %s\n' \
-            "$GITHUB_SHA" "$GITHUB_RUN_ID" "${LINUX_D:-no output}" "${MAC_QEMU:-?}" "$MAC" "${MAC_TRY:-no output}" "${MAC_D:-no output}")
-          # tag_name sent again: an edit without it leaves a draft untagged (E7)
-          got=$(gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$ID" -f tag_name="$TAG" -f body="$body" -q .tag_name)
-          [ "$got" = "$TAG" ] || { echo "FAIL: the draft's tag is $got"; exit 1; }
-          echo "$body"
+          printf '%s\n' "# R1 demo bundle $TAG" "" "Private package $PACKAGE:$TAG ($DIGEST), built from $GITHUB_SHA." "" \
+            "- Ubuntu, scene D: ${LINUX_D:-no output}" \
+            "- macOS (${MAC_QEMU:-?}), $MAC: scenes A to C: ${MAC_TRY:-no output}; scene D: ${MAC_D:-no output}" | tee -a "$GITHUB_STEP_SUMMARY"
+          [ "$MAC" = success ]
