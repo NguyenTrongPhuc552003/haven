@@ -169,3 +169,51 @@ the campaign.
 | K5 | `score.py` unit tests | a synthetic set gives the expected table; 10 of 10 gives a lower bound of 0.692, 20 of 20 0.832 |
 | K6 | a 10-case dry run of the workflow | completes; its time extrapolated to the campaign's size is under 45 minutes |
 | K7 | the secret channel, with a test archive (not the owner's cases) | a wrong hash stops the job before any case; the right hash runs it; no patch text appears in the log |
+
+## Results of step C1, first run (2026-11-19)
+
+The tools merged in #149 (commit `5b6ff79`); `campaign.yml` ran the cases
+file `tools/campaign/cases/k3-k4.json` on demand, two shards on
+`ubuntu-24.04` (Ubuntu's QEMU), and scored them into the run's summary.
+**[F]** fact from a log or a rerun, **[I]** inference.
+
+| Row | Result | Evidence |
+| - | - | - |
+| K1 | holds | the quality-gate job of #149: `test_k1_reproduces_case_set_v3 ... ok` (commit `e47b722` fetched, not skipped) [F] |
+| K2 | holds | the host-test jobs (Ubuntu, macOS, Windows) of #149 [F] |
+| K5 | holds | the same jobs: 10 of 10 gives 0.692, 20 of 20 0.832, 5 of 10 [0.1871, 0.8129] [F] |
+| K3 | **fails** | M1 to M4 pass, but **M6 reports a finding on the unchanged tree** [F]. Not a false finding of read-back: a defect of the campaign's runner (below) |
+| K4 | **fails, two ways** | M2, M3 and M4 pass [F]. **M1 has a finding**: `test_partition_layout` fails at `tests/unit/test_partition_layout.c:127` (the map's IPA and PA), reproduced on a clean copy with the patch [F]. M6's finding is not valid evidence, for K3's reason [I] |
+| K6 | not run | waits for the runner fix |
+| K7 | not run | a later step |
+
+**Cause of K3 (and of K4's M6 verdict)** [I, to be confirmed by the
+rerun]: `campaign.yml` installs no `dtc`. After reading the memory,
+`readback.py` checks DMA masters against QEMU's own device tree
+(`device_tree()`, called before the result is written), which runs `dtc`
+on QEMU's `dumpdtb` output; without `dtc` Python stops with an error, exit
+code 1, and `run_case.py` reads every exit code 1 as a finding. What
+points there: the other QEMU workflows install `device-tree-compiler`
+(`try-release.yml`) or `dtc` (`r1-demo.yml`) and this one does not [F];
+`readback.py`'s usage says it needs `dtc` on `PATH` [F]. The job keeps the
+read-back output in files (by design), and those files were not read for
+this record.
+
+**Cause of K4's M1 finding** [F]: the expectation copied v3's result
+without checking today's tests. `test_partition_layout` came after v3
+(commit `3473290`, 2026-11-11; v3 ran at `e47b722`, 2026-11-02) and checks
+partition B's layout, so today's unit tests catch case M5. This is a
+prediction error on the tree's state, not a defect: the baseline got
+stronger, and M5 is no longer a case only read-back detects.
+
+**Two defects of `run_case.py` found** [F]:
+
+1. An exit code 1 without a `readback.json` that lists findings counts as
+   a finding. It must count as an error (the method could not judge),
+   with the log's last lines as evidence.
+2. M1's evidence is only ctest's exit code; it must name the failing
+   tests.
+
+**Next**: the fix (`dtc` in the workflow; defects 1 and 2), then K3, K4
+(with M1's expectation corrected to a finding, `test_partition_layout`)
+and K6 run again. Nothing else in the rows changes.
