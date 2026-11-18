@@ -49,6 +49,8 @@ jobs:
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s scripts/ci -p "test_*.py" -v
       - name: Public release asset checks (Python)
         run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s scripts/release -p "test_*.py" -v
+      - name: Campaign tools (Python)
+        run: ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m unittest discover -s tools/campaign -p "test_*.py" -v
 
 
   # The quality gate (docs/quality/gate.md): every tool at the version pinned
@@ -64,6 +66,13 @@ jobs:
           packages: gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu cloc
       - name: Gate unit tests
         run: python3 -m unittest discover -s tools/gate -p "test_*.py" -v
+      # row K1 of docs/methodology/stage2/20261119-evaluation-campaign: the
+      # mutant draw at case set v3's commit, fetched by the hash its record holds
+      - name: Campaign K1 (case set v3's draw reproduced)
+        run: |
+          git fetch -q --depth=1 origin "$(python3 -c "import json; print(json.load(open('docs/methodology/stage2/20261102-a1-cases-v3/heldout-random/draw.json'))['haven_commit'])")"
+          python3 -m unittest -v tools/campaign/test_mutate.py 2>&1 | tee /tmp/k1.log
+          grep -q "test_k1_reproduces_case_set_v3 .* ok$" /tmp/k1.log
       - name: Quality gate (whole tree)
         run: scripts/gate ci --json gate-report.json
 

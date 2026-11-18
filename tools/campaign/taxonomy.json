@@ -1,0 +1,133 @@
+{
+ "schema": "haven-campaign-taxonomy/1",
+ "source": "docs/methodology/stage2/20261119-evaluation-campaign/README.md, design item 1",
+ "shapes": [
+  "wrong constant or bit",
+  "size off by a page or a block",
+  "skipped check",
+  "missing call",
+  "two steps reordered",
+  "right value to the wrong target"
+ ],
+ "classes": [
+  {
+   "id": "S2-EXTENT",
+   "point": "stage-2",
+   "what": "a region larger, smaller or moved"
+  },
+  {
+   "id": "S2-PERM",
+   "point": "stage-2",
+   "what": "read, write or execute permission wrong"
+  },
+  {
+   "id": "S2-TYPE",
+   "point": "stage-2",
+   "what": "memory type or shareability wrong"
+  },
+  {
+   "id": "S2-OWNER",
+   "point": "stage-2",
+   "what": "a region in the wrong partition"
+  },
+  {
+   "id": "S2-MISSING",
+   "point": "stage-2",
+   "what": "a granted region not mapped"
+  },
+  {
+   "id": "S2-EXTRA",
+   "point": "stage-2",
+   "what": "an ungranted region mapped"
+  },
+  {
+   "id": "SMMU-UNBOUND",
+   "point": "SMMU",
+   "what": "a granted stream not bound"
+  },
+  {
+   "id": "SMMU-EXTENT",
+   "point": "SMMU",
+   "what": "a DMA window larger, smaller or moved"
+  },
+  {
+   "id": "SMMU-PERM",
+   "point": "SMMU",
+   "what": "a DMA window's permission wrong"
+  },
+  {
+   "id": "SMMU-TAG",
+   "point": "SMMU",
+   "what": "a stream's stage or VMID wrong"
+  },
+  {
+   "id": "GIC-ROUTE",
+   "point": "GIC",
+   "what": "an interrupt routed to the wrong CPU"
+  },
+  {
+   "id": "GIC-ENABLE",
+   "point": "GIC",
+   "what": "an interrupt enabled or disabled against the grant"
+  },
+  {
+   "id": "GIC-GROUP",
+   "point": "GIC",
+   "what": "an interrupt in the wrong group, or a group disabled"
+  },
+  {
+   "id": "GIC-PRIO",
+   "point": "GIC",
+   "what": "a priority wrong"
+  },
+  {
+   "id": "GIC-PPI",
+   "point": "GIC",
+   "what": "a private interrupt on the wrong CPU's partition"
+  },
+  {
+   "id": "CPU-ASSIGN",
+   "point": "CPU and EL2",
+   "what": "a CPU running the wrong partition, or none"
+  },
+  {
+   "id": "EL2-MAP",
+   "point": "CPU and EL2",
+   "what": "HAVEN's own EL2 map covering partition memory"
+  },
+  {
+   "id": "EL2-TIMER",
+   "point": "CPU and EL2",
+   "what": "HAVEN's timer or a budget wrong"
+  },
+  {
+   "id": "CONTROL",
+   "point": "control",
+   "what": "a change that leaves enforced state unchanged"
+  }
+ ],
+ "files": {
+  "stage-2": [
+   "src/core/partition.c",
+   "src/platform/qemu-virt/memory.h",
+   "arch/arm64/include/asm/s2_attrs.h",
+   "arch/arm64/mm.c",
+   "src/core/mm/stage2.c"
+  ],
+  "SMMU": [
+   "src/core/dma/smmu.c",
+   "drivers/iommu/smmu_v3.c",
+   "src/core/partition.c"
+  ],
+  "device setup": [
+   "drivers/pci/ecam.c",
+   "src/core/partition.c"
+  ],
+  "GIC": [
+   "drivers/irqchip/gic_v3.c",
+   "src/core/irq/ownership.c",
+   "arch/arm64/irq.c",
+   "src/core/partition.c"
+  ]
+ }
+}

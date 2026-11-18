@@ -1,0 +1,11 @@
+--- a/src/platform/qemu-virt/memory.h
++++ b/src/platform/qemu-virt/memory.h
+@@ -58,7 +58,7 @@
+  * Distinct IPA base from A so cross-partition access faults are detectable. */
+ #define PART_B_IPA_BASE 0x60000000UL
+ #define PART_B_PA_BASE (PART_A_PA_BASE + PART_A_SIZE)
+-#define PART_B_SIZE 0x04000000UL
++#define PART_B_SIZE 0x04200000UL
+ 
+ /* Shared memory: 4 MB */
+ #define SHARED_PA_BASE (PART_B_PA_BASE + PART_B_SIZE)
