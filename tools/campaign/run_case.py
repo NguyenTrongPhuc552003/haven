@@ -16,7 +16,8 @@ the patch (if any) is applied there, and the methods run on that copy:
   M4  the partitions' own checks: partition B's result block in the qemu-psci
       build (scripts/qemu/partition-b-check.py)
   M5  demand check: Linux cases only
-  M6  read-back through the QEMU monitor (tools/readback/readback.py)
+  M6  read-back through the QEMU monitor (tools/readback/readback.py) of the
+      qemu-psci build, the profile the grant describes (amendment 3)
   M7  read-back through the EL3 dump: not wired yet (it needs the TF-A boot
       profile; a later C1 step), so n/a
 
@@ -162,27 +163,27 @@ def m3(grant):
     return {"verdict": "pass", "evidence": ["grant: format 1 to 2 and back", "device tree: n/a (no Linux partition)"]}
 
 
-def m4(src, cdir):
-    log = os.path.join(cdir, "m4-build.log")
-    if sh("cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci && cmake --build build-psci",
-          src, log) != 0:
+def m4(src, cdir, built):
+    if not built:
         return {"verdict": "finding", "evidence": ["qemu-psci build failed"]}
     res = {}
     for cpu in CPUS:
         rc = sh(f"python3 scripts/qemu/partition-b-check.py build-psci {cpu}", src,
                 os.path.join(cdir, f"m4-{cpu}.log"), 120)
-        res[cpu] = ("pass", "partition B result pass") if rc == 0 else ("finding", f"exit {rc}")
+        res[cpu] = ("pass", "partition B result pass") if rc == 0 else (
+            ("finding", "partition B check exit 1") if rc == 1 else ("error", f"exit {rc}"))
     return by_cpu(res)
 
 
 def m6(src, cdir, grant, built):
+    """Read-back of the qemu-psci build (amendment 3: the profile the grant describes)."""
     if not built:
-        return {"verdict": "error", "evidence": ["qemu-direct build failed: nothing to read"]}
+        return {"verdict": "error", "evidence": ["qemu-psci build failed: nothing to read"]}
     script = os.path.join(HERE, "..", "readback", "readback.py")
     res, seconds = {}, 0.0
     for cpu in CPUS:
         out = os.path.join(cdir, f"m6-{cpu}")
-        cmd = [sys.executable, script, os.path.join(src, "build"), grant, out, "--cpu", cpu,
+        cmd = [sys.executable, script, os.path.join(src, "build-psci"), grant, out, "--cpu", cpu,
                "--wait", "20", "--device", DEVICE, "--marker", MARKER]
         start = time.monotonic()
         with open(os.path.join(cdir, f"m6-{cpu}.log"), "w") as f:
@@ -227,13 +228,15 @@ def run(args):
         grant = os.path.abspath(args.grant)
         built = sh("cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build",
                    src, os.path.join(cdir, "build.log")) == 0
+        psci = sh("cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci && cmake --build build-psci",
+                  src, os.path.join(cdir, "build-psci.log")) == 0
         methods = {
             "M1": m1(src, cdir),
             "M2": m2(src, cdir, built),
             "M3": m3(grant),
-            "M4": m4(src, cdir),
+            "M4": m4(src, cdir, psci),
             "M5": {"verdict": "n/a", "evidence": ["no Linux partition in this case"]},
-            "M6": m6(src, cdir, grant, built),
+            "M6": m6(src, cdir, grant, psci),
             "M7": {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]},
         }
     finally:
