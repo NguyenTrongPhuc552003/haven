@@ -1,0 +1,13 @@
+diff --git a/src/core/dma/smmu.c b/src/core/dma/smmu.c
+index c31f6f2..382e5d5 100644
+--- a/src/core/dma/smmu.c
++++ b/src/core/dma/smmu.c
+@@ -166,7 +166,7 @@ static hv_u32 dma_vmid_take(void)
+ 	for (hv_u32 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
+ 		if (!smmu_state.dma_vmid_used[i]) {
+ 			smmu_state.dma_vmid_used[i] = 1;
+-			return HV_SMMU_DMA_VMID_BASE + i;
++			return 1U;
+ 		}
+ 	}
+ 	return 0;
