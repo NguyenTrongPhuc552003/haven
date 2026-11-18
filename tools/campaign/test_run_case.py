@@ -40,6 +40,42 @@ class Verdicts(unittest.TestCase):
             os.unlink(f.name)
 
 
+
+class ReadbackVerdict(unittest.TestCase):
+    """The C1 first run's defect 1: exit 1 from a Python error is not a finding."""
+
+    def test_finding_needs_findings(self):
+        rep = {"findings": [["B RAM", "extent drift", "size 0x4200000"]]}
+        self.assertEqual(run_case.m6_verdict(1, rep, "/nonexistent"), ("finding", "B RAM: extent drift"))
+        self.assertEqual(run_case.m6_verdict(0, {"findings": []}, "/nonexistent"), ("pass", "matches the grant"))
+
+    def test_python_error_is_error(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".log", delete=False) as f:
+            f.write("read at: marker\nTraceback (most recent call last):\n"
+                    "FileNotFoundError: [Errno 2] No such file or directory: 'dtc'\n")
+        try:
+            v, e = run_case.m6_verdict(1, None, f.name)
+        finally:
+            os.unlink(f.name)
+        self.assertEqual(v, "error")
+        self.assertIn("No such file or directory: 'dtc'", e)
+
+    def test_probe_failure(self):
+        v, e = run_case.m6_verdict(2, {"findings": [], "probe_failure": "HAVEN halted"}, "/nonexistent")
+        self.assertEqual((v, e), ("error", "probe failure: HAVEN halted"))
+
+
+class CtestNames(unittest.TestCase):
+    """The C1 first run's defect 2: M1 names the failing tests."""
+
+    def test_failed_tests(self):
+        out = ("97% tests passed, 1 tests failed out of 30\n\nTotal Test time (real) =   0.18 sec\n\n"
+               "The following tests FAILED:\n\t  9 - test_partition_layout (Failed)\n"
+               "\t 12 - test_vgic (SEGFAULT)\nErrors while running CTest\n")
+        self.assertEqual(run_case.failed_tests(out), ["test_partition_layout", "test_vgic"])
+        self.assertEqual(run_case.failed_tests("100% tests passed\n"), [])
+
+
 class Patch(unittest.TestCase):
     def test_apply_and_refuse(self):
         with tempfile.TemporaryDirectory() as d:

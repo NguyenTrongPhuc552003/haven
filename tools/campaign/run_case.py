@@ -98,7 +98,48 @@ def m1(src, cdir):
         return {"verdict": "finding", "evidence": [f"host-tests build exit {rc}"]}
     rc = sh("ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation",
             src, log)
-    return {"verdict": "pass" if rc == 0 else "finding", "evidence": [f"ctest exit {rc}"]}
+    if rc == 0:
+        return {"verdict": "pass", "evidence": ["ctest exit 0"]}
+    with open(log) as f:
+        failed = failed_tests(f.read())
+    return {"verdict": "finding", "evidence": [f"ctest exit {rc}"] + [f"failed: {n}" for n in failed]}
+
+
+def failed_tests(ctest_output):
+    """Test names under ctest's "The following tests FAILED:" list."""
+    names, inside = [], False
+    for line in ctest_output.splitlines():
+        if line.startswith("The following tests FAILED"):
+            inside = True
+        elif inside and " - " in line:
+            names.append(line.split(" - ", 1)[1].split(" (", 1)[0].strip())
+        elif inside:
+            inside = False
+    return names
+
+
+def tail(path, n=5):
+    try:
+        with open(path) as f:
+            return [x.rstrip() for x in f.readlines()[-n:] if x.strip()]
+    except OSError:
+        return []
+
+
+def m6_verdict(rc, report, log):
+    """readback.py's result for one CPU: a finding needs the findings it wrote.
+
+    Exit 1 without a readback.json that lists findings is a Python error
+    (C1 first run: dtc missing), so the method could not judge.
+    """
+    found = ["{}: {}".format(*x[:2]) for x in (report or {}).get("findings", [])]
+    if rc == 0:
+        return "pass", "matches the grant"
+    if rc == 1 and found:
+        return "finding", "; ".join(found)
+    if rc == 2:
+        return "error", "probe failure: " + ((report or {}).get("probe_failure") or "exit 2")
+    return "error", f"exit {rc} without findings: " + " | ".join(tail(log))
 
 
 def m2(src, cdir, built):
@@ -151,15 +192,10 @@ def m6(src, cdir, grant, built):
         seconds += time.monotonic() - start
         try:
             with open(os.path.join(out, "readback.json")) as f:
-                found = ["{}: {}".format(*x[:2]) for x in json.load(f)["findings"]]
-        except (OSError, ValueError, KeyError):
-            found = []
-        if rc == 0:
-            res[cpu] = ("pass", "matches the grant")
-        elif rc == 1:
-            res[cpu] = ("finding", "; ".join(found) or "findings")
-        else:
-            res[cpu] = ("error", f"probe failure (exit {rc})")
+                report = json.load(f)
+        except (OSError, ValueError):
+            report = None
+        res[cpu] = m6_verdict(rc, report, os.path.join(cdir, f"m6-{cpu}.log"))
     r = by_cpu(res)
     r["seconds"] = round(seconds, 1)
     return r
