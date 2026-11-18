@@ -293,3 +293,33 @@ carries K3's findings.
 3. New row K8: the container's QEMU is 9.2 or later (else the job
    stops). K3 to K6 unchanged; K3 is run again with C7 twice more, for
    the M4 observation.
+
+## Results of step C1, fourth run (2026-11-19)
+
+After amendment 3 (#156): K3/K4 with C7 twice more (four shards) and K6
+(five shards), in the `debian:trixie` container.
+
+| Row | Result | Evidence |
+| - | - | - |
+| K8 | **holds** | `QEMU emulator version 10.0.13 (Debian 1:10.0.13+ds-0+deb13u1)` in every case job [F] |
+| K3, K4, K6 | **no verdict** | every build of every case failed within about a second: M1 `host-tests build exit 1`, M2 `qemu-direct build failed`, M4 `qemu-psci build failed`, M6 an error; 14 disagreements in K3/K4 [F]. K6's run "completed", but no case was built, so it says nothing |
+
+**Cause** [I, strong]: the container has no `make`, and `CMakeLists.txt`
+requires it in every configuration (`find_program(_MAKE NAMES gmake make
+REQUIRED)`, for the `verification` target), so every configure step
+stops. Ubuntu runners have `make`; the installed package list
+(`campaign.yml`) does not name it. The build logs stay in the case files,
+so the configure error itself was not read.
+
+**Two more gaps of the runner** [F]:
+
+1. A build that fails because of the environment looks like a detection
+   by every method. The job needs to show that the unchanged tree builds
+   before any case runs.
+2. A failed build's evidence names only the build, not its error.
+
+**Next**: `make` in the container's package list; row K8 becomes "QEMU
+9.2 or later **and the unchanged tree builds** (host tests and both
+profiles), else the job stops before any case", with the build output in
+the job log; a failed build's evidence carries the last lines of its log
+(written and random cases only). Then K3, K4 and K6 again.
