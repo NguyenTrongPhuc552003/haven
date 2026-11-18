@@ -138,3 +138,26 @@ J21 unusable (then C runs through the EL3 service only, and says so).
 3. Which held-out cases does the owner write for C, and when are they
    sealed?
 4. Is UART-only bring-up acceptable if J21 stays unusable (G3 question 3)?
+
+## Amendment 1 (2026-11-19, before freezing; owner's question on a board without J21)
+
+Source: `../../../porting/cix-p1-ledger.md`, "Without J21" (2026-11-19).
+
+- [F] The fitted 10-pin header J135 carries UARTs only (UART2 console,
+  UART4 power management, UART5 and UART6 security engine, 3.3 V); JTAG
+  reaches only the unfitted J21. Bring-up (parts A and B) and part D need
+  only UART; J135 and UART3 on the 40-pin header are their ports.
+- [I] The EL3 fallback of part C is harder on this board than in QEMU: the
+  EL3 firmware ships as signed binaries, no TF-A source for the SoC is
+  known, and using it means a SPI NOR write (the owner's decision).
+- **Part C, first step** [P]: before any read-back run on the board, the
+  staged debugger test through a solder-free pogo-pin adapter on J21
+  (debug port ID; access ports and ROM table; a core's authentication
+  status and a halt). Only if the halt works is a header soldered.
+- **Part C if neither JTAG nor EL3 is usable** [P]: the board runs the
+  behaviour probes (always) and HAVEN's self-report, reported as such and
+  never as independent read-back; independent read-back stays a QEMU
+  result, and the thesis claim is narrowed accordingly (charter section
+  10). Parts A, B, D and E are unchanged.
+- Added to the owner's questions: 5. buy a pogo-pin 2x5 adapter and a
+  1.8 V-capable probe with the board?

@@ -203,6 +203,54 @@ and tries to halt that core. Step 3 is the one that can fail on a locked
 part. Asking Orange Pi or CIX whether retail boards allow external debug
 would answer it before the purchase.
 
+### Without J21: the 10-pin debug header and the fallbacks (2026-11-19)
+
+Asked by the owner: if the board arrives without a JTAG header, can the
+fitted 10-pin "Debug" header next to the 40-pin header be used instead,
+and is soldering J21 ourselves worth the risk?
+
+- **J135 is UART only** (schematic `OPi 6 PLUS V11 DSN 0612.pdf`, sheet 18,
+  "UART DEBUG", read from the rendered sheet): pin 1 UART2 TXD, 3 UART2 RXD
+  (the UEFI and kernel console), 2 UART4 TXD and 4 UART4 RXD (power
+  management, "CSU PM"), 7 UART6 TXD and 9 UART6 RXD, 8 UART5 TXD and
+  10 UART5 RXD (security engine, "CSU SE"), 5 and 6 ground; all 3.3 V
+  through level shifters U108 and U109. No JTAG signal reaches J135; the
+  SoC's JTAG balls go only to J21 (sheet 12). So J135 cannot replace J21.
+  It is the main bring-up port: firmware and HAVEN early output, and the
+  power-management and security-engine logs when firmware misbehaves.
+- **EL3 fallback on this board** (`data/common/cix-bios/edk2-non-osi/
+  Platform/CIX/Sky1/PackageTool/`): the firmware below UEFI ships as
+  binaries (`Firmwares/bootloader1.img`, `bootloader2.img`, configuration
+  blobs) with packaging and signing tools (`fiptool`, `Keys/`,
+  `cert_uefi_create_rsa`, `cix_regen_trusted_key_cert`); no TF-A source for
+  the SoC is in `data/`, and a web search (2026-11-19) found no upstream
+  TF-A platform for CIX Sky1 (not proof that none exists). Inference: the
+  EL3 read-back service prototyped in QEMU
+  (`../methodology/stage2/20261108-el3-readback/`) needs CIX's EL3 source
+  or a port of our own, an image the board's trusted boot accepts (signing
+  keys; whether enforcement is on for retail boards is unknown), and a SPI
+  NOR write: high cost and risk, and a write the standing rules leave to
+  the owner.
+- **Solder-free access to J21** [P]: a spring-loaded (pogo-pin) 2x5 adapter
+  held on the bare pads, with the three pull-ups (10 kohm; TMS, TCK, TDI to
+  pin 1) on the cable side, runs the staged test (1) debug port ID,
+  (2) access ports and ROM table, (3) a core's authentication status and a
+  halt, without touching the board. Only if step 3 passes is soldering
+  worth it: a 2x5 surface-mount header, most likely 2.54 mm (measure the
+  pads first), done by an experienced hand or a repair shop. If step 3
+  fails, debug is locked and a soldered header would not help.
+- **Probe:** the port is 1.8 V (pin 1 reference); the probe must sense and
+  drive 1.8 V. Whether OpenOCD or the probe's software can halt a
+  Cortex-A720 or A520 core is not settled by any document here.
+
+Inference: JTAG is not on the critical path of bring-up; UART is. A missing
+or locked JTAG changes part C of the board evaluation plan (read-back on
+the board): without J21 and without a usable EL3 service, the board keeps
+the behaviour probes and HAVEN's self-report, which are not independent
+read-back, so the board confirms bring-up, isolation behaviour and cost,
+while independent read-back stays a QEMU result. Charter section 10:
+narrow the claim, never weaken isolation.
+
 ## Orange Pi 6 Plus firmware images checked (2026-11-02)
 
 Downloaded by the owner from the official Orange Pi 6 Plus support page into
