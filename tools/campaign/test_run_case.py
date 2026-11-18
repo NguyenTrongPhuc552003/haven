@@ -65,6 +65,18 @@ class ReadbackVerdict(unittest.TestCase):
         self.assertEqual((v, e), ("error", "probe failure: HAVEN halted"))
 
 
+
+class Evidence(unittest.TestCase):
+    def test_printed_except_heldout(self):
+        case = {"source": "written", "methods": {
+            "M1": {"verdict": "pass", "evidence": ["ctest exit 0"]},
+            "M6": {"verdict": "finding", "evidence": ["max: B RAM: extent drift"]},
+            "M7": {"verdict": "n/a", "evidence": ["not wired"]}}}
+        self.assertEqual(run_case.evidence_lines(case), ["M6 finding: max: B RAM: extent drift"])
+        case["source"] = "heldout"
+        self.assertEqual(run_case.evidence_lines(case), [])
+
+
 class CtestNames(unittest.TestCase):
     """The C1 first run's defect 2: M1 names the failing tests."""
 

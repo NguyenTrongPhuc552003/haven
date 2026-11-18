@@ -67,6 +67,15 @@ class Synthetic(unittest.TestCase):
         self.assertEqual(allp["controls"]["M1"], {"false_findings": 0, "controls": 2})
         self.assertEqual(allp["only_readback"], ["R1", "W1"])
 
+    def test_control_findings_listed(self):
+        self.cases[3]["methods"]["M6"]["evidence"] = ["cortex-a72: CPU 1: assignment drift"]
+        rep = score.score(self.cases)
+        self.assertEqual(rep["by_source"]["all"]["control_findings"],
+                         [{"case": "C1", "method": "M6", "evidence": ["cortex-a72: CPU 1: assignment drift"]}])
+        self.assertIn("- finding on control C1 by M6: cortex-a72: CPU 1: assignment drift", score.markdown(rep))
+        self.cases[3]["source"] = "heldout"
+        self.assertEqual(score.score(self.cases)["by_source"]["all"]["control_findings"], [])
+
     def test_apart(self):
         self.assertEqual(self.report["equivalent"], ["R2"])
         self.assertEqual(self.report["not_scored"]["M2"], {"error": ["R1"]})

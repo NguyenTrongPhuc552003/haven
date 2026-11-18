@@ -128,8 +128,12 @@ def score(cases, expect=None):
         only = sorted(c["case"] for c in faults
                       if any(verdict(c, m) == "finding" for m in READBACK)
                       and not any(verdict(c, m) == "finding" for m in BASELINES))
+        on_controls = [{"case": c["case"], "method": m, "evidence": c["methods"][m].get("evidence", [])}
+                       for c in controls if c["source"] != "heldout"
+                       for m in METHODS if verdict(c, m) == "finding"]
         report["by_source"][source] = {"cases": len(group), "detection": table,
-                                       "controls": false, "only_readback": only}
+                                       "controls": false, "only_readback": only,
+                                       "control_findings": on_controls}
     disagree = []
     for c in cases:
         for m, want in sorted(expect.get(c["case"], {}).items()):
@@ -165,6 +169,10 @@ def markdown(report):
                    + " | ".join(f"{ctl[m]['false_findings']}/{ctl[m]['controls']}" for m in METHODS) + " |")
         out.append("")
         out.append("Only read-back detects: " + (", ".join(part["only_readback"]) or "none") + "\n")
+        for f in part["control_findings"]:
+            out.append(f"- finding on control {f['case']} by {f['method']}: " + ("; ".join(f["evidence"]) or "no evidence"))
+        if part["control_findings"]:
+            out.append("")
     out.append(f"Disagreements with the expectations: {len(report['disagreements'])}")
     for d in report["disagreements"]:
         out.append(f"- {d['case']} {d['method']}: expected {d['expected']}, got {d['got']}")
