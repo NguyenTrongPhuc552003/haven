@@ -249,3 +249,47 @@ it stays in the files.
 prints each finding's evidence for written and random cases; `score.py`'s
 summary lists every finding on a control with its evidence. Then K3, K4
 and K6 run a third time. Rows K3 to K6 unchanged.
+
+## Results of step C1, third run, and amendment 3 (2026-11-19)
+
+With the current grant and evidence in the log (#154), at the merge of
+#154: K3 and K4 (two shards) and K6 (five shards). The log now names every
+finding.
+
+| Row | Result | Evidence |
+| - | - | - |
+| K3 | **fails** | M1 to M4 pass; M6 on both CPU models: `A PCI config` and `A PCI BAR: missing binding`, `pci-1af4:1044: DMA enforcement drift`, `CPU 2 PPI 26: missing interrupt binding`, `CPU 2: CPU assignment drift` [F] |
+| K4 | **holds** | M6 on both CPU models: `B RAM: extent drift` (and `A RO: association drift`, the region after B), beside K3's findings; M1 `failed: test_partition_layout`; M2 pass [F] |
+| K6 | **holds** | ten cases completed in 22 min wall time; case work 44 to 244 s per shard [F] |
+
+**Causes of K3** [F]:
+
+1. *DMA*: Ubuntu 24.04's QEMU 8.2.2 has no SMMU stage 2, so HAVEN
+   withholds the DMA grant and read-back reports it: the same three
+   findings as the E7 record's row T6 (`../20261113-e7-releases/`), which
+   holds on QEMU 8.2.2 for this reason; `try.sh` asks for QEMU 9.2 or
+   later. v3 ran on the Mac's Homebrew QEMU.
+2. *CPU 2*: the campaign builds the `qemu-direct` profile, which has no
+   PSCI conduit (`CMakeLists.txt`), so partition B never starts on CPU 2;
+   the grant assigns CPU 2 to B, as the `qemu-psci` build the try release
+   reads (`scripts/release/make-try-bundle.sh`) runs it.
+
+**Other observations** [F]: control C7 had an M4 finding on `max` only
+(partition B check exit 1; `cortex-a72` passed); one run, not yet called
+a flake or a false finding. Today's unit tests catch v3's M3, M4, S8, S9
+and P2 (`test_stage2_attrs`, `test_smmu_dma`, `test_partition_layout`),
+which v3's did not: the baseline grew since v3. Which cases only
+read-back detects cannot be read from this run, since every M6 verdict
+carries K3's findings.
+
+**Amendment 3** [P]:
+
+1. M4 and M6 run on the `qemu-psci` build (the profile the grant and the
+   try release describe); M2 keeps CI's `qemu-direct` boot check. Both
+   builds come from the same patched copy.
+2. The case jobs run in a `debian:trixie` container, whose QEMU is newer
+   than Ubuntu 24.04's; the job prints `qemu-system-aarch64 --version`
+   and stops before any case if it is older than 9.2.
+3. New row K8: the container's QEMU is 9.2 or later (else the job
+   stops). K3 to K6 unchanged; K3 is run again with C7 twice more, for
+   the M4 observation.
