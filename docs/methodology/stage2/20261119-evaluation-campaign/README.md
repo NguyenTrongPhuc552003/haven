@@ -217,3 +217,35 @@ stronger, and M5 is no longer a case only read-back detects.
 **Next**: the fix (`dtc` in the workflow; defects 1 and 2), then K3, K4
 (with M1's expectation corrected to a finding, `test_partition_layout`)
 and K6 run again. Nothing else in the rows changes.
+
+## Results of step C1, second run (2026-11-19)
+
+After the runner fix (#151) and the K6 cases (#152), at commit `976315b`:
+K3 and K4 again (two shards), and K6's ten cases (v3's other written
+cases, five shards).
+
+| Row | Result | Evidence |
+| - | - | - |
+| K3 | **fails again**, now for a real reason | M6 has a finding, and since #151 a finding means `readback.py` listed findings in `readback.json` [F]. M1 to M4 pass [F] |
+| K4 | M1, M2 hold; M6's detail not yet read | M1 finding (corrected expectation), M2 pass [F]; M6 finding, but the job log does not show which, so "extent drift on B RAM" is not yet confirmed |
+| K6 | **holds** | the ten-case run completed in 19 min wall time [F]. Case work per shard: 43 to 52 s for two cases, 244 s for the shard with case M3 (a build that does not boot waits out M2's and M4's limits) [F]. Each shard's package install took 1 to 18 min [F] and is the largest and most variable term. At about 100 cases on 10 shards: about 10 cases per shard, 4 to 8 min of case work, plus the install: under 45 min [I], with the install as the risk |
+
+**Cause of K3** [I, confirmed only by the rerun]: the cases files name
+`grant-v3.json`, which assigns CPU 1 to a partition; since v3 HAVEN runs
+one vCPU per partition and leaves CPU 1 unassigned. This is the stale
+grant of the E7 first run (`../20261113-e7-releases/`), which
+`grant-demo-cpus.json` (`../20261108-el3-readback/`) fixed and which the
+try release's read-back uses (`scripts/release/make-try-bundle.sh`).
+Every K6 case has an M6 finding too, the controls C6 and C7 included [F],
+so K6's M6 verdicts say nothing about the cases.
+
+**A gap of the runner** [F]: the job log shows only the verdicts; the
+evidence (which region, which test) stays in the case files, which this
+record could not read. Since evidence names regions and tests, never patch
+text, it can be printed for written and random cases; for held-out cases
+it stays in the files.
+
+**Next**: the cases files name `grant-demo-cpus.json`; `run_case.py`
+prints each finding's evidence for written and random cases; `score.py`'s
+summary lists every finding on a control with its evidence. Then K3, K4
+and K6 run a third time. Rows K3 to K6 unchanged.
