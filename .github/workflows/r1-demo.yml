@@ -75,6 +75,21 @@ jobs:
       - name: Show the UART logs on failure
         if: failure()
         run: for f in build/scene-d/N*/uart.log; do echo "== $f"; tail -40 "$f"; done
+      # A package this public repository's workflow creates is public: push
+      # nothing private before an anonymous fetch of a harmless probe is
+      # refused (amendment 2 of the record)
+      - name: Visibility probe, before any private content (D11)
+        run: |
+          echo "$GH_TOKEN" | oras login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          mkdir -p build/probe && echo "visibility probe: nothing private" > build/probe/probe.txt
+          (cd build/probe && oras push "$PACKAGE:visibility-probe" --artifact-type application/vnd.haven.probe.v1 \
+            --annotation "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" probe.txt)
+          oras logout ghcr.io
+          if oras manifest fetch "$PACKAGE:visibility-probe" > /dev/null 2>&1; then
+            echo "FAIL: $PACKAGE is public; nothing else is pushed until the owner makes it private" >&2
+            exit 1
+          fi
+          echo "probe refused without credentials: the package is private"
       - name: Publish (private GHCR package) (D8)
         id: push
         run: |
