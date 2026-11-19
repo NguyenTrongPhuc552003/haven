@@ -323,3 +323,31 @@ so the configure error itself was not read.
 profiles), else the job stops before any case", with the build output in
 the job log; a failed build's evidence carries the last lines of its log
 (written and random cases only). Then K3, K4 and K6 again.
+
+## Results of step C1, fifth run (2026-11-19)
+
+After `make` and the widened K8 (#158), at its merge: K3/K4 (four shards)
+and K6 (five shards). Every row but K7 now holds.
+
+| Row | Result | Evidence |
+| - | - | - |
+| K8 | **holds** | `QEMU 10.0: 9.2 or later`; `the unchanged tree builds: host tests, qemu-direct, qemu-psci` in every case job [F] |
+| K3 | **holds** | the unchanged tree and control C7 (twice): every method passes on both CPU models; no disagreement [F] |
+| K4 | **holds** | M6 on both CPU models `B RAM: extent drift` (with `A RO: association drift`); M1 finding (`test_partition_layout`); M2 pass [F] |
+| K6 | **holds** | ten cases in 5 min wall time (dispatch to summary); case work 37 to 38 s per two-case shard, 231 s for the shard with M3 [F]; at about 100 cases on 10 shards, about 10 min [I] |
+
+The third run's M4 observation on C7 (`max` only, under Ubuntu's QEMU
+8.2.2) did not recur in three runs of C7 here [F]; it is left as an
+unexplained single observation under the old QEMU.
+
+**What the dry run already shows** [F, ten cases, not campaign data: v3's
+written cases with provisional classes]: read-back alone detects I7
+(`SPI 33: interrupt priority drift`), as expectation E3 says; P1 (BAR
+placement) is missed by every method, also as E3 says; the controls C6
+and C7 have no finding from any method; M6 run time is 0.6 s median, 40.6
+s for the build that does not boot. None of this counts toward E1 to E5:
+the campaign's cases are written in C2 and C3.
+
+**Step C1 is complete except K7** (the held-out channel), which needs a
+test archive and the secret; it comes with C3, where the owner's archive
+is sealed.
