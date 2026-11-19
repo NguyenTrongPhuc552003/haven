@@ -1,0 +1,13 @@
+diff --git a/drivers/irqchip/gic_v3.c b/drivers/irqchip/gic_v3.c
+index 4fe0043..d5b49ba 100644
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -70,7 +70,7 @@ static void gicd_init(void)
+ 
+ 	/* Put all SPIs in Group 1 Non-Secure */
+ 	for (uint32_t i = 1; i < (gic.nr_irqs / 32); i++)
+-		gic_write32(gic.gicd_base, GICD_IGROUPR(i), 0xffffffff);
++		gic_write32(gic.gicd_base, GICD_IGROUPR(i), 0x0);
+ 
+ 	/* Disable, clear pending/active for all SPIs */
+ 	for (uint32_t i = 1; i < (gic.nr_irqs / 32); i++) {

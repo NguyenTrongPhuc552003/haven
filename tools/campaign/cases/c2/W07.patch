@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..0eca7aa 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -80,7 +80,7 @@ static const struct hv_mem_region part_a_regions[] = {
+ 		.ipa_base = PART_A_UART_BASE,
+ 		.pa_base = PART_A_UART_BASE,
+ 		.size = 0x1000UL, /* 4 KB MMIO page */
+-		.attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */
++		.attrs = HV_MEM_RW, /* Device nGnRE, never executable */
+ 	},
+ #ifdef PART_A_RO_IPA_BASE
+ 	/* Read-only Normal memory, never executable. Partition A does not

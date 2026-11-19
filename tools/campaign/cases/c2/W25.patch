@@ -1,0 +1,14 @@
+diff --git a/arch/arm64/budget_hw.c b/arch/arm64/budget_hw.c
+index d8b3490..3a84023 100644
+--- a/arch/arm64/budget_hw.c
++++ b/arch/arm64/budget_hw.c
+@@ -75,8 +75,7 @@ int hv_arch_budget_start(uint32_t cpu, uint64_t budget_ns, uint64_t period_ns)
+ 	b->max_late = 0U;
+ 	b->missed = 0U;
+ 	if (gic_v3_set_ppi_priority(cpu, HV_CNTHP_PPI, GIC_PRIO_HYPERVISOR) !=
+-		    HV_OK ||
+-	    gic_v3_enable_ppi(cpu, HV_CNTHP_PPI) != HV_OK)
++		    HV_OK)
+ 		return 0;
+ 	b->start = counter();
+ 	write_sysreg(b->start + b->budget, cnthp_cval_el2);

@@ -1,0 +1,13 @@
+diff --git a/drivers/iommu/smmu_v3.c b/drivers/iommu/smmu_v3.c
+index c85d99c..4db85fa 100644
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -128,7 +128,7 @@ static void ste_write_s2(uint32_t sid, uint64_t vttbr, uint32_t vmid)
+ 	 * STE2_S2_ENCODE encodes: VMID, T0SZ=25 (39-bit IPA),
+ 	 * SL0=1 (level-1 start, as VTCR_EL2), IRGN=1 (WB), ORGN=1 (WB),
+ 	 * SH=3 (IS), TG=0 (4KB), PS=2 (40-bit PA), AA64=1, S2R=1. */
+-	ste[2] = STE2_S2_ENCODE(vmid);
++	ste[2] = STE2_S2_ENCODE(vmid + 1U);
+ 
+ 	/* Word 3: stage-2 table base, bits [51:4]; VMID and CnP dropped */
+ 	ste[3] = smmu_ste3_s2ttb(vttbr);

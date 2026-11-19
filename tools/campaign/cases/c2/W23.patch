@@ -1,0 +1,13 @@
+diff --git a/drivers/irqchip/gic_v3.c b/drivers/irqchip/gic_v3.c
+index 4fe0043..f0b93dc 100644
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -267,7 +267,7 @@ hv_status_t gic_v3_route_irq(uint32_t irq, uint64_t mpidr)
+ 		return HV_EINVAL;
+ 
+ 	gic_write64(gic.gicd_base, GICD_IROUTER(irq),
+-		    gicd_irouter_from_mpidr(mpidr));
++		    GICD_IROUTER_IRM);
+ 	return HV_OK;
+ }
+ 

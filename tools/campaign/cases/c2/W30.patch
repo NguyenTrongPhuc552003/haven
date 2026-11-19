@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..6ddb4db 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -342,7 +342,7 @@ static const struct hv_irq_route part_a_irqs[] = {
+ static const struct hv_irq_route part_b_irqs[] = {
+ 	{.irq_id = PART_B_VTIMER_PPI,
+ 	 .owner_partition_id = PARTITION_B_ID,
+-	 .target_cpu = PART_B_CPU},
++	 .target_cpu = 1U},
+ };
+ #endif
+ 

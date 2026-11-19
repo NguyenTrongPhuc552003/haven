@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..ca14cc9 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -79,7 +79,7 @@ static const struct hv_mem_region part_a_regions[] = {
+ 	{
+ 		.ipa_base = PART_A_UART_BASE,
+ 		.pa_base = PART_A_UART_BASE,
+-		.size = 0x1000UL, /* 4 KB MMIO page */
++		.size = 0x2000UL, /* 4 KB MMIO page */
+ 		.attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */
+ 	},
+ #ifdef PART_A_RO_IPA_BASE

@@ -1,0 +1,13 @@
+diff --git a/src/platform/qemu-virt/platform.c b/src/platform/qemu-virt/platform.c
+index 18b9c5b..3045c3d 100644
+--- a/src/platform/qemu-virt/platform.c
++++ b/src/platform/qemu-virt/platform.c
+@@ -40,7 +40,7 @@ const uint32_t hv_cpu_count = 4U;
+ const struct hv_el2_region hv_el2_regions[] = {
+ 	{0x0000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+ 	{0x4000000000UL, 0x40000000UL, HV_EL2_DEVICE},
+-	{HAVEN_LOAD_PA, HAVEN_SIZE, HV_EL2_NORMAL},
++	{HAVEN_LOAD_PA, HAVEN_SIZE + 0x20000000UL, HV_EL2_NORMAL},
+ };
+ const uint32_t hv_el2_region_count =
+ 	sizeof(hv_el2_regions) / sizeof(hv_el2_regions[0]);
