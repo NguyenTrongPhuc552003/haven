@@ -97,7 +97,7 @@ def m1(src, cdir):
     log = os.path.join(cdir, "m1.log")
     rc = sh("cmake --preset host-tests && cmake --build build-host", src, log)
     if rc != 0:
-        return {"verdict": "finding", "evidence": [f"host-tests build exit {rc}"]}
+        return {"verdict": "finding", "evidence": [f"host-tests build exit {rc}"] + tail(log)}
     rc = sh("ctest --test-dir build-host --output-on-failure --timeout 60 -E bench_temporal_isolation",
             src, log)
     if rc == 0:
@@ -146,7 +146,7 @@ def m6_verdict(rc, report, log):
 
 def m2(src, cdir, built):
     if not built:
-        return {"verdict": "finding", "evidence": ["qemu-direct build failed"]}
+        return {"verdict": "finding", "evidence": ["qemu-direct build failed"] + tail(os.path.join(cdir, "build.log"))}
     res = {}
     for cpu in CPUS:
         rc = sh(f"./scripts/qemu/qemu-direct-check.sh build {cpu}", src, os.path.join(cdir, f"m2-{cpu}.log"), 120)
@@ -165,7 +165,7 @@ def m3(grant):
 
 def m4(src, cdir, built):
     if not built:
-        return {"verdict": "finding", "evidence": ["qemu-psci build failed"]}
+        return {"verdict": "finding", "evidence": ["qemu-psci build failed"] + tail(os.path.join(cdir, "build-psci.log"))}
     res = {}
     for cpu in CPUS:
         rc = sh(f"python3 scripts/qemu/partition-b-check.py build-psci {cpu}", src,

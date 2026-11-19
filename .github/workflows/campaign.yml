@@ -59,10 +59,10 @@ jobs:
         run: |
           apt-get -o Acquire::Retries=5 update -qq
           apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
-            git ca-certificates python3 patch cmake ninja-build gcc libc6-dev \
+            git ca-certificates python3 patch make cmake ninja-build gcc libc6-dev \
             gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-system-arm device-tree-compiler
       - uses: actions/checkout@v4
-      - name: QEMU 9.2 or later (row K8)
+      - name: QEMU 9.2 or later, and the unchanged tree builds (row K8)
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           qemu-system-aarch64 --version | head -1
@@ -74,6 +74,12 @@ jobs:
               sys.exit(f"FAIL: QEMU {major}.{minor} is older than 9.2; no case runs")
           print(f"QEMU {major}.{minor}: 9.2 or later")
           EOF
+          # the unchanged tree, as run_case.py builds it, output in the log
+          src=$(mktemp -d) && git archive HEAD | tar -x -C "$src" && cd "$src"
+          cmake --preset host-tests && cmake --build build-host
+          cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build
+          cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci && cmake --build build-psci
+          echo "the unchanged tree builds: host tests, qemu-direct, qemu-psci"
       - name: Run this shard's cases
         env:
           CASES: ${{ inputs.cases }}
