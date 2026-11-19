@@ -1,0 +1,12 @@
+diff --git a/src/core/irq/ownership.c b/src/core/irq/ownership.c
+index 582e39d..45ba2a5 100644
+--- a/src/core/irq/ownership.c
++++ b/src/core/irq/ownership.c
+@@ -121,7 +121,6 @@ hv_status_t hv_irq_assign(const struct hv_irq_route *route)
+ 		if (st != HV_OK) {
+ 			return st;
+ 		}
+-		gic_v3_enable_irq(route->irq_id);
+ 	}
+ #endif
+ 

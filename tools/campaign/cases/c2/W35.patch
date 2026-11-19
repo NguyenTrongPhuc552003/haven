@@ -1,0 +1,13 @@
+diff --git a/drivers/irqchip/gic_v3.c b/drivers/irqchip/gic_v3.c
+index 4fe0043..b66e75a 100644
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -204,7 +204,7 @@ hv_status_t gic_v3_enable_irq(uint32_t irq)
+ 	if (!gic.initialized || irq < GIC_SPI_BASE || irq >= gic.nr_irqs)
+ 		return HV_EINVAL;
+ 
+-	gic_write32(gic.gicd_base, GICD_ISENABLER(irq / 32), 1U << (irq % 32));
++	gic_write32(gic.gicd_base, GICD_ISENABLER(irq / 32), 1U << (irq & 31U));
+ 	return HV_OK;
+ }
+ 

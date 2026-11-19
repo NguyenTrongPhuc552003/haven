@@ -1,0 +1,13 @@
+diff --git a/arch/arm64/mm.c b/arch/arm64/mm.c
+index 6a9ef86..be698cc 100644
+--- a/arch/arm64/mm.c
++++ b/arch/arm64/mm.c
+@@ -142,7 +142,7 @@ static hv_status_t s2_map_table(hv_pt_page_t *l1, uint64_t ipa, uint64_t pa,
+ 		    !s2_desc_is_table((*l2)[l2_idx])) {
+ 			/* Write 2MB L2 block descriptor */
+ 			(*l2)[l2_idx] = (cur_pa & HV_BLOCK_MASK_L2) |
+-					S2_DESC_BLOCK | hw_attrs | S2_AF;
++					S2_DESC_BLOCK | (hw_attrs & ~(uint64_t)S2_XN_NEVER) | S2_AF;
+ 			cur_ipa += HV_BLOCK_SIZE_L2;
+ 			cur_pa += HV_BLOCK_SIZE_L2;
+ 			continue;

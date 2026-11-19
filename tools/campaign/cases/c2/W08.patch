@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..ec901e8 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -267,7 +267,7 @@ static hv_u64 apply_dma_grants(hv_u32 partition_id)
+ 
+ #ifdef PART_B_SIZE
+ static const struct hv_partition_mem part_b_mem_cfg = {
+-	.partition_id = PARTITION_B_ID,
++	.partition_id = PARTITION_A_ID,
+ 	.regions = part_b_regions,
+ 	.region_count = 1U,
+ };

@@ -1,0 +1,13 @@
+diff --git a/src/core/irq/ownership.c b/src/core/irq/ownership.c
+index 582e39d..82d34ca 100644
+--- a/src/core/irq/ownership.c
++++ b/src/core/irq/ownership.c
+@@ -65,7 +65,7 @@ static hv_status_t ppi_assign(const struct hv_irq_route *route)
+ #ifdef HAVEN_ARCH_ARM64
+ 	{
+ 		hv_status_t st =
+-			gic_v3_enable_ppi(route->target_cpu, route->irq_id);
++			gic_v3_enable_ppi(0U, route->irq_id);
+ 		if (st != HV_OK) {
+ 			return st;
+ 		}

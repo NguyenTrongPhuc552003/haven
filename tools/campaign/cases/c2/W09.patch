@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..2bb8202 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -413,7 +413,7 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
+ 	hv_arch_cpu_init();
+ 	hv_arch_phys_irq_cpu_init();
+ 
+-	hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID);
++	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_B_ID);
+ 	hv_arch_set_cpu_partition(hv_arch_cpu_id(), PARTITION_B_ID);
+ 
+ 	/* FINDINGS B3: enter B only on the primary's go; a CPU that is not

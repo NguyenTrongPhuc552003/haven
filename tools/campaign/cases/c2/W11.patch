@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..bf86807 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -109,7 +109,7 @@ static const struct hv_partition_mem part_a_mem_cfg = {
+ 	.partition_id = PARTITION_A_ID,
+ 	.regions = part_a_regions,
+ 	/* DRAM + UART MMIO (+ read-only region) */
+-	.region_count = sizeof(part_a_regions) / sizeof(part_a_regions[0]),
++	.region_count = sizeof(part_a_regions) / sizeof(part_a_regions[0]) - 1U,
+ };
+ 
+ /* -----------------------------------------------------------------------

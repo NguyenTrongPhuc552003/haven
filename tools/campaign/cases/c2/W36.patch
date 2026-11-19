@@ -1,0 +1,18 @@
+diff --git a/arch/arm64/include/asm/s2_attrs.h b/arch/arm64/include/asm/s2_attrs.h
+index b64c56d..bd20f07 100644
+--- a/arch/arm64/include/asm/s2_attrs.h
++++ b/arch/arm64/include/asm/s2_attrs.h
+@@ -24,8 +24,11 @@ static inline uint64_t hv_s2_hw_attrs(uint64_t attrs)
+ 		hw = (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS);
+ 	}
+ 
+-	hw |= ((attrs & HV_MEM_W) != 0U) ? (uint64_t)S2AP_RW :
+-					   (uint64_t)S2AP_RO;
++	if ((attrs & HV_MEM_W) != 0U) {
++		hw |= (uint64_t)S2AP_RW;
++	} else {
++		hw |= (uint64_t)S2AP_RO;
++	}
+ 
+ 	if ((attrs & HV_MEM_X) == 0U) {
+ 		hw |= (uint64_t)S2_XN_NEVER;

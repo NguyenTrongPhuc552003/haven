@@ -1,0 +1,13 @@
+diff --git a/arch/arm64/mm.c b/arch/arm64/mm.c
+index 6a9ef86..c130195 100644
+--- a/arch/arm64/mm.c
++++ b/arch/arm64/mm.c
+@@ -290,7 +290,7 @@ hv_status_t hv_arch_dma_context_map(uint32_t sid, uint64_t iova, uint64_t pa,
+ 	rc = s2_map_table(dma_roots[sid], iova, pa, size,
+ 			  (uint64_t)(S2_MEMATTR_NORMAL_WB | S2_SH_IS |
+ 				     S2_XN_NEVER) |
+-				  ((uint64_t)access << S2AP_SHIFT));
++				  ((uint64_t)1U << S2AP_SHIFT));
+ 	if (rc != HV_OK) {
+ 		s2_unmap_table(dma_roots[sid], iova, size);
+ 		return rc;

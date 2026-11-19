@@ -1,0 +1,13 @@
+diff --git a/src/core/dma/smmu.c b/src/core/dma/smmu.c
+index c31f6f2..839f409 100644
+--- a/src/core/dma/smmu.c
++++ b/src/core/dma/smmu.c
+@@ -248,7 +248,7 @@ hv_status_t hv_smmu_configure_dma_window(hv_u16 streamid, hv_u64 dma_base,
+ 							 (uint32_t)access, vmid,
+ 							 &vttbr);
+ 		if (rc == HV_OK) {
+-			rc = smmu_v3_set_ste_partition(streamid, vttbr, vmid);
++			rc = HV_OK;
+ 		}
+ 		if (rc != HV_OK) {
+ 			(void)smmu_v3_set_ste_abort(streamid);
