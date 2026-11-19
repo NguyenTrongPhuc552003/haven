@@ -125,3 +125,14 @@ check after the push stays.
 | - | - | - |
 | D11 | a run while the package is public (seeded: the probe check alone, before the owner's fix) | the job stops before the bundle is pushed; only the probe is in the package |
 | D12 | a run after the owner set the package private | probe refused anonymously, bundle pushed, D9 holds, D1 to D4 hold |
+
+## Results of amendment 2 (2026-11-19)
+
+| Row | Run | Result | Evidence |
+| - | - | - | - |
+| D11 | 44388982077, tag `r1-demo-20261119.1`, after the owner deleted the public package | **holds** | the probe recreated the package as public, the job stopped with `FAIL: ... is public; nothing else is pushed until the owner makes it private`, and the publish step was skipped; scene D had passed on Ubuntu's QEMU before [F] |
+| D12 | 44530897316, tag `r1-demo-20261119.2`, after the owner set the package private | **holds** | `probe refused without credentials: the package is private`; the bundle pushed; `anonymous fetch refused, as expected` (D9); Ubuntu QEMU 8.2.2 scene D: N = 2 OK (5 markers), N = 3 OK (6 markers); macOS QEMU 11.1.3: scenes A to C (partition checks 2 of 2, step 2 matches the grant, step 3 one EL2 finding as planted), scene D N = 2 and 3 OK [F] |
+
+The package `haven-r1-demo` is private and holds the probe and
+`r1-demo-20261119.2`. The draft release `r1-demo-20261115` from before the
+GHCR move is the owner's to delete.
