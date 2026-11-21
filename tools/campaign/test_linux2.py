@@ -62,6 +62,12 @@ class M5(unittest.TestCase):
         self.assertEqual(v, "finding")
         self.assertEqual(ev, ["no longer reported: " + linux2.KNOWN_DEMAND[1]])
 
+    def test_kernel_lines_inside_the_demand(self):
+        """R49 of the first run: the other vCPU's log inside the block."""
+        text = fixture().replace('"vocabulary"', '\n[    4.049455] kdal: gpu driver registered\n"vocabulary"', 1)
+        self.assertNotIn("kdal: gpu", linux2.demand(text))
+        self.assertEqual(demand_check(text)[0], "pass")
+
     def test_no_demand(self):
         self.assertIsNone(linux2.demand("Linux booted, no KDAL\n"))
 

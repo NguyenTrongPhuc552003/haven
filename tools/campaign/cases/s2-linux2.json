@@ -1,7 +1,7 @@
 {
  "schema": "haven-campaign-cases/1",
  "source": "campaign scenario 2 (docs/methodology/stage2/20261119-evaluation-campaign/s2/): the unchanged tree three times, then the 40 random cases that passed every method in scenario 1",
- "grant": "docs/methodology/stage2/20261108-multi-vcpu/grant-smp-v12.json",
+ "grant": "docs/methodology/stage2/20261119-evaluation-campaign/s2/grant-s2-qemu82.json",
  "cases": [
   {
    "case": "S2-BASE-1",

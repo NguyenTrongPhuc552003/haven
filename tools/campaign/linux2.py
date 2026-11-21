@@ -7,7 +7,7 @@ setup is SMP3's (docs/methodology/stage2/20261108-multi-vcpu/run_smp3.py):
 HAVEN built with qemu-psci, HAVEN_PART_A_DTB_IPA and two vCPUs; the
 pinned ELMOS SDK kernel; hotplug-init.c as /init (vCPU 1 off and on by
 PSCI, then KDAL's module and its demand, then power-off); the grant
-grant-smp-v12.json. run_case.py calls methods() for the scenario's
+grant-s2-qemu82.json (s2/README.md, S2b). run_case.py calls methods() for the scenario's
 M2, M4, M5 and M6 (M1 and M3 do not boot and are shared).
 
   M2  the free boot's UART: linux-partition-check.py's markers for N = 2
@@ -29,8 +29,12 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 SMP = os.path.join(REPO, "docs", "methodology", "stage2", "20261108-multi-vcpu")
-GRANT = os.path.join(SMP, "grant-smp-v12.json")
+# grant-smp-v12.json without what HAVEN withholds on QEMU 8.2.2 (no SMMU
+# stage 2): s2/README.md, row S2b
+GRANT = os.path.join(REPO, "docs", "methodology", "stage2", "20261119-evaluation-campaign", "s2",
+                     "grant-s2-qemu82.json")
 HOTPLUG = ("HOTPLUG-OFF ok", "HOTPLUG-ON ok")
+KLOG = re.compile(r"^\[\s*[0-9]+\.[0-9]+\]")
 IPA = 0x48000000  # partition A's initramfs (IPA), as run_smp3.py
 # The unchanged setup's demand check (s2/README.md, "M5 baseline"): KDAL's
 # GPIO driver asks for a device the SMP grant does not give partition A.
@@ -64,7 +68,10 @@ def m2_verdict(text):
 def demand(text):
     """KDAL's demand (JSON text) from the UART, or None."""
     m = re.search(r"KDAL-DEMAND-BEGIN\n(.*?)\nKDAL-DEMAND-END", text.replace("\r", ""), re.S)
-    return m.group(1) if m else None
+    if not m:
+        return None
+    # the other vCPU's kernel log can land inside the block (row S2b, R49)
+    return "\n".join(line for line in m.group(1).split("\n") if not KLOG.match(line))
 
 
 def m5_verdict(rc, output):
