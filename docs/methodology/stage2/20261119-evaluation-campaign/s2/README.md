@@ -186,5 +186,5 @@ tell a guest that did not ask from a HAVEN that did not start the CPU;
 only the guest's own view (M2) can. Recorded as a limit of read-back's
 snapshot for on-request CPUs (E5), not changed here.
 
-**S5** holds: the slowest shard took about 7 minutes for five or six
+**S5** holds: the slowest shard took 6.3 minutes, setup included, for five or six
 cases, under 10 minutes a case.
