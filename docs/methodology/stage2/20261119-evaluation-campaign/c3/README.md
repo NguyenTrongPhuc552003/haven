@@ -123,3 +123,28 @@ owner-approved 2026-11-19); C2 ran only the 40 written cases, and
 `tools/campaign/cases/` has no random set. Recorded here; the draw gets
 its own record (seed text committed before the draw, the draw in CI,
 classes read from the diffs after it, frozen by hash) before C4.
+
+## K7 results (2026-11-21)
+
+`campaign.yml` at `0025e9d` (the merge of #173) [F]:
+
+| Row | Result |
+| - | - |
+| K7a | `test_seal.py`, 10 tests, pass in CI on Linux, macOS and Windows (#173); holds |
+| K7b | `WRONG-SHA256`: the plan job stops at the unseal step (`unseal: hash mismatch: the archive is not the committed one; no case runs`); both case jobs skipped; holds |
+| K7c | `TEST-SHA256`: each job prints `sealed archive: hash matches, 2 cases`; T1 as the baseline (M6 pass), T2 M1, M2, M4 finding, M3 pass, M6 error; no disagreement; the artifacts hold only `T1.json`, `T2.json` and the report; holds |
+| K7d | the marker appears 0 times in both runs' logs; in the artifacts once, in `T2.json`: M1's evidence quotes the compiler's error, the bad line included. The second clause applies |
+
+So the logs are clean, but a held-out case that does not build would put
+its patch text in a downloadable artifact before the results record.
+M2's and M4's tails happened to show only build progress lines here; a
+different patch could make them quote source too [I].
+
+**Change and row before C4 [P].** `run_case.py` quotes no log lines for
+held-out cases: evidence keeps its first line (`host-tests build exit 1`,
+`qemu-psci build failed`, an exit code) and drops the `tail()` lines;
+written and random cases unchanged.
+
+| Row | Check | Expected |
+| - | - | - |
+| K7e | the change's unit test, then K7c again (`TEST-SHA256`) | the unit test: a held-out case's evidence has no log line; K7c: the same verdicts, the marker 0 times in the logs **and** the artifacts |
