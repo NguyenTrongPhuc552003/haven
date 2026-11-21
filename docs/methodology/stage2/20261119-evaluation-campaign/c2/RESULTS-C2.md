@@ -95,3 +95,28 @@ methods), 178 held; the two disagreements:
 was checked at the first run's commit, before this change.
 `freeze/SHA256SUMS-C2r` freezes the corrected run: the same files as
 `SHA256SUMS-C2`, with the new generator, cases file and patches.
+
+## The corrected run (2026-11-21)
+
+`campaign.yml` on `c2-corrected.json`, four shards, at `bd5822e` (the
+merge of #163); `SHA256SUMS-C2r` holds there [F]. Every case built; no
+disagreement with the approved expectations [F]:
+
+| Case | M1 | M2 | M3 | M4 | M6 (evidence) |
+| - | - | - | - | - | - |
+| W03r (S2-PERM) | **F** `test_partition_layout` | pass | pass | pass | **F** `A RO: access drift` |
+| W07r (S2-TYPE) | **F** | pass | pass | pass | **F** `A UART: memory-type drift`, `shareability drift`; also `partition memory mapped at EL2` |
+| W12r (S2-EXTRA) | **F** (the host-test build of the CIX layout fails: `SHARED_PA_BASE` is qemu-virt's) | pass | pass | pass | **F** `extra binding` |
+| W23r (GIC-ROUTE) | pass | pass | pass | pass | **F** `SPI 33` and `SPI 106: interrupt routing drift` |
+
+W23r is read-back-only, as predicted; GIC-ROUTE's two cases are both
+read-back-only [F]. W07r's extra EL2 finding [I]: once the UART is Normal
+memory in A's map, the same page is Device in HAVEN's EL2 map, which
+read-back reports as an EL2 overlap; it is a second correct report of
+the same fault, not a false finding. W12r's M1 finding comes from a build
+failure of a test variant, not from a test that checks the region; it is
+counted as M1 detects it, with this note.
+
+With the corrected cases the written set is complete: 40 cases, every
+class covered, 0 false findings on controls, 2 disagreements of 200
+predictions (W08, W09), one named read-back blind spot (W09).
