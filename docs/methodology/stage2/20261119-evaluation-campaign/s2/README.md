@@ -152,3 +152,39 @@ case jobs now go through `run_shard.py`).
 | Row | Check | Expected |
 | - | - | - |
 | S2b | the run again, same cases | the controls: every method passes, M6 included; then S3 and S4 are read with M6 |
+
+## The run again (row S2b, 2026-11-22)
+
+At `9e19bb2` (the merge of #187), same cases, eight shards [F]:
+
+- **S2b holds**: all three controls pass every method, M6 included;
+  no disagreement with the expectations. R49's M5 now passes (the demand
+  parses).
+- **Found in scenario 2, of the 40 that scenario 1 never reached** (M4
+  and M7 n/a throughout):
+
+| Case | Class | M1 | M2 | M3 | M5 | M6 |
+| - | - | - | - | - | - | - |
+| R4 | CPU-ASSIGN | pass | **F** vCPU 1 never started | pass | pass | pass |
+| R7 | CPU-ASSIGN | pass | **F** vCPU 1 never started | pass | pass | pass |
+| R39 | GIC-ENABLE | pass | **F** one CPU, no demand | pass | error (no demand) | **F** PPI 26 missing bindings |
+| R40 | GIC-ROUTE | pass | **F** no demand, no power-off | pass | error (no demand) | **F** PPI 27 missing bindings on CPUs 0 and 1 |
+| R53 | CPU-ASSIGN | pass | **F** `HOTPLUG-ON ok` missing | pass | pass | pass |
+
+  The other 35 pass every method again.
+- **S3 holds** (as in the first run): R40 and R53 found; R14 not; R21,
+  R45, R46 and R59 still pass every method.
+- **S4: 5 of 40** come from the scenario. M2 (the Linux boot check)
+  finds all five, read-back two (R39, R40), none read-back alone.
+
+**Why read-back passes R4, R7 and R53 [I].** In all three, vCPU 1 is
+not running when read-back reads: never started (R4, R7) or not back
+after CPU_OFF (R53). The SMP grant marks CPU 1 "on request"
+(`cpus_on_request`, read-back v12): a CPU the guest has not started is
+"waiting for the guest", information, not a finding. Read-back cannot
+tell a guest that did not ask from a HAVEN that did not start the CPU;
+only the guest's own view (M2) can. Recorded as a limit of read-back's
+snapshot for on-request CPUs (E5), not changed here.
+
+**S5** holds: the slowest shard took 6.3 minutes, setup included, for five or six
+cases, under 10 minutes a case.
