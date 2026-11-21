@@ -223,3 +223,24 @@ cases file: `tools/campaign/cases/historical.json` (source
 
 Six cases are too few for a rate; they are reported as cases, beside the
 written and random sets.
+
+## Historical faults: the run (rows H2, H3, 2026-11-22)
+
+`campaign.yml` on `historical.json`, three shards, at `e9e2014` [F]:
+
+| Case | Class | M1 | M2 | M3 | M4 | M6 | Cause, when every method passes [I] |
+| - | - | - | - | - | - | - | - |
+| H1 | GIC-GROUP | pass | build fails | pass | build fails | error | does not build: the GICD_CTLR macros it uses were renamed since; counted apart |
+| H2 | SMMU-TAG | pass | pass | pass | pass | pass | not exercised: the revert lets VMID bits 3:0 into S2TTB bits 51:48, and the one DMA stream's VMID is 0xC0, whose low four bits are zero; read-back compares bits 51:4, so a second stream (VMID 0xC1) would show [I] |
+| H3 | GIC-ENABLE | pass | pass | pass | pass | pass | equivalent under QEMU: the list registers are not cleared, but QEMU resets them to 0; on hardware they are UNKNOWN at reset |
+| H4 | CPU-ASSIGN | pass | pass | pass | pass | pass | not exercised: CPU 2 is in QEMU's CPU map, so the missing check never matters |
+| H5 | GIC-PPI | pass | pass | pass | pass | pass | equivalent under QEMU: QEMU's redistributor frames sit at the fixed stride the revert assumes and the boot CPU is core 0; the fix was for the board |
+| H6 | CONTROL | pass | pass | pass | pass | pass | control: no finding from any method, as it should |
+
+No disagreement (no expectations); H2 and H3 hold: every miss has a
+named cause. **Every historical fault that builds is one QEMU or the
+grant cannot show**: they were found and fixed because of the board's
+documents (frames, list registers) or a second stream, which is why
+they were bugs worth fixing and why a QEMU campaign misses them. Two of
+them (H3, H5) are board questions for G3; H2 is a case for scenario 2
+or a two-stream grant.
