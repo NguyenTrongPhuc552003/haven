@@ -1,0 +1,65 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "campaign step C2, corrected written cases (c2/RESULTS-C2.md)",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
+ "cases": [
+  {
+   "case": "C2-W03r",
+   "class": "S2-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W03r.patch",
+   "m6": "A RO: access drift"
+  },
+  {
+   "case": "C2-W07r",
+   "class": "S2-TYPE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W07r.patch",
+   "m6": "A UART: memory-type and shareability drift"
+  },
+  {
+   "case": "C2-W12r",
+   "class": "S2-EXTRA",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W12r.patch",
+   "m6": "extra binding: the shared memory in A at 0x71000000"
+  },
+  {
+   "case": "C2-W23r",
+   "class": "GIC-ROUTE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W23r.patch",
+   "m6": "SPI 33: interrupt routing drift (1-of-N)"
+  }
+ ],
+ "expect": {
+  "C2-W03r": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W07r": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W12r": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W23r": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  }
+ }
+}

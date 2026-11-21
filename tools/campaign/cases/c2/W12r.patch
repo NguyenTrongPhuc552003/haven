@@ -1,0 +1,17 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index ef2435f..91c24f7 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -92,6 +92,12 @@ static const struct hv_mem_region part_a_regions[] = {
+ 		.attrs = HV_MEM_R,
+ 	},
+ #endif
++	{
++		.ipa_base = 0x71000000UL,
++		.pa_base = SHARED_PA_BASE,
++		.size = SHARED_SIZE,
++		.attrs = HV_MEM_R | HV_MEM_W,
++	},
+ };
+ 
+ #ifdef PART_B_SIZE
