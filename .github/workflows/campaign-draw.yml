@@ -1,0 +1,59 @@
+# The campaign's random draw (docs/methodology/stage2/20261119-evaluation-
+# campaign/c2/random/): tools/campaign/mutate.py at a given commit, with
+# the seed text the record fixes ("haven <commit> | campaign C2 random,
+# <count> cases"), kept mutants built in the same container as the
+# campaign's case jobs. On demand only; the patches and draw.json are
+# uploaded for the record.
+name: campaign draw
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Full hash of the commit to draw at (it is part of the seed text)
+        required: true
+      count:
+        description: Number of mutants to keep
+        required: true
+        default: "60"
+
+permissions:
+  contents: read
+
+jobs:
+  draw:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    container: debian:trixie
+    steps:
+      - name: Install git, toolchains and Python
+        run: |
+          apt-get -o Acquire::Retries=5 update -qq
+          apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            git ca-certificates python3 make cmake ninja-build gcc libc6-dev \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+      - name: Draw
+        env:
+          COMMIT: ${{ inputs.commit }}
+          COUNT: ${{ inputs.count }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          if [ "$(git rev-parse HEAD)" != "$COMMIT" ]; then
+            echo "FAIL: HEAD is $(git rev-parse HEAD), not the full hash $COMMIT"; exit 1
+          fi
+          python3 tools/campaign/mutate.py . draw "haven $COMMIT | campaign C2 random, $COUNT cases" "$COUNT"
+          python3 - <<'EOF'
+          import json
+          d = json.load(open("draw/draw.json"))
+          print(f"seed text: {d['seed_text']}")
+          print(f"mutants {d['mutants_total']}, kept {len(d['kept'])}, skipped {len(d['skipped'])}")
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: draw
+          path: draw/
+          retention-days: 14
