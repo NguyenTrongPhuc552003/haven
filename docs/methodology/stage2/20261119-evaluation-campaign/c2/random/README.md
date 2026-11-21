@@ -150,3 +150,153 @@ file `tools/campaign/cases/c2-random.json`, `draw.json`, this record and
 the tools (the files of `SHA256SUMS-V15` as they are now), before the run.
 The design named it `SHA256SUMS-C2R`; renamed, since on a case-insensitive
 file system (the Mac's) that name is the same file as `SHA256SUMS-C2r`.
+
+## The run (2026-11-21, row D4)
+
+`campaign.yml` on `c2-random.json`, eight shards, at `a32b66e` (the
+merge of #179); `SHA256SUMS-C2-random` holds there (130 files) [F].
+Every case gave a verdict per method; D4 holds. F is a finding, E an
+error (the method could not judge), M5 and M7 n/a throughout:
+
+| Case | Class | M1 | M2 | M3 | M4 | M6 |
+| - | - | - | - | - | - | - |
+| R1 | S2-MISSING | . | **F** | . | **F** | **F** |
+| R2 | S2-PERM | . | . | . | . | **F** |
+| R3 | GIC-GROUP | . | . | . | . | . |
+| R4 | CPU-ASSIGN | . | . | . | . | . |
+| R5 | SMMU-UNBOUND | . | **F** | . | **F** | E |
+| R6 | GIC-ENABLE | . | . | . | . | . |
+| R7 | CPU-ASSIGN | . | . | . | . | . |
+| R8 | S2-EXTRA | . | . | . | . | . |
+| R9 | S2-MISSING | **F** | **F** | . | **F** | E |
+| R10 | SMMU-TAG | . | . | . | . | . |
+| R11 | GIC-ROUTE | **F** | **F** | . | **F** | **F** |
+| R12 | GIC-ENABLE | . | . | . | . | . |
+| R13 | GIC-ROUTE | **F** | **F** | . | **F** | **F** |
+| R14 | CPU-ASSIGN | . | . | . | . | . |
+| R15 | SMMU-UNBOUND | **F** | . | . | . | . |
+| R16 | S2-EXTENT | **F** | **F** | . | **F** | E |
+| R17 | OUTSIDE | . | . | . | . | . |
+| R18 | CPU-ASSIGN | . | . | . | . | . |
+| R19 | GIC-GROUP | . | . | . | . | **F** |
+| R20 | CPU-ASSIGN | . | . | . | . | . |
+| R21 | SMMU-UNBOUND | . | . | . | . | . |
+| R22 | SMMU-UNBOUND | . | . | . | . | . |
+| R23 | SMMU-TAG | . | . | . | . | . |
+| R24 | S2-EXTRA | . | . | . | . | . |
+| R25 | S2-EXTENT | **F** | **F** | . | **F** | **F** |
+| R26 | OUTSIDE | . | . | . | . | . |
+| R27 | EL2-MAP | **F** | **F** | . | **F** | E |
+| R28 | S2-EXTRA | . | . | . | . | . |
+| R29 | S2-EXTRA | . | . | . | . | . |
+| R30 | SMMU-UNBOUND | . | . | . | . | . |
+| R31 | S2-EXTENT | . | . | . | . | **F** |
+| R32 | SMMU-UNBOUND | . | . | . | . | **F** |
+| R33 | GIC-ROUTE | . | . | . | . | . |
+| R34 | GIC-ENABLE | . | . | . | . | . |
+| R35 | SMMU-TAG | . | . | . | . | . |
+| R36 | OUTSIDE | . | . | . | . | . |
+| R37 | GIC-ROUTE | . | **F** | . | **F** | **F** |
+| R38 | GIC-PPI | . | . | . | . | . |
+| R39 | GIC-ENABLE | . | . | . | . | . |
+| R40 | GIC-ROUTE | . | . | . | . | . |
+| R41 | GIC-ROUTE | **F** | . | . | . | . |
+| R42 | CPU-ASSIGN | . | **F** | . | **F** | **F** |
+| R43 | S2-EXTENT | . | . | . | . | **F** |
+| R44 | OUTSIDE | . | . | . | . | . |
+| R45 | SMMU-TAG | . | . | . | . | . |
+| R46 | SMMU-UNBOUND | . | . | . | . | . |
+| R47 | OUTSIDE | . | . | . | . | . |
+| R48 | GIC-ROUTE | . | . | . | . | . |
+| R49 | GIC-PRIO | . | . | . | . | . |
+| R50 | S2-EXTENT | . | . | . | . | **F** |
+| R51 | GIC-ENABLE | . | . | . | . | . |
+| R52 | EL2-MAP | . | . | . | . | . |
+| R53 | CPU-ASSIGN | . | . | . | . | . |
+| R54 | SMMU-UNBOUND | . | . | . | . | **F** |
+| R55 | CPU-ASSIGN | . | . | . | . | . |
+| R56 | GIC-ENABLE | . | . | . | . | . |
+| R57 | S2-EXTENT | . | . | . | . | . |
+| R58 | S2-MISSING | . | . | . | . | . |
+| R59 | S2-EXTRA | . | . | . | . | . |
+| R60 | SMMU-UNBOUND | . | . | . | . | **F** |
+
+Per class (`score.py`; a method's errors are left out of its
+denominator, so M6's column can be smaller):
+
+
+| Class | M1 | M2 | M3 | M4 | M5 | M6 | M7 |
+| - | - | - | - | - | - | - | - |
+| CPU-ASSIGN | 0/8 [0.000, 0.369] | 1/8 [0.003, 0.527] | 0/8 [0.000, 0.369] | 1/8 [0.003, 0.527] | - | 1/8 [0.003, 0.527] | - |
+| EL2-MAP | 1/2 [0.013, 0.987] | 1/2 [0.013, 0.987] | 0/2 [0.000, 0.842] | 1/2 [0.013, 0.987] | - | 0/1 [0.000, 0.975] | - |
+| GIC-ENABLE | 0/6 [0.000, 0.459] | 0/6 [0.000, 0.459] | 0/6 [0.000, 0.459] | 0/6 [0.000, 0.459] | - | 0/6 [0.000, 0.459] | - |
+| GIC-GROUP | 0/2 [0.000, 0.842] | 0/2 [0.000, 0.842] | 0/2 [0.000, 0.842] | 0/2 [0.000, 0.842] | - | 1/2 [0.013, 0.987] | - |
+| GIC-PPI | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | - | 0/1 [0.000, 0.975] | - |
+| GIC-PRIO | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | - | 0/1 [0.000, 0.975] | - |
+| GIC-ROUTE | 3/7 [0.099, 0.816] | 3/7 [0.099, 0.816] | 0/7 [0.000, 0.410] | 3/7 [0.099, 0.816] | - | 3/7 [0.099, 0.816] | - |
+| OUTSIDE | 0/5 [0.000, 0.522] | 0/5 [0.000, 0.522] | 0/5 [0.000, 0.522] | 0/5 [0.000, 0.522] | - | 0/5 [0.000, 0.522] | - |
+| S2-EXTENT | 2/6 [0.043, 0.777] | 2/6 [0.043, 0.777] | 0/6 [0.000, 0.459] | 2/6 [0.043, 0.777] | - | 4/5 [0.284, 0.995] | - |
+| S2-EXTRA | 0/5 [0.000, 0.522] | 0/5 [0.000, 0.522] | 0/5 [0.000, 0.522] | 0/5 [0.000, 0.522] | - | 0/5 [0.000, 0.522] | - |
+| S2-MISSING | 1/3 [0.008, 0.906] | 2/3 [0.094, 0.992] | 0/3 [0.000, 0.708] | 2/3 [0.094, 0.992] | - | 1/2 [0.013, 0.987] | - |
+| S2-PERM | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | 0/1 [0.000, 0.975] | - | 1/1 [0.025, 1.000] | - |
+| SMMU-TAG | 0/4 [0.000, 0.602] | 0/4 [0.000, 0.602] | 0/4 [0.000, 0.602] | 0/4 [0.000, 0.602] | - | 0/4 [0.000, 0.602] | - |
+| SMMU-UNBOUND | 1/9 [0.003, 0.482] | 1/9 [0.003, 0.482] | 0/9 [0.000, 0.336] | 1/9 [0.003, 0.482] | - | 3/8 [0.085, 0.755] | - |
+| false findings on controls | 0/0 | 0/0 | 0/0 | 0/0 | 0/0 | 0/0 | 0/0 |
+
+Only read-back detects: C2-R19, C2-R2, C2-R31, C2-R32, C2-R43, C2-R50, C2-R54, C2-R60
+
+What the run shows [F]:
+
+- **40 of 60 cases pass every method.** 20 are found by at least one
+  method: 14 by read-back (M6), 12 by M1 to M4 together.
+- **Read-back alone finds 8**: R2, R19, R31, R32, R43, R50, R54, R60
+  (the DMA window and BAR cases, and one interrupt group).
+- **M1 alone finds 2**: R15 (stream ID allocation) and R41 (owner map);
+  read-back passes both [F]; why is not examined yet [?].
+- **M6 errors on 4** (R5, R9, R16, R27): HAVEN halts before stage-2
+  setup (`partition 1 root 0x0`), as W08 did in the written set; M2 and
+  M4 find all four. Not read-back misses, but cases where there is no
+  enforced state to read.
+- No method finds anything in GIC-ENABLE (0 of 6), GIC-PPI, GIC-PRIO,
+  SMMU-TAG (0 of 4), S2-EXTRA (0 of 5) or OUTSIDE (0 of 5).
+- M6's median run time 0.9 s (max 40.9 s, the halting cases' wait).
+
+## Candidates for equivalence (row D5)
+
+The 40 cases where every method passes are more than 10, so 10 were
+drawn with the draw's seed text (`random.Random(sha256(seed)).sample`
+over the 40 in case order): R14, R21, R28, R40, R44, R45, R46, R51, R53,
+R59. Each judged by reading its diff and the code at `f1da2b1` [I, no
+run checks these]:
+
+| Case | Judgement | Reason |
+| - | - | - |
+| R14 | not exercised | the park path runs only when CPU 2 is not B's or reports late; in the run CPU 2 enters B |
+| R21 | not exercised | HAVEN's index mask assumes 512 queue entries while the SMMU is told 256; it matters only after 256 commands, more than a boot issues |
+| R28 | equivalent under QEMU | a missing barrier before the TLB flush; QEMU's TCG does not reorder those accesses; on the board it may not be equivalent |
+| R40 | not exercised | the changed counter is used only when a vCPU posts a request to another CPU; the grant gives each partition one CPU |
+| R44 | equivalent | the test can only stop the enable when the event queue is off; QEMU's SMMU has one, so the outcome is the same |
+| R45 | not exercised | a bound check at stream ID = the stream count; no call passes that ID |
+| R46 | not exercised | the same, for the DMA context map |
+| R51 | equivalent | one more distributor disable register is written, covering interrupts already disabled at reset or above the count (ignored) |
+| R53 | not exercised | the vCPU-off path (PSCI CPU_OFF) is not used in the run |
+| R59 | not exercised | the rollback after a failed mapping; no mapping fails |
+
+D5 holds with three kinds instead of two: **equivalent** (2: R44, R51;
+counted apart), **equivalent under QEMU** (1: R28; kept apart, a board
+question), and **not exercised** (7). The last are misses with a named
+cause (E5): the campaign's single scenario (one boot, one CPU per
+partition, no fault in mapping, no CPU_OFF) never runs their code. No
+method could have seen them in this scenario, read-back included, so
+they say something about the scenario, not about the methods.
+
+From the sample, about 2 to 3 of the 40 all-pass cases would be
+equivalent [I]; the 30 not judged stay in the denominators, so the rates
+above are conservative for every method alike.
+
+**Next [P].** (1) Why read-back passes R15 and R41 (M1 finds them):
+read the two diffs against what read-back reads, then decide whether it
+is a blind spot (E5). (2) A second scenario for the campaign (two vCPUs
+in A, a CPU_OFF, a failed mapping) would exercise the "not exercised"
+code; it changes the campaign's design, so it is a proposal for the
+owner, not done here.
