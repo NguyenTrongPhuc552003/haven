@@ -72,3 +72,25 @@ fault injection into a running boot; the unit tests cover those paths
 (`test_fault_injection`), and they stay "not exercised" for the
 boot-level methods. CPU_OFF from inside Linux (CPU hotplug) needs a
 change to the SDK's init; a later step if S3 shows the vCPU paths matter.
+
+## Refinements before code (2026-11-22, from reading the existing runners)
+
+- **The setup is SMP3's** (`../../20261108-multi-vcpu/run_smp3.py`), not
+  `run_n.py`'s: the same two-vCPU Linux build, but with
+  `hotplug-init.c` as `/init`, which takes vCPU 1 off and on again (PSCI
+  CPU_OFF and CPU_ON) before KDAL prints its demand. That exercises the
+  vCPU-off path (R53) without changing the SDK, so the "Out of scope"
+  note on CPU hotplug no longer applies. Grant: `grant-smp-v12.json`.
+- **M2** = `linux-partition-check.py`'s markers for N = 2 plus
+  `HOTPLUG-OFF ok` and `HOTPLUG-ON ok` on the free boot's UART. The
+  committed SMP3 log (`runs-smp3/H1/uart.log`) has no problem by that
+  check [F], so it is S1's passing fixture.
+- **M4 is n/a in scenario 2**: `partition-b-check.py` boots its own
+  bare-guest build and reads B's record over QMP; the Linux runs start B
+  beside Linux, and the check has no Linux mode. B's start is in M2's
+  markers (`partition B started`). Recorded as a limit: scenario 2 has no
+  partition-B result check.
+- **M6** reads at `KDAL-DEMAND-END` (SMP3's H3), cortex-a72 only, as
+  every Linux run so far; scenario 1 keeps both CPU models.
+- **S2's control** is the unchanged tree three times; the cases file is
+  `tools/campaign/cases/s2-linux2.json`.
