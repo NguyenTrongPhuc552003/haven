@@ -186,3 +186,40 @@ holds.
 the owner's cases (section "For the owner" above). Until the owner's
 hash is committed as `c3/HELDOUT-SHA256`, no sealed run with
 `sealed_source=secret` can start.
+
+## Historical faults: extraction (row H1, 2026-11-22)
+
+`tools/campaign/history.py . OUT f1da2b1` on the Mac (git only, no
+build), HEAD `0fc2296`; `history.json` here [F].
+
+**Correction to the rule's counts above:** 13 commits match rule 1, not
+14 (`798f152` starts with `feat:`; it was counted from a search for
+"fix" anywhere in the subject); rule 2 leaves out 2, so 11 are eligible,
+not 12. The rule itself is unchanged.
+
+| Commit | Lines | Outcome | Case | Class | What the revert puts back |
+| - | - | - | - | - | - |
+| `a4c2dc1` | 45 | code moved | - | - | enforce irq ownership boundaries |
+| `cfdf566` | 69 | code moved | - | - | harden stage2 boundary and mapping state checks |
+| `604c17f` | 64 | code moved | - | - | address PR review feedback across scripts and isolation paths |
+| `4f0d9ea` | 137 | rewrite (left out) | - | - | harden SMMUv3 command queue with circular depth tracking |
+| `8b02d33` | 88 | code moved | - | - | portable stage-2 permission bits; fix execute-never encoding (MM1, MM2 |
+| `7ec513e` | 638 | rewrite (left out) | - | - | SMMU command queue, hardware stream IDs and per-stream DMA tables |
+| `de6291c` | 7 | kept | H1 | GIC-GROUP | GICD_CTLR written with the Secure layout's bits (G1NS, G0) |
+| `3fbafae` | 13 | code moved | - | - | disable an SPI that cannot be delivered instead of letting it fire aga |
+| `2b6f5ea` | 5 | kept | H2 | SMMU-TAG | the VMID left in a stream table entry's stage-2 table address |
+| `4ccee17` | 41 | kept | H3 | GIC-ENABLE | virtual interface: list registers neither bounded by ICH_VTR_EL2 nor cleared per CPU |
+| `be4eb32` | 10 | kept | H4 | CPU-ASSIGN | CPU_ON issued for a CPU the CPU map lacks |
+| `93cf892` | 30 | kept | H5 | GIC-PPI | redistributor frames by fixed stride instead of GICR_TYPER affinity |
+| `7dcbad5` | 2 | kept | H6 | CONTROL | a redundant zero initializer of a static array (no change in behaviour) |
+
+6 kept, 5 "code moved" (the code they fixed has since been rewritten,
+mostly the May 2026 fixes), 2 rewrites left out. H1 holds with the
+corrected count. Classes named from the reverse diffs before the run;
+H6 is a historical control (the fix removed a redundant initializer, so
+its revert changes nothing). Patches: `tools/campaign/cases/hist/`;
+cases file: `tools/campaign/cases/historical.json` (source
+`historical`, new in `score.py` and `run_case.py`).
+
+Six cases are too few for a rate; they are reported as cases, beside the
+written and random sets.

@@ -10,7 +10,7 @@ random and held-out cases are reported apart and together.
 A case file (one per case, written by run_case.py):
 
     {"schema": "haven-campaign-case/1", "case": "W-S2-EXTENT-1",
-     "source": "written" | "random" | "heldout", "class": "S2-EXTENT",
+     "source": "written" | "random" | "heldout" | "historical", "class": "S2-EXTENT",
      "equivalent": false,
      "methods": {"M1": {"verdict": "pass" | "finding" | "n/a" | "error",
                         "seconds": 1.2, "evidence": ["..."]}, ...}}
@@ -33,7 +33,7 @@ import sys
 METHODS = ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
 BASELINES = {"M1", "M2", "M3", "M4", "M5"}
 READBACK = {"M6", "M7"}
-SOURCES = ["written", "random", "heldout"]
+SOURCES = ["written", "random", "heldout", "historical"]
 CASE_SCHEMA = "haven-campaign-case/1"
 
 

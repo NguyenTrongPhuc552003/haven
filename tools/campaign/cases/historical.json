@@ -1,0 +1,44 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "campaign step C3, historical faults (docs/methodology/stage2/20261119-evaluation-campaign/c3/)",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
+ "cases": [
+  {
+   "case": "C3-H1",
+   "class": "GIC-GROUP",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H1.patch"
+  },
+  {
+   "case": "C3-H2",
+   "class": "SMMU-TAG",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H2.patch"
+  },
+  {
+   "case": "C3-H3",
+   "class": "GIC-ENABLE",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H3.patch"
+  },
+  {
+   "case": "C3-H4",
+   "class": "CPU-ASSIGN",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H4.patch"
+  },
+  {
+   "case": "C3-H5",
+   "class": "GIC-PPI",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H5.patch"
+  },
+  {
+   "case": "C3-H6",
+   "class": "CONTROL",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H6.patch"
+  }
+ ],
+ "expect": {}
+}
