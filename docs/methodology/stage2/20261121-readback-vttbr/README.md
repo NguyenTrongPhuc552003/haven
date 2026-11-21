@@ -62,3 +62,18 @@ V2 to V5 run through `campaign.yml` with the frozen C2 cases files; a
 new freeze (`SHA256SUMS-V14`) covers the changed read-back before the run.
 W09's row in `RESULTS-C2.md` stays as it is: the blind spot is the
 result of read-back v13; v14's result is recorded beside it.
+
+## Result of V0 (2026-11-21) [F]
+
+`tools/readback/gdb_sysreg_probe.py` (#166): QEMU started paused with
+`virtualization=on`, `-cpu max`, two vCPUs; target description read,
+then `VTTBR_EL2` and `HCR_EL2` on each vCPU (`qfThreadInfo`, `Hg`, `p`).
+
+| QEMU | Where | Feature files | VTTBR_EL2 | HCR_EL2 | Read on both vCPUs |
+| - | - | - | - | - | - |
+| 8.2.2 | Ubuntu 24.04 runner (workflow `readback-probe.yml`) | core, SVE, pauth, `system-registers.xml` | regnum 128 | regnum 200 | yes, 64-bit, 0 at reset |
+| 10.0.13 | `debian:trixie` container (the campaign's) | the same | regnum 127 | regnum 203 | yes |
+| 11.1.3 | the Mac (Homebrew) | also SME, SME2, TLS | regnum 144 | regnum 222 | yes |
+
+**V0 holds.** The register numbers differ between versions, so v14 finds
+both registers by name in the target description, never by number.
