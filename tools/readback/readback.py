@@ -17,6 +17,15 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v15 (2026-11-21, campaign case W09): the CPU check read only
+HAVEN's own table (cpu_partition). Now the GDB stub is always attached;
+after the memory snapshot every vCPU's VTTBR_EL2 and HCR_EL2 are read
+(found by name in the stub's target description: their numbers differ
+between QEMU versions) and compared with the partitions' stage-2 roots:
+"CPU stage-2 drift" when a granted CPU has stage 2 off, runs another
+partition's tables, or a base that is no partition's root
+(docs/methodology/stage2/20261121-readback-vttbr/).
+
 Changes in v14 (2026-11-12, D5 step 3): the emulated GIC's width and the
 vCPU table's size come from the image (constants hv_vgic_nr_irqs and
 hv_psci_max_vcpus): the model's enable bits are read for every INTID it
@@ -219,6 +228,69 @@ class GDB:
         self.log.append({"send": "c", "reply": reply, "reached": reached})
         return reply, reached
 
+    def _xfer(self, annex):
+        out, off = "", 0
+        while True:
+            r = self.send(f"qXfer:features:read:{annex}:{off:x},4000")
+            if not r or r[0] not in "lm":
+                raise RuntimeError(f"the GDB stub refused {annex}: {r!r}")
+            out += r[1:]
+            off += len(r) - 1
+            if r[0] == "l":
+                return out
+
+    def register_numbers(self, names):
+        """v15: {name: regnum} for names in the target description."""
+        self.send("qSupported:xmlRegisters=aarch64")
+        target = self._xfer("target.xml")
+        num, found = 0, {}
+        for f in ["target.xml"] + re.findall(r'href="([^"]+)"', target):
+            x = target if f == "target.xml" else self._xfer(f)
+            for m in re.finditer(r"<reg ([^>]*)/>", x):
+                a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+                if "regnum" in a:
+                    num = int(a["regnum"])
+                if a.get("name") in names:
+                    found[a["name"]] = num
+                num += 1
+        return found
+
+    def threads(self):
+        ids, r = [], self.send("qfThreadInfo")
+        while r.startswith("m"):
+            ids += r[1:].split(",")
+            r = self.send("qsThreadInfo")
+        return ids
+
+    def read_register(self, thread, num):
+        """A register of one vCPU; the stub sends target (little-endian) bytes."""
+        if self.send(f"Hg{thread}") != "OK":
+            raise RuntimeError(f"the GDB stub refused thread {thread}")
+        return le_hex(self.send(f"p{num:x}"))
+
+
+def le_hex(reply):
+    """A 'p' reply (hex of target-order bytes) as an integer."""
+    if not reply or reply.startswith("E") or len(reply) % 2:
+        raise ValueError(f"register reply {reply!r}")
+    return int.from_bytes(bytes.fromhex(reply), "little")
+
+
+CPU_SYSREGS = ("VTTBR_EL2", "HCR_EL2")
+
+
+def read_cpu_sysregs(g, ncpus):
+    """v15: {cpu: {VTTBR_EL2, HCR_EL2}} for the first ncpus vCPUs."""
+    nums = g.register_numbers(CPU_SYSREGS)
+    missing = [n for n in CPU_SYSREGS if n not in nums]
+    if missing:
+        raise RuntimeError(f"the GDB stub does not name {', '.join(missing)}")
+    regs = {}
+    for t in g.threads()[:ncpus]:
+        cpu = int(t.split(".")[-1], 16) - 1  # QEMU numbers threads from 1
+        regs[cpu] = {n: g.read_register(t, nums[n]) for n in CPU_SYSREGS}
+    return regs
+
 
 class QMP:
     def __init__(self, path):
@@ -319,10 +391,12 @@ def capture(args_ns, out):
         cmd += ["-serial", f"file:{uart1}"]
     elif args_ns.haven_uart:  # v13: HAVEN's console on the second PL011
         cmd += ["-serial", f"file:{os.path.join(out, 'haven-uart.log')}"]
-    if args_ns.break_at is not None:  # v9: start paused, GDB stub on a socket
+    if not args_ns.el3:  # v9: GDB stub on a socket; v15: always, for the CPU registers
         if os.path.exists(gsock):
             os.remove(gsock)
-        cmd += ["-S", "-chardev", f"socket,id=gdb0,path={gsock},server=on,wait=off", "-gdb", "chardev:gdb0"]
+        cmd += ["-chardev", f"socket,id=gdb0,path={gsock},server=on,wait=off", "-gdb", "chardev:gdb0"]
+        if args_ns.break_at is not None:
+            cmd += ["-S"]  # v9: start paused
     open(os.path.join(out, "qemu-command.txt"), "w").write(" ".join(cmd) + "\n")
     q = subprocess.Popen(cmd, cwd=args_ns.tfa or None)  # semihosting finds bl2/bl31 in cwd
     snap = {"trigger": None}
@@ -384,6 +458,12 @@ def capture(args_ns, out):
             m.cmd("pmemsave", val=base, size=size, filename=os.path.abspath(stab))
             snap["stream_table"] = open(stab, "rb").read()
         snap["gic"] = read_gic(m)
+        try:  # v15: every vCPU's stage-2 registers, the machine stopped
+            g2 = g if args_ns.break_at is not None else GDB(gsock)
+            snap["cpu_sysregs"] = read_cpu_sysregs(g2, NCPUS)
+            snap["gdb"] = g2.log
+        except (OSError, RuntimeError, ValueError) as e:
+            snap["cpu_sysregs_error"] = str(e)
         snap["pci"] = m.cmd("query-pci") or []
         snap["qtree"] = m.hmp("info qtree")
         json.dump(m.log, open(os.path.join(out, "qmp.json"), "w"), indent=1)
@@ -1074,6 +1154,38 @@ def compare_gic(g, expected, model=None, groups_visible=True, waiting_cpus=None)
 
 
 # ---------------------------------------------------------------- main
+VTTBR_BADDR = 0x0000FFFFFFFFFFFE  # bits 47:1 (bit 0 is CnP)
+HCR_VM = 1
+
+
+def compare_cpu_stage2(regs, roots, expected, waiting=()):
+    """v15: each CPU's VTTBR_EL2 and HCR_EL2.VM against the grant's gic.cpus
+    and the partitions' stage-2 roots. A CPU granted to no partition, or a
+    cpus_on_request CPU still waiting, gives no finding while VM is clear."""
+    granted = {int(c): int(p) for c, p in expected.get("cpus", {}).items()}
+    owner = {r: p for p, r in roots.items() if r}
+    f, rep = [], []
+    for c in sorted(regs):
+        vttbr, hcr = regs[c]["VTTBR_EL2"], regs[c]["HCR_EL2"]
+        base, vm = vttbr & VTTBR_BADDR, bool(hcr & HCR_VM)
+        runs = owner.get(base)
+        want = granted.get(c, 0)
+        rep.append({"cpu": c, "granted": want, "vttbr": f"{vttbr:#x}", "vm": vm, "tables_of": runs})
+        if not want or c in waiting:
+            if vm:
+                rep[-1]["note"] = "stage 2 on, no partition granted" if not want else "stage 2 on while waiting"
+            continue
+        if not vm:
+            f.append((f"CPU {c}", "CPU stage-2 drift", f"granted to partition {want}, stage 2 is off (HCR_EL2.VM clear)"))
+        elif runs is None:
+            f.append((f"CPU {c}", "CPU stage-2 drift",
+                      f"granted to partition {want}, VTTBR_EL2 base {base:#x} is no partition's root"))
+        elif runs != want:
+            f.append((f"CPU {c}", "CPU stage-2 drift",
+                      f"granted to partition {want}, runs partition {runs}'s stage-2 tables"))
+    return f, rep
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("build")
@@ -1201,6 +1313,17 @@ def main():
             for x in cpu_rep:
                 note = " (waiting for the guest)" if x.get("waiting") else ""
                 print(f"  CPU {x['cpu']}: granted to partition {x['granted']}, HAVEN runs partition {x['served']}{note}")
+        if "cpus" in grant["gic"] and "cpu_sysregs" in snap:  # v15
+            s2_f, s2_rep = compare_cpu_stage2(snap["cpu_sysregs"], roots, grant["gic"], idle)
+            findings += s2_f
+            report["cpu_stage2"] = s2_rep
+            for x in s2_rep:
+                tables = f"partition {x['tables_of']}'s tables" if x["tables_of"] else "no partition's tables"
+                print(f"  CPU {x['cpu']}: VTTBR_EL2 {x['vttbr']}, stage 2 {'on' if x['vm'] else 'off'}, {tables}"
+                      + (f" ({x['note']})" if x.get("note") else ""))
+        elif "cpu_sysregs_error" in snap:
+            print(f"  CPU stage-2 registers not read: {snap['cpu_sysregs_error']}")
+            report["cpu_stage2_error"] = snap["cpu_sysregs_error"]
     report["findings"] = findings
     json.dump(report, open(os.path.join(a.out, "readback.json"), "w"), indent=1)
     for name, cls, detail in findings:
