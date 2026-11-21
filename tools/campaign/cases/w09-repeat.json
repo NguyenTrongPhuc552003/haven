@@ -1,0 +1,38 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "row V6 of docs/methodology/stage2/20261121-readback-vttbr/: W09 five times",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
+ "cases": [
+  {
+   "case": "V6-W09-1",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W09.patch"
+  },
+  {
+   "case": "V6-W09-2",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W09.patch"
+  },
+  {
+   "case": "V6-W09-3",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W09.patch"
+  },
+  {
+   "case": "V6-W09-4",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W09.patch"
+  },
+  {
+   "case": "V6-W09-5",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W09.patch"
+  }
+ ],
+ "expect": {}
+}

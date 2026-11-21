@@ -1,4 +1,8 @@
-# Read-back v14: each CPU's stage-2 register, not HAVEN's table (design)
+# Read-back v15: each CPU's stage-2 register, not HAVEN's table (design)
+
+**Correction (2026-11-21):** the probe was already at v14 (2026-11-12, D5
+step 3), so this change is **v15**; the rows keep their names. #165 and
+#167 call it v14.
 
 **Status:** design and expectations, 2026-11-21, written before any code
 (owner-approved item: "the W09 fix designed with expectations first").
@@ -77,3 +81,36 @@ then `VTTBR_EL2` and `HCR_EL2` on each vCPU (`qfThreadInfo`, `Hg`, `p`).
 
 **V0 holds.** The register numbers differ between versions, so v14 finds
 both registers by name in the target description, never by number.
+
+## Before V2 to V5: W09 may not do what this design assumed (2026-11-21)
+
+V1 holds (`tools/readback/test_cpu_stage2.py`, 8 tests). A first run of
+v15 on the Mac (QEMU 11.1.3, `qemu-psci` build, both CPU models) [F]:
+
+- the unchanged tree: CPU 0 `VTTBR_EL2 0x100008000e000` (VMID 1,
+  partition 1's root), CPU 2 `0x2000080012000` (VMID 2, partition 2's),
+  CPUs 1 and 3 stage 2 off; no finding (V2's form);
+- **W09**: CPU 2 `0x2000080012000`, partition 2's tables; no finding;
+  and partition B's own check (M4) **passes** on both CPU models.
+
+Why [I, from the code]: W09 changes the VTTBR_EL2 written at secondary
+init (`partition_b_secondary_cpu_init`), but the world switch
+(`arch/arm64/context.S`, `msr vttbr_el2, x2`) loads VTTBR_EL2 from the
+vCPU's saved context before partition B runs, so the wrong value lives
+only between the two writes, with no guest access in between. If so, W09
+is an equivalent mutant (design item 2: counted apart), and its C2 row,
+M4 a finding under QEMU 10.0, needs re-checking: a flaky M4 there is the
+other explanation (C7 had one unexplained M4 failure on `max` in C1's
+third run).
+
+**Added row, before any further run:**
+
+| Row | Check | Expected |
+| - | - | - |
+| V6 | W09 five times in CI (`tools/campaign/cases/w09-repeat.json`, v15) | if W09 is equivalent: every method passes in all five; if M4 fails in some and passes in others, M4 is flaky in CI and that is recorded as its own finding |
+
+V3 stands as written until V6 has run; if V6 shows W09 is equivalent, V3
+is recorded as a prediction error (the design misread the case), and
+v15's CPU check is tested instead by a case whose wrong VTTBR_EL2 lasts
+(a change in the vCPU context, written as its own case with the owner's
+approval, like any C2 case).
