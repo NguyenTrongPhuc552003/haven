@@ -110,3 +110,45 @@ Implementation: `tools/campaign/linux2.py`, `run_case.py --scenario
 linux2`, `run_shard.py` (both case jobs), a `run-linux2` job in
 `campaign.yml` (input `scenario`), the cases file `s2-linux2.json`; S1:
 `test_linux2.py`, 9 tests.
+
+## First run (2026-11-22): S2 fails on M6, a design error
+
+`campaign.yml`, `scenario=linux2`, `s2-linux2.json`, eight shards, at
+`54dfb5b` (the merge of #185), on the pinned QEMU 8.2.2 [F]. Every case
+ran; scenario 1 on `k3-k4.json` at the same commit still passes (the
+case jobs now go through `run_shard.py`).
+
+- **S2 fails**: on all three controls M1, M2, M3 and M5 pass, but **M6
+  has three findings**: `A PCI config: missing binding`, `A PCI BAR:
+  missing binding`, `pci-1af4:1044: DMA enforcement drift` (SID 8 denied,
+  expected translated). The UART says why: `DMA grant SID 8 -> partition
+  1 withheld (rc=-95)`. On QEMU 8.2.2 HAVEN withholds the DMA grant and
+  the PCI device's pages, as amendment 3 recorded; this design said the
+  DMA classes were "not comparable" but kept the DMA parts in the grant
+  read-back compares with. **Design error, mine**; every case's M6
+  carries the same three findings, so M6 says nothing in this run.
+- **M5 error on R49** (`demand_check exit 2`): the demand block caught a
+  kernel log line from the other vCPU between `KDAL-DEMAND-BEGIN` and
+  `-END` (`bad input: Extra data`), so the JSON did not parse. A harness
+  defect (two CPUs print at once), not a verdict about R49.
+- **S3 holds**: of the 9 "not exercised" cases, **R40** (M2: no demand,
+  no power-off; the cross-CPU request counter) and **R53** (M2:
+  `HOTPLUG-ON ok` missing; the vCPU-off path) are now found; R14 is not.
+  R15, R21, R41, R45, R46 and R59 pass every method as predicted (R15 and
+  R41 were not in this set: only the 40 all-pass cases of scenario 1 are).
+- **S4** (preliminary, M6 aside): besides R40 and R53, M2 now finds
+  **R4** and **R7** (vCPU 1 never started: which CPUs are A's, the vCPU
+  lookup) and **R39** (the virtual GIC setup: Linux brings up one CPU, no
+  demand). 5 of the 40.
+
+**Fix, then the run again [P]:**
+
+1. `s2/grant-s2-qemu82.json`: `grant-smp-v12.json` without what HAVEN
+   withholds when QEMU has no SMMU stage 2 (the PCI config page, the BAR
+   and stream 8). `linux2.py` uses it for M5 and M6.
+2. `linux2.demand()` drops kernel log lines (`[ seconds ]` prefix) inside
+   the demand block, with a test built from R49's case.
+
+| Row | Check | Expected |
+| - | - | - |
+| S2b | the run again, same cases | the controls: every method passes, M6 included; then S3 and S4 are read with M6 |
