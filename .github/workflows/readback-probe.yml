@@ -1,0 +1,26 @@
+# Row V0 of docs/methodology/stage2/20261121-readback-vttbr: does QEMU's
+# gdb stub name VTTBR_EL2 and HCR_EL2 on Ubuntu's 8.2.2 and Debian's 10.0?
+name: readback probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ubuntu:
+    name: QEMU on ubuntu-24.04
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get install -y -qq --no-install-recommends qemu-system-arm
+      - run: timeout 60 python3 tools/readback/gdb_sysreg_probe.py
+  trixie:
+    name: QEMU in debian:trixie
+    runs-on: ubuntu-24.04
+    container: debian:trixie
+    steps:
+      - run: apt-get -o Acquire::Retries=5 update -qq && apt-get install -y -qq --no-install-recommends git ca-certificates python3 qemu-system-arm
+      - uses: actions/checkout@v4
+      - run: timeout 60 python3 tools/readback/gdb_sysreg_probe.py
