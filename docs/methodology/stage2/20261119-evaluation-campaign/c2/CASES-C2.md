@@ -1,6 +1,11 @@
 # Campaign step C2: the written cases (for the owner's approval)
 
-**Status:** proposal, 2026-11-19. Nothing has run. The owner approves (or
+**Status:** owner-approved 2026-11-21 ("Approve to all of your suggested
+actions order": every row as proposed; P1 stays under S2-EXTENT; the
+balance of one table-level and one lower-layer case per class kept);
+frozen by `freeze/SHA256SUMS-C2` (tools, read-back, workflow, grant,
+taxonomy, cases file, patches, this file) before the run. Proposed
+2026-11-19. Nothing ran before the freeze. The owner approves (or
 corrects) each row's expected verdicts before the run; then the taxonomy,
 tools, grant, this list and the patches are frozen by SHA-256 (C2's last
 step), and only then does `campaign.yml` run them.
