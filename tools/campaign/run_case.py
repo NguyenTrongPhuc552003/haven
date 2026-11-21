@@ -31,7 +31,7 @@ logs go to OUT/CASE/, and the patch is never echoed (held-out cases print
 verdicts only and stay sealed until the results record; their evidence
 quotes no log line, row K7e of c3/README.md).
 
-Usage: run_case.py --case ID --class CLS --source written|random|heldout
+Usage: run_case.py --case ID --class CLS --source written|random|heldout|historical
                    --grant GRANT [--patch FILE] [--repo DIR] OUT
 """
 
@@ -271,7 +271,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--case", required=True)
     ap.add_argument("--class", dest="cls", required=True)
-    ap.add_argument("--source", required=True, choices=["written", "random", "heldout"])
+    ap.add_argument("--source", required=True, choices=["written", "random", "heldout", "historical"])
     ap.add_argument("--grant", required=True)
     ap.add_argument("--patch")
     ap.add_argument("--repo", default=os.path.join(HERE, "..", ".."))

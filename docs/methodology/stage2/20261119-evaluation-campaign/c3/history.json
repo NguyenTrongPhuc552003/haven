@@ -1,0 +1,98 @@
+{
+ "rule": "c3/README.md, owner decision 2026-11-22",
+ "upto": "f1da2b1fcfafcd7689757f28ae6348cb51e7b5e9",
+ "head": "0fc22966a5a1925a734013e7ea99fd9a77e72253",
+ "max_lines": 100,
+ "commits": [
+  {
+   "commit": "a4c2dc1b8124397aa38890158ad4aff935eb1103",
+   "subject": "fix: enforce irq ownership boundaries",
+   "lines": 45,
+   "status": "code moved"
+  },
+  {
+   "commit": "cfdf5664af6683c846603d7895c733fde8feb1bf",
+   "subject": "fix: harden stage2 boundary and mapping state checks",
+   "lines": 69,
+   "status": "code moved"
+  },
+  {
+   "commit": "604c17f6391fae4521703e7637735ae0ed1dbf5f",
+   "subject": "fix: address PR review feedback across scripts and isolation paths",
+   "lines": 64,
+   "status": "code moved"
+  },
+  {
+   "commit": "4f0d9ea468d7c33b100a0d65d43f38d6b5255b72",
+   "subject": "fix: harden SMMUv3 command queue with circular depth tracking",
+   "lines": 137,
+   "status": "rewrite (left out)"
+  },
+  {
+   "commit": "8b02d33a739179fb4803bbe608b4ff2c8954cff7",
+   "subject": "fix: portable stage-2 permission bits; fix execute-never encoding (MM1, MM2)",
+   "lines": 88,
+   "status": "code moved"
+  },
+  {
+   "commit": "7ec513ec7a04cb4e34b56281418004533b8e9551",
+   "subject": "fix: SMMU command queue, hardware stream IDs and per-stream DMA tables",
+   "lines": 638,
+   "status": "rewrite (left out)"
+  },
+  {
+   "commit": "de6291ceb6953c5fa05fc98412b00832dcd2211f",
+   "subject": "fix: write GICD_CTLR with the Non-secure bit layout",
+   "lines": 7,
+   "status": "kept",
+   "name": "H1",
+   "applied_with": "apply"
+  },
+  {
+   "commit": "3fbafae49e68c5ba2cf1cf5ab9fc49243cee6896",
+   "subject": "fix: disable an SPI that cannot be delivered instead of letting it fire again",
+   "lines": 13,
+   "status": "code moved"
+  },
+  {
+   "commit": "2b6f5eaf841fb639ceb423292ad46b251617ad9e",
+   "subject": "fix: keep the VMID out of a stream table entry's stage-2 table address",
+   "lines": 5,
+   "status": "kept",
+   "name": "H2",
+   "applied_with": "apply"
+  },
+  {
+   "commit": "4ccee175969a85d4f2a7b795b5794b94f894b593",
+   "subject": "fix: bound list-register use by ICH_VTR_EL2 and clear them per CPU",
+   "lines": 41,
+   "status": "kept",
+   "name": "H3",
+   "applied_with": "apply -3"
+  },
+  {
+   "commit": "be4eb32ca6c94b3819da2fa7315fa247e56a73f4",
+   "subject": "fix: CPU map count honoured in C; no CPU_ON for a CPU missing from the map",
+   "lines": 10,
+   "status": "kept",
+   "name": "H4",
+   "applied_with": "apply -3"
+  },
+  {
+   "commit": "93cf89226f34717d9eeee22648903e6d4de483ee",
+   "subject": "fix: GIC redistributors found by GICR_TYPER affinity (D2, ledger row 25)",
+   "lines": 30,
+   "status": "kept",
+   "name": "H5",
+   "applied_with": "apply"
+  },
+  {
+   "commit": "7dcbad59bcba2a1d9ee18b477c002c61b79cfb12",
+   "subject": "fix: HAVEN fix list part 3: PSCI start guard, no redundant initializers, EFI loader split, stale script references",
+   "lines": 2,
+   "status": "kept",
+   "name": "H6",
+   "applied_with": "apply"
+  }
+ ]
+}
