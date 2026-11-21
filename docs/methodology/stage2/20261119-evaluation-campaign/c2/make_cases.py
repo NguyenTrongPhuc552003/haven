@@ -114,6 +114,24 @@ CASES = {
             exp(m6=P), "control: the same bits through an if"),
 }
 
+# RESULTS-C2.md: W03, W07, W12 and W23 did not build (HV_MEM_RW is not
+# defined; W23 left mpidr unused). The same intent and the same approved
+# expectations, with edits that build; run on their own (--corrected).
+CORRECTED = {
+    "W03r": ("S2-PERM", [(PART, "\t\t.attrs = HV_MEM_R,\n", "\t\t.attrs = HV_MEM_R | HV_MEM_W,\n")],
+             exp(m1=F), "A RO: access drift"),
+    "W07r": ("S2-TYPE", [(PART, ".attrs = HV_MEM_DEVICE_RW, /* Device nGnRE, never executable */",
+                          ".attrs = HV_MEM_R | HV_MEM_W, /* Device nGnRE, never executable */")],
+             exp(m1=F), "A UART: memory-type and shareability drift"),
+    "W12r": ("S2-EXTRA", [(PART, "\t\t.attrs = HV_MEM_R,\n\t},\n#endif\n};",
+                           "\t\t.attrs = HV_MEM_R,\n\t},\n#endif\n\t{\n\t\t.ipa_base = 0x71000000UL,\n"
+                           "\t\t.pa_base = SHARED_PA_BASE,\n\t\t.size = SHARED_SIZE,\n\t\t.attrs = HV_MEM_R | HV_MEM_W,\n\t},\n};")],
+             exp(m1=F), "extra binding: the shared memory in A at 0x71000000"),
+    "W23r": ("GIC-ROUTE", [(GIC, "\tgic_write64(gic.gicd_base, GICD_IROUTER(irq),\n\t\t    gicd_irouter_from_mpidr(mpidr));",
+                            "\t(void)mpidr;\n\tgic_write64(gic.gicd_base, GICD_IROUTER(irq),\n\t\t    GICD_IROUTER_IRM);")],
+             exp(), "SPI 33: interrupt routing drift (1-of-N)"),
+}
+
 # v3's written cases (CASES-v3.md), from their patches; M1 as today's tests
 # showed in the C1 runs (the baseline grew since v3), M6 as v3's approved list
 V3 = {
@@ -133,7 +151,7 @@ V3 = {
 
 def check():
     bad = 0
-    for cid, (_, edits, _, _) in CASES.items():
+    for cid, (_, edits, _, _) in list(CASES.items()) + list(CORRECTED.items()):
         for path, old, _ in edits:
             n = open(path).read().count(old)
             if n != 1:
@@ -150,11 +168,19 @@ def main():
     if check():
         return 1
     if sys.argv[1:] == ["--check"]:
-        print(f"{len(CASES)} written edits match once; {len(V3)} v3 patches present")
+        print(f"{len(CASES) + len(CORRECTED)} written edits match once; {len(V3)} v3 patches present")
         return 0
+    if sys.argv[1:] == ["--corrected"]:
+        return write(CORRECTED, {}, False, "tools/campaign/cases/c2-corrected.json",
+                     "campaign step C2, corrected written cases (c2/RESULTS-C2.md)")
+    return write(CASES, V3, True, "tools/campaign/cases/c2-written.json",
+                 "campaign step C2, written cases (docs/methodology/stage2/20261119-evaluation-campaign/c2/)")
+
+
+def write(written, v3, baseline, out_path, source):
     os.makedirs("tools/campaign/cases/c2", exist_ok=True)
     cases, expect = [], {}
-    for cid, (cls, edits, e, why) in CASES.items():
+    for cid, (cls, edits, e, why) in written.items():
         files = sorted({p for p, _, _ in edits})
         for path, old, new in edits:
             s = open(path).read()
@@ -165,17 +191,17 @@ def main():
         open(patch, "w").write(diff)
         cases.append({"case": f"C2-{cid}", "class": cls, "source": "written", "patch": patch, "m6": why})
         expect[f"C2-{cid}"] = e
-    for name, (cls, e, why) in V3.items():
+    for name, (cls, e, why) in v3.items():
         cases.append({"case": f"C2-V3-{name}", "class": cls, "source": "written",
                       "patch": f"tools/campaign/cases/v3-{name}.patch", "m6": why})
         expect[f"C2-V3-{name}"] = e
-    cases.append({"case": "C2-BASELINE", "class": "CONTROL", "source": "written", "patch": None,
-                  "m6": "the unchanged tree"})
-    expect["C2-BASELINE"] = exp(m6=P)
-    out = {"schema": "haven-campaign-cases/1",
-           "source": "campaign step C2, written cases (docs/methodology/stage2/20261119-evaluation-campaign/c2/)",
+    if baseline:
+        cases.append({"case": "C2-BASELINE", "class": "CONTROL", "source": "written", "patch": None,
+                      "m6": "the unchanged tree"})
+        expect["C2-BASELINE"] = exp(m6=P)
+    out = {"schema": "haven-campaign-cases/1", "source": source,
            "grant": GRANT, "cases": cases, "expect": expect}
-    with open("tools/campaign/cases/c2-written.json", "w") as f:
+    with open(out_path, "w") as f:
         json.dump(out, f, indent=1)
         f.write("\n")
     print(f"{len(cases)} cases written")
