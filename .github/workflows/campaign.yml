@@ -1,8 +1,10 @@
 # The core evaluation campaign in QEMU (docs/methodology/stage2/
 # 20261119-evaluation-campaign/): every case of a cases file through
 # tools/campaign/run_case.py, sharded across jobs, then tools/campaign/
-# score.py into the run's summary. On demand only. The held-out channel
-# (row K7) is a later C1 step.
+# score.py into the run's summary. On demand only. With `sealed`, the
+# cases come from the owner's sealed archive (step C3, c3/README.md):
+# unseal.py checks it against the committed hash in each job before any
+# case, the logs carry verdicts only, and only the case files are uploaded.
 name: campaign
 
 on:
@@ -16,6 +18,15 @@ on:
         description: Number of parallel jobs
         required: true
         default: "2"
+      sealed:
+        description: Hash file of a sealed archive (step C3); when set, cases is ignored
+        required: false
+        default: ""
+      sealed_source:
+        description: Where the sealed archive's base64 comes from (test is row K7's committed archive)
+        type: choice
+        options: [secret, test]
+        default: secret
 
 permissions:
   contents: read
@@ -27,9 +38,21 @@ jobs:
       shards: ${{ steps.plan.outputs.shards }}
     steps:
       - uses: actions/checkout@v4
+      - name: Open the sealed archive (step C3)
+        if: inputs.sealed != ''
+        env:
+          SEALED: ${{ inputs.sealed }}
+          SEALED_SOURCE: ${{ inputs.sealed_source }}
+          SEALED_ARCHIVE: ${{ secrets.HELDOUT_ARCHIVE_B64 }}
+        run: |
+          if [ "$SEALED_SOURCE" = test ]; then
+            python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-file tools/campaign/cases/k7/test-archive.b64
+          else
+            python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-env SEALED_ARCHIVE
+          fi
       - id: plan
         env:
-          CASES: ${{ inputs.cases }}
+          CASES: ${{ inputs.sealed != '' && '/tmp/sealed/cases.json' || inputs.cases }}
           SHARDS: ${{ inputs.shards }}
         run: |
           python3 - <<'EOF'
@@ -62,6 +85,18 @@ jobs:
             git ca-certificates python3 patch make cmake ninja-build gcc libc6-dev \
             gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-system-arm device-tree-compiler
       - uses: actions/checkout@v4
+      - name: Open the sealed archive (step C3)
+        if: inputs.sealed != ''
+        env:
+          SEALED: ${{ inputs.sealed }}
+          SEALED_SOURCE: ${{ inputs.sealed_source }}
+          SEALED_ARCHIVE: ${{ secrets.HELDOUT_ARCHIVE_B64 }}
+        run: |
+          if [ "$SEALED_SOURCE" = test ]; then
+            python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-file tools/campaign/cases/k7/test-archive.b64
+          else
+            python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-env SEALED_ARCHIVE
+          fi
       - name: QEMU 9.2 or later, and the unchanged tree builds (row K8)
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -82,7 +117,7 @@ jobs:
           echo "the unchanged tree builds: host tests, qemu-direct, qemu-psci"
       - name: Run this shard's cases
         env:
-          CASES: ${{ inputs.cases }}
+          CASES: ${{ inputs.sealed != '' && '/tmp/sealed/cases.json' || inputs.cases }}
           SHARD: ${{ matrix.shard }}
           SHARDS: ${{ strategy.job-total }}
         run: |
@@ -102,11 +137,17 @@ jobs:
           print(f"shard {shard}: {time.monotonic() - start:.0f} s")
           EOF
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && inputs.sealed == ''
         with:
           name: cases-${{ matrix.shard }}
           path: out/
           retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.sealed != ''
+        with:
+          name: cases-${{ matrix.shard }}
+          path: out/*.json
+          retention-days: 7
 
   summary:
     needs: run
@@ -114,6 +155,18 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Open the sealed archive (step C3)
+        if: inputs.sealed != ''
+        env:
+          SEALED: ${{ inputs.sealed }}
+          SEALED_SOURCE: ${{ inputs.sealed_source }}
+          SEALED_ARCHIVE: ${{ secrets.HELDOUT_ARCHIVE_B64 }}
+        run: |
+          if [ "$SEALED_SOURCE" = test ]; then
+            python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-file tools/campaign/cases/k7/test-archive.b64
+          else
+            python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-env SEALED_ARCHIVE
+          fi
       - uses: actions/download-artifact@v4
         with:
           pattern: cases-*
@@ -121,7 +174,7 @@ jobs:
           merge-multiple: true
       - name: Score
         env:
-          CASES: ${{ inputs.cases }}
+          CASES: ${{ inputs.sealed != '' && '/tmp/sealed/cases.json' || inputs.cases }}
         run: |
           python3 -c "import json,os; json.dump(json.load(open(os.environ['CASES'])).get('expect', {}), open('expect.json', 'w'))"
           python3 tools/campaign/score.py --expect expect.json --json report.json out/*.json | tee -a "$GITHUB_STEP_SUMMARY"

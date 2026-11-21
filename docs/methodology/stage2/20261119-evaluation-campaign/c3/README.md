@@ -76,6 +76,11 @@ repository only inside the generator and, encoded, the base64 file.
 | K7c | the same with `k7/TEST-SHA256` | two cases run; T1 as the baseline (M6 matches the grant), T2 a finding from M1, M2, M4 and M6 (builds fail); no disagreement with the test archive's expectations; the artifacts hold only `T1.json` and `T2.json` |
 | K7d | the logs of K7b and K7c (`gh run view --log`) and their artifacts | the marker appears 0 times in the logs; in the artifacts only if a build-failure evidence line quotes it (then recorded, and held-out evidence is cut to exit codes before C4) |
 
+**Correction before any run (2026-11-21, from reading `run_case.py`):**
+when the qemu-psci build fails, M6's verdict is `error` ("nothing to
+read"), not a finding; K7c's T2 row is therefore M1, M2 and M4 findings,
+M3 pass and M6 error, as the test archive's expectations say.
+
 K7d's second clause is a prediction I cannot settle by reading: M1's and
 M2's evidence for a failed build includes the log's last lines
 (`tail()`), which may quote the bad line. If they do, held-out cases get
