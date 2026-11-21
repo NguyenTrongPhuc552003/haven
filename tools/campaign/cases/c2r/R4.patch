@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -541,7 +541,7 @@
+ static int part_a_index(hv_u32 cpu)
+ {
+ 	for (hv_u32 i = 0; i < HAVEN_PART_A_VCPUS; i++)
+-		if (PART_A_CPU(i) == cpu)
++		if (PART_A_CPU(i) != cpu)
+ 			return (int)i;
+ 	return -1;
+ }

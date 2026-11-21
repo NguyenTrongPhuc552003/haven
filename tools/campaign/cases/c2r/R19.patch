@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -69,7 +69,7 @@
+ 		gic.nr_irqs = 1020;
+ 
+ 	/* Put all SPIs in Group 1 Non-Secure */
+-	for (uint32_t i = 1; i < (gic.nr_irqs / 32); i++)
++	for (uint32_t i = 2; i < (gic.nr_irqs / 32); i++)
+ 		gic_write32(gic.gicd_base, GICD_IGROUPR(i), 0xffffffff);
+ 
+ 	/* Disable, clear pending/active for all SPIs */

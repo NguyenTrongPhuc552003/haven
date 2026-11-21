@@ -1,0 +1,11 @@
+--- a/arch/arm64/mm.c
++++ b/arch/arm64/mm.c
+@@ -281,7 +281,7 @@
+ 	if (iova >= HV_ARCH_IPA_LIMIT || size > HV_ARCH_IPA_LIMIT - iova)
+ 		return HV_EINVAL; /* beyond the 39-bit input range of the walk */
+ 
+-	if (dma_roots[sid] == NULL) {
++	if (dma_roots[sid] != NULL) {
+ 		dma_roots[sid] = pt_alloc();
+ 		if (dma_roots[sid] == NULL)
+ 			return HV_ENOMEM;

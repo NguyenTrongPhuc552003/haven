@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -872,7 +872,7 @@
+ 	if (hv_arch_logical_mpidr(PART_B_CPU) == HV_ARCH_NO_CPU) {
+ 		/* No MPIDR to switch on: never issue CPU_ON for an index the
+ 		 * platform's CPU map does not contain (control L5). */
+-		hv_printk("HAVEN: no CPU 2 in the CPU map - partition B not "
++		hv_printk("HAVEN: no CPU 3 in the CPU map - partition B not "
+ 			  "started\n");
+ 	} else if (hv_arch_psci_cpu_on(hv_arch_logical_mpidr(PART_B_CPU),
+ 				       (uintptr_t)secondary_entry) == 0) {

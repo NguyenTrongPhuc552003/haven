@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -55,7 +55,7 @@
+ 	hv_u64 end = base + size;
+ 	hv_u64 inner_end = inner_base + inner_size;
+ 
+-	if (inner_end < inner_base || end < base) {
++	if (inner_end <= inner_base || end < base) {
+ 		return 0U;
+ 	}
+ 

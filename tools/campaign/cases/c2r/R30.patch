@@ -1,0 +1,11 @@
+--- a/src/core/dma/smmu.c
++++ b/src/core/dma/smmu.c
+@@ -317,7 +317,7 @@
+ 		return HV_EINVAL;
+ 	}
+ 
+-	if (streamid >= HV_MAX_SMMU_STREAMS) {
++	if (streamid > HV_MAX_SMMU_STREAMS) {
+ 		return HV_EINVAL;
+ 	}
+ 

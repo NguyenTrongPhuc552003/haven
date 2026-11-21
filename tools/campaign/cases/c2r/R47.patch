@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -345,7 +345,7 @@
+ 			     Q_BASE_RWA |
+ 				     ((uintptr_t)smmu.evtq & Q_BASE_ADDR_MASK) |
+ 				     (SMMU_EVTQ_LOG2 & Q_BASE_LOG2SIZE_MASK));
+-		smmu_write32(base, SMMU_EVTQ_PROD, 0);
++		smmu_write32(base, SMMU_EVTQ_PROD, 1);
+ 		smmu_write32(base, SMMU_EVTQ_CONS, 0);
+ 		queues |= CR0_EVTQ_ENABLE;
+ 	}

@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -433,7 +433,7 @@
+ 			  (unsigned long)ev[2],
+ 			  ((ev[1] >> 35) & 1U) ? "read" : "write");
+ 	} else if ((n & (n - 1U)) == 0U) {
+-		hv_printk("HAVEN: SMMU events so far: %u\n", (unsigned)n);
++
+ 	}
+ }
+ 

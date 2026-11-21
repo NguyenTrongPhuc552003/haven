@@ -1,0 +1,368 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "campaign step C2, random cases (docs/methodology/stage2/20261119-evaluation-campaign/c2/random/)",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
+ "cases": [
+  {
+   "case": "C2-R1",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R1.patch"
+  },
+  {
+   "case": "C2-R2",
+   "class": "S2-PERM",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R2.patch"
+  },
+  {
+   "case": "C2-R3",
+   "class": "GIC-GROUP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R3.patch"
+  },
+  {
+   "case": "C2-R4",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R4.patch"
+  },
+  {
+   "case": "C2-R5",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R5.patch"
+  },
+  {
+   "case": "C2-R6",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R6.patch"
+  },
+  {
+   "case": "C2-R7",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R7.patch"
+  },
+  {
+   "case": "C2-R8",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R8.patch"
+  },
+  {
+   "case": "C2-R9",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R9.patch"
+  },
+  {
+   "case": "C2-R10",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R10.patch"
+  },
+  {
+   "case": "C2-R11",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R11.patch"
+  },
+  {
+   "case": "C2-R12",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R12.patch"
+  },
+  {
+   "case": "C2-R13",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R13.patch"
+  },
+  {
+   "case": "C2-R14",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R14.patch"
+  },
+  {
+   "case": "C2-R15",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R15.patch"
+  },
+  {
+   "case": "C2-R16",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R16.patch"
+  },
+  {
+   "case": "C2-R17",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R17.patch"
+  },
+  {
+   "case": "C2-R18",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R18.patch"
+  },
+  {
+   "case": "C2-R19",
+   "class": "GIC-GROUP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R19.patch"
+  },
+  {
+   "case": "C2-R20",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R20.patch"
+  },
+  {
+   "case": "C2-R21",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R21.patch"
+  },
+  {
+   "case": "C2-R22",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R22.patch"
+  },
+  {
+   "case": "C2-R23",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R23.patch"
+  },
+  {
+   "case": "C2-R24",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R24.patch"
+  },
+  {
+   "case": "C2-R25",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R25.patch"
+  },
+  {
+   "case": "C2-R26",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R26.patch"
+  },
+  {
+   "case": "C2-R27",
+   "class": "EL2-MAP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R27.patch"
+  },
+  {
+   "case": "C2-R28",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R28.patch"
+  },
+  {
+   "case": "C2-R29",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R29.patch"
+  },
+  {
+   "case": "C2-R30",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R30.patch"
+  },
+  {
+   "case": "C2-R31",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R31.patch"
+  },
+  {
+   "case": "C2-R32",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R32.patch"
+  },
+  {
+   "case": "C2-R33",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R33.patch"
+  },
+  {
+   "case": "C2-R34",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R34.patch"
+  },
+  {
+   "case": "C2-R35",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R35.patch"
+  },
+  {
+   "case": "C2-R36",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R36.patch"
+  },
+  {
+   "case": "C2-R37",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R37.patch"
+  },
+  {
+   "case": "C2-R38",
+   "class": "GIC-PPI",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R38.patch"
+  },
+  {
+   "case": "C2-R39",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R39.patch"
+  },
+  {
+   "case": "C2-R40",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R40.patch"
+  },
+  {
+   "case": "C2-R41",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R41.patch"
+  },
+  {
+   "case": "C2-R42",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R42.patch"
+  },
+  {
+   "case": "C2-R43",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R43.patch"
+  },
+  {
+   "case": "C2-R44",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R44.patch"
+  },
+  {
+   "case": "C2-R45",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R45.patch"
+  },
+  {
+   "case": "C2-R46",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R46.patch"
+  },
+  {
+   "case": "C2-R47",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R47.patch"
+  },
+  {
+   "case": "C2-R48",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R48.patch"
+  },
+  {
+   "case": "C2-R49",
+   "class": "GIC-PRIO",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R49.patch"
+  },
+  {
+   "case": "C2-R50",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R50.patch"
+  },
+  {
+   "case": "C2-R51",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R51.patch"
+  },
+  {
+   "case": "C2-R52",
+   "class": "EL2-MAP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R52.patch"
+  },
+  {
+   "case": "C2-R53",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R53.patch"
+  },
+  {
+   "case": "C2-R54",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R54.patch"
+  },
+  {
+   "case": "C2-R55",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R55.patch"
+  },
+  {
+   "case": "C2-R56",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R56.patch"
+  },
+  {
+   "case": "C2-R57",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R57.patch"
+  },
+  {
+   "case": "C2-R58",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R58.patch"
+  },
+  {
+   "case": "C2-R59",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R59.patch"
+  },
+  {
+   "case": "C2-R60",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R60.patch"
+  }
+ ],
+ "expect": {}
+}

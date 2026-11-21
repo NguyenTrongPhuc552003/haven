@@ -1,0 +1,11 @@
+--- a/src/core/dma/smmu.c
++++ b/src/core/dma/smmu.c
+@@ -107,7 +107,7 @@
+ 	}
+ 
+ 	/* Find first unallocated StreamID. */
+-	for (hv_u16 i = 0; i < HV_MAX_SMMU_DEVICES; i++) {
++	for (hv_u16 i = 1; i < HV_MAX_SMMU_DEVICES; i++) {
+ 		if (!smmu_state.streamid_allocated[i]) {
+ 			smmu_state.streamid_allocated[i] = 1;
+ 			smmu_state.streamid_to_partition[i] = partition;

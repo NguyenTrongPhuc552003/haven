@@ -1,0 +1,11 @@
+--- a/arch/arm64/irq.c
++++ b/arch/arm64/irq.c
+@@ -428,7 +428,7 @@
+ {
+ 	extern void hv_printk(const char *fmt, ...);
+ 	uint32_t req;
+-	uint32_t left = 0U;
++	uint32_t left = 1U;
+ 
+ 	if (here >= HV_ARCH_IRQ_MAX_CPUS ||
+ 	    __atomic_load_n(&cpu_requests[here], __ATOMIC_RELAXED) == 0U)

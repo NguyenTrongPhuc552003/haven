@@ -1,0 +1,11 @@
+--- a/src/core/dma/smmu.c
++++ b/src/core/dma/smmu.c
+@@ -269,7 +269,7 @@
+ 	device_dma_config[streamid].dma_size = dma_size;
+ 	device_dma_config[streamid].phys_base = phys_base;
+ 	device_dma_config[streamid].vmid = vmid;
+-	device_dma_config[streamid].configured = 1;
++	device_dma_config[streamid].configured = 2;
+ 
+ 	return HV_OK;
+ }

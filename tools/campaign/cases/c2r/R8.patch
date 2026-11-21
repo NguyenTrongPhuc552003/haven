@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -333,7 +333,7 @@
+ 			hv_arch_stage2_unmap(partition_id, region->ipa_base,
+ 					     region->size);
+ 		}
+-		hv_arch_stage2_flush_tlb();
++
+ 	}
+ #endif
+ 

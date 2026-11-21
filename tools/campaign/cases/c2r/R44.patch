@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -382,7 +382,7 @@
+ 
+ 	if (!smmu.initialized)
+ 		return HV_EINVAL;
+-	if (!(smmu_read32(smmu.base, SMMU_CR0ACK) & CR0_EVTQ_ENABLE))
++	if (!(smmu_read32(smmu.base, SMMU_CR0ACK) | CR0_EVTQ_ENABLE))
+ 		return HV_ENOTSUP;
+ 	smmu_write32(smmu.base, SMMU_IRQ_CTRL, want);
+ 	for (uint32_t spin = 0; spin < SMMU_POLL_LIMIT; spin++) {

@@ -1,0 +1,484 @@
+{
+ "haven_commit": "f1da2b1fcfafcd7689757f28ae6348cb51e7b5e9",
+ "seed_text": "haven f1da2b1fcfafcd7689757f28ae6348cb51e7b5e9 | campaign C2 random, 60 cases",
+ "seed_sha256": "ad316b25a9a1e90b3bb8671a85db71a08f3bca67e7ea8b679778f4174eef7044",
+ "mutants_total": 1375,
+ "kept": [
+  {
+   "index": 469,
+   "file": "src/core/mm/stage2.c",
+   "line": 226,
+   "mutation": "comparison != -> ==",
+   "name": "R1"
+  },
+  {
+   "index": 7,
+   "file": "src/core/partition.c",
+   "line": 159,
+   "mutation": "bitwise | -> &",
+   "name": "R2"
+  },
+  {
+   "index": 909,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 62,
+   "mutation": "delete call: gicd_wait_rwp(gic.gicd_base);",
+   "name": "R3"
+  },
+  {
+   "index": 76,
+   "file": "src/core/partition.c",
+   "line": 544,
+   "mutation": "comparison == -> !=",
+   "name": "R4"
+  },
+  {
+   "index": 669,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 196,
+   "mutation": "comparison < -> <=",
+   "name": "R5"
+  },
+  {
+   "index": 1369,
+   "file": "arch/arm64/irq.c",
+   "line": 558,
+   "mutation": "comparison < -> <=",
+   "name": "R6"
+  },
+  {
+   "index": 78,
+   "file": "src/core/partition.c",
+   "line": 551,
+   "mutation": "constant 0 -> 1",
+   "name": "R7"
+  },
+  {
+   "index": 504,
+   "file": "src/core/mm/stage2.c",
+   "line": 336,
+   "mutation": "delete call: hv_arch_stage2_flush_tlb();",
+   "name": "R8"
+  },
+  {
+   "index": 459,
+   "file": "src/core/mm/stage2.c",
+   "line": 197,
+   "mutation": "comparison != -> ==",
+   "name": "R9"
+  },
+  {
+   "index": 724,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 302,
+   "mutation": "delete call: ste_write_abort(i);",
+   "name": "R10"
+  },
+  {
+   "index": 1060,
+   "file": "src/core/irq/ownership.c",
+   "line": 81,
+   "mutation": "constant 0U -> 1U",
+   "name": "R11"
+  },
+  {
+   "index": 986,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 204,
+   "mutation": "comparison < -> <=",
+   "name": "R12"
+  },
+  {
+   "index": 1066,
+   "file": "src/core/irq/ownership.c",
+   "line": 101,
+   "mutation": "comparison != -> ==",
+   "name": "R13"
+  },
+  {
+   "index": 53,
+   "file": "src/core/partition.c",
+   "line": 423,
+   "mutation": "delete call: hv_arch_set_cpu_partition(hv_arch_cpu_id(), 0U);",
+   "name": "R14"
+  },
+  {
+   "index": 547,
+   "file": "src/core/dma/smmu.c",
+   "line": 110,
+   "mutation": "constant 0 -> 1",
+   "name": "R15"
+  },
+  {
+   "index": 371,
+   "file": "src/core/mm/stage2.c",
+   "line": 14,
+   "mutation": "constant 0x1000ULL -> 0x2000ULL",
+   "name": "R16"
+  },
+  {
+   "index": 815,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 436,
+   "mutation": "delete call: hv_printk(\"HAVEN: SMMU events so far: %u\\n\", (unsigned)n);",
+   "name": "R17"
+  },
+  {
+   "index": 1284,
+   "file": "arch/arm64/irq.c",
+   "line": 406,
+   "mutation": "comparison >= -> >",
+   "name": "R18"
+  },
+  {
+   "index": 916,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 72,
+   "mutation": "constant 1 -> 2",
+   "name": "R19"
+  },
+  {
+   "index": 1292,
+   "file": "arch/arm64/irq.c",
+   "line": 414,
+   "mutation": "constant 0 -> 1",
+   "name": "R20"
+  },
+  {
+   "index": 621,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 53,
+   "mutation": "constant 1U -> 2U",
+   "name": "R21"
+  },
+  {
+   "index": 590,
+   "file": "src/core/dma/smmu.c",
+   "line": 272,
+   "mutation": "constant 1 -> 2",
+   "name": "R22"
+  },
+  {
+   "index": 635,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 95,
+   "mutation": "constant 1 -> 2",
+   "name": "R23"
+  },
+  {
+   "index": 470,
+   "file": "src/core/mm/stage2.c",
+   "line": 228,
+   "mutation": "constant 0U -> 1U",
+   "name": "R24"
+  },
+  {
+   "index": 221,
+   "file": "src/platform/qemu-virt/memory.h",
+   "line": 35,
+   "mutation": "constant 0x20000000UL -> 0x20001000UL",
+   "name": "R25"
+  },
+  {
+   "index": 194,
+   "file": "src/core/partition.c",
+   "line": 855,
+   "mutation": "constant 1000000U -> 1000001U",
+   "name": "R26"
+  },
+  {
+   "index": 218,
+   "file": "src/platform/qemu-virt/memory.h",
+   "line": 28,
+   "mutation": "constant 0x80000000UL -> 0x80001000UL",
+   "name": "R27"
+  },
+  {
+   "index": 361,
+   "file": "arch/arm64/mm.c",
+   "line": 346,
+   "mutation": "delete call: dsb_ish();",
+   "name": "R28"
+  },
+  {
+   "index": 503,
+   "file": "src/core/mm/stage2.c",
+   "line": 329,
+   "mutation": "comparison < -> <=",
+   "name": "R29"
+  },
+  {
+   "index": 601,
+   "file": "src/core/dma/smmu.c",
+   "line": 320,
+   "mutation": "comparison >= -> >",
+   "name": "R30"
+  },
+  {
+   "index": 875,
+   "file": "drivers/pci/ecam.c",
+   "line": 70,
+   "mutation": "constant 4U -> 5U",
+   "name": "R31"
+  },
+  {
+   "index": 343,
+   "file": "arch/arm64/mm.c",
+   "line": 284,
+   "mutation": "comparison == -> !=",
+   "name": "R32"
+  },
+  {
+   "index": 1263,
+   "file": "arch/arm64/irq.c",
+   "line": 374,
+   "mutation": "constant 44 -> 45",
+   "name": "R33"
+  },
+  {
+   "index": 1000,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 216,
+   "mutation": "constant 32 -> 33",
+   "name": "R34"
+  },
+  {
+   "index": 589,
+   "file": "src/core/dma/smmu.c",
+   "line": 257,
+   "mutation": "delete call: dma_vmid_put(vmid);",
+   "name": "R35"
+  },
+  {
+   "index": 199,
+   "file": "src/core/partition.c",
+   "line": 875,
+   "mutation": "constant 2 -> 3",
+   "name": "R36"
+  },
+  {
+   "index": 1072,
+   "file": "src/core/irq/ownership.c",
+   "line": 117,
+   "mutation": "comparison == -> !=",
+   "name": "R37"
+  },
+  {
+   "index": 1354,
+   "file": "arch/arm64/irq.c",
+   "line": 497,
+   "mutation": "constant 16U -> 17U",
+   "name": "R38"
+  },
+  {
+   "index": 151,
+   "file": "src/core/partition.c",
+   "line": 716,
+   "mutation": "comparison != -> ==",
+   "name": "R39"
+  },
+  {
+   "index": 1298,
+   "file": "arch/arm64/irq.c",
+   "line": 431,
+   "mutation": "constant 0U -> 1U",
+   "name": "R40"
+  },
+  {
+   "index": 1041,
+   "file": "src/core/irq/ownership.c",
+   "line": 41,
+   "mutation": "constant 0U -> 1U",
+   "name": "R41"
+  },
+  {
+   "index": 197,
+   "file": "src/core/partition.c",
+   "line": 862,
+   "mutation": "delete call: hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);",
+   "name": "R42"
+  },
+  {
+   "index": 862,
+   "file": "drivers/pci/ecam.c",
+   "line": 60,
+   "mutation": "logic && -> ||",
+   "name": "R43"
+  },
+  {
+   "index": 781,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 385,
+   "mutation": "bitwise & -> |",
+   "name": "R44"
+  },
+  {
+   "index": 826,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 490,
+   "mutation": "comparison >= -> >",
+   "name": "R45"
+  },
+  {
+   "index": 321,
+   "file": "arch/arm64/mm.c",
+   "line": 275,
+   "mutation": "comparison >= -> >",
+   "name": "R46"
+  },
+  {
+   "index": 755,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 348,
+   "mutation": "constant 0 -> 1",
+   "name": "R47"
+  },
+  {
+   "index": 1267,
+   "file": "arch/arm64/irq.c",
+   "line": 375,
+   "mutation": "constant 8 -> 9",
+   "name": "R48"
+  },
+  {
+   "index": 947,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 125,
+   "mutation": "constant 0 -> 1",
+   "name": "R49"
+  },
+  {
+   "index": 883,
+   "file": "drivers/pci/ecam.c",
+   "line": 73,
+   "mutation": "comparison > -> >=",
+   "name": "R50"
+  },
+  {
+   "index": 923,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 76,
+   "mutation": "comparison < -> <=",
+   "name": "R51"
+  },
+  {
+   "index": 211,
+   "file": "src/platform/qemu-virt/memory.h",
+   "line": 15,
+   "mutation": "constant 0x08000000UL -> 0x8001000UL",
+   "name": "R52"
+  },
+  {
+   "index": 117,
+   "file": "src/core/partition.c",
+   "line": 650,
+   "mutation": "constant 0 -> 1",
+   "name": "R53"
+  },
+  {
+   "index": 323,
+   "file": "arch/arm64/mm.c",
+   "line": 275,
+   "mutation": "comparison == -> !=",
+   "name": "R54"
+  },
+  {
+   "index": 1291,
+   "file": "arch/arm64/irq.c",
+   "line": 413,
+   "mutation": "constant 1 -> 2",
+   "name": "R55"
+  },
+  {
+   "index": 152,
+   "file": "src/core/partition.c",
+   "line": 727,
+   "mutation": "constant 1U -> 2U",
+   "name": "R56"
+  },
+  {
+   "index": 381,
+   "file": "src/core/mm/stage2.c",
+   "line": 58,
+   "mutation": "comparison < -> <=",
+   "name": "R57"
+  },
+  {
+   "index": 407,
+   "file": "src/core/mm/stage2.c",
+   "line": 94,
+   "mutation": "constant 0U -> 1U",
+   "name": "R58"
+  },
+  {
+   "index": 471,
+   "file": "src/core/mm/stage2.c",
+   "line": 228,
+   "mutation": "comparison < -> <=",
+   "name": "R59"
+  },
+  {
+   "index": 22,
+   "file": "src/core/partition.c",
+   "line": 237,
+   "mutation": "comparison != -> ==",
+   "name": "R60"
+  }
+ ],
+ "skipped": [
+  {
+   "index": 1183,
+   "file": "arch/arm64/irq.c",
+   "line": 154,
+   "mutation": "constant 0 -> 1"
+  },
+  {
+   "index": 1266,
+   "file": "arch/arm64/irq.c",
+   "line": 374,
+   "mutation": "bitwise | -> &"
+  },
+  {
+   "index": 1024,
+   "file": "drivers/irqchip/gic_v3.c",
+   "line": 266,
+   "mutation": "logic || -> &&"
+  },
+  {
+   "index": 825,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 475,
+   "mutation": "delete call: ste_write_s2(sid, vttbr, vmid);"
+  },
+  {
+   "index": 331,
+   "file": "arch/arm64/mm.c",
+   "line": 276,
+   "mutation": "logic || -> &&"
+  },
+  {
+   "index": 768,
+   "file": "drivers/iommu/smmu_v3.c",
+   "line": 361,
+   "mutation": "constant 1 -> 2"
+  },
+  {
+   "index": 1180,
+   "file": "arch/arm64/irq.c",
+   "line": 150,
+   "mutation": "constant 9 -> 10"
+  },
+  {
+   "index": 577,
+   "file": "src/core/dma/smmu.c",
+   "line": 205,
+   "mutation": "bitwise & -> |"
+  },
+  {
+   "index": 452,
+   "file": "src/core/mm/stage2.c",
+   "line": 177,
+   "mutation": "logic || -> &&"
+  }
+ ]
+}

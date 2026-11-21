@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -92,7 +92,7 @@
+ 	/* Word 0: VALID=1, CONFIG=ABORT */
+ 	ste[0] = STE_0_VALID | STE_0_CONFIG_ABORT;
+ 	/* Words 1-7: zero (unused for ABORT) */
+-	for (int i = 1; i < SMMU_STE_DWORDS; i++)
++	for (int i = 2; i < SMMU_STE_DWORDS; i++)
+ 		ste[i] = 0;
+ 
+ 	/* Ensure store is visible before SMMU sees it */

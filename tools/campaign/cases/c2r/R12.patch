@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -201,7 +201,7 @@
+  * whatever CPU owned it. */
+ hv_status_t gic_v3_enable_irq(uint32_t irq)
+ {
+-	if (!gic.initialized || irq < GIC_SPI_BASE || irq >= gic.nr_irqs)
++	if (!gic.initialized || irq <= GIC_SPI_BASE || irq >= gic.nr_irqs)
+ 		return HV_EINVAL;
+ 
+ 	gic_write32(gic.gicd_base, GICD_ISENABLER(irq / 32), 1U << (irq % 32));

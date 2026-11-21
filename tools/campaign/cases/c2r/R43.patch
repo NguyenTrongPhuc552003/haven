@@ -1,0 +1,11 @@
+--- a/drivers/pci/ecam.c
++++ b/drivers/pci/ecam.c
+@@ -57,7 +57,7 @@
+ 	if (orig & 1U)
+ 		return HV_EINVAL; /* I/O BAR */
+ 	is64 = (orig & 0x6U) == 0x4U;
+-	if (is64 && bar == 5U)
++	if (is64 || bar == 5U)
+ 		return HV_EINVAL;
+ 
+ 	/* Size the BAR with decoding off. */

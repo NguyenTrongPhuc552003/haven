@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -724,7 +724,7 @@
+ #if HAVEN_PART_A_VCPUS > 1
+ 	hv_printk("HAVEN: partition A has %u vCPUs\n",
+ 		  (unsigned)HAVEN_PART_A_VCPUS);
+-	for (hv_u32 c = 1U; c < HAVEN_PART_A_VCPUS; c++)
++	for (hv_u32 c = 2U; c < HAVEN_PART_A_VCPUS; c++)
+ 		hv_printk("HAVEN: partition A vCPU %u on CPU %u waits for the "
+ 			  "guest's PSCI CPU_ON\n",
+ 			  (unsigned)c, (unsigned)PART_A_CPU(c));

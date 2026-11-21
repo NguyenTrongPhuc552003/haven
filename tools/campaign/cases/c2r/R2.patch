@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -156,7 +156,7 @@
+ 		.ipa_base = PART_A_DMA_CFG_PA,
+ 		.pa_base = PART_A_DMA_CFG_PA,
+ 		.size = 0x1000UL, /* config space of 00:01.0 only */
+-		.attrs = HV_MEM_DEVICE | HV_MEM_R, /* read-only */
++		.attrs = HV_MEM_DEVICE & HV_MEM_R, /* read-only */
+ 	},
+ 	{
+ 		.ipa_base = PART_A_DMA_BAR_PA,

@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -326,7 +326,7 @@
+ #ifdef HAVEN_ARCH_ARM64
+ 	{
+ 		hv_u32 k;
+-		for (k = 0U; k < stage2_partition_region_count[partition_id];
++		for (k = 0U; k <= stage2_partition_region_count[partition_id];
+ 		     ++k) {
+ 			const struct hv_mem_region *region =
+ 				&stage2_partition_regions[partition_id][k];

@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -299,7 +299,7 @@
+ 
+ 	/* Initialize all STEs to ABORT */
+ 	for (uint32_t i = 0; i < nr_streams; i++) {
+-		ste_write_abort(i);
++
+ 		smmu.ste_vmid[i] = 0;
+ 	}
+ 

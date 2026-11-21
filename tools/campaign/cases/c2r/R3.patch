@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -59,7 +59,7 @@
+ 
+ 	/* Disable distributor while configuring */
+ 	gic_write32(gic.gicd_base, GICD_CTLR, 0);
+-	gicd_wait_rwp(gic.gicd_base);
++
+ 
+ 	/* Detect actual IRQ count from TYPER */
+ 	typer = gic_read32(gic.gicd_base, GICD_TYPER);

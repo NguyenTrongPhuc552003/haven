@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -420,7 +420,7 @@
+ 	 * B's, or that reports after the primary gave up, parks here. */
+ 	if (cpu_id != PART_B_CPU || hv_arch_cpu_id() != PART_B_CPU ||
+ 	    !hv_arch_cpu_report_ready(PART_B_CPU)) {
+-		hv_arch_set_cpu_partition(hv_arch_cpu_id(), 0U);
++
+ 		for (;;)
+ 			__asm__ volatile("wfe");
+ 	}

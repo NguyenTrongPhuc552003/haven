@@ -1,0 +1,11 @@
+--- a/src/core/irq/ownership.c
++++ b/src/core/irq/ownership.c
+@@ -98,7 +98,7 @@
+ 		return ppi_assign(route);
+ 	}
+ 
+-	if (irq_owner_map[route->irq_id] != 0U &&
++	if (irq_owner_map[route->irq_id] == 0U &&
+ 	    irq_owner_map[route->irq_id] != route->owner_partition_id) {
+ 		return HV_EPERM;
+ 	}

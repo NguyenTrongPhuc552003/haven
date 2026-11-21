@@ -1,0 +1,11 @@
+--- a/arch/arm64/mm.c
++++ b/arch/arm64/mm.c
+@@ -343,7 +343,7 @@
+  * ----------------------------------------------------------------------- */
+ void hv_arch_stage2_flush_tlb(void)
+ {
+-	dsb_ish();
++
+ 	tlbi_vmalls12e1is();
+ 	dsb_ish();
+ 	isb();

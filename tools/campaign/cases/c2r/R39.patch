@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -713,7 +713,7 @@
+ 					     PART_A_VGICR_IPA +
+ 						     f * HV_VGIC_GICR_SIZE,
+ 					     HV_VGIC_GICR_SIZE, PART_A_GICR,
+-					     &part_a_vgic[f]) != HV_OK)
++					     &part_a_vgic[f]) == HV_OK)
+ 				hv_panic("partition A GIC emulation setup "
+ 					 "failed");
+ 	}

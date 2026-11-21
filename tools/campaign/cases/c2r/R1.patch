@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -223,7 +223,7 @@
+ 						     region->pa_base,
+ 						     region->size,
+ 						     (hv_u32)region->attrs);
+-			if (arch_rc != HV_OK) {
++			if (arch_rc == HV_OK) {
+ 				hv_u32 rollback_i;
+ 				for (rollback_i = 0U; rollback_i < i;
+ 				     ++rollback_i) {

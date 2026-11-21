@@ -1,0 +1,11 @@
+--- a/src/core/irq/ownership.c
++++ b/src/core/irq/ownership.c
+@@ -78,7 +78,7 @@
+ hv_status_t hv_irq_assign(const struct hv_irq_route *route)
+ {
+ 	if (route == NULL || route->irq_id == 0U ||
+-	    route->owner_partition_id == 0U) {
++	    route->owner_partition_id == 1U) {
+ 		return HV_EINVAL;
+ 	}
+ 

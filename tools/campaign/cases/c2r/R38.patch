@@ -1,0 +1,11 @@
+--- a/arch/arm64/irq.c
++++ b/arch/arm64/irq.c
+@@ -494,7 +494,7 @@
+ 				hv_printk("HAVEN: IRQ %u not delivered, "
+ 					  "disabled\n",
+ 					  (unsigned)intid);
+-			} else if (intid >= 16U) {
++			} else if (intid >= 17U) {
+ 				/* A PPI is private: disable it on this
+ 				 * CPU only (a level timer would storm). */
+ 				(void)gic_v3_disable_ppi(here, intid);

@@ -1,0 +1,11 @@
+--- a/drivers/pci/ecam.c
++++ b/drivers/pci/ecam.c
+@@ -67,7 +67,7 @@
+ 	lo = cfg_read(cfg, off) & ~0xfU;
+ 	if (is64) {
+ 		cfg_write(cfg, off + 4U, 0xffffffffU);
+-		hi = cfg_read(cfg, off + 4U);
++		hi = cfg_read(cfg, off + 5U);
+ 	}
+ 	size = ~(((uint64_t)hi << 32) | lo) + 1U;
+ 	if (lo == 0U || size > max_size || (addr & (size - 1U)) != 0U ||

@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -213,7 +213,7 @@
+ 	if (!gic.initialized || irq < GIC_SPI_BASE || irq >= gic.nr_irqs)
+ 		return HV_EINVAL;
+ 
+-	gic_write32(gic.gicd_base, GICD_ICENABLER(irq / 32), 1U << (irq % 32));
++	gic_write32(gic.gicd_base, GICD_ICENABLER(irq / 32), 1U << (irq % 33));
+ 	gicd_wait_rwp(gic.gicd_base);
+ 	return HV_OK;
+ }

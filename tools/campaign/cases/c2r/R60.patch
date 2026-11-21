@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -234,7 +234,7 @@
+ 				}
+ #endif
+ 				rc = hv_stage2_add_regions(&mmio);
+-				if (rc != HV_OK) {
++				if (rc == HV_OK) {
+ 					(void)hv_smmu_revoke_dma_access(
+ 						g->streamid);
+ 				}

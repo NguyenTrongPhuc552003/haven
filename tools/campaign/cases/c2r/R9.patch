@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -194,7 +194,7 @@
+ 	{
+ 		hv_status_t rc = validate_new_regions(
+ 			cfg->partition_id, cfg->regions, cfg->region_count);
+-		if (rc != HV_OK) {
++		if (rc == HV_OK) {
+ 			return rc;
+ 		}
+ 	}

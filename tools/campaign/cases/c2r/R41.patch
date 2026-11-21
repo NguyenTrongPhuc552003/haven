@@ -1,0 +1,11 @@
+--- a/src/core/irq/ownership.c
++++ b/src/core/irq/ownership.c
+@@ -38,7 +38,7 @@
+ 	hv_u32 j;
+ 
+ 	for (i = 0U; i < HV_MAX_IRQ_ID; ++i) {
+-		irq_owner_map[i] = 0U;
++		irq_owner_map[i] = 1U;
+ 		irq_target_cpu_map[i] = 0U;
+ 	}
+ 	for (i = 0U; i < HV_MAX_PPI_CPU; ++i) {

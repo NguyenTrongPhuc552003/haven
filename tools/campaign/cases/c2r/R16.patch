@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -11,7 +11,7 @@
+ 
+ #define HV_MAX_PARTITIONS 256U
+ #define HV_MAX_PARTITION_REGIONS 64U
+-#define HV_STAGE2_PAGE_SIZE 0x1000ULL
++#define HV_STAGE2_PAGE_SIZE 0x2000ULL
+ #define HV_STAGE2_PAGE_MASK (HV_STAGE2_PAGE_SIZE - 1ULL)
+ 
+ static hv_u8 stage2_partition_mapped[HV_MAX_PARTITIONS];
