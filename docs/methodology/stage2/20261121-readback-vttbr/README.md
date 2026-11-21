@@ -114,3 +114,38 @@ is recorded as a prediction error (the design misread the case), and
 v15's CPU check is tested instead by a case whose wrong VTTBR_EL2 lasts
 (a change in the vCPU context, written as its own case with the owner's
 approval, like any C2 case).
+
+## Results (2026-11-21)
+
+All runs: `campaign.yml` at `0c6d755` (the merge of #170), QEMU 10.0.13
+in `debian:trixie`; `SHA256SUMS-V15` holds there (64 files, all OK) [F].
+
+| Row | Run | Result |
+| - | - | - |
+| V1 | `test_cpu_stage2.py` | 8 tests pass (#169) [F] |
+| V6 | `w09-repeat.json`, five shards | all five: M1 to M3 pass, **M4 finding**, **M6 finding** `CPU 2: CPU stage-2 drift`, on both CPU models; no disagreement [F] |
+| V2 | baseline and controls (C2-BASELINE, W35, W36, v3's C6 and C7), in the written run | M6 `matches the grant` on both CPU models; every verdict as recorded [F] |
+| V3 | C2-W09, in the written run | M6 pass before, **finding now**: `CPU 2: CPU stage-2 drift` on both CPU models; holds [F] |
+| V4 | the other 39 written cases and the 4 corrected cases | the same verdict as the recorded runs for every case and method; the written run's disagreements are the recorded ones (W03, W07, W12, W23 do not build; W08 halts before stage-2 setup) [F] |
+| V5 | M6 run time (`score.py`) | written set: median 0.9 s before, 1.2 s now; corrected set: 0.8 s, 0.9 s; grows by under 1 s; holds [F] |
+
+Recorded runs compared: the written run of 2026-11-21 06:57 UTC at
+`54e3bd9` and the corrected run at `bd5822e` (RESULTS-C2.md).
+
+**Correction to the section above (and #168).** W09 is not an
+equivalent mutant: the five V6 runs and V3 show CPU 2 on partition 1's
+tables, and partition B's check fails. The Mac run that suggested
+otherwise tested the unchanged tree: its build directory was configured
+from the repository, not from the patched copy (`CMakeCache.txt`
+`CMAKE_HOME_DIRECTORY`), and the copy's `src/core/partition.c:416` still
+reads `hv_arch_stage2_enable(PARTITION_B_ID, PARTITION_B_ID)` [F]. The
+inference from `context.S` was built on that run and is withdrawn; why
+the world switch does not restore CPU 2's VTTBR_EL2 is not examined here
+[I]. QEMU 11.1 was not the cause. Lesson for the method: a local
+sanity run of a case goes through `run_case.py` (which exports, patches
+and builds one tree), never a hand-made build.
+
+With v15, read-back detects W09; the blind spot named in RESULTS-C2.md
+(E5) is closed for CPU-ASSIGN faults whose wrong VTTBR_EL2 is still
+loaded when read-back pauses the machine [F for W09, I in general]. C2's
+prediction count becomes 179 of 180 under v15 (W08 alone) [F].
