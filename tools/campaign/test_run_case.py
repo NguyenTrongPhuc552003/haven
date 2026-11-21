@@ -67,6 +67,21 @@ class ReadbackVerdict(unittest.TestCase):
 
 
 class Evidence(unittest.TestCase):
+    def test_heldout_quotes_no_log(self):
+        """Row K7e: a held-out case's evidence holds no line of its logs."""
+        with tempfile.TemporaryDirectory() as d:
+            log = os.path.join(d, "build.log")
+            with open(log, "w") as f:
+                f.write("src/core/partition.c:2: error\nint secret_patch_text = ;\n")
+            try:
+                run_case.set_quoting("heldout")
+                self.assertEqual(run_case.tail(log), [])
+                self.assertNotIn("secret_patch_text", run_case.m6_verdict(1, None, log)[1])
+                run_case.set_quoting("written")
+                self.assertIn("int secret_patch_text = ;", run_case.tail(log))
+            finally:
+                run_case.set_quoting("written")
+
     def test_printed_except_heldout(self):
         case = {"source": "written", "methods": {
             "M1": {"verdict": "pass", "evidence": ["ctest exit 0"]},

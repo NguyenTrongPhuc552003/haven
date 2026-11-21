@@ -28,7 +28,8 @@ or error (the method could not judge: a probe failure, a timeout).
 The job log gets the case id, each method's verdict and, for written and
 random cases, the evidence of each finding or error; build logs and UART
 logs go to OUT/CASE/, and the patch is never echoed (held-out cases print
-verdicts only and stay sealed until the results record).
+verdicts only and stay sealed until the results record; their evidence
+quotes no log line, row K7e of c3/README.md).
 
 Usage: run_case.py --case ID --class CLS --source written|random|heldout
                    --grant GRANT [--patch FILE] [--repo DIR] OUT
@@ -120,7 +121,19 @@ def failed_tests(ctest_output):
     return names
 
 
+# held-out cases quote no log lines: a failed build's log can quote the
+# patch (c3/README.md, row K7e); run() sets this from the case's source
+QUOTE_LOGS = True
+
+
+def set_quoting(source):
+    global QUOTE_LOGS
+    QUOTE_LOGS = source != "heldout"
+
+
 def tail(path, n=5):
+    if not QUOTE_LOGS:
+        return []
     try:
         with open(path) as f:
             return [x.rstrip() for x in f.readlines()[-n:] if x.strip()]
@@ -217,6 +230,7 @@ def evidence_lines(case):
 
 
 def run(args):
+    set_quoting(args.source)
     repo = os.path.abspath(args.repo)
     out = os.path.abspath(args.out)
     cdir = os.path.join(out, args.case)
