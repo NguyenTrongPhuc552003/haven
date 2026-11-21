@@ -114,7 +114,7 @@ linux2`, `run_shard.py` (both case jobs), a `run-linux2` job in
 ## First run (2026-11-22): S2 fails on M6, a design error
 
 `campaign.yml`, `scenario=linux2`, `s2-linux2.json`, eight shards, at
-`54dfb5b` (the merge of #185), on the pinned QEMU 8.2.2 [F]. Every case
+`0e44f90` (the merge of #185), on the pinned QEMU 8.2.2 [F]. Every case
 ran; scenario 1 on `k3-k4.json` at the same commit still passes (the
 case jobs now go through `run_shard.py`).
 
