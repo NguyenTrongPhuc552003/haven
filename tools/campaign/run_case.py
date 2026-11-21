@@ -21,6 +21,9 @@ the patch (if any) is applied there, and the methods run on that copy:
   M7  read-back through the EL3 dump: not wired yet (it needs the TF-A boot
       profile; a later C1 step), so n/a
 
+Scenario 2 (--scenario linux2, s2/README.md; linux2.py) replaces M2, M4, M5
+and M6 with the Linux-in-A runs; M1 and M3 are shared.
+
 M2, M4 and M6 run on every CPU model (cortex-a72 and max); a method has a
 finding when any CPU has one. Each method's verdict is pass, finding, n/a
 or error (the method could not judge: a probe failure, a timeout).
@@ -240,24 +243,16 @@ def run(args):
         if args.patch and not apply_patch(src, os.path.abspath(args.patch), os.path.join(cdir, "patch.log")):
             raise SystemExit(f"{args.case}: the patch does not apply")
         grant = os.path.abspath(args.grant)
-        built = sh("cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build",
-                   src, os.path.join(cdir, "build.log")) == 0
-        psci = sh("cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci && cmake --build build-psci",
-                  src, os.path.join(cdir, "build-psci.log")) == 0
-        methods = {
-            "M1": m1(src, cdir),
-            "M2": m2(src, cdir, built),
-            "M3": m3(grant),
-            "M4": m4(src, cdir, psci),
-            "M5": {"verdict": "n/a", "evidence": ["no Linux partition in this case"]},
-            "M6": m6(src, cdir, grant, psci),
-            "M7": {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]},
-        }
+        if args.scenario == "linux2":
+            methods = linux2_methods(args, src, cdir, grant)
+        else:
+            methods = boot_methods(src, cdir, grant)
     finally:
         shutil.rmtree(src, ignore_errors=True)
     commit = subprocess.run(["git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
     case = {"schema": SCHEMA, "case": args.case, "source": args.source, "class": args.cls,
-            "equivalent": False, "haven_commit": commit, "patched": bool(args.patch), "methods": methods}
+            "scenario": args.scenario, "equivalent": False, "haven_commit": commit, "patched": bool(args.patch),
+            "methods": methods}
     with open(os.path.join(out, f"{args.case}.json"), "w") as f:
         json.dump(case, f, indent=1)
         f.write("\n")
@@ -265,6 +260,33 @@ def run(args):
     for line in evidence_lines(case):
         print("  " + line)
     return case
+
+
+def boot_methods(src, cdir, grant):
+    """Scenario 1: one boot of the bare test guests, both CPU models."""
+    built = sh("cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build",
+               src, os.path.join(cdir, "build.log")) == 0
+    psci = sh("cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci && cmake --build build-psci",
+              src, os.path.join(cdir, "build-psci.log")) == 0
+    return {
+        "M1": m1(src, cdir),
+        "M2": m2(src, cdir, built),
+        "M3": m3(grant),
+        "M4": m4(src, cdir, psci),
+        "M5": {"verdict": "n/a", "evidence": ["no Linux partition in this case"]},
+        "M6": m6(src, cdir, grant, psci),
+        "M7": {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]},
+    }
+
+
+def linux2_methods(args, src, cdir, grant):
+    """Scenario 2 (s2/README.md): Linux in partition A with two vCPUs."""
+    import linux2
+    methods = {"M1": m1(src, cdir), "M3": m3(grant)}
+    methods.update(linux2.methods(src, cdir, os.path.abspath(args.image), os.path.abspath(args.kdal),
+                                  os.path.abspath(args.ko), m6_verdict))
+    methods["M7"] = {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]}
+    return {m: methods[m] for m in ("M1", "M2", "M3", "M4", "M5", "M6", "M7")}
 
 
 def main(argv=None):
@@ -275,8 +297,16 @@ def main(argv=None):
     ap.add_argument("--grant", required=True)
     ap.add_argument("--patch")
     ap.add_argument("--repo", default=os.path.join(HERE, "..", ".."))
+    ap.add_argument("--scenario", choices=["boot", "linux2"], default="boot",
+                    help="boot: scenario 1; linux2: Linux in A with two vCPUs (needs --image, --kdal, --ko)")
+    ap.add_argument("--image", help="linux2: the SDK kernel Image")
+    ap.add_argument("--kdal", help="linux2: KDAL's source tree (scripts/ci/mkcpio.py)")
+    ap.add_argument("--ko", help="linux2: kdal.ko built against the SDK kernel")
     ap.add_argument("out")
-    run(ap.parse_args(argv))
+    args = ap.parse_args(argv)
+    if args.scenario == "linux2" and not (args.image and args.kdal and args.ko):
+        ap.error("--scenario linux2 needs --image, --kdal and --ko")
+    run(args)
     return 0
 
 

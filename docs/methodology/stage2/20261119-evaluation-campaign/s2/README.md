@@ -94,3 +94,19 @@ change to the SDK's init; a later step if S3 shows the vCPU paths matter.
   every Linux run so far; scenario 1 keeps both CPU models.
 - **S2's control** is the unchanged tree three times; the cases file is
   `tools/campaign/cases/s2-linux2.json`.
+
+## M5's baseline (correction before any run, 2026-11-22)
+
+Writing S1's test showed that the unchanged setup's demand check already
+reports two findings [F, on `runs-smp3/H1/uart.log`]: KDAL's GPIO driver
+demands `0x9030000` and INTID 39, which `grant-smp-v12.json` does not
+give partition A. So "M5 passes on the control" (row S2) holds only
+against a baseline: M5's verdict in scenario 2 is a finding when the
+demand check's findings differ from those two (`linux2.KNOWN_DEMAND`),
+either way. The two findings are a property of the setup (the test
+device tree offers a GPIO the grant leaves out), recorded here.
+
+Implementation: `tools/campaign/linux2.py`, `run_case.py --scenario
+linux2`, `run_shard.py` (both case jobs), a `run-linux2` job in
+`campaign.yml` (input `scenario`), the cases file `s2-linux2.json`; S1:
+`test_linux2.py`, 9 tests.
