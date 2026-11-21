@@ -98,23 +98,48 @@ exit codes only in their evidence, as its own change with its own row.
   them: the logs carry verdicts only. Only the owner and collaborators can
   dispatch workflows.
 
-## For the owner [?]
+## For the owner [?] (superseded 2026-11-22)
 
-When K7 holds, the owner's part of C3 (about 5 minutes per case;
-`../../20261102-a1-cases-v3/HELDOUT-GUIDE.md` is still the map of where
-enforcement lives, its run commands are replaced by these):
+The steps that stood here used folders outside the workspace (`~`); the
+owner ruled that nothing outside `workspace/` is touched, and the
+section below replaces them. `seal.py` takes any folder, so a sealed run,
+if ever wanted, uses one under `workspace/.work/`.
 
-```sh
-mkdir -p ~/thesis-heldout-c3 && cd ~/Documents/workspace/haven
-# per case: edit, then
-git diff > ~/thesis-heldout-c3/H1.patch && git checkout -- .
-printf '{"class": "S2-PERM"}\n' > ~/thesis-heldout-c3/H1.json
-# when all (8 or more) are written:
-python3 tools/campaign/seal.py ~/thesis-heldout-c3 --build-check
-gh secret set HELDOUT_ARCHIVE_B64 -R NguyenTrongPhuc552003/haven < ~/thesis-heldout-c3.b64
-```
+## Owner decision (2026-11-22): historical faults instead of held-out cases
 
-then send Claude the printed hash and count.
+The owner left C3 to Claude ("please do those in yourself"). Cases
+Claude writes cannot be held out from Claude, the author of read-back,
+so the held-out slot is filled instead by **historical faults**: real
+defects of HAVEN's enforcement code, put back by reverting their fixes.
+Neither the owner nor Claude chooses them; a rule picks them, fixed here
+before any is extracted or run [P, delegated]:
+
+1. Every non-merge commit on `main` up to `f1da2b1` whose subject starts
+   with `fix:` and that changes the 11 enforcement files of
+   `taxonomy.json` (`mutate.py`'s default list): 14 commits [F].
+2. Commits changing more than 100 lines in those files are left out as
+   rewrites, not single faults (`7ec513e`, 638 lines; `4f0d9ea`, 137) [F].
+3. Each case is the reverse of its commit's diff, limited to the 11 files,
+   applied to the tree at the run's commit (`git apply`, then
+   `git apply -3`); one that does not apply is counted as "code moved"
+   and dropped, as the random draw drops mutants that do not build.
+4. Classes are named from the reverse diffs before the run; cases are
+   blind (no per-case expectations), source `historical`, reported apart
+   from written, random and held-out cases (design item 5).
+
+**Threat to validity [I].** Claude wrote most of these fixes, so Claude
+knows the faults; this set is independent of the choice of cases (a
+rule picks them, and the faults were real, not invented for the
+campaign), not of the author's knowledge. The held-out property the C0
+design wanted is therefore **not met**; it is stated as a limit of the
+evaluation. The sealed channel stays in the repository, tested (K7), for
+a reviewer or the owner to use later.
+
+| Row | Check | Expected |
+| - | - | - |
+| H1 | extraction (`tools/campaign/history.py`) | 12 commits; each gives a patch or "code moved"; the list and every patch committed with their classes before the run |
+| H2 | the run (`campaign.yml`, the cases file `historical.json`) | every case a verdict per method; cases that do not build counted apart |
+| H3 | read-back's share | no prediction per case; the record names, for every case read-back misses, a cause (E5) |
 
 ## Also found: C2's random cases were not drawn [F]
 

@@ -1,5 +1,10 @@
 # Writing held-out cases for A1 case set v3
 
+**Note (2026-11-22):** historical guide of case set v3. Its folders
+outside the workspace (`~`) are not to be used (owner); the campaign's
+held-out slot is now filled as `../20261119-evaluation-campaign/c3/README.md`
+describes.
+
 A held-out case is a fault that you choose and Claude does not see until it
 has been run. It is the one part of the evaluation that the tool's author
 cannot tune for, so Claude does not propose concrete faults here: anything

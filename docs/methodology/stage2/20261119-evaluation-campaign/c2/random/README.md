@@ -300,3 +300,23 @@ is a blind spot (E5). (2) A second scenario for the campaign (two vCPUs
 in A, a CPU_OFF, a failed mapping) would exercise the "not exercised"
 code; it changes the campaign's design, so it is a proposal for the
 owner, not done here.
+
+## R15 and R41: why read-back passes them (2026-11-22)
+
+Both are "not exercised" in the sense of D5, not read-back blind spots:
+
+- **R15** (`hv_smmu_allocate_streamid` skips slot 0): the function has
+  no caller in `src/`, `drivers/` or `arch/`; only the unit tests
+  `test_smmu_dma` and `test_smmu_hardware` call it [F, `git grep`]. The
+  boot binds streams by their hardware IDs (`hv_smmu_assign_streamid`
+  in `apply_dma_grants`), so no enforced state can differ.
+- **R41** (`irq_owner_map` starts as "owned by 1" instead of "free"):
+  every SPI the grant assigns is partition 1's on CPU 0
+  (`part_a_irqs`; partition B's only interrupt is a PPI, kept apart), so
+  the boot's assignments pass the ownership checks either way and the GIC
+  ends up as granted [F, `partition.c`]. The fault would show only when a
+  second partition claims an SPI, which this grant never does [I]. The
+  unit tests do, and fail.
+
+So M1 finds both because the unit tests run code or inputs the boot
+scenario lacks. They join the "not exercised" kind.
