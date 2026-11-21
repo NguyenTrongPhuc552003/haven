@@ -148,3 +148,16 @@ written and random cases unchanged.
 | Row | Check | Expected |
 | - | - | - |
 | K7e | the change's unit test, then K7c again (`TEST-SHA256`) | the unit test: a held-out case's evidence has no log line; K7c: the same verdicts, the marker 0 times in the logs **and** the artifacts |
+
+## K7e result (2026-11-21)
+
+The change merged as #175; K7c again at `f0a5973` [F]: T1 and T2 with
+the same verdicts as before, no disagreement; T2's M1 evidence is now
+`host-tests build exit 1` alone; the marker appears 0 times in the log
+and 0 times in the artifacts (`T1.json`, `T2.json`, the report). K7e
+holds.
+
+**K7 holds, so step C1 is complete.** The sealed channel is ready for
+the owner's cases (section "For the owner" above). Until the owner's
+hash is committed as `c3/HELDOUT-SHA256`, no sealed run with
+`sealed_source=secret` can start.
