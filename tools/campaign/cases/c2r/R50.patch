@@ -1,0 +1,11 @@
+--- a/drivers/pci/ecam.c
++++ b/drivers/pci/ecam.c
+@@ -70,7 +70,7 @@
+ 		hi = cfg_read(cfg, off + 4U);
+ 	}
+ 	size = ~(((uint64_t)hi << 32) | lo) + 1U;
+-	if (lo == 0U || size > max_size || (addr & (size - 1U)) != 0U ||
++	if (lo == 0U || size >= max_size || (addr & (size - 1U)) != 0U ||
+ 	    (!is64 && (addr >> 32) != 0U)) {
+ 		cfg_write(cfg, off, orig);
+ 		return HV_EINVAL;

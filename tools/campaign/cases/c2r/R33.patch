@@ -1,0 +1,11 @@
+--- a/arch/arm64/irq.c
++++ b/arch/arm64/irq.c
+@@ -371,7 +371,7 @@
+ 	if (m == 0xffffffffU)
+ 		return; /* not in the CPU map */
+ 	v = (((m >> 32) & 0xffU) << 48) | (((m >> 16) & 0xffU) << 32) |
+-	    ((aff0 / 16U) << 44) | ((uint64_t)HV_IPI_SGI << 24) |
++	    ((aff0 / 16U) << 45) | ((uint64_t)HV_IPI_SGI << 24) |
+ 	    (((m >> 8) & 0xffU) << 16) | (1ULL << (aff0 % 16U));
+ 	/* ICC_SGI1R_EL1 */
+ 	__asm__ volatile("dsb ish\n\tmsr S3_0_C12_C11_5, %0\n\tisb"

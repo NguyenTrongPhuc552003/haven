@@ -1,0 +1,11 @@
+--- a/arch/arm64/mm.c
++++ b/arch/arm64/mm.c
+@@ -272,7 +272,7 @@
+ {
+ 	hv_status_t rc;
+ 
+-	if (sid >= HV_ARCH_MAX_DMA_STREAMS || vttbr == NULL || size == 0 ||
++	if (sid >= HV_ARCH_MAX_DMA_STREAMS || vttbr == NULL || size != 0 ||
+ 	    access == 0 || access > 3U)
+ 		return HV_EINVAL;
+ 	if ((iova & (HV_PAGE_SIZE - 1)) || (pa & (HV_PAGE_SIZE - 1)) ||

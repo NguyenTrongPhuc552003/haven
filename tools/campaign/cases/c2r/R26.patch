@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -852,7 +852,7 @@
+ 	hv_printk("HAVEN: budgets set  A=%ums/%ums  B=%ums/%ums\n",
+ 		  (unsigned)(part_a_budget.budget_ns / 1000000U),
+ 		  (unsigned)(part_a_budget.period_ns / 1000000U),
+-		  (unsigned)(part_b_budget.budget_ns / 1000000U),
++		  (unsigned)(part_b_budget.budget_ns / 1000001U),
+ 		  (unsigned)(part_b_budget.period_ns / 1000000U));
+ #endif
+ 

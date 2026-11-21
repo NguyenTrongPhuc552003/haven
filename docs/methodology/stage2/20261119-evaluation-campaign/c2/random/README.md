@@ -26,7 +26,7 @@ written cases, a gap found on 2026-11-21 (`../../c3/README.md`).
   case; a mutant outside every class is named `OUTSIDE` and counted
   apart), writes `tools/campaign/cases/c2-random.json` (source `random`,
   no expectations: the cases are blind), and freezes the patches, the
-  cases file and the tools as `c2/freeze/SHA256SUMS-C2R`.
+  cases file and the tools as `c2/freeze/SHA256SUMS-C2-random`.
 - **The run.** `campaign.yml` on `c2-random.json`, eight shards.
 
 ## Expectations
@@ -55,3 +55,98 @@ R3 crashed read-back. Four cases are too few to predict a rate [I].
 - Single-point mutants are not the faults a developer makes (they are
   small and syntactic); the written and held-out sets cover the other
   kind. The three sets are reported apart (design item 5).
+
+## The draw (2026-11-21)
+
+`campaign-draw.yml` at `f1da2b1fcfafcd7689757f28ae6348cb51e7b5e9` (the
+merge of #177), twice, in parallel [F]:
+
+| Row | Result |
+| - | - |
+| D1 | seed text `haven f1da2b1fcfafcd7689757f28ae6348cb51e7b5e9 \| campaign C2 random, 60 cases`; 1,375 mutants, 60 kept, 9 skipped (did not build); `draw.json` here. Not near 1,062: the 11 files grew by 912 lines since `e47b722` (`git diff --stat`), so the row's condition did not hold; the count is explained, not a defect |
+| D2 | the second draw's `draw.json` and all 60 patches are byte-identical to the first; holds |
+
+The patches are `tools/campaign/cases/c2r/R1.patch` to `R60.patch`.
+
+## Classes, named before the run (row D3)
+
+Each class names the enforcement the changed line serves, read from the
+diff and its function at `f1da2b1` (Claude's reading; see the threats
+above). "Error path", "teardown path" and "park path" mark code a clean
+boot may never run, so those cases are candidates for equivalence. A
+BAR placement fault is S2-EXTENT, as P1 is (owner, 2026-11-21).
+
+| Case | Where | Mutation | Class | What it touches |
+| - | - | - | - | - |
+| R1 | `src/core/mm/stage2.c:226` | `comparison != -> ==` | S2-MISSING | map loop: success taken as failure |
+| R2 | `src/core/partition.c:159` | `bitwise \| -> &` | S2-PERM | A's DMA config page attributes, Device and read-only |
+| R3 | `drivers/irqchip/gic_v3.c:62` | `delete call: gicd_wait_rwp(gic.gicd_base);` | GIC-GROUP | no wait after the distributor is disabled for setup |
+| R4 | `src/core/partition.c:544` | `comparison == -> !=` | CPU-ASSIGN | which CPUs are partition A's |
+| R5 | `drivers/iommu/smmu_v3.c:196` | `comparison < -> <=` | SMMU-UNBOUND | command-queue sync loop one past |
+| R6 | `arch/arm64/irq.c:558` | `comparison < -> <=` | GIC-ENABLE | pending virtual interrupts loop one past |
+| R7 | `src/core/partition.c:551` | `constant 0 -> 1` | CPU-ASSIGN | vCPU lookup for A's first CPU |
+| R8 | `src/core/mm/stage2.c:336` | `delete call: hv_arch_stage2_flush_tlb();` | S2-EXTRA | teardown: no TLB flush after unmap (teardown path) |
+| R9 | `src/core/mm/stage2.c:197` | `comparison != -> ==` | S2-MISSING | map: return code check inverted |
+| R10 | `drivers/iommu/smmu_v3.c:302` | `delete call: ste_write_abort(i);` | SMMU-TAG | streams not set to abort at init |
+| R11 | `src/core/irq/ownership.c:81` | `constant 0U -> 1U` | GIC-ROUTE | interrupt ownership: unowned test |
+| R12 | `drivers/irqchip/gic_v3.c:204` | `comparison < -> <=` | GIC-ENABLE | enable: SPI 32 refused |
+| R13 | `src/core/irq/ownership.c:101` | `comparison != -> ==` | GIC-ROUTE | interrupt ownership: conflict test inverted |
+| R14 | `src/core/partition.c:423` | `delete call: hv_arch_set_cpu_partition(hv_arch_cpu_id(), 0U);` | CPU-ASSIGN | a parked CPU keeps its partition (park path) |
+| R15 | `src/core/dma/smmu.c:110` | `constant 0 -> 1` | SMMU-UNBOUND | stream ID allocation skips slot 0 |
+| R16 | `src/core/mm/stage2.c:14` | `constant 0x1000ULL -> 0x2000ULL` | S2-EXTENT | stage-2 page size 8 KiB |
+| R17 | `drivers/iommu/smmu_v3.c:436` | `delete call: hv_printk("HAVEN: SMMU events so far: %u\n", (unsigned)n);` | OUTSIDE | an SMMU event log line deleted |
+| R18 | `arch/arm64/irq.c:406` | `comparison >= -> >` | CPU-ASSIGN | stop-CPU bound check (error path) |
+| R19 | `drivers/irqchip/gic_v3.c:72` | `constant 1 -> 2` | GIC-GROUP | SPIs 32 to 63 left out of Group 1 |
+| R20 | `arch/arm64/irq.c:414` | `constant 0 -> 1` | CPU-ASSIGN | stop-CPU return value |
+| R21 | `drivers/iommu/smmu_v3.c:53` | `constant 1U -> 2U` | SMMU-UNBOUND | command queue size doubled |
+| R22 | `src/core/dma/smmu.c:272` | `constant 1 -> 2` | SMMU-UNBOUND | DMA window's configured flag value |
+| R23 | `drivers/iommu/smmu_v3.c:95` | `constant 1 -> 2` | SMMU-TAG | abort STE: words after the first not cleared |
+| R24 | `src/core/mm/stage2.c:228` | `constant 0U -> 1U` | S2-EXTRA | rollback skips region 0 (error path) |
+| R25 | `src/platform/qemu-virt/memory.h:35` | `constant 0x20000000UL -> 0x20001000UL` | S2-EXTENT | partition A's RAM 4 KiB larger |
+| R26 | `src/core/partition.c:855` | `constant 1000000U -> 1000001U` | OUTSIDE | a budget print's divisor |
+| R27 | `src/platform/qemu-virt/memory.h:28` | `constant 0x80000000UL -> 0x80001000UL` | EL2-MAP | HAVEN's load address 4 KiB higher |
+| R28 | `arch/arm64/mm.c:346` | `delete call: dsb_ish();` | S2-EXTRA | no barrier before the stage-2 TLB flush |
+| R29 | `src/core/mm/stage2.c:329` | `comparison < -> <=` | S2-EXTRA | teardown: unmap loop one past (teardown path) |
+| R30 | `src/core/dma/smmu.c:320` | `comparison >= -> >` | SMMU-UNBOUND | device lookup bound check |
+| R31 | `drivers/pci/ecam.c:70` | `constant 4U -> 5U` | S2-EXTENT | BAR placement: upper half read 1 byte off |
+| R32 | `arch/arm64/mm.c:284` | `comparison == -> !=` | SMMU-UNBOUND | DMA root allocation test inverted |
+| R33 | `arch/arm64/irq.c:374` | `constant 44 -> 45` | GIC-ROUTE | IPI target affinity field shifted |
+| R34 | `drivers/irqchip/gic_v3.c:216` | `constant 32 -> 33` | GIC-ENABLE | disable: bit index modulo 33 |
+| R35 | `src/core/dma/smmu.c:257` | `delete call: dma_vmid_put(vmid);` | SMMU-TAG | VMID not released on error (error path) |
+| R36 | `src/core/partition.c:875` | `constant 2 -> 3` | OUTSIDE | a message names CPU 3 |
+| R37 | `src/core/irq/ownership.c:117` | `comparison == -> !=` | GIC-ROUTE | interrupt target: invalid-CPU test inverted |
+| R38 | `arch/arm64/irq.c:497` | `constant 16U -> 17U` | GIC-PPI | physical interrupt: INTID 16 not taken as a PPI |
+| R39 | `src/core/partition.c:716` | `comparison != -> ==` | GIC-ENABLE | virtual GIC setup: result test inverted |
+| R40 | `arch/arm64/irq.c:431` | `constant 0U -> 1U` | GIC-ROUTE | cross-CPU requests: count starts at 1 |
+| R41 | `src/core/irq/ownership.c:41` | `constant 0U -> 1U` | GIC-ROUTE | interrupt owner map starts owned |
+| R42 | `src/core/partition.c:862` | `delete call: hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);` | CPU-ASSIGN | partition A's stage 2 never enabled |
+| R43 | `drivers/pci/ecam.c:60` | `logic && -> \|\|` | S2-EXTENT | BAR placement: 64-bit test |
+| R44 | `drivers/iommu/smmu_v3.c:385` | `bitwise & -> \|` | OUTSIDE | SMMU event interrupt: acknowledgement test |
+| R45 | `drivers/iommu/smmu_v3.c:490` | `comparison >= -> >` | SMMU-TAG | set-abort bound check |
+| R46 | `arch/arm64/mm.c:275` | `comparison >= -> >` | SMMU-UNBOUND | DMA map: stream bound check |
+| R47 | `drivers/iommu/smmu_v3.c:348` | `constant 0 -> 1` | OUTSIDE | SMMU event queue producer starts at 1 |
+| R48 | `arch/arm64/irq.c:375` | `constant 8 -> 9` | GIC-ROUTE | IPI target affinity field |
+| R49 | `drivers/irqchip/gic_v3.c:125` | `constant 0 -> 1` | GIC-PRIO | redistributor priority register 0 not written |
+| R50 | `drivers/pci/ecam.c:73` | `comparison > -> >=` | S2-EXTENT | BAR placement: size bound |
+| R51 | `drivers/irqchip/gic_v3.c:76` | `comparison < -> <=` | GIC-ENABLE | distributor: disable loop one past |
+| R52 | `src/platform/qemu-virt/memory.h:15` | `constant 0x08000000UL -> 0x8001000UL` | EL2-MAP | GIC distributor base address |
+| R53 | `src/core/partition.c:650` | `constant 0 -> 1` | CPU-ASSIGN | vCPU off: index test |
+| R54 | `arch/arm64/mm.c:275` | `comparison == -> !=` | SMMU-UNBOUND | DMA map: size test inverted |
+| R55 | `arch/arm64/irq.c:413` | `constant 1 -> 2` | CPU-ASSIGN | stop-CPU return value |
+| R56 | `src/core/partition.c:727` | `constant 1U -> 2U` | GIC-ENABLE | virtual GIC setup skips vCPU 1 |
+| R57 | `src/core/mm/stage2.c:58` | `comparison < -> <=` | S2-EXTENT | range containment test |
+| R58 | `src/core/mm/stage2.c:94` | `constant 0U -> 1U` | S2-MISSING | stage-2 init skips partition 0 |
+| R59 | `src/core/mm/stage2.c:228` | `comparison < -> <=` | S2-EXTRA | rollback one past (error path) |
+| R60 | `src/core/partition.c:237` | `comparison != -> ==` | SMMU-UNBOUND | DMA grants: return code check inverted |
+
+Per class: SMMU-UNBOUND 9, CPU-ASSIGN 8, GIC-ROUTE 7, GIC-ENABLE 6, S2-EXTENT 6, OUTSIDE 5, S2-EXTRA 5, SMMU-TAG 4, S2-MISSING 3, EL2-MAP 2, GIC-GROUP 2, GIC-PPI 1, GIC-PRIO 1, S2-PERM 1.
+
+No random mutant fell in S2-TYPE, S2-OWNER, SMMU-EXTENT, SMMU-PERM or
+EL2-TIMER; those classes rest on the written and held-out cases. D3
+holds: every mutant has a class or OUTSIDE.
+
+**Freeze.** `../freeze/SHA256SUMS-C2-random` covers the patches, the cases
+file `tools/campaign/cases/c2-random.json`, `draw.json`, this record and
+the tools (the files of `SHA256SUMS-V15` as they are now), before the run.
+The design named it `SHA256SUMS-C2R`; renamed, since on a case-insensitive
+file system (the Mac's) that name is the same file as `SHA256SUMS-C2r`.

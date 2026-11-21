@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -193,7 +193,7 @@
+ 	if (cmdq_wait_space(count + 1U) != 0)
+ 		return HV_EIO;
+ 
+-	for (uint32_t i = 0; i < count; i++)
++	for (uint32_t i = 0; i <= count; i++)
+ 		cmdq_insert(cmds[i][0], cmds[i][1]);
+ 	cmdq_insert(CMDQ_OP_SYNC | CMDQ_SYNC_0_CS_NONE, 0);
+ 	cmdq_publish();

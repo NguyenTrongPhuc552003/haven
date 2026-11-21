@@ -1,0 +1,11 @@
+--- a/src/core/irq/ownership.c
++++ b/src/core/irq/ownership.c
+@@ -114,7 +114,7 @@
+ 		uint64_t mpidr = cpu_to_mpidr(route->target_cpu);
+ 		hv_status_t st;
+ 
+-		if (mpidr == HV_CPU_INVALID) {
++		if (mpidr != HV_CPU_INVALID) {
+ 			return HV_EINVAL; /* no such CPU on this platform */
+ 		}
+ 		st = gic_v3_route_irq(route->irq_id, mpidr);

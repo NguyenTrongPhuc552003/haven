@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -225,7 +225,7 @@
+ 						     (hv_u32)region->attrs);
+ 			if (arch_rc != HV_OK) {
+ 				hv_u32 rollback_i;
+-				for (rollback_i = 0U; rollback_i < i;
++				for (rollback_i = 0U; rollback_i <= i;
+ 				     ++rollback_i) {
+ 					const struct hv_mem_region *mapped =
+ 						&cfg->regions[rollback_i];

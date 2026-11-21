@@ -1,0 +1,11 @@
+--- a/drivers/iommu/smmu_v3.c
++++ b/drivers/iommu/smmu_v3.c
+@@ -50,7 +50,7 @@
+ #define SMMU_MAX_STREAMS 256 /* Linear table size (Haven conservative limit) */
+ 
+ #define SMMU_CMDQ_LOG2 8U /* 256 commands x 16 bytes = 4 KiB */
+-#define SMMU_CMDQ_ENTRIES (1U << SMMU_CMDQ_LOG2)
++#define SMMU_CMDQ_ENTRIES (2U << SMMU_CMDQ_LOG2)
+ #define SMMU_CMDQ_PTR_MASK ((SMMU_CMDQ_ENTRIES << 1) - 1U) /* index + wrap */
+ #define SMMU_CMDQ_IDX_MASK (SMMU_CMDQ_ENTRIES - 1U)
+ 

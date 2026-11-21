@@ -1,0 +1,11 @@
+--- a/arch/arm64/irq.c
++++ b/arch/arm64/irq.c
+@@ -403,7 +403,7 @@
+ 	uint64_t ticks = (read_sysreg(cntfrq_el0) / 1000000U) * timeout_us;
+ 	uint64_t start;
+ 
+-	if (cpu >= HV_ARCH_IRQ_MAX_CPUS)
++	if (cpu > HV_ARCH_IRQ_MAX_CPUS)
+ 		return 0;
+ 	__atomic_fetch_or(&cpu_requests[cpu], HV_REQ_STOP, __ATOMIC_RELEASE);
+ 	send_ipi(cpu);

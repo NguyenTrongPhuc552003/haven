@@ -1,0 +1,11 @@
+--- a/src/core/mm/stage2.c
++++ b/src/core/mm/stage2.c
+@@ -91,7 +91,7 @@
+ {
+ 	hv_u32 i;
+ 
+-	for (i = 0U; i < HV_MAX_PARTITIONS; ++i) {
++	for (i = 1U; i < HV_MAX_PARTITIONS; ++i) {
+ 		stage2_partition_mapped[i] = 0U;
+ 		stage2_partition_region_count[i] = 0U;
+ 	}

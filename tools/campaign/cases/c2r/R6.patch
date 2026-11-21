@@ -1,0 +1,11 @@
+--- a/arch/arm64/irq.c
++++ b/arch/arm64/irq.c
+@@ -555,7 +555,7 @@
+ 	unsigned int i;
+ 	unsigned int n = nr_lrs();
+ 
+-	for (i = 0; i < n; i++) {
++	for (i = 0; i <= n; i++) {
+ 		uint64_t lr = read_ich_lr(i);
+ 		uint64_t state = (lr >> 62) & 0x3ULL;
+ 

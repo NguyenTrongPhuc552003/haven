@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -73,7 +73,7 @@
+ 		gic_write32(gic.gicd_base, GICD_IGROUPR(i), 0xffffffff);
+ 
+ 	/* Disable, clear pending/active for all SPIs */
+-	for (uint32_t i = 1; i < (gic.nr_irqs / 32); i++) {
++	for (uint32_t i = 1; i <= (gic.nr_irqs / 32); i++) {
+ 		gic_write32(gic.gicd_base, GICD_ICENABLER(i), 0xffffffff);
+ 		gic_write32(gic.gicd_base, GICD_ICPENDR(i), 0xffffffff);
+ 		gic_write32(gic.gicd_base, GICD_ICACTIVER(i), 0xffffffff);

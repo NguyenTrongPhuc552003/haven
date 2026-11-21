@@ -1,0 +1,11 @@
+--- a/src/platform/qemu-virt/memory.h
++++ b/src/platform/qemu-virt/memory.h
+@@ -12,7 +12,7 @@
+ #else
+ #define QEMU_CONSOLE_BASE QEMU_UART_BASE
+ #endif
+-#define QEMU_GIC_DIST_BASE 0x08000000UL
++#define QEMU_GIC_DIST_BASE 0x8001000UL
+ #define QEMU_GIC_REDIST_BASE 0x080A0000UL
+ #define QEMU_SMMU_BASE 0x09050000UL /* SMMUv3 for QEMU virt */
+ #define QEMU_TIMER_FREQ 62500000UL /* 62.5 MHz */

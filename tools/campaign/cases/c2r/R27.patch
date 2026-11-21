@@ -1,0 +1,11 @@
+--- a/src/platform/qemu-virt/memory.h
++++ b/src/platform/qemu-virt/memory.h
+@@ -25,7 +25,7 @@
+ /* Haven hypervisor default load address (matches linker HV_LOAD_ADDR).
+  * Haven BSS holds the stage-2 page table pool (~5 MB); reserve 8 MB total
+  * so partition A's PA base starts cleanly above the hypervisor image. */
+-#define HAVEN_LOAD_PA 0x80000000UL
++#define HAVEN_LOAD_PA 0x80001000UL
+ #define HAVEN_SIZE 0x00800000UL /* 8 MB - covers text + BSS stage-2 pool */
+ 
+ /* Partition A (Linux-class): 512 MB

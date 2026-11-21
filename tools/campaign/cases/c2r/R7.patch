@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -548,7 +548,7 @@
+ 
+ struct hv_psci_vcpus *hv_partition_vcpus(hv_u32 cpu)
+ {
+-	return part_a_index(cpu) >= 0 ? &part_a_vcpus : NULL;
++	return part_a_index(cpu) >= 1 ? &part_a_vcpus : NULL;
+ }
+ 
+ /* Runs on the CPU a vCPU is pinned to, after the PSCI CPU_ON HAVEN issued

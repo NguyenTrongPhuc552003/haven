@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -859,7 +859,7 @@
+ #ifdef HAVEN_ARCH_ARM64
+ 	hv_printk("HAVEN: enabling stage-2 for partition A (VMID=%u)\n",
+ 		  PARTITION_A_ID);
+-	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
++
+ 
+ #ifdef PART_B_SIZE
+ 	/* Bring up CPU 2 via PSCI and point it at Haven's secondary spin-loop.

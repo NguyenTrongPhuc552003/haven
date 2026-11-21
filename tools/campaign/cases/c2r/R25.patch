@@ -1,0 +1,11 @@
+--- a/src/platform/qemu-virt/memory.h
++++ b/src/platform/qemu-virt/memory.h
+@@ -32,7 +32,7 @@
+  * PA: [0x80800000, 0xA0800000)  IPA: [0x40000000, 0x60000000) */
+ #define PART_A_IPA_BASE 0x40000000UL
+ #define PART_A_PA_BASE (HAVEN_LOAD_PA + HAVEN_SIZE)
+-#define PART_A_SIZE 0x20000000UL
++#define PART_A_SIZE 0x20001000UL
+ 
+ /* Partition A's UART (PL011 UART0, identity mapped) and its SPI; a plain
+  * decimal so partition.c can also print it. */

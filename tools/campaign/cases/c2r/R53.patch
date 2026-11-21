@@ -1,0 +1,11 @@
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -647,7 +647,7 @@
+  * firmware refused. */
+ void hv_partition_vcpu_off(hv_u32 cpu)
+ {
+-	if (part_a_index(cpu) <= 0)
++	if (part_a_index(cpu) <= 1)
+ 		return;
+ 	hv_arch_set_cpu_partition(cpu, 0U);
+ 	hv_arch_cpu_off_self(cpu);

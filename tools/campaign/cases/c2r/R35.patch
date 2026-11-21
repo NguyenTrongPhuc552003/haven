@@ -1,0 +1,11 @@
+--- a/src/core/dma/smmu.c
++++ b/src/core/dma/smmu.c
+@@ -254,7 +254,7 @@
+ 			(void)smmu_v3_set_ste_abort(streamid);
+ 			(void)hv_arch_dma_context_unmap(streamid, dma_base,
+ 							dma_size);
+-			dma_vmid_put(vmid);
++
+ 			return rc;
+ 		}
+ 	}

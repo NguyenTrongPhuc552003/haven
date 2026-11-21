@@ -1,0 +1,11 @@
+--- a/drivers/irqchip/gic_v3.c
++++ b/drivers/irqchip/gic_v3.c
+@@ -122,7 +122,7 @@
+ 	gic_write32(base, GICR_ISENABLER0, 0x0000ffffU);
+ 
+ 	/* Default priority: Linux-level */
+-	for (uint32_t i = 0; i < 8; i++)
++	for (uint32_t i = 1; i < 8; i++)
+ 		gic_write32(base, GICR_IPRIORITYR(i),
+ 			    GIC_PRIO_LINUX * 0x01010101U);
+ 
