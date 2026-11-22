@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Boot a qemu-psci HAVEN build and check that partition B runs on CPU 2.
 
-Usage: scripts/qemu/partition-b-check.py [build-dir] [cpu] [seconds]
+Usage: scripts/qemu/partition-b-check.py [build-dir] [cpu] [seconds] [--tfa DIR]
   build-dir  directory with haven.bin, guest_a.bin, guest_b.bin, guest_b.elf
              (default: build; configure with -DHAVEN_BOOT_PROFILE=qemu-psci)
   cpu        QEMU CPU model (default: cortex-a72)
   seconds    time limit (default: 30)
+  --tfa DIR  boot through TF-A (DIR has bl1.bin, bl2.bin and bl31.bin, for
+             example tools/el3-readback/'s build); build-dir then holds a
+             qemu-tfa build (docs/methodology/stage2/
+             20261122-firmware-redistributor/, row F0)
 
 Partition B has no UART.  It reports through guest_b_status in its own RAM
 (tests/demos/guest_b_timer.c); this script reads the record over QMP while
@@ -25,6 +29,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 
 PART_B_IPA_BASE = 0x60000000
@@ -105,9 +110,21 @@ def b_checks(log, status):
 
 
 def main():
-    build = sys.argv[1] if len(sys.argv) > 1 else "build"
-    cpu = sys.argv[2] if len(sys.argv) > 2 else "cortex-a72"
-    limit = float(sys.argv[3]) if len(sys.argv) > 3 else 30.0
+    argv = sys.argv[1:]
+    tfa = None
+    if "--tfa" in argv:
+        i = argv.index("--tfa")
+        if i + 1 >= len(argv):
+            print("partition-b-check: --tfa needs a directory")
+            return 2
+        tfa = os.path.abspath(argv[i + 1])
+        del argv[i:i + 2]
+        if not os.path.isfile(os.path.join(tfa, "bl1.bin")):
+            print(f"partition-b-check: no bl1.bin in {tfa}")
+            return 2
+    build = os.path.abspath(argv[0] if len(argv) > 0 else "build")  # QEMU runs in DIR with --tfa
+    cpu = argv[1] if len(argv) > 1 else "cortex-a72"
+    limit = float(argv[2]) if len(argv) > 2 else 30.0
     for f in ("haven.bin", "guest_a.bin", "guest_b.bin"):
         if not os.path.isfile(os.path.join(build, f)):
             print(f"partition-b-check: missing {build}/{f} (build with the qemu-psci profile first)")
@@ -128,16 +145,20 @@ def main():
     uart = os.path.join(out, f"partition-b-{cpu}-uart.log")
     if os.path.exists(uart):
         os.remove(uart)
-    sock = f"/tmp/partb-{os.getpid()}.sock"  # macOS limits socket paths to 104 bytes
+    # TMPDIR, not /tmp: macOS limits socket paths to 104 bytes, so keep it short
+    sock = os.path.join(tempfile.gettempdir(), f"partb-{os.getpid()}.sock")
+    machine = "virt,virtualization=on,gic-version=3,iommu=smmuv3" + (",secure=on" if tfa else "")
+    firmware = ["-bios", os.path.join(tfa, "bl1.bin"), "-semihosting-config", "enable=on,target=native"] if tfa else []
     q = subprocess.Popen([
         "qemu-system-aarch64",
-        "-machine", "virt,virtualization=on,gic-version=3,iommu=smmuv3",
+        "-machine", machine,
         "-cpu", cpu, "-smp", "4", "-m", "2G", "-display", "none", "-monitor", "none", "-nic", "none",
-        "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait",
-        "-device", f"loader,file={build}/haven.bin,addr=0x80000000,force-raw=on,cpu-num=0",
+        "-serial", f"file:{uart}", "-qmp", f"unix:{sock},server,nowait"] + firmware + [
+        # under TF-A, BL31 starts HAVEN at the preloaded address (no cpu-num)
+        "-device", f"loader,file={build}/haven.bin,addr=0x80000000,force-raw=on" + ("" if tfa else ",cpu-num=0"),
         "-device", f"loader,file={build}/guest_a.bin,addr=0x80800000,force-raw=on",
         "-device", f"loader,file={build}/guest_b.bin,addr={PART_B_PA_BASE:#x},force-raw=on",
-    ])
+    ], cwd=tfa)
     status = dict.fromkeys(FIELDS, 0)
     budgets = {}
     log = ""
