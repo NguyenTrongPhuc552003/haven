@@ -18,8 +18,9 @@ the patch (if any) is applied there, and the methods run on that copy:
   M5  demand check: Linux cases only
   M6  read-back through the QEMU monitor (tools/readback/readback.py) of the
       qemu-psci build, the profile the grant describes (amendment 3)
-  M7  read-back through the EL3 dump: not wired yet (it needs the TF-A boot
-      profile; a later C1 step), so n/a
+  M7  read-back through the EL3 dump (m7/README.md): with --tfa DIR (TF-A
+      built with tools/el3-readback/), the qemu-tfa build boots under TF-A
+      and readback.py --el3 reads BL31's dump; without --tfa, n/a
 
 Scenario 2 (--scenario linux2, s2/README.md; linux2.py) replaces M2, M4, M5
 and M6 with the Linux-in-A runs; M1 and M3 are shared.
@@ -246,7 +247,7 @@ def run(args):
         if args.scenario == "linux2":
             methods = linux2_methods(args, src, cdir, grant)
         else:
-            methods = boot_methods(src, cdir, grant)
+            methods = boot_methods(src, cdir, grant, args.tfa)
     finally:
         shutil.rmtree(src, ignore_errors=True)
     commit = subprocess.run(["git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
@@ -262,7 +263,7 @@ def run(args):
     return case
 
 
-def boot_methods(src, cdir, grant):
+def boot_methods(src, cdir, grant, tfa=None):
     """Scenario 1: one boot of the bare test guests, both CPU models."""
     built = sh("cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build",
                src, os.path.join(cdir, "build.log")) == 0
@@ -275,8 +276,33 @@ def boot_methods(src, cdir, grant):
         "M4": m4(src, cdir, psci),
         "M5": {"verdict": "n/a", "evidence": ["no Linux partition in this case"]},
         "M6": m6(src, cdir, grant, psci),
-        "M7": {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]},
+        "M7": m7(src, cdir, grant, tfa),
     }
+
+
+def m7(src, cdir, grant, tfa):
+    """EL3 read-back of the qemu-tfa build under TF-A (m7/README.md)."""
+    if not tfa:
+        return {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]}
+    if sh("cmake --preset arm64-qemu -B build-tfa -DHAVEN_BOOT_PROFILE=qemu-tfa && cmake --build build-tfa",
+          src, os.path.join(cdir, "build-tfa.log")) != 0:
+        return {"verdict": "error", "evidence": ["qemu-tfa build failed: nothing to read"]}
+    out, log = os.path.join(cdir, "m7"), os.path.join(cdir, "m7.log")
+    cmd = [sys.executable, os.path.join(HERE, "..", "readback", "readback.py"), os.path.join(src, "build-tfa"),
+           grant, out, "--tfa", os.path.abspath(tfa), "--el3", "--wait", "40", "--device", DEVICE]
+    start = time.monotonic()
+    with open(log, "w") as f:
+        try:
+            rc = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT, timeout=300).returncode
+        except subprocess.TimeoutExpired:
+            rc = 124
+    try:
+        with open(os.path.join(out, "readback.json")) as f:
+            report = json.load(f)
+    except (OSError, ValueError):
+        report = None
+    v, e = m6_verdict(rc, report, log)
+    return {"verdict": v, "evidence": [e], "seconds": round(time.monotonic() - start, 1)}
 
 
 def linux2_methods(args, src, cdir, grant):
@@ -299,6 +325,7 @@ def main(argv=None):
     ap.add_argument("--repo", default=os.path.join(HERE, "..", ".."))
     ap.add_argument("--scenario", choices=["boot", "linux2"], default="boot",
                     help="boot: scenario 1; linux2: Linux in A with two vCPUs (needs --image, --kdal, --ko)")
+    ap.add_argument("--tfa", help="boot: TF-A release directory with the EL3 read-back service, for M7")
     ap.add_argument("--image", help="linux2: the SDK kernel Image")
     ap.add_argument("--kdal", help="linux2: KDAL's source tree (scripts/ci/mkcpio.py)")
     ap.add_argument("--ko", help="linux2: kdal.ko built against the SDK kernel")

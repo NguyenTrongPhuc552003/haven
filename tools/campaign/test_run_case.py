@@ -67,6 +67,10 @@ class ReadbackVerdict(unittest.TestCase):
 
 
 class Evidence(unittest.TestCase):
+    def test_m7_without_tfa_is_na(self):
+        """M7 runs only with --tfa (m7/README.md)."""
+        self.assertEqual(run_case.m7("unused", "unused", GRANT_V3, None)["verdict"], "n/a")
+
     def test_heldout_quotes_no_log(self):
         """Row K7e: a held-out case's evidence holds no line of its logs."""
         with tempfile.TemporaryDirectory() as d:
