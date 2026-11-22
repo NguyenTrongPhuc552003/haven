@@ -50,3 +50,43 @@ G5 is a prediction that the design does not reach R45 and R46: their
 fault is in a bound that only an out-of-range ID tests, and a valid
 grant cannot hold one. If so they are recorded as reachable only by
 unit tests.
+
+## Implementation (2026-11-22)
+
+[F] What the code does, and what changed from the design before any
+campaign run:
+
+- `HAVEN_CAMPAIGN_GRANT2` (CMake option, off) defines the macro of the
+  same name for the `haven` target; `src/platform/qemu-virt/memory.h`
+  then defines the second device and B's SPI, and `partition.c` adds the
+  second entry of `dma_grants[]` and assigns `part_b_spi`, a separate
+  route (inside `part_b_irqs[]` it changed the context of W30's patch,
+  which then did not apply).
+- The second device: `virtio-rng-pci` at `addr=1f.7` (requester ID 255,
+  stream 255, the last of HAVEN's 256), config page `0x40_100F_F000`,
+  BAR 4 placed at **`0x1001_0000`**, not `0x1000_4000`: next to the
+  first BAR, the two stage-2 mappings coalesce and read-back reports
+  both BAR regions as extent drift (seen once on the Mac). DMA window
+  IPA `[0x5F100000, 0x5F200000)`. B's SPI is INTID 34 (the PL031 RTC).
+- `run_case.py --scenario grant2` builds all three profiles with the
+  option and gives M6 and M7 both devices; `campaign.yml` takes
+  `scenario: grant2`; the cases file is `tools/campaign/cases/s3-grant2.json`
+  (three controls, then the 106 cases of `c4-boot.json`) with
+  `s3/grant-2.json`.
+- Every patch of the 106 cases applies to the grant-2 tree as it does to
+  `main` (103 exactly, W30 exactly after the change above), except
+  `v3-P2.patch`, which applies with fuzz (its trailing context is the end
+  of `dma_grants[]`); the fuzzed result changes the first grant's
+  `mmio_count`, as on `main`.
+
+**G1 holds** [F, on the Mac]: with the option off, `haven.bin` of
+qemu-direct and qemu-psci is byte-identical to `main`'s, given a fixed
+`SOURCE_DATE_EPOCH` (the image carries its build time in the banner, so
+two builds a second apart already differ).
+
+A preview on the Mac (QEMU 11.1.3, not the campaign's QEMU; one CPU model
+each) [O, not the result]: the unchanged tree passes M2, M4 and M6 (both
+streams translated, SPI 34 on CPU 2); H2 is found by M6 (`SID 255 ...
+S2TTB 0x100008001a000`: the VMID's low bit in the table address); R41 by
+M4 and M6 (B's SPI refused, HAVEN stops); R45 and R46 pass M4 and M6.
+The rows are judged on the campaign run.

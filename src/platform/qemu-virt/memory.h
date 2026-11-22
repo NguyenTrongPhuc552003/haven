@@ -93,4 +93,27 @@
 #define PART_A_DMA_PA (PART_A_PA_BASE + 0x1F000000UL)
 #define PART_A_DMA_SIZE 0x100000UL
 
+#ifdef HAVEN_CAMPAIGN_GRANT2
+/* Grant 2 of the evaluation campaign's scenario 3 (a build option, off by
+ * default; docs/methodology/stage2/20261119-evaluation-campaign/s3/):
+ *   a second DMA device for partition A at 00:1f.7, the last requester ID
+ *   of bus 0, so its StreamID 255 is the last one HAVEN's DMA table holds
+ *   (HV_ARCH_MAX_DMA_STREAMS - 1, arch/arm64/mm.c) and its DMA VMID the
+ *   second, 0xC1; config page PA 0x40_100F_F000, memory BAR 4 at PA
+ *   0x1001_0000 (16 KB; not next to the first BAR, or read-back sees the
+ *   two stage-2 mappings as one range), DMA window IPA [0x5F100000,
+ *   0x5F200000), RW;
+ *   partition B owns one SPI: INTID 34, QEMU virt's PL031 RTC, which no
+ *   partition uses, routed to partition B's CPU. */
+#define PART_A_DMA1_SID 255U
+#define PART_A_DMA1_CFG_PA (QEMU_PCIE_ECAM_BASE + (255UL << 12))
+#define PART_A_DMA1_BAR 4U
+#define PART_A_DMA1_BAR_PA 0x10010000UL
+#define PART_A_DMA1_BAR_SIZE 0x4000UL
+#define PART_A_DMA1_IPA (PART_A_IPA_BASE + 0x1F100000UL)
+#define PART_A_DMA1_PA (PART_A_PA_BASE + 0x1F100000UL)
+#define PART_A_DMA1_SIZE 0x100000UL
+#define PART_B_SPI_INTID 34
+#endif
+
 #endif /* HAVEN_PLATFORM_QEMU_VIRT_MEMORY_H */

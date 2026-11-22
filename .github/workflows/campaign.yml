@@ -19,9 +19,9 @@ on:
         required: true
         default: "2"
       scenario:
-        description: "boot: one boot of the bare test guests (scenario 1); linux2: Linux in A with two vCPUs (s2/README.md)"
+        description: "boot: one boot of the bare test guests (scenario 1); linux2: Linux in A with two vCPUs (s2/README.md); grant2: scenario 1 with grant 2 (s3/README.md)"
         type: choice
-        options: [boot, linux2]
+        options: [boot, linux2, grant2]
         default: boot
       sealed:
         description: Hash file of a sealed archive (step C3); when set, cases is ignored
@@ -72,7 +72,7 @@ jobs:
 
   run:
     needs: plan
-    if: inputs.scenario == 'boot'
+    if: inputs.scenario == 'boot' || inputs.scenario == 'grant2'
     name: cases shard ${{ matrix.shard }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -134,7 +134,8 @@ jobs:
           CASES: ${{ inputs.sealed != '' && '/tmp/sealed/cases.json' || inputs.cases }}
           SHARD: ${{ matrix.shard }}
           SHARDS: ${{ strategy.job-total }}
-        run: python3 tools/campaign/run_shard.py "$CASES" "$SHARD" "$SHARDS" out --tfa /opt/tfa/build/qemu/release
+          SCENARIO: ${{ inputs.scenario }}
+        run: python3 tools/campaign/run_shard.py "$CASES" "$SHARD" "$SHARDS" out --scenario "$SCENARIO" --tfa /opt/tfa/build/qemu/release
       - uses: actions/upload-artifact@v4
         if: always() && inputs.sealed == ''
         with:

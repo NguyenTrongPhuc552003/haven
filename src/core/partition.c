@@ -134,6 +134,7 @@ static const struct hv_partition_mem part_a_mem_cfg = {
 
 #ifdef PART_A_DMA_SID /* the platform grants partition A a DMA device */
 #define GUEST_ARG_DMA0 (1UL << 0) /* x0 bit: grant 0 is in force */
+#define GUEST_ARG_DMA1 (1UL << 1) /* x0 bit: grant 1 (grant 2 builds) */
 
 struct part_dma_grant {
 	hv_u32 partition_id;
@@ -166,6 +167,23 @@ static const struct hv_mem_region part_a_dma_mmio[] = {
 	},
 };
 
+#ifdef HAVEN_CAMPAIGN_GRANT2 /* scenario 3's second device (memory.h) */
+static const struct hv_mem_region part_a_dma1_mmio[] = {
+	{
+		.ipa_base = PART_A_DMA1_CFG_PA,
+		.pa_base = PART_A_DMA1_CFG_PA,
+		.size = 0x1000UL,
+		.attrs = HV_MEM_DEVICE | HV_MEM_R,
+	},
+	{
+		.ipa_base = PART_A_DMA1_BAR_PA,
+		.pa_base = PART_A_DMA1_BAR_PA,
+		.size = PART_A_DMA1_BAR_SIZE,
+		.attrs = HV_MEM_DEVICE_RW,
+	},
+};
+#endif
+
 static const struct part_dma_grant dma_grants[] = {
 	{
 		.partition_id = PARTITION_A_ID,
@@ -182,6 +200,23 @@ static const struct part_dma_grant dma_grants[] = {
 		.mmio_count = 2U,
 		.guest_flag = GUEST_ARG_DMA0,
 	},
+#ifdef HAVEN_CAMPAIGN_GRANT2
+	{
+		.partition_id = PARTITION_A_ID,
+		.streamid = PART_A_DMA1_SID,
+		.iova = PART_A_DMA1_IPA,
+		.size = PART_A_DMA1_SIZE,
+		.pa = PART_A_DMA1_PA,
+		.access = HV_DMA_RW,
+		.cfg_pa = PART_A_DMA1_CFG_PA,
+		.bar = PART_A_DMA1_BAR,
+		.bar_pa = PART_A_DMA1_BAR_PA,
+		.bar_size = PART_A_DMA1_BAR_SIZE,
+		.mmio = part_a_dma1_mmio,
+		.mmio_count = 2U,
+		.guest_flag = GUEST_ARG_DMA1,
+	},
+#endif
 };
 
 /* Apply every DMA grant; returns the x0 bits for partition_id. */
@@ -344,6 +379,13 @@ static const struct hv_irq_route part_b_irqs[] = {
 	 .owner_partition_id = PARTITION_B_ID,
 	 .target_cpu = PART_B_CPU},
 };
+#endif
+
+#ifdef PART_B_SPI_INTID /* grant 2 (memory.h): B owns one SPI */
+static const struct hv_irq_route part_b_spi = {.irq_id = PART_B_SPI_INTID,
+					       .owner_partition_id =
+						       PARTITION_B_ID,
+					       .target_cpu = PART_B_CPU};
 #endif
 
 /* -----------------------------------------------------------------------
@@ -832,6 +874,13 @@ void partitions_launch(void)
 		}
 	}
 	hv_printk("HAVEN: partition B IRQs assigned (PPI 27 on CPU 2)\n");
+#ifdef PART_B_SPI_INTID
+	if (hv_irq_assign(&part_b_spi) != HV_OK) {
+		hv_panic("partition B IRQ assignment failed");
+	}
+	hv_printk("HAVEN: partition B SPI " HV_STR(
+		PART_B_SPI_INTID) " -> CPU 2 (grant 2)\n");
+#endif
 #endif
 
 	/* ----- Scheduler budgets ------------------------------------------ */
