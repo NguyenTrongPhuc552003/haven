@@ -52,3 +52,18 @@ the board plan's Amendment 1 questions); the EL3 service's own addresses
 | B3 | campaign scenario 1 after the change | every M6 and M7 verdict and evidence line as in v16's run 45047873482 |
 | B4 | the other read-back users in CI (Linux job, R1 demo, UEFI checks) | pass unchanged |
 | B5 | a synthetic cix-p1 dump (twelve 256 KiB frames, core 4 first, the v1 grant's state) | `--platform cix-p1 --dump` matches `grant-cixp1-v1.json`; one PPI disabled in core 8's frame is reported on logical CPU 8 |
+
+## Code and B1, B2, B5 (2026-11-23, on the Mac) [F]
+
+`tools/readback/platforms.py` (the table and the frame walk),
+`readback.py` v17 (`use_platform`, `--platform`, `--dump`, frames by
+affinity in both the monitor and the dump path, a CPU without a frame is
+a probe failure).
+
+| Row | Result |
+| - | - |
+| B1 | `test_platforms.py`: the table equals both platforms' `memory.h` and `platform.c`; frames found for 128 KiB frames, for 256 KiB frames with core 4 first, and a missing frame left empty. 4 of 4 pass. **Holds** |
+| B2 | the unchanged tree under TF-A (QEMU 11.1.3): `--el3` live, then `--dump` of the dump that run saved, same build: both `enforced state matches the grant`, and every line of the two reports is the same except the lines about the trigger and QEMU's device tree, which a dump has no QEMU for. A monitor-mode run (`qemu-psci`, max) also matches the grant. **Holds** |
+| B5 | `test_board_dump.py`: a synthetic cix-p1 dump built from `grant-cixp1-v1.json` has no finding; with PPI 27 off in core 8's frame the only finding is `CPU 8 PPI 27: missing interrupt binding`; a dump without core 11's frame is a probe failure. 3 of 3 pass. **Holds** |
+
+B3 and B4 are judged on the campaign run and the CI jobs after merge.
