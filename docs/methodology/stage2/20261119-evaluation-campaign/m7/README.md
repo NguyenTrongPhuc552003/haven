@@ -80,3 +80,32 @@ three are open and are named here before anything changes (E5).
 **Next [P]:** M7's verdict in `run_case.py` subtracts E0's finding (as
 M5 subtracts KDAL's GPIO), with a test; then W14, R60 and W30 are run
 through both channels by hand to find the cause.
+
+## The three open differences (2026-11-22)
+
+- **W14 and R60** (M6: `DMA enforcement drift`; M7: no finding) [F,
+  from the code]. Both leave stream 8's table entry at abort: W14 skips
+  `smmu_v3_set_ste_partition`, R60 inverts the return-code test in
+  `apply_dma_grants`. Read-back finds a granted stream that is not
+  translated only through its list of DMA masters, and that list comes
+  from the QEMU monitor (`query-pci`, `info qtree`, `dma_masters()`);
+  the EL3 snapshot has no monitor, so `el3_snapshot()` sets both empty
+  and the check never runs. The STE check that does run in EL3 mode
+  looks only for entries that let DMA through without a grant. **A
+  blind spot of the EL3 channel, in read-back, not in the dump**: every
+  entry the dump needs is in it.
+- **W30** (M6: `CPU 1 PPIs: interrupt enable drift`; M7: no finding)
+  [I]. W30 routes partition B's timer PPI to CPU 1 instead of CPU 2.
+  The dump covers all four redistributors (`RB_NCPUS 4`), so the
+  register is there; under TF-A, CPU 1 is never powered on (it is not
+  granted), and a likely cause is that HAVEN's enable of a PPI in a
+  redistributor whose CPU is asleep does not take effect there, while
+  under `qemu-psci` it does. Not checked; the record of the dump for
+  W30 is not kept (only verdicts were uploaded).
+
+**Proposal [P]: read-back v16.** Compare every granted stream with its
+table entry directly (a granted stream must be translated by that
+partition's tables), whether or not a DMA master is known. That closes
+the EL3 blind spot for W14 and R60, and in monitor mode it adds a second
+report of the same faults. Design and expectations as their own record
+before any code.
