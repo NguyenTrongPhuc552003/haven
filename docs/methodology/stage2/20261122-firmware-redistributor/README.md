@@ -81,3 +81,22 @@ inference is wrong and the design is revisited before code.
 all. The inference of the problem section is now an observation. The
 same pull request moves the check's QMP socket from `/tmp` to the
 temporary directory (`TMPDIR`).
+
+## The fix and F1 to F4 (2026-11-22, on the Mac) [F]
+
+`gic_v3_cpu_online` and `hv_irq_cpu_online` as designed; the call sits
+after each secondary CPU's ready report and before its budget start (the
+budget start enables HAVEN's own timer PPI, which the re-initialisation
+would otherwise disable again), where it changes no context line of the
+campaign's patches: all 106 apply as on `main` (`v3-P2.patch` with fuzz,
+as since #198). F1's test checks the selection, not the GIC writes: a
+host build has no GIC, so `hv_irq_ppis_on` is what it tests, and F2 and
+F3 check the writes in QEMU. `M7_BASELINE` is now empty (F5).
+
+| Row | Result |
+| - | - |
+| F1 | host tests: 30 of 30 pass, with the new assertions in `test_irq_ppi_contract`. **Holds** |
+| F2 | `partition-b-check.py --tfa` with the fix: PASS on cortex-a72 and max, `timer_irqs=8`. **Holds**; the new CI job `Partition B under TF-A (QEMU)` runs it on every pull request |
+| F3 | `readback.py --el3` on the unchanged tree with the fix: `enforced state matches the grant`; CPU 2's `GICR_ISENABLER0 = 0x2c00ffff` (SGIs 0 to 15, PPIs 26, 27 and TF-A's 29). **Holds** |
+| F4 | qemu-direct M2 and qemu-psci M4 pass on both CPU models, M6 (max) matches the grant; the Linux job runs in CI on this pull request. **Holds** on the Mac |
+| F5 | after merge: the campaign's scenario 1 with M7 and no baseline |

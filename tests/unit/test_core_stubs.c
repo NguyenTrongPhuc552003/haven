@@ -158,6 +158,16 @@ static void test_irq_ppi_contract(void)
 	assert(hv_irq_owner_on(27, 0) == 1U);
 	assert(hv_irq_is_owned_by(27, 2) == HV_OK);
 	assert(hv_irq_is_owned_by(26, 2) == HV_EPERM);
+	{ /* the PPIs a CPU re-enables once it is up (hv_irq_cpu_online) */
+		hv_u32 ids[4] = {0};
+
+		assert(hv_irq_ppis_on(2, ids, 4) == 1U && ids[0] == 27U);
+		assert(hv_irq_ppis_on(0, ids, 4) == 1U && ids[0] == 27U);
+		assert(hv_irq_ppis_on(1, ids, 4) == 0U);
+		assert(hv_irq_ppis_on(16, ids, 4) == 0U);
+		assert(hv_irq_cpu_online(2) == HV_OK);
+		assert(hv_irq_cpu_online(16) == HV_EINVAL);
+	}
 	assert(hv_irq_revoke(27, 2) == HV_OK);
 	assert(hv_irq_owner_on(27, 2) == 0U);
 	assert(hv_irq_owner_on(27, 0) == 1U);
