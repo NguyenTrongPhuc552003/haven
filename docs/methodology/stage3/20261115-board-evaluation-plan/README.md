@@ -161,3 +161,36 @@ Source: `../../../porting/cix-p1-ledger.md`, "Without J21" (2026-11-19).
   10). Parts A, B, D and E are unchanged.
 - Added to the owner's questions: 5. buy a pogo-pin 2x5 adapter and a
   1.8 V-capable probe with the board?
+
+## Amendment 2 (2026-11-22, before freezing; from the QEMU campaign's results)
+
+Source: `../../stage2/20261119-evaluation-campaign/RESULTS.md` and the
+records it cites. The owner approved adding the campaign's open
+questions to the board plan (2026-11-22).
+
+**Faults QEMU makes invisible, to seed on the board in part C** [P].
+Each is a fault the campaign could not judge because QEMU does not model
+the effect; each runs on the board as a seeded case with the prediction
+written before the run:
+
+| Case | Fault (campaign record) | Why QEMU cannot show it [I] | Board prediction [P] |
+| - | - | - | - |
+| B-H3 | the list registers neither bounded by `ICH_VTR_EL2` nor cleared per CPU (historical H3, revert of `4ccee17`) | QEMU resets them to 0; the architecture leaves them UNKNOWN | stale virtual interrupts or an UNDEFINED access beyond the implemented count: a partition-visible fault (behaviour probes), not a read-back finding (read-back does not read list registers) |
+| B-H5 | redistributor frames by fixed stride instead of `GICR_TYPER` affinity (historical H5, revert of `93cf892`) | QEMU's frames sit at the stride the revert assumes | on GIC-700 with 256 KiB frames or a boot CPU that is not core 0, PPIs programmed in the wrong CPU's frame: read-back finds PPI binding drift |
+| B-R28 | no `dsb ish` before the stage-2 TLB flush (random R28) | TCG does not reorder those accesses | rarely visible; a stress probe after remapping, recorded as "not observed" unless it is |
+
+**Limits from the campaign that the board plan now states** [F]:
+
+- Read-back is a snapshot: an on-request CPU that is not running is
+  "waiting", so a vCPU HAVEN failed to start is visible only to the
+  guest (scenario 2: R4, R7, R53). Part C's behaviour probes are the
+  check for that class on the board.
+- The DMA VMID (W21) and budgets (W34) are outside what read-back reads.
+- The held-out cases of part C: the owner left C3 to Claude, so the
+  campaign used historical faults chosen by a rule instead
+  (`.../c3/README.md`); the board run reuses that rule's cases that
+  exist on CIX P1, and the sealed channel stays available for cases
+  Claude has not seen.
+- M7 (EL3 read-back) on the board needs the board's BL31 rebuilt and
+  flashed (Amendment 1); in QEMU its agreement with M6 is measured in
+  `.../m7/` (E4).
