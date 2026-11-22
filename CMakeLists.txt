@@ -168,6 +168,13 @@ if(HAVEN_ARCH_ARM64)
         ${HAVEN_PLATFORM_DEFINE}
         ${HAVEN_PSCI_CONDUIT_DEFINE}
     )
+    # The evaluation campaign's grant 2 (docs/methodology/stage2/
+    # 20261119-evaluation-campaign/s3/): a second DMA device for partition A
+    # and one SPI for partition B, qemu-virt only. Off: the image is unchanged.
+    option(HAVEN_CAMPAIGN_GRANT2 "qemu-virt: scenario 3's second grant (campaign only)" OFF)
+    if(HAVEN_CAMPAIGN_GRANT2)
+        target_compile_definitions(haven PRIVATE HAVEN_CAMPAIGN_GRANT2)
+    endif()
     # Linux in partition A (docs/methodology/stage2/20261104-linux-partition):
     # partition A gets the device tree's IPA in x0 instead of the demo
     # guest's DMA grant bits. 0 = demo guest.

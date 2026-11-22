@@ -25,6 +25,11 @@ the patch (if any) is applied there, and the methods run on that copy:
 Scenario 2 (--scenario linux2, s2/README.md; linux2.py) replaces M2, M4, M5
 and M6 with the Linux-in-A runs; M1 and M3 are shared.
 
+Scenario 3 (--scenario grant2, s3/README.md) is scenario 1 on builds with
+HAVEN_CAMPAIGN_GRANT2=ON: M6 and M7 boot with partition A's second DMA
+device (GRANT2_DEVICE, at 00:1f.7) as well; the case's grant should be
+s3/grant-2.json.
+
 M2, M4 and M6 run on every CPU model (cortex-a72 and max); a method has a
 finding when any CPU has one. Each method's verdict is pass, finding, n/a
 or error (the method could not judge: a probe failure, a timeout).
@@ -54,6 +59,8 @@ import grant as grant_mod  # noqa: E402
 
 CPUS = ["cortex-a72", "max"]
 DEVICE = "virtio-rng-pci,disable-legacy=on,iommu_platform=on"
+GRANT2_DEVICE = DEVICE + ",addr=1f.7"  # stream 255 (s3/README.md)
+GRANT2_FLAG = " -DHAVEN_CAMPAIGN_GRANT2=ON"
 MARKER = "IRQ test done"
 SCHEMA = "haven-campaign-case/1"
 
@@ -192,7 +199,11 @@ def m4(src, cdir, built):
     return by_cpu(res)
 
 
-def m6(src, cdir, grant, built):
+def device_args(devices):
+    return [a for d in devices for a in ("--device", d)]
+
+
+def m6(src, cdir, grant, built, devices=(DEVICE,)):
     """Read-back of the qemu-psci build (amendment 3: the profile the grant describes)."""
     if not built:
         return {"verdict": "error", "evidence": ["qemu-psci build failed: nothing to read"]}
@@ -201,7 +212,7 @@ def m6(src, cdir, grant, built):
     for cpu in CPUS:
         out = os.path.join(cdir, f"m6-{cpu}")
         cmd = [sys.executable, script, os.path.join(src, "build-psci"), grant, out, "--cpu", cpu,
-               "--wait", "20", "--device", DEVICE, "--marker", MARKER]
+               "--wait", "20"] + device_args(devices) + ["--marker", MARKER]
         start = time.monotonic()
         with open(os.path.join(cdir, f"m6-{cpu}.log"), "w") as f:
             try:
@@ -247,7 +258,7 @@ def run(args):
         if args.scenario == "linux2":
             methods = linux2_methods(args, src, cdir, grant)
         else:
-            methods = boot_methods(src, cdir, grant, args.tfa)
+            methods = boot_methods(src, cdir, grant, args.tfa, args.scenario == "grant2")
     finally:
         shutil.rmtree(src, ignore_errors=True)
     commit = subprocess.run(["git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
@@ -263,11 +274,13 @@ def run(args):
     return case
 
 
-def boot_methods(src, cdir, grant, tfa=None):
-    """Scenario 1: one boot of the bare test guests, both CPU models."""
-    built = sh("cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct && cmake --build build",
+def boot_methods(src, cdir, grant, tfa=None, grant2=False):
+    """Scenario 1: one boot of the bare test guests, both CPU models (scenario 3 with grant2)."""
+    flag = GRANT2_FLAG if grant2 else ""
+    devices = (DEVICE, GRANT2_DEVICE) if grant2 else (DEVICE,)
+    built = sh(f"cmake --preset arm64-qemu -DHAVEN_BOOT_PROFILE=qemu-direct{flag} && cmake --build build",
                src, os.path.join(cdir, "build.log")) == 0
-    psci = sh("cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci && cmake --build build-psci",
+    psci = sh(f"cmake --preset arm64-qemu -B build-psci -DHAVEN_BOOT_PROFILE=qemu-psci{flag} && cmake --build build-psci",
               src, os.path.join(cdir, "build-psci.log")) == 0
     return {
         "M1": m1(src, cdir),
@@ -275,8 +288,8 @@ def boot_methods(src, cdir, grant, tfa=None):
         "M3": m3(grant),
         "M4": m4(src, cdir, psci),
         "M5": {"verdict": "n/a", "evidence": ["no Linux partition in this case"]},
-        "M6": m6(src, cdir, grant, psci),
-        "M7": m7(src, cdir, grant, tfa),
+        "M6": m6(src, cdir, grant, psci, devices),
+        "M7": m7(src, cdir, grant, tfa, flag, devices),
     }
 
 
@@ -294,16 +307,16 @@ def m7_against_baseline(verdict, evidence):
     return ("finding", "; ".join(rest)) if rest else ("pass", "the TF-A baseline finding only (E0)")
 
 
-def m7(src, cdir, grant, tfa):
+def m7(src, cdir, grant, tfa, flag="", devices=(DEVICE,)):
     """EL3 read-back of the qemu-tfa build under TF-A (m7/README.md)."""
     if not tfa:
         return {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]}
-    if sh("cmake --preset arm64-qemu -B build-tfa -DHAVEN_BOOT_PROFILE=qemu-tfa && cmake --build build-tfa",
+    if sh(f"cmake --preset arm64-qemu -B build-tfa -DHAVEN_BOOT_PROFILE=qemu-tfa{flag} && cmake --build build-tfa",
           src, os.path.join(cdir, "build-tfa.log")) != 0:
         return {"verdict": "error", "evidence": ["qemu-tfa build failed: nothing to read"]}
     out, log = os.path.join(cdir, "m7"), os.path.join(cdir, "m7.log")
     cmd = [sys.executable, os.path.join(HERE, "..", "readback", "readback.py"), os.path.join(src, "build-tfa"),
-           grant, out, "--tfa", os.path.abspath(tfa), "--el3", "--wait", "40", "--device", DEVICE]
+           grant, out, "--tfa", os.path.abspath(tfa), "--el3", "--wait", "40"] + device_args(devices)
     start = time.monotonic()
     with open(log, "w") as f:
         try:
@@ -337,8 +350,9 @@ def main(argv=None):
     ap.add_argument("--grant", required=True)
     ap.add_argument("--patch")
     ap.add_argument("--repo", default=os.path.join(HERE, "..", ".."))
-    ap.add_argument("--scenario", choices=["boot", "linux2"], default="boot",
-                    help="boot: scenario 1; linux2: Linux in A with two vCPUs (needs --image, --kdal, --ko)")
+    ap.add_argument("--scenario", choices=["boot", "linux2", "grant2"], default="boot",
+                    help="boot: scenario 1; linux2: Linux in A with two vCPUs (needs --image, --kdal, --ko); "
+                         "grant2: scenario 3, scenario 1 with grant 2 (s3/README.md)")
     ap.add_argument("--tfa", help="boot: TF-A release directory with the EL3 read-back service, for M7")
     ap.add_argument("--image", help="linux2: the SDK kernel Image")
     ap.add_argument("--kdal", help="linux2: KDAL's source tree (scripts/ci/mkcpio.py)")

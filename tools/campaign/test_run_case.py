@@ -75,6 +75,27 @@ class Evidence(unittest.TestCase):
         self.assertEqual((v, e), ("finding", "SPI 33: interrupt routing drift"))
         self.assertEqual(run_case.m7_against_baseline("error", "probe failure")[0], "error")
 
+    def test_grant2_builds_and_devices(self):
+        """Scenario 3 (s3/README.md): every build gets the option, M6 and M7 both devices."""
+        seen = {"sh": [], "m6": None, "m7": None}
+        saved = run_case.sh, run_case.m1, run_case.m2, run_case.m4, run_case.m6, run_case.m7
+        try:
+            run_case.sh = lambda cmd, cwd, log, timeout=900: seen["sh"].append(cmd) or 0
+            run_case.m1 = run_case.m2 = run_case.m4 = lambda *a: {"verdict": "pass", "evidence": []}
+            run_case.m6 = lambda src, cdir, grant, built, devices: seen.update(m6=devices) or {}
+            run_case.m7 = lambda src, cdir, grant, tfa, flag, devices: seen.update(m7=(flag, devices)) or {}
+            run_case.boot_methods("src", "cdir", GRANT_V3, None, grant2=True)
+            self.assertTrue(all(run_case.GRANT2_FLAG in c for c in seen["sh"]) and len(seen["sh"]) == 2)
+            self.assertEqual(seen["m6"], (run_case.DEVICE, run_case.GRANT2_DEVICE))
+            self.assertEqual(seen["m7"], (run_case.GRANT2_FLAG, (run_case.DEVICE, run_case.GRANT2_DEVICE)))
+            seen["sh"].clear()
+            run_case.boot_methods("src", "cdir", GRANT_V3, None)
+            self.assertFalse(any(run_case.GRANT2_FLAG in c for c in seen["sh"]))
+            self.assertEqual(seen["m6"], (run_case.DEVICE,))
+            self.assertEqual(seen["m7"], ("", (run_case.DEVICE,)))
+        finally:
+            run_case.sh, run_case.m1, run_case.m2, run_case.m4, run_case.m6, run_case.m7 = saved
+
     def test_m7_without_tfa_is_na(self):
         """M7 runs only with --tfa (m7/README.md)."""
         self.assertEqual(run_case.m7("unused", "unused", GRANT_V3, None)["verdict"], "n/a")
