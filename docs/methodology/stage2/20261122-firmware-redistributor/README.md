@@ -65,3 +65,19 @@ as firmware leaves them, so W30's drift still cannot happen under TF-A.
 F0 runs before any change to HAVEN (the `--tfa` option of the check
 script comes first, in its own pull request). If F0 does not hold, the
 inference is wrong and the design is revisited before code.
+
+## F0 (2026-11-22, on the Mac) [F]
+
+`partition-b-check.py --tfa` (the pull request that adds the option) on
+`main` at `cc90a88`, qemu-tfa build, TF-A v2.12.0 with
+`tools/el3-readback/`'s patch, QEMU 11.1.3:
+
+| CPU model | under TF-A | under `qemu-psci` |
+| - | - | - |
+| cortex-a72 | FAIL: stage 4, `timer_irqs=0`, result "too few timer interrupts" | PASS, `timer_irqs=8` |
+| max | FAIL: the same, `timer_irqs=0` | PASS |
+
+**F0 holds**: under firmware partition B receives no timer interrupt at
+all. The inference of the problem section is now an observation. The
+same pull request moves the check's QMP socket from `/tmp` to the
+temporary directory (`TMPDIR`).
