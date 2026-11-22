@@ -1,8 +1,11 @@
 # Board evaluation plan (Orange Pi 6 Plus, CIX P1)
 
-**Status:** DRAFT, 2026-11-15, by Claude (owner-approved item: "a frozen
-board evaluation plan before the G3 gate"). It becomes **frozen** when the
-owner approves it at G3 (early December 2026): from then on, metrics,
+**Status:** **FROZEN 2026-11-23** (owner: "Approve", 2026-11-23, freeze
+the plan with P9 and P10 before the board arrives; the owner's answers to
+the open questions are in Amendment 3). Drafted 2026-11-15 by Claude
+(owner-approved item: "a frozen board evaluation plan before the G3
+gate"). It was to be frozen at G3; the owner froze it earlier. From the
+freeze on, metrics,
 configurations, sample sizes and pass rules change only through a dated
 amendment section added before the first board measurement; after the
 first measurement they do not change, and any deviation is recorded as a
@@ -194,3 +197,50 @@ written before the run:
 - M7 (EL3 read-back) on the board needs the board's BL31 rebuilt and
   flashed (Amendment 1); in QEMU its agreement with M6 is measured in
   `.../m7/` (E4).
+
+## Amendment 3 (2026-11-23, the freeze)
+
+**The owner's answers** (2026-11-23) to "For the owner before freezing":
+
+1. The bare-metal baseline of part D is **included** (the same victim
+   image without HAVEN, on the same core).
+2. The interference matrix is **kept as written**: 10 runs of 10^5
+   samples per cell, the victim on an A720 and an A520 core.
+3. Held-out cases: as Amendment 2 records (the campaign's historical-fault
+   rule, the sealed channel kept for cases Claude has not seen).
+4. Bring-up and evaluation over **UART only is acceptable** if J21 stays
+   unusable; part C is then limited as Amendment 1 says.
+5. A solder-free pogo-pin 2x5 adapter and a 1.8 V-capable probe are
+   **bought with the board**, so part C's first step can run on day one.
+
+**Added before the freeze** [F unless marked]:
+
+- **Preconditions, P9 and P10** (`docs/porting/cix-p1-loading.md`'s
+  probes extended; G3 day-one checks): P9, partition B's timer interrupts
+  on its core under the vendor TF-A; P10, whether HAVEN's boot-core
+  writes to a powered-down core's redistributor are accepted on the
+  GIC-700. Source: `../../stage2/20261122-firmware-redistributor/`. In
+  QEMU under TF-A partition B received no timer interrupt until HAVEN's
+  started CPUs replayed their redistributor state (#202, #206); a CI job
+  checks B under TF-A on every pull request.
+- **A3, partition B on its cores**: B runs on one core, logical 8 (core
+  0x800, A720), 64 MiB at PA 0xE000_0000 (to confirm with P1), as its
+  own record says (`../../stage2/20261123-cix-p1-partition-b/`); the board
+  grant is `grant-cixp1-v1.json`. A3 passes when B's status record shows
+  stage 5 and at least 8 timer interrupts, read through the channel part
+  C uses, or through HAVEN's console if none is usable yet.
+- **Part C, input path**: read-back v17 reads a dump captured on the
+  board with `--platform cix-p1 --dump FILE`, with the redistributor
+  frames found by `GICR_TYPER` affinity
+  (`../../stage2/20261123-readback-board-path/`). Producing that dump on
+  the board is still the debugger or the EL3 service of Amendment 1.
+  Case B-H5 (frames by stride) is reported by read-back on a dump that
+  holds the frames.
+- **What M7 showed in QEMU** (for the part C predictions): with read-back
+  v16, the EL3 channel agrees with the monitor channel on 102 of 106
+  cases; the four left are a CPU's own EL2 registers (W09, R42), which a
+  dump made from another CPU does not hold, and group faults TF-A
+  prevents (W27, R19) (`../../stage2/20261119-evaluation-campaign/`,
+  `RESULTS.md`, E4).
+- **Builds**: `ecosystem.lock.json` pins KDAL at `583b329` (#210); the
+  kernel module's source is unchanged from the former pin.
