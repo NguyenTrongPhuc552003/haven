@@ -97,7 +97,7 @@ R40, R53), M6 finds 2 (R39, R40), none is found by M6 alone
 | E1 | every control: no finding from any method | **holds** [F]: 0 of 9 control runs, every method |
 | E2 | at least one class that M1 to M5 miss in every case and M6 detects in most | **holds, on few cases** [F]: GIC-PRIO, M1 to M4 0 of 3, M6 2 of 3 (interval 0.09 to 0.99); EL2-TIMER (M6 1 of 2) and GIC-ENABLE (M6 1 of 8) are not "most". With 3 cases the class-level claim is weak; the case-level claim (21 faults only M6 finds) is the stronger result [I] |
 | E3 | I7 detected by M6 (v7 reads priorities); P1 still missed by every method | **holds** [F]: I7 is found by M6 alone; P1 by none |
-| E4 | M6 and M7 agree wherever M7 applies | **holds with named exceptions** (2026-11-22, `m7/`) [F]: M7 now runs on all 106 scenario-1 cases; with the unchanged tree's TF-A finding as baseline (the prototype's E0), the two channels agree on 99; four differences come from what each channel can see (per-CPU VTTBR_EL2: W09, R42; groups under TF-A: W27, R19); three are open (W14, R60, W30) |
+| E4 | M6 and M7 agree wherever M7 applies | **holds with named exceptions** (2026-11-22, `m7/`) [F]: M7 now runs on all 106 scenario-1 cases; with the unchanged tree's TF-A finding as baseline (the prototype's E0), the two channels agree on 99; four differences come from what each channel can see (per-CPU VTTBR_EL2: W09, R42; groups under TF-A: W27, R19); three were open and are explained in `m7/` (W14, R60: read-back's EL3 path has no DMA-master list; W30: under TF-A the drift does not happen). The baseline finding itself is a HAVEN defect under firmware (TF-A resets CPU 2's redistributor at `CPU_ON`) |
 | E5 | every M6 miss has a named cause, recorded before anything changes | **holds for the cases read, not for all** [F]: every written, historical and scenario-2 miss is named (`c2/RESULTS-C2.md`, `c3/README.md`, `s2/README.md`), and 12 random ones (`c2/random/README.md`); about 30 random cases that pass every method in scenario 1 and 35 in scenario 2 are not read one by one |
 
 ## Why read-back misses what it misses [I, from the named causes]
@@ -113,7 +113,10 @@ R40, R53), M6 finds 2 (R39, R40), none is found by M6 alone
 3. **Not exercised**: code or inputs the scenario never reaches (a second
    DMA stream, boundary stream IDs, more than 256 SMMU commands, a failed
    mapping, a function only unit tests call). No boot-level method can
-   see these; scenario 2 reached 5 of the 40.
+   see these; scenario 2 reached 5 of the 40. Scenario 3 (a second grant,
+   `s3/`, 2026-11-22) reached two more: H2 (found by M6 alone) and R41
+   (found by every boot method); R45 and R46 need a stream ID beyond the
+   table, which no valid grant holds, so only unit tests reach them.
 4. **Not modelled by QEMU**: barriers, reset values of list registers,
    redistributor frame layout (R28, H3, H5). Equivalent on QEMU, maybe
    not on the board: questions for the board gate (G3).
@@ -174,5 +177,6 @@ about EL3 read-back (M7) or real hardware.
 2. **Board gate (G3)**: R28, H3, H5 and the QEMU-only equivalences as
    questions for the first board runs.
 3. **A second grant** (two DMA streams, a second partition with SPIs):
-   the "not exercised" causes H2, R41, R45 and R46.
+   the "not exercised" causes H2, R41, R45 and R46. Done 2026-11-22
+   (`s3/`): H2 and R41 found, R45 and R46 reachable only by unit tests.
 4. The thesis chapter (Evaluation) from this record, in haven-thesis.
