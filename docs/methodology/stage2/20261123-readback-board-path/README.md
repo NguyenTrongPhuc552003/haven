@@ -67,3 +67,27 @@ a probe failure).
 | B5 | `test_board_dump.py`: a synthetic cix-p1 dump built from `grant-cixp1-v1.json` has no finding; with PPI 27 off in core 8's frame the only finding is `CPU 8 PPI 27: missing interrupt binding`; a dump without core 11's frame is a probe failure. 3 of 3 pass. **Holds** |
 
 B3 and B4 are judged on the campaign run and the CI jobs after merge.
+
+## B3 and B4 (2026-11-23) [F]
+
+- **B3** (run 45052417129 at `25be49b`, scenario 1, 106 cases, against
+  v16's run 45047873482): every M6 and M7 verdict is the same, and so is
+  every M6 evidence line; M7 and M6 agree on 102 of 106 as before.
+  **Holds.** Two other cases differ in M1's evidence only, not its
+  verdict: W08 and W30 now also fail the host tests of cix-p1's layout,
+  because partition B's code path is compiled for cix-p1 since #212.
+- **B4, corrected**: the row named the Linux job, the R1 demo and the
+  UEFI checks, but none of them runs `readback.py` (checked: only the
+  try bundle's `try.sh`, `run_case.py` and campaign scenario 2's
+  `linux2.py` call it). Scenario 2 was rerun instead (run 45052511321,
+  43 cases, against run 44989942726 of 2026-11-22): 42 cases have the
+  same verdict from every method. **S2-R40 changed**: M2 and M6 went
+  from finding to pass. R40 makes `take_requests` re-queue a virtual SGI
+  on every pass, so the vCPU gets a stream of SGIs; before, its timer
+  PPI ended disabled (no free list register) and Linux stalled. Between
+  the two runs HAVEN changed how a started CPU sets up its redistributor
+  (#202, #206), which v17 does not touch; whether that or timing
+  explains the change is not known [?]. Proposal: run R40 three times
+  at the current `main` and at `c2ca532` (the merge of #201, before
+  #202) before any
+  conclusion.
