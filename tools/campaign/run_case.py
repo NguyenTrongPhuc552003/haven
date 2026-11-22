@@ -280,6 +280,20 @@ def boot_methods(src, cdir, grant, tfa=None):
     }
 
 
+# The unchanged tree under TF-A already reports this (the prototype's E0,
+# docs/methodology/stage2/20261108-el3-readback/; m7/README.md, results):
+# M7 counts only findings other than it.
+M7_BASELINE = ("CPU 2 PPI 27: missing interrupt binding",)
+
+
+def m7_against_baseline(verdict, evidence):
+    """M7's verdict and evidence with the TF-A baseline finding taken out."""
+    if verdict != "finding":
+        return verdict, evidence
+    rest = [f.strip() for f in evidence.split(";") if f.strip() and f.strip() not in M7_BASELINE]
+    return ("finding", "; ".join(rest)) if rest else ("pass", "the TF-A baseline finding only (E0)")
+
+
 def m7(src, cdir, grant, tfa):
     """EL3 read-back of the qemu-tfa build under TF-A (m7/README.md)."""
     if not tfa:
@@ -301,7 +315,7 @@ def m7(src, cdir, grant, tfa):
             report = json.load(f)
     except (OSError, ValueError):
         report = None
-    v, e = m6_verdict(rc, report, log)
+    v, e = m7_against_baseline(*m6_verdict(rc, report, log))
     return {"verdict": v, "evidence": [e], "seconds": round(time.monotonic() - start, 1)}
 
 
