@@ -88,5 +88,6 @@ B3 and B4 are judged on the campaign run and the CI jobs after merge.
   the two runs HAVEN changed how a started CPU sets up its redistributor
   (#202, #206), which v17 does not touch; whether that or timing
   explains the change is not known [?]. Proposal: run R40 three times
-  at the current `main` and at `a9d3f30` (before #202) before any
+  at the current `main` and at `c2ca532` (the merge of #201, before
+  #202) before any
   conclusion.
