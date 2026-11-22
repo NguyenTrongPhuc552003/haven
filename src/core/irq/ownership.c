@@ -219,52 +219,16 @@ hv_u32 hv_irq_owner(hv_u32 irq_id, hv_u32 *target_cpu)
 	return irq_owner_map[irq_id];
 }
 
-hv_u32 hv_irq_ppis_on(hv_u32 cpu, hv_u32 *intids, hv_u32 max)
-{
-	hv_u32 n = 0U;
-
-	if (cpu >= HV_MAX_PPI_CPU) {
-		return 0U;
-	}
-	for (hv_u32 j = 0U; j < HV_IRQ_NR_PPI; ++j) {
-		if (ppi_owner_map[cpu][j] == 0U) {
-			continue;
-		}
-		if (intids != NULL && n < max) {
-			intids[n] = HV_IRQ_PPI_BASE + j;
-		}
-		++n;
-	}
-	return n;
-}
-
 hv_status_t hv_irq_cpu_online(hv_u32 cpu)
 {
-	hv_u32 intids[HV_IRQ_NR_PPI];
-	hv_u32 n;
-
 	if (cpu >= HV_MAX_PPI_CPU) {
 		return HV_EINVAL;
 	}
-	n = hv_irq_ppis_on(cpu, intids, HV_IRQ_NR_PPI);
 #ifdef HAVEN_ARCH_ARM64
-	{
-		hv_status_t st = gic_v3_cpu_online(cpu);
-
-		if (st != HV_OK) {
-			return st;
-		}
-		for (hv_u32 i = 0U; i < n; ++i) {
-			st = gic_v3_enable_ppi(cpu, intids[i]);
-			if (st != HV_OK) {
-				return st;
-			}
-		}
-	}
+	return gic_v3_cpu_online(cpu);
 #else
-	(void)n;
-#endif
 	return HV_OK;
+#endif
 }
 
 hv_u32 hv_irq_owner_on(hv_u32 irq_id, hv_u32 cpu)

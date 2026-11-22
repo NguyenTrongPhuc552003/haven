@@ -35,6 +35,17 @@ static struct {
 	int initialized;
 } gic;
 
+/* What HAVEN last wrote to each CPU's PPI enables and priorities, replayed
+ * by gic_v3_cpu_online: firmware's PSCI CPU_ON may reset the redistributor
+ * of the CPU it starts (TF-A does), after the boot CPU programmed it
+ * (docs/methodology/stage2/20261122-firmware-redistributor/, Amendment 1).
+ * Zero at boot: gic_v3_init runs once. */
+static struct {
+	uint32_t enabled; /* PPI bits 16 to 31 HAVEN enabled */
+	uint32_t prio_set; /* PPI bits whose priority HAVEN set */
+	uint8_t prio[32];
+} ppi_shadow[16];
+
 /* -----------------------------------------------------------------------
  * Redistributor per-CPU base address
  * ----------------------------------------------------------------------- */
@@ -231,15 +242,31 @@ hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq)
 		return HV_EINVAL;
 
 	gic_write32(gicr_cpu_base(cpu), GICR_ISENABLER0, 1U << irq);
+	ppi_shadow[cpu].enabled |= 1U << irq;
 	return HV_OK;
 }
 
 hv_status_t gic_v3_cpu_online(uint32_t cpu)
 {
+	uint32_t enabled;
+
 	if (!gic.initialized || cpu >= gic.nr_cpus || gicr_cpu_base(cpu) == 0U)
 		return HV_EINVAL;
 
 	gicr_cpu_init(cpu);
+	for (uint32_t irq = GIC_PPI_BASE; irq < GIC_SPI_BASE; irq++)
+		if (ppi_shadow[cpu].prio_set & (1U << irq)) {
+			uint32_t reg = GICR_IPRIORITYR(irq / 4U);
+			uint32_t shift = (irq % 4U) * 8U;
+			uint32_t val = gic_read32(gicr_cpu_base(cpu), reg);
+
+			val &= ~(0xffU << shift);
+			val |= (uint32_t)ppi_shadow[cpu].prio[irq] << shift;
+			gic_write32(gicr_cpu_base(cpu), reg, val);
+		}
+	enabled = ppi_shadow[cpu].enabled;
+	if (enabled != 0U)
+		gic_write32(gicr_cpu_base(cpu), GICR_ISENABLER0, enabled);
 	return HV_OK;
 }
 
@@ -257,6 +284,8 @@ hv_status_t gic_v3_set_ppi_priority(uint32_t cpu, uint32_t irq,
 	val &= ~(0xffU << shift);
 	val |= (uint32_t)priority << shift;
 	gic_write32(gicr_cpu_base(cpu), reg, val);
+	ppi_shadow[cpu].prio_set |= 1U << irq;
+	ppi_shadow[cpu].prio[irq] = priority;
 	return HV_OK;
 }
 
@@ -267,6 +296,7 @@ hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq)
 
 	gic_write32(gicr_cpu_base(cpu), GICR_ICENABLER0, 1U << irq);
 	gicr_wait_rwp(gicr_cpu_base(cpu));
+	ppi_shadow[cpu].enabled &= ~(1U << irq);
 	return HV_OK;
 }
 

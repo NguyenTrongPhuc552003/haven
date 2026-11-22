@@ -19,12 +19,9 @@ hv_u32 hv_irq_owner(hv_u32 irq_id, hv_u32 *target_cpu);
 /* Owner partition of irq_id as seen from CPU cpu: a PPI's owner on that CPU,
  * or the SPI's owner.  0: none. */
 hv_u32 hv_irq_owner_on(hv_u32 irq_id, hv_u32 cpu);
-/* The PPIs owned on CPU cpu, in INTID order, at most max of them into
- * intids; returns how many there are. */
-hv_u32 hv_irq_ppis_on(hv_u32 cpu, hv_u32 *intids, hv_u32 max);
 /* Run on CPU cpu once it is up (after PSCI CPU_ON): its redistributor set
- * up again and the PPIs it owns enabled again, since firmware may have
- * re-initialised the redistributor after the boot CPU set it up
+ * up again and the PPI state HAVEN wrote for it replayed, since firmware
+ * may have re-initialised the redistributor after the boot CPU set it up
  * (docs/methodology/stage2/20261122-firmware-redistributor/). */
 hv_status_t hv_irq_cpu_online(hv_u32 cpu);
 
