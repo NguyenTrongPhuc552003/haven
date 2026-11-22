@@ -68,8 +68,8 @@
 #define CIX_PART_A_VCPUS 8U
 
 /* The names partition.c takes. UART2 is Linux's console; no read-only
- * region, no DMA grant (D3: no SMMU section) and no partition B (owner:
- * not mapped or started until it has its own record). */
+ * region and no DMA grant (D3: no SMMU section). Partition B below, from
+ * its own record (docs/methodology/stage2/20261123-cix-p1-partition-b). */
 #define PART_A_IPA_BASE CIX_PART_A_RAM_BASE
 #define PART_A_PA_BASE CIX_PART_A_RAM_BASE
 #define PART_A_SIZE CIX_PART_A_RAM_SIZE
@@ -81,5 +81,29 @@
  * its guest MPIDR is the physical one. */
 #define PART_A_MAX_VCPUS 8
 #define PART_A_CPU(i) ((i) + 0U)
+
+/* Partition B (20261123-cix-p1-partition-b): one CPU, logical 8 (core
+ * 0x800, Cortex-A720); 64 MiB at PA 0xE000_0000, inside the free range
+ * 0xD100_0000 to 0xF000_0000 of the loading study (to confirm with probe
+ * P1); IPA 0x6000_0000 as on qemu-virt, so guest_b.bin is the same image.
+ * No UART, no shared memory. */
+#define PART_B_CPU 8U
+#define PART_B_IPA_BASE 0x60000000UL
+#define PART_B_PA_BASE 0xE0000000UL
+#define PART_B_SIZE 0x04000000UL
+
+#define CIX_FREE_LOW_BASE 0xD1000000UL /* loading study, 5.2 */
+#define CIX_FREE_LOW_END HAVEN_LOAD_PA
+_Static_assert(PART_B_PA_BASE >= CIX_FREE_LOW_BASE &&
+		       PART_B_PA_BASE + PART_B_SIZE <= CIX_FREE_LOW_END,
+	       "partition B's RAM must lie in the free range below HAVEN");
+_Static_assert((PART_B_PA_BASE & 0x1FFFFFUL) == 0U &&
+		       (PART_B_SIZE & 0x1FFFFFUL) == 0U,
+	       "partition B's RAM must be 2 MiB aligned");
+_Static_assert(PART_B_PA_BASE + PART_B_SIZE <= PART_A_PA_BASE ||
+		       PART_A_PA_BASE + PART_A_SIZE <= PART_B_PA_BASE,
+	       "partitions A and B must not overlap");
+_Static_assert(PART_B_CPU >= PART_A_MAX_VCPUS && PART_B_CPU < CIX_NR_CPUS,
+	       "partition B's CPU must not be one of A's vCPU CPUs");
 
 #endif /* HAVEN_PLATFORM_CIX_P1_MEMORY_H */
