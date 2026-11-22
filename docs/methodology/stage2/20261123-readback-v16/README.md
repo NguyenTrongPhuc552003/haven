@@ -57,3 +57,20 @@ partition 1)`; H2 on the grant-2 build gives `DMA enforcement drift (SID
 255: translated:unknown (S2TTB 0x100008001a000, table outside the dumped
 image), expected translated:1)`. V2 to V6 are judged on the campaign
 runs after merge.
+
+## Results (2026-11-23) [F]
+
+Run 45047873482 (scenario 1, 106 cases) and run 45047886090 (scenario 3,
+109 cases), both at `63de0a8`, the merge of #208.
+
+| Row | Result |
+| - | - |
+| V2 | against A5's run 45047328899, every verdict and every evidence line of M1 to M6 is the same, except the order of quoted parallel build lines in H1's M4. **Holds** |
+| V3 | the controls pass M7; W14 and R60 are found (`SMMU: granted stream not translated`). **Holds** |
+| V4 | M7 and M6 agree on **102 of 106**; the four left are W09, R42, W27 and R19. **Holds** |
+| V5 | H2 is found by M7 (`SMMU: DMA enforcement drift`). Against run 44999284558 three more M7 verdicts changed, each for a recorded reason: W14 and R60 (V3, here once per granted stream) and W30 (F5, the baseline rule retired). M7 and M6 agree on 105 of 109. **Holds** for H2; the row's "every other verdict" was written before #202 and did not allow for W30 |
+| V6 | the Linux job and the other CI jobs passed on #208 |
+
+With v16, every M7 difference from M6 that is left comes from what the
+EL3 dump cannot hold (a CPU's own EL2 registers: W09, R42) or from a
+fault that cannot happen under TF-A's two security states (W27, R19).
