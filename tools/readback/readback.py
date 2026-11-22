@@ -17,6 +17,14 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v16 (2026-11-23, M7's W14, R60 and H2): a granted stream that
+no DMA master in the list covers is checked through its own stream-table
+entry. In EL3 mode there is no device list, so an entry that aborts is
+"granted stream not translated"; in monitor mode, with no device on the
+stream, it is an observation (HAVEN withholds an absent device's grant).
+A translated entry whose table belongs to no partition is "DMA enforcement
+drift" (docs/methodology/stage2/20261123-readback-v16/).
+
 Changes in v15 (2026-11-21, campaign case W09): the CPU check read only
 HAVEN's own table (cpu_partition). Now the GDB stub is always attached;
 after the memory snapshot every vCPU's VTTBR_EL2 and HCR_EL2 are read
@@ -858,10 +866,21 @@ def compare_smmu(snap, masters, expected, roots, parts):
     if snap["smmu"]["cr0ack"] & 1:
         # Every stream table entry that lets DMA through must be granted.
         extra = []
+        covered = {m["sid"] for m in masters if m.get("sid") is not None}
+        devices_known = bool(snap.get("pci"))  # v16: empty in EL3 mode
         for sid in range(len(snap["stream_table"]) // 64):
             w0, _, _, w3 = struct.unpack_from("<4Q", snap["stream_table"], sid * 64)
             cfg = STE_CONFIG.get((w0 >> 1) & 7, "reserved") if w0 & 1 else "invalid"
             if cfg in ("abort", "invalid"):
+                if sid in streams and sid not in covered:  # v16
+                    want = streams[sid]["partition"]
+                    if devices_known:
+                        report.append({"device": "grant", "bus": "-", "sid": sid, "state": "withheld",
+                                       "reason": f"entry {cfg}, no device on this stream "
+                                                 "(HAVEN withholds an absent device's grant)"})
+                    else:
+                        f.append(("SMMU", "granted stream not translated",
+                                  f"SID {sid}: entry {cfg}, granted to partition {want}"))
                 continue
             if sid not in streams:
                 extra.append(sid)
@@ -873,6 +892,10 @@ def compare_smmu(snap, masters, expected, roots, parts):
             part, reach, kind = resolve_ttb(ttb, roots, snap["image"], parts)
             if win and part is not None:
                 f += compare_window(sid, streams[sid], part, reach, kind, parts)
+            elif part is None and sid not in covered:  # v16
+                f.append(("SMMU", "DMA enforcement drift",
+                          f"SID {sid}: translated:unknown (S2TTB {ttb:#x}, {kind}), "
+                          f"expected translated:{streams[sid]['partition']}"))
         if extra:
             f.append(("SMMU", "extra stream binding", f"{len(extra)} stream(s) not denied without a grant: SID {ranges(extra)}"))
     return f, report
