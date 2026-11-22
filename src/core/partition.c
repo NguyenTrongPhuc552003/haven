@@ -623,7 +623,7 @@ partition_a_secondary_cpu_init(uint64_t cpu_id)
 		for (;;)
 			__asm__ volatile("wfe");
 	}
-	/* As for partition B: the vCPU's timer PPI again on its own CPU. */
+	/* As for partition B: what HAVEN programmed for this CPU, replayed. */
 	(void)hv_irq_cpu_online((hv_u32)cpu_id);
 	(void)hv_arch_budget_start((uint32_t)cpu_id, part_a_budget.budget_ns,
 				   part_a_budget.period_ns);

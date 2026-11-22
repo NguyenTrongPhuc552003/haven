@@ -174,3 +174,20 @@ GIC-700 is a board question. Option (b) is the change if it does not.
 | A3 | the Linux job (2 and 3 vCPUs) | passes |
 | A4 | M7 on the unchanged tree | no finding (as F3) |
 | A5 | campaign scenario 1, 106 cases | every verdict as in F5 (run 45042879186) except **W31's M4, back to finding** (as before #202); M7 and M6 agree on 100 |
+
+### Amendment 1: the code and A1 to A4 (2026-11-22, on the Mac) [F]
+
+The shadow sits beside the driver's state (`ppi_shadow`, zero at boot);
+`gic_v3_enable_ppi`, `gic_v3_disable_ppi` and `gic_v3_set_ppi_priority`
+record into it, and `gic_v3_cpu_online` replays priorities, then enables,
+after `gicr_cpu_init`. Placed so that every campaign patch applies as on
+`main` (H5 touches the same file: a first placement next to
+`gicr_cpu_base` broke its context and was moved).
+
+| Row | Result |
+| - | - |
+| A1 | host tests 30 of 30. **Holds** |
+| A2 | `partition-b-check.py` passes under TF-A and under `qemu-psci`, both CPU models. **Holds** on the Mac; CI runs both on this pull request |
+| A3 | in CI on this pull request |
+| A4 | `readback.py --el3` on the unchanged tree: `enforced state matches the grant`. **Holds** |
+| A5 | after merge. Preview on the Mac: W31 on `qemu-psci` fails M4 again (`timer_irqs=0`), as expected |
