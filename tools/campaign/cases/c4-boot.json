@@ -1,0 +1,965 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "campaign step C4 (docs/methodology/stage2/20261119-evaluation-campaign/c4/): written (corrected where C2 corrected them), random and historical cases",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
+ "cases": [
+  {
+   "case": "C2-W01",
+   "class": "S2-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W01.patch",
+   "m6": "extent drift on every region (one page more); A's probe of 0x60000000 no longer faults"
+  },
+  {
+   "case": "C2-W02",
+   "class": "S2-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W02.patch",
+   "m6": "A UART: extent drift"
+  },
+  {
+   "case": "C2-W05",
+   "class": "S2-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W05.patch",
+   "m6": "A RO: execute drift (2 MiB blocks only)"
+  },
+  {
+   "case": "C2-W06",
+   "class": "S2-TYPE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W06.patch",
+   "m6": "A RAM, B RAM, A RO: shareability drift (2 MiB blocks only)"
+  },
+  {
+   "case": "C2-W08",
+   "class": "S2-OWNER",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W08.patch",
+   "m6": "B RAM: association drift (mapped for A); B cannot run"
+  },
+  {
+   "case": "C2-W11",
+   "class": "S2-MISSING",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W11.patch",
+   "m6": "A RO: missing binding"
+  },
+  {
+   "case": "C2-W14",
+   "class": "SMMU-UNBOUND",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W14.patch",
+   "m6": "SID 8: DMA enforcement drift (the stream stays aborting while HAVEN reports the grant)"
+  },
+  {
+   "case": "C2-W16",
+   "class": "SMMU-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W16.patch",
+   "m6": "SID 8: DMA extent drift (2 MiB window)"
+  },
+  {
+   "case": "C2-W17",
+   "class": "SMMU-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W17.patch",
+   "m6": "SID 8: DMA extent drift (one page more)"
+  },
+  {
+   "case": "C2-W19",
+   "class": "SMMU-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W19.patch",
+   "m6": "SID 8: DMA access drift (read-only)"
+  },
+  {
+   "case": "C2-W21",
+   "class": "SMMU-TAG",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W21.patch",
+   "m6": "predicted miss: read-back does not compare a DMA VMID with the grant (v3's S9)"
+  },
+  {
+   "case": "C2-W22",
+   "class": "GIC-ROUTE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W22.patch",
+   "m6": "SPI 33: interrupt routing drift (CPU 1)"
+  },
+  {
+   "case": "C2-W24",
+   "class": "GIC-ENABLE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W24.patch",
+   "m6": "SPI 33: interrupt enable drift"
+  },
+  {
+   "case": "C2-W27",
+   "class": "GIC-GROUP",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W27.patch",
+   "m6": "SPI 33: interrupt group drift"
+  },
+  {
+   "case": "C2-W29",
+   "class": "GIC-PRIO",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W29.patch",
+   "m6": "CPU 0 and CPU 2 PPI 26: interrupt priority drift"
+  },
+  {
+   "case": "C2-W30",
+   "class": "GIC-PPI",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W30.patch",
+   "m6": "CPU 2 PPI 27: missing interrupt binding (enabled on CPU 1)"
+  },
+  {
+   "case": "C2-W31",
+   "class": "GIC-PPI",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W31.patch",
+   "m6": "CPU 2 PPI 27: missing interrupt binding (enabled on CPU 0)"
+  },
+  {
+   "case": "C2-W09",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W09.patch",
+   "m6": "CPU 2: CPU assignment drift (A's tables); B faults at its entry"
+  },
+  {
+   "case": "C2-W32",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W32.patch",
+   "m6": "CPU 2: CPU assignment drift; B's timer is no longer injected"
+  },
+  {
+   "case": "C2-W33",
+   "class": "EL2-MAP",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W33.patch",
+   "m6": "partition memory mapped at EL2 (A RAM)"
+  },
+  {
+   "case": "C2-W25",
+   "class": "EL2-TIMER",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W25.patch",
+   "m6": "CPU 0 and CPU 2 PPI 26: missing interrupt binding"
+  },
+  {
+   "case": "C2-W34",
+   "class": "EL2-TIMER",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W34.patch",
+   "m6": "predicted miss: read-back reads no budget value (A's 8 ms becomes 32 ms, B's 2 ms 8 ms)"
+  },
+  {
+   "case": "C2-W35",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W35.patch",
+   "m6": "control: the same bit for an unsigned irq"
+  },
+  {
+   "case": "C2-W36",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W36.patch",
+   "m6": "control: the same bits through an if"
+  },
+  {
+   "case": "C2-V3-M3",
+   "class": "S2-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-M3.patch",
+   "m6": "A RAM, B RAM: execute drift"
+  },
+  {
+   "case": "C2-V3-M4",
+   "class": "S2-TYPE",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-M4.patch",
+   "m6": "A UART, PCI config, PCI BAR: memory-type and shareability drift"
+  },
+  {
+   "case": "C2-V3-M5",
+   "class": "S2-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-M5.patch",
+   "m6": "B RAM: extent drift"
+  },
+  {
+   "case": "C2-V3-S8",
+   "class": "SMMU-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-S8.patch",
+   "m6": "SID 8: DMA access drift"
+  },
+  {
+   "case": "C2-V3-S9",
+   "class": "SMMU-TAG",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-S9.patch",
+   "m6": "v3 blind spot: the shared VMID is not seen"
+  },
+  {
+   "case": "C2-V3-I7",
+   "class": "GIC-PRIO",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-I7.patch",
+   "m6": "SPI 33: interrupt priority drift (E3)"
+  },
+  {
+   "case": "C2-V3-I8",
+   "class": "GIC-GROUP",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-I8.patch",
+   "m6": "GIC distributor drift"
+  },
+  {
+   "case": "C2-V3-P1",
+   "class": "S2-EXTENT",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-P1.patch",
+   "m6": "v3 blind spot (E3): the BAR moves under its mapping"
+  },
+  {
+   "case": "C2-V3-P2",
+   "class": "S2-MISSING",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-P2.patch",
+   "m6": "A PCI BAR: missing binding"
+  },
+  {
+   "case": "C2-V3-C6",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C6.patch",
+   "m6": "control"
+  },
+  {
+   "case": "C2-V3-C7",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C7.patch",
+   "m6": "control"
+  },
+  {
+   "case": "C2-BASELINE",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": null,
+   "m6": "the unchanged tree"
+  },
+  {
+   "case": "C2-W03r",
+   "class": "S2-PERM",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W03r.patch",
+   "m6": "A RO: access drift"
+  },
+  {
+   "case": "C2-W07r",
+   "class": "S2-TYPE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W07r.patch",
+   "m6": "A UART: memory-type and shareability drift"
+  },
+  {
+   "case": "C2-W12r",
+   "class": "S2-EXTRA",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W12r.patch",
+   "m6": "extra binding: the shared memory in A at 0x71000000"
+  },
+  {
+   "case": "C2-W23r",
+   "class": "GIC-ROUTE",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W23r.patch",
+   "m6": "SPI 33: interrupt routing drift (1-of-N)"
+  },
+  {
+   "case": "C2-R1",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R1.patch"
+  },
+  {
+   "case": "C2-R2",
+   "class": "S2-PERM",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R2.patch"
+  },
+  {
+   "case": "C2-R3",
+   "class": "GIC-GROUP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R3.patch"
+  },
+  {
+   "case": "C2-R4",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R4.patch"
+  },
+  {
+   "case": "C2-R5",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R5.patch"
+  },
+  {
+   "case": "C2-R6",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R6.patch"
+  },
+  {
+   "case": "C2-R7",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R7.patch"
+  },
+  {
+   "case": "C2-R8",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R8.patch"
+  },
+  {
+   "case": "C2-R9",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R9.patch"
+  },
+  {
+   "case": "C2-R10",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R10.patch"
+  },
+  {
+   "case": "C2-R11",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R11.patch"
+  },
+  {
+   "case": "C2-R12",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R12.patch"
+  },
+  {
+   "case": "C2-R13",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R13.patch"
+  },
+  {
+   "case": "C2-R14",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R14.patch"
+  },
+  {
+   "case": "C2-R15",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R15.patch"
+  },
+  {
+   "case": "C2-R16",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R16.patch"
+  },
+  {
+   "case": "C2-R17",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R17.patch"
+  },
+  {
+   "case": "C2-R18",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R18.patch"
+  },
+  {
+   "case": "C2-R19",
+   "class": "GIC-GROUP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R19.patch"
+  },
+  {
+   "case": "C2-R20",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R20.patch"
+  },
+  {
+   "case": "C2-R21",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R21.patch"
+  },
+  {
+   "case": "C2-R22",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R22.patch"
+  },
+  {
+   "case": "C2-R23",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R23.patch"
+  },
+  {
+   "case": "C2-R24",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R24.patch"
+  },
+  {
+   "case": "C2-R25",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R25.patch"
+  },
+  {
+   "case": "C2-R26",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R26.patch"
+  },
+  {
+   "case": "C2-R27",
+   "class": "EL2-MAP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R27.patch"
+  },
+  {
+   "case": "C2-R28",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R28.patch"
+  },
+  {
+   "case": "C2-R29",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R29.patch"
+  },
+  {
+   "case": "C2-R30",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R30.patch"
+  },
+  {
+   "case": "C2-R31",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R31.patch"
+  },
+  {
+   "case": "C2-R32",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R32.patch"
+  },
+  {
+   "case": "C2-R33",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R33.patch"
+  },
+  {
+   "case": "C2-R34",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R34.patch"
+  },
+  {
+   "case": "C2-R35",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R35.patch"
+  },
+  {
+   "case": "C2-R36",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R36.patch"
+  },
+  {
+   "case": "C2-R37",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R37.patch"
+  },
+  {
+   "case": "C2-R38",
+   "class": "GIC-PPI",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R38.patch"
+  },
+  {
+   "case": "C2-R39",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R39.patch"
+  },
+  {
+   "case": "C2-R40",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R40.patch"
+  },
+  {
+   "case": "C2-R41",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R41.patch"
+  },
+  {
+   "case": "C2-R42",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R42.patch"
+  },
+  {
+   "case": "C2-R43",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R43.patch"
+  },
+  {
+   "case": "C2-R44",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R44.patch"
+  },
+  {
+   "case": "C2-R45",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R45.patch"
+  },
+  {
+   "case": "C2-R46",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R46.patch"
+  },
+  {
+   "case": "C2-R47",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R47.patch"
+  },
+  {
+   "case": "C2-R48",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R48.patch"
+  },
+  {
+   "case": "C2-R49",
+   "class": "GIC-PRIO",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R49.patch"
+  },
+  {
+   "case": "C2-R50",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R50.patch"
+  },
+  {
+   "case": "C2-R51",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R51.patch"
+  },
+  {
+   "case": "C2-R52",
+   "class": "EL2-MAP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R52.patch"
+  },
+  {
+   "case": "C2-R53",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R53.patch"
+  },
+  {
+   "case": "C2-R54",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R54.patch"
+  },
+  {
+   "case": "C2-R55",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R55.patch"
+  },
+  {
+   "case": "C2-R56",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R56.patch"
+  },
+  {
+   "case": "C2-R57",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R57.patch"
+  },
+  {
+   "case": "C2-R58",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R58.patch"
+  },
+  {
+   "case": "C2-R59",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R59.patch"
+  },
+  {
+   "case": "C2-R60",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R60.patch"
+  },
+  {
+   "case": "C3-H1",
+   "class": "GIC-GROUP",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H1.patch"
+  },
+  {
+   "case": "C3-H2",
+   "class": "SMMU-TAG",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H2.patch"
+  },
+  {
+   "case": "C3-H3",
+   "class": "GIC-ENABLE",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H3.patch"
+  },
+  {
+   "case": "C3-H4",
+   "class": "CPU-ASSIGN",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H4.patch"
+  },
+  {
+   "case": "C3-H5",
+   "class": "GIC-PPI",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H5.patch"
+  },
+  {
+   "case": "C3-H6",
+   "class": "CONTROL",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H6.patch"
+  }
+ ],
+ "expect": {
+  "C2-W01": {
+   "M1": "pass",
+   "M2": "finding",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W02": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W05": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W06": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W08": {
+   "M1": "finding",
+   "M2": "finding",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-W11": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W14": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W16": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W17": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W19": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W21": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-W22": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W24": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W27": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W29": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W30": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-W31": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-W09": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-W32": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-W33": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W25": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W34": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-W35": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-W36": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-V3-M3": {
+   "M1": "finding",
+   "M2": "finding",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-V3-M4": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-V3-M5": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-V3-S8": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-V3-S9": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-V3-I7": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-V3-I8": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "finding",
+   "M6": "finding"
+  },
+  "C2-V3-P1": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-V3-P2": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-V3-C6": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-V3-C7": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-BASELINE": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-W03r": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W07r": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W12r": {
+   "M1": "finding",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  },
+  "C2-W23r": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "finding"
+  }
+ }
+}
