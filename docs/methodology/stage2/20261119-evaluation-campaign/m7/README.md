@@ -45,3 +45,38 @@ W32 changes HAVEN's own CPU table (`hv_arch_set_cpu_partition`), which
 is inside the dumped region, so M7 should find it like M6; only W09
 (the VTTBR_EL2 value itself) is an exception. The TF-A build is not
 cached: it takes about a minute in the job, less than a cache would save.
+
+## Results (2026-11-22, run 44993759751 at `d7bbb9c`, the merge of #192)
+
+[F] from the case files. TF-A v2.12.0 with the patch built in every case
+job (T1's first half holds).
+
+**T1 and T2 fail as written: a prediction error.** M7 reports one
+finding on the unchanged tree and on all six controls: `CPU 2 PPI 27:
+missing interrupt binding`. The prototype's own record had it already:
+its E0 (unchanged tree under TF-A) showed exactly this finding in both
+channels, "recorded here, not explained"
+(`../../20261108-el3-readback/README.md`, Calibration). My T1 and T2
+said "matches the grant"; they should have said "E0's finding only".
+Every one of the 106 cases carries that line in M7 (or M7 errors).
+
+**E4 with E0's finding as the baseline** (the prototype's E0, recorded
+2026-11-08, applied after this run, so a post-hoc rule): M7's verdict
+counts only findings other than that line.
+
+| | Result |
+| - | - |
+| Controls (T2) | all six pass |
+| M7 and M6 agree | **99 of 106 cases** (errors agree: HAVEN halts or does not build in both) |
+| Differ, predicted (T3) | **W09** and **R42**: `CPU stage-2 drift` from v15's per-CPU VTTBR_EL2 check, which the dump cannot feed (one CPU's EL2 registers); **W27** and **R19**: interrupt group drift, which under TF-A's two security states HAVEN's writes cannot cause |
+| Differ, not predicted [?] | **W14** and **R60** (M6: DMA enforcement drift on the PCI device's stream; M7 passes) and **W30** (M6: CPU 1 PPIs enable drift; M7 passes). Not examined yet; candidates are the `qemu-tfa` boot path for the DMA grant and the dump's redistributor coverage |
+| T5 | M7's read takes 8.6 s median (9.1 s max; the 8 s timer). The slowest case job (about 9 cases, the TF-A build included) took 15.7 minutes; the added time per case was not measured on its own, so T5 is not settled |
+
+So **E4 holds with named exceptions**: on 99 of 106 cases the EL3 dump
+and the monitor reach the same verdict; four differences come from what
+each channel can see (per-CPU VTTBR_EL2, interrupt groups under TF-A);
+three are open and are named here before anything changes (E5).
+
+**Next [P]:** M7's verdict in `run_case.py` subtracts E0's finding (as
+M5 subtracts KDAL's GPIO), with a test; then W14, R60 and W30 are run
+through both channels by hand to find the cause.

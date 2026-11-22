@@ -20,8 +20,9 @@ two vCPUs and CPU hotplug, cortex-a72, the pinned QEMU 8.2.2 (no SMMU
 stage 2, so the DMA grant is withheld and SMMU classes are not compared
 there). Methods: M1 host unit tests, M2 boot checks, M3 the grant's
 structure, M4 partition B's own check (scenario 1 only), M5 KDAL's
-demand (scenario 2 only), M6 read-back (v15). **M7 (EL3 read-back) is
-not wired into the campaign**: it ran on no case.
+demand (scenario 2 only), M6 read-back (v15). M7 (EL3 read-back under
+TF-A) was wired after C4 and ran on the 106 scenario-1 cases
+(`m7/README.md`); its results are in E4 below.
 
 ## Headline results [F]
 
@@ -96,7 +97,7 @@ R40, R53), M6 finds 2 (R39, R40), none is found by M6 alone
 | E1 | every control: no finding from any method | **holds** [F]: 0 of 9 control runs, every method |
 | E2 | at least one class that M1 to M5 miss in every case and M6 detects in most | **holds, on few cases** [F]: GIC-PRIO, M1 to M4 0 of 3, M6 2 of 3 (interval 0.09 to 0.99); EL2-TIMER (M6 1 of 2) and GIC-ENABLE (M6 1 of 8) are not "most". With 3 cases the class-level claim is weak; the case-level claim (21 faults only M6 finds) is the stronger result [I] |
 | E3 | I7 detected by M6 (v7 reads priorities); P1 still missed by every method | **holds** [F]: I7 is found by M6 alone; P1 by none |
-| E4 | M6 and M7 agree wherever M7 applies | **not tested**: M7 is not wired into the campaign; the EL3 read-back's agreement rests on its own record (`../20261108-el3-readback/`) only. A gap to close before the board, or to state as a limit |
+| E4 | M6 and M7 agree wherever M7 applies | **holds with named exceptions** (2026-11-22, `m7/`) [F]: M7 now runs on all 106 scenario-1 cases; with the unchanged tree's TF-A finding as baseline (the prototype's E0), the two channels agree on 99; four differences come from what each channel can see (per-CPU VTTBR_EL2: W09, R42; groups under TF-A: W27, R19); three are open (W14, R60, W30) |
 | E5 | every M6 miss has a named cause, recorded before anything changes | **holds for the cases read, not for all** [F]: every written, historical and scenario-2 miss is named (`c2/RESULTS-C2.md`, `c3/README.md`, `s2/README.md`), and 12 random ones (`c2/random/README.md`); about 30 random cases that pass every method in scenario 1 and 35 in scenario 2 are not read one by one |
 
 ## Why read-back misses what it misses [I, from the named causes]
