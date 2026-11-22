@@ -90,3 +90,21 @@ streams translated, SPI 34 on CPU 2); H2 is found by M6 (`SID 255 ...
 S2TTB 0x100008001a000`: the VMID's low bit in the table address); R41 by
 M4 and M6 (B's SPI refused, HAVEN stops); R45 and R46 pass M4 and M6.
 The rows are judged on the campaign run.
+
+## Results (2026-11-22, run 44999284558 at `3c329fc`, the merge of #198)
+
+[F] from the 109 case files; scenario 1's verdicts are run 44993759751's
+(M7 counted against E0's baseline, as `run_case.py` does since #195).
+
+| Row | Result |
+| - | - |
+| G1 | **holds** (on the Mac, before the run; see Implementation) |
+| G2 | **holds**: the three controls and `C2-BASELINE` pass M1 to M4, M6 and M7; read-back sees streams 8 and 255 translated and SPI 34 on CPU 2 |
+| G3 | **holds**: H2 is found by M6 on both CPU models (`DMA enforcement drift` on the stream at 00:1f.7: its table address carries the VMID's low bit). M7 does not find it: the EL3 path has no DMA-master list (`m7/README.md`, W14 and R60) |
+| G4 | **holds**: R41 is found by M2 and M4 (B's SPI refused, HAVEN stops), and by M6 and M7 (SPI 34 disabled and not routed, no partition running) |
+| G5 | **holds**: R45 and R46 pass every method; their fault needs a stream ID beyond the table, which no valid grant holds |
+| G6 | **holds**: the other 104 cases have the same verdict from every method as in scenario 1 |
+
+So two of the four "not exercised" cases are found once the grant gives
+their code an input (H2 by read-back alone, R41 by every boot method);
+R45 and R46 stay reachable only by unit tests (an out-of-range ID).
