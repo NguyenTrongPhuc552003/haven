@@ -191,3 +191,14 @@ after `gicr_cpu_init`. Placed so that every campaign patch applies as on
 | A3 | in CI on this pull request |
 | A4 | `readback.py --el3` on the unchanged tree: `enforced state matches the grant`. **Holds** |
 | A5 | after merge. Preview on the Mac: W31 on `qemu-psci` fails M4 again (`timer_irqs=0`), as expected |
+
+### A5 (2026-11-23, campaign run 45047328899 at `76c35b8`, the merge of #206) [F]
+
+Scenario 1, 106 cases, against F5's run 45042879186: every method's
+verdict is the same on 105 cases; **W31's M4 is back to finding** (B gets
+no timer interrupt: the replay restores only what HAVEN wrote, and W31
+wrote CPU 0), and its M6 evidence again includes `CPU 2 PPI 27: missing
+interrupt binding`. Two other cases differ only in the order of parallel
+build lines quoted in their evidence (W12r's M1, H1's M4), not in a
+verdict. M7 and M6 agree on 100 of 106. **A5 holds.** A2 and A3 held in
+CI on #206 (the TF-A job, the ARM64 job and the Linux job passed).
