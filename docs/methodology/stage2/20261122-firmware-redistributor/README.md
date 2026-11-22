@@ -100,3 +100,30 @@ F3 check the writes in QEMU. `M7_BASELINE` is now empty (F5).
 | F3 | `readback.py --el3` on the unchanged tree with the fix: `enforced state matches the grant`; CPU 2's `GICR_ISENABLER0 = 0x2c00ffff` (SGIs 0 to 15, PPIs 26, 27 and TF-A's 29). **Holds** |
 | F4 | qemu-direct M2 and qemu-psci M4 pass on both CPU models, M6 (max) matches the grant; the Linux job runs in CI on this pull request. **Holds** on the Mac |
 | F5 | after merge: the campaign's scenario 1 with M7 and no baseline |
+
+## F5 (2026-11-22, campaign run 45042879186 at `1af691d`, the merge of #202) [F]
+
+Scenario 1, all 106 cases, M7 with no baseline rule:
+
+- The controls (`C2-BASELINE`, `C2-V3-C6`, `C2-V3-C7`) pass every
+  method, M7 included: the unchanged tree under TF-A has no finding.
+- **M7 and M6 agree on 100 of 106.** W30 now agrees (M7: `CPU 2 PPI 27:
+  missing interrupt binding`). The six that differ are exactly the
+  predicted ones: W09, R42 (per-CPU VTTBR_EL2), W27, R19 (groups under
+  TF-A), W14, R60 (no DMA-master list in EL3 mode). **F5 holds.**
+
+Against scenario 1 before the fix (run 44993759751, M7 counted against
+E0's finding as #195 did), 104 cases have the same verdict from every
+method. Two changed:
+
+- W30, M7 pass to finding: predicted in F5.
+- **W31, M4 finding to pass: not predicted.** W31 makes `ppi_assign`
+  enable B's PPI on CPU 0 instead of its CPU. The ownership table still
+  holds CPU 2, so `hv_irq_cpu_online` now enables the PPI on CPU 2 when
+  the CPU comes up, and B gets its timer interrupts. The fault is still
+  in the state (PPI 27 enabled on CPU 0 without a grant): M6 and M7 both
+  report `CPU 0 PPIs: interrupt enable drift`. The fix made the boot
+  CPU's enable redundant for a started CPU, so a fault in it no longer
+  shows in B's behaviour, only in the enforced state. The case's M4
+  expectation is not changed; the run's summary counts it as a
+  disagreement with a named cause, beside C4's W08.

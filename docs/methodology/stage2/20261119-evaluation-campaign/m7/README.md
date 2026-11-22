@@ -109,3 +109,11 @@ partition's tables), whether or not a DMA master is known. That closes
 the EL3 blind spot for W14 and R60, and in monitor mode it adds a second
 report of the same faults. Design and expectations as their own record
 before any code.
+
+## After the fix (2026-11-22)
+
+E0's finding was a HAVEN defect, fixed in #202; `M7_BASELINE` is empty.
+Rerun on all 106 cases: the controls pass, M7 and M6 agree on 100, and
+the six differences are W09, R42, W27, R19, W14 and R60
+(`../../20261122-firmware-redistributor/README.md`, F5). Proposal 2 of
+the section above (B's timer under TF-A) became F0 and F2 of that record.
