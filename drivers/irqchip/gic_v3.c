@@ -234,6 +234,15 @@ hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq)
 	return HV_OK;
 }
 
+hv_status_t gic_v3_cpu_online(uint32_t cpu)
+{
+	if (!gic.initialized || cpu >= gic.nr_cpus || gicr_cpu_base(cpu) == 0U)
+		return HV_EINVAL;
+
+	gicr_cpu_init(cpu);
+	return HV_OK;
+}
+
 hv_status_t gic_v3_set_ppi_priority(uint32_t cpu, uint32_t irq,
 				    uint8_t priority)
 {

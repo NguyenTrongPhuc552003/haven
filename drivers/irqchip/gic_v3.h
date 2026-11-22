@@ -36,6 +36,11 @@ hv_status_t gic_v3_disable_irq(uint32_t irq);
  * gic_v3_enable_irq and gic_v3_disable_irq take SPIs only. */
 hv_status_t gic_v3_enable_ppi(uint32_t cpu, uint32_t irq);
 hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
+/* The calling CPU, cpu, sets up its own redistributor again as at boot
+ * (SGIs enabled, PPIs disabled, default priority): firmware's PSCI CPU_ON
+ * may have re-initialised it after the boot CPU did (TF-A does;
+ * docs/methodology/stage2/20261122-firmware-redistributor/). */
+hv_status_t gic_v3_cpu_online(uint32_t cpu);
 /* Priority of PPI irq in CPU cpu's redistributor. */
 hv_status_t gic_v3_set_ppi_priority(uint32_t cpu, uint32_t irq,
 				    uint8_t priority);

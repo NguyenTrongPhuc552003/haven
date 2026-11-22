@@ -296,14 +296,19 @@ def boot_methods(src, cdir, grant, tfa=None, grant2=False):
 # The unchanged tree under TF-A already reports this (the prototype's E0,
 # docs/methodology/stage2/20261108-el3-readback/; m7/README.md, results):
 # M7 counts only findings other than it.
-M7_BASELINE = ("CPU 2 PPI 27: missing interrupt binding",)
+# Retired with the fix of 20261122-firmware-redistributor (HAVEN sets up a
+# started CPU's redistributor again), which removes that finding; kept as
+# a parameter so a later baseline is a one-line change (row F5).
+E0_FINDING = "CPU 2 PPI 27: missing interrupt binding"
+M7_BASELINE = ()
 
 
-def m7_against_baseline(verdict, evidence):
-    """M7's verdict and evidence with the TF-A baseline finding taken out."""
+def m7_against_baseline(verdict, evidence, baseline=None):
+    """M7's verdict and evidence with the TF-A baseline findings taken out."""
+    baseline = M7_BASELINE if baseline is None else baseline
     if verdict != "finding":
         return verdict, evidence
-    rest = [f.strip() for f in evidence.split(";") if f.strip() and f.strip() not in M7_BASELINE]
+    rest = [f.strip() for f in evidence.split(";") if f.strip() and f.strip() not in baseline]
     return ("finding", "; ".join(rest)) if rest else ("pass", "the TF-A baseline finding only (E0)")
 
 

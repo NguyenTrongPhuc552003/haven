@@ -135,6 +135,35 @@ jobs:
           python3 scripts/qemu/uefi-boot-check.py build-psci build-efi max 120 --seed mmu
           python3 scripts/qemu/uefi-boot-check.py build-psci build-efi max 120 --seed e2h
 
+  # Partition B started through firmware: TF-A's CPU_ON re-initialises the
+  # started CPU's redistributor, so HAVEN sets it up again on that CPU
+  # (docs/methodology/stage2/20261122-firmware-redistributor/, rows F0, F2).
+  partition-b-tfa:
+    name: Partition B under TF-A (QEMU)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross toolchain, make and QEMU
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends \
+            cmake ninja-build make gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-system-arm
+      - name: TF-A v2.12.0 with the EL3 read-back service
+        run: |
+          git clone -q --depth 1 --branch v2.12.0 https://github.com/ARM-software/arm-trusted-firmware.git "$RUNNER_TEMP/tfa"
+          git -C "$RUNNER_TEMP/tfa" apply "$GITHUB_WORKSPACE/tools/el3-readback/tf-a-v2.12.0-el3-readback.patch"
+          make -C "$RUNNER_TEMP/tfa" -j"$(nproc)" CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu QEMU_USE_GIC_DRIVER=QEMU_GICV3 \
+            PRELOADED_BL33_BASE=0x80000000 EL3_READBACK=1 bl1 bl2 bl31 > "$RUNNER_TEMP/tfa-build.log" 2>&1 ||
+            { tail -40 "$RUNNER_TEMP/tfa-build.log"; exit 1; }
+      - name: Cross-compile (qemu-tfa profile)
+        run: |
+          cmake --preset arm64-qemu -B build-tfa -DHAVEN_BOOT_PROFILE=qemu-tfa
+          cmake --build build-tfa
+      - name: Partition B check under TF-A (cortex-a72)
+        run: python3 scripts/qemu/partition-b-check.py build-tfa cortex-a72 60 --tfa "$RUNNER_TEMP/tfa/build/qemu/release"
+      - name: Partition B check under TF-A (max)
+        run: python3 scripts/qemu/partition-b-check.py build-tfa max 60 --tfa "$RUNNER_TEMP/tfa/build/qemu/release"
+
   # Linux with KDAL in partition A on 2 and 3 vCPUs, partition B beside it
   # (docs/methodology/stage2/20261112-e4-ci-linux). Kernel: the pinned
   # private ELMOS SDK package; kdal.ko built against it at a pinned KDAL.

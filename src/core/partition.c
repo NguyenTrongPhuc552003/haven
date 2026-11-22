@@ -467,6 +467,11 @@ partition_b_secondary_cpu_init(uint64_t cpu_id)
 			__asm__ volatile("wfe");
 	}
 
+	/* Firmware's CPU_ON may have reset this CPU's redistributor after CPU 0
+	 * enabled B's PPIs on it (TF-A does; 20261122-firmware-redistributor).
+	 * Before the budget start, which enables HAVEN's own timer PPI. */
+	(void)hv_irq_cpu_online(PART_B_CPU);
+
 	/* CPU time budget enforced by the EL2 timer from here on. */
 	(void)hv_arch_budget_start(PART_B_CPU, part_b_budget.budget_ns,
 				   part_b_budget.period_ns);
@@ -618,6 +623,8 @@ partition_a_secondary_cpu_init(uint64_t cpu_id)
 		for (;;)
 			__asm__ volatile("wfe");
 	}
+	/* As for partition B: the vCPU's timer PPI again on its own CPU. */
+	(void)hv_irq_cpu_online((hv_u32)cpu_id);
 	(void)hv_arch_budget_start((uint32_t)cpu_id, part_a_budget.budget_ns,
 				   part_a_budget.period_ns);
 	hv_arch_start_partition((uintptr_t)part_a_entry[index], 0UL,
