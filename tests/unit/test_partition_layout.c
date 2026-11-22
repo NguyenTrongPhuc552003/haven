@@ -138,29 +138,36 @@ int main(void)
 {
 	partitions_launch();
 #if defined(HAVEN_PLATFORM_CIX_P1)
-	/* D3 grant v0: RAM identity mapped at 4 GiB, UART2; no partition B */
-	CHECK(nmaps == 1U && map_parts[0] == 1U && map_counts[0] == 2U);
+	/* A as D3 grant v0: RAM identity mapped at 4 GiB, UART2; B from its
+	 * own record (20261123-cix-p1-partition-b, grant v1): 64 MiB at PA
+	 * 0xE0000000, IPA 0x60000000, its timer PPI on logical CPU 8 */
+	CHECK(nmaps == 2U && map_parts[0] == 1U && map_counts[0] == 2U);
 	region(0, 0, 0x100000000ULL, 0x100000000ULL, 0x80000000ULL, HV_MEM_RWX);
 	region(0, 1, 0x040D0000ULL, 0x040D0000ULL, 0x1000ULL, HV_MEM_DEVICE_RW);
+	CHECK(map_parts[1] == 2U && map_counts[1] == 1U);
+	region(1, 0, 0x60000000ULL, 0xE0000000ULL, 0x4000000ULL, HV_MEM_RWX);
 	CHECK(nassign == 0U && nwindow == 0U && nadds == 0U);
 #if defined(HAVEN_PART_A_VCPUS) && HAVEN_PART_A_VCPUS == 8
 	/* vCPU i on logical CPU i: its virtual timer PPI there, in order */
-	CHECK(nroutes == 9U);
+	CHECK(nroutes == 10U);
 	route(0, 330U, 1U, 0U);
 	for (hv_u32 c = 0U; c < 8U; c++)
 		route(1U + c, 27U, 1U, c);
+	route(9, 27U, 2U, 8U);
 #else
-	CHECK(nroutes == 2U);
+	CHECK(nroutes == 3U);
 	route(0, 330U, 1U, 0U);
 	route(1, 27U, 1U, 0U); /* Linux guest: virtual timer on CPU 0 */
+	route(2, 27U, 2U, 8U);
 #endif
-	CHECK(nbudgets == 1U && budgets[0].partition_id == 1U);
+	CHECK(nbudgets == 2U && budgets[0].partition_id == 1U);
 	CHECK(budgets[0].budget_ns == 8000000ULL &&
 	      budgets[0].period_ns == 10000000ULL);
-	CHECK(strstr(log_text, "partition B not started: no memory on this "
-			       "platform") != NULL);
+	CHECK(budgets[1].partition_id == 2U &&
+	      budgets[1].budget_ns == 2000000ULL);
+	CHECK(strstr(log_text, "partition B not started") == NULL);
 	CHECK(strstr(log_text, "(SPI 330 -> CPU 0)") != NULL);
-	printf("test_partition_layout_cix: cix-p1 layout as D3 grant v0\n");
+	printf("test_partition_layout_cix: cix-p1 layout as grant v1\n");
 #else
 	CHECK(nmaps == 2U && map_parts[0] == 1U && map_counts[0] == 3U);
 	region(0, 0, 0x40000000ULL, 0x80800000ULL, 0x20000000ULL, HV_MEM_RWX);

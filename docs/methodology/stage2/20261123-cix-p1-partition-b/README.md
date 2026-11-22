@@ -54,3 +54,25 @@ range in 0xD100_0000 to 0xF000_0000, recorded as a deviation.
 | P3 | `grant-cixp1-v1.json` | passes M3 (format 1 to 2 and back); lists B's RAM and CPU 8, the rest as v0 |
 | P4 | the loader's cix-p1 table | a host check: every range 2 MiB aligned, no two overlap, none overlaps a fixed reservation of the loading study's table |
 | P5 | the board (later, part A3 of the board plan) | B's status record reached through the chosen read-back channel shows stage 5 and at least 8 timer interrupts; not judged before the board |
+
+## Code and P1 to P4 (2026-11-23) [F]
+
+`src/platform/cix-p1/memory.h` defines `PART_B_CPU` 8, `PART_B_IPA_BASE`
+0x6000_0000, `PART_B_PA_BASE` 0xE000_0000 and `PART_B_SIZE` 64 MiB, with
+four compile-time checks; `partition.c`'s partition B code, already
+written for qemu-virt, then builds for cix-p1 too. `grant-cixp1-v1.json`
+is v0 with B's RAM, B on CPU 8 only, CPUs 9 to 11 no partition's.
+`scripts/ci/test_cix_layout.py` reads the reservation table of the
+loading study itself.
+
+| Row | Result |
+| - | - |
+| P1 | on the Mac, both cix-p1 builds (demo, and Linux layout with 8 vCPUs) link with partition B, `guest_b.bin` included; the four checks hold. **Holds**; CI repeats both. The host test of `partition.c`'s layout on cix-p1 (`test_partition_layout_cix`, `_cix8`) checked "no partition B" (D3); it now checks B's region, its timer route on CPU 8 and its budget, from this record |
+| P2 | qemu-virt: the change is in cix-p1's header only, which no qemu-virt build includes. **Holds** by construction |
+| P3 | `grant-cixp1-v1.json`: format 1 to 2 and back passes. **Holds** |
+| P4 | 4 of 4 host tests pass: the eight kept reservations of section 5.2 are read, the three ranges are 2 MiB aligned, disjoint, and clear of them. **Holds** |
+
+**Deviation:** the design's loader rows are not written. `haven-boot.efi`
+is built for qemu-virt only, and its cix-p1 table also needs partition A's
+Linux images (kernel, device tree, initramfs), which the loader does not
+load yet; B's row goes in with that work, before part A of the board plan.
