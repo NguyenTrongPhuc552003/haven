@@ -42,7 +42,7 @@ Evaluated with seeded fault case sets and randomly drawn held-out faults
 | Costa et al., "SP-IMPact", arXiv 2501.16245 (not read in full) | interference evaluation for static partitioning |
 | Oliveira et al., "H-MBR", arXiv 2502.02437 (not read in full) | hypervisor-level memory bandwidth reservation (a countermeasure in the PLAN matrix) |
 | "Beyond the Bermuda Triangle of Contention: IOMMU Interference in Mixed Criticality Systems", arXiv 2508.19670 (not read in full) | SMMU as a source of interference; relevant to CIX P1's PCIe SMMU |
-| Omnivisor, ECRTS 2024 | static partitioning over heterogeneous cores (A720 and A520 on CIX P1) |
+| Ottaviano, Ciraolo, Mancuso, Cinque, "The Omnivisor", ECRTS 2024 (the starting idea of HAVEN; full analysis pending) | extends Jailhouse so that partitions also run on cores of another ISA in the same MPSoC (on Zynq UltraScale+: Cortex-A53 application cores, Cortex-R5F real-time cores, RISC-V soft-cores on the FPGA), with spatial and temporal isolation extended to them [F, from the paper]. CIX P1's Cortex-A720 and A520 share one ISA, so the board is not that case; the model applies to HAVEN only with a co-processor of another ISA [I] |
 
 ## Novelty statement (inference, to keep under review)
 
@@ -72,6 +72,6 @@ introspection Arm, SMMU verification, partition configuration checking).
 - [Hafnium secure partition manager](https://hafnium.readthedocs.io/en/v2.12-rc0/secure-partition-manager/secure-partition-manager.html)
 - [pKVM SMMUv3 v8 series](https://patchew.org/linux/20260922131259.2975334-1-smostafa@google.com/20260922131259.2975334-13-smostafa@google.com/)
 - [Lauterbach hypervisor debugging flyer](https://www2.lauterbach.com/download/pdf/flyer/lauterbach-hypervisor-flyer-v2.00.pdf)
-- [Omnivisor, ECRTS 2024](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECRTS.2024.7)
+- [Omnivisor, ECRTS 2024, LIPIcs.ECRTS.2024.6](https://doi.org/10.4230/LIPIcs.ECRTS.2024.6) (code: <https://github.com/DanieleOttaviano/Omnivisor>)
 - [Martins and Pinto, RTAS 2023](https://ui.adsabs.harvard.edu/abs/2023arXiv230311186M/abstract)
 - [IOMMU interference, arXiv 2508.19670](https://arxiv.org/pdf/2508.19670)
