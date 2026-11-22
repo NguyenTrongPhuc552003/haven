@@ -116,7 +116,7 @@ cases are reported apart and together.
 | C2 | written and random cases, frozen with their hashes; owner approves the written expectations | owner's yes |
 | C3 | owner's held-out archive, its hash committed | the owner |
 | C4 | the run in CI | after C2 and C3 |
-| C5 | results and threats to validity | |
+| C5 | results and threats to validity | done 2026-11-22: `RESULTS.md` (C4: `c4/`) |
 
 ## For the owner [?]
 

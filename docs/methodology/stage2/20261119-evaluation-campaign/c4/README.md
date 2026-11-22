@@ -36,3 +36,17 @@ If C4-1 fails for a case, that case runs five more times (the W09
 repeat's method) before any cause is named: a verdict that changes
 between runs of the same tree is a flaky method, recorded as its own
 finding (E5), and the case is reported with both verdicts.
+
+## Results (2026-11-22)
+
+Both runs at `49fe767` (the merge of #189); `SHA256SUMS-C4` holds there
+(138 files, all OK) and `make_c4.py --check` passes [F].
+C4-boot: run 44989936131, ten shards; C4-linux2: run 44989942726, eight.
+
+| Row | Result |
+| - | - |
+| C4-1 | **holds**: 149 cases, 1,043 method verdicts compared with their recorded runs, 1,043 identical, 0 different. No method is flaky on these cases |
+| C4-2 | **holds**: one disagreement, W08's M6 (`error`: HAVEN halts before stage-2 setup), as recorded; C4-boot's summary job fails on it, by design |
+| C4-3 | **holds**: M6's median 1.0 s in scenario 1 (105 runs, max 40.9 s, the halting cases); 4.7 s in scenario 2 (43 runs, cortex-a72 only) |
+
+The per-class tables and what they mean are in `../RESULTS.md` (step C5).
