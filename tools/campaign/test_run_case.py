@@ -67,6 +67,14 @@ class ReadbackVerdict(unittest.TestCase):
 
 
 class Evidence(unittest.TestCase):
+    def test_m7_baseline(self):
+        """m7/README.md: the unchanged tree's TF-A finding is not counted."""
+        base = run_case.M7_BASELINE[0]
+        self.assertEqual(run_case.m7_against_baseline("finding", base)[0], "pass")
+        v, e = run_case.m7_against_baseline("finding", base + "; SPI 33: interrupt routing drift")
+        self.assertEqual((v, e), ("finding", "SPI 33: interrupt routing drift"))
+        self.assertEqual(run_case.m7_against_baseline("error", "probe failure")[0], "error")
+
     def test_m7_without_tfa_is_na(self):
         """M7 runs only with --tfa (m7/README.md)."""
         self.assertEqual(run_case.m7("unused", "unused", GRANT_V3, None)["verdict"], "n/a")
