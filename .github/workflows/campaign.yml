@@ -103,6 +103,14 @@ jobs:
           else
             python3 tools/campaign/unseal.py "$SEALED" /tmp/sealed --from-env SEALED_ARCHIVE
           fi
+      - name: TF-A v2.12.0 with the EL3 read-back service (M7, m7/README.md)
+        run: |
+          git clone -q --depth 1 --branch v2.12.0 https://github.com/ARM-software/arm-trusted-firmware.git /opt/tfa
+          git -C /opt/tfa apply "$GITHUB_WORKSPACE/tools/el3-readback/tf-a-v2.12.0-el3-readback.patch"
+          make -C /opt/tfa -j"$(nproc)" CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu QEMU_USE_GIC_DRIVER=QEMU_GICV3 \
+            PRELOADED_BL33_BASE=0x80000000 EL3_READBACK=1 bl1 bl2 bl31 > /tmp/tfa-build.log 2>&1 ||
+            { tail -40 /tmp/tfa-build.log; exit 1; }
+          ls -l /opt/tfa/build/qemu/release/bl1.bin /opt/tfa/build/qemu/release/bl2.bin /opt/tfa/build/qemu/release/bl31.bin
       - name: QEMU 9.2 or later, and the unchanged tree builds (row K8)
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -126,7 +134,7 @@ jobs:
           CASES: ${{ inputs.sealed != '' && '/tmp/sealed/cases.json' || inputs.cases }}
           SHARD: ${{ matrix.shard }}
           SHARDS: ${{ strategy.job-total }}
-        run: python3 tools/campaign/run_shard.py "$CASES" "$SHARD" "$SHARDS" out
+        run: python3 tools/campaign/run_shard.py "$CASES" "$SHARD" "$SHARDS" out --tfa /opt/tfa/build/qemu/release
       - uses: actions/upload-artifact@v4
         if: always() && inputs.sealed == ''
         with:
