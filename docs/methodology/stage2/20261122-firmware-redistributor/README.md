@@ -127,3 +127,50 @@ method. Two changed:
   shows in B's behaviour, only in the enforced state. The case's M4
   expectation is not changed; the run's summary counts it as a
   disagreement with a named cause, beside C4's W08.
+
+## Amendment 1 (2026-11-22): who decides what a started CPU enables (design)
+
+Owner-approved ("Approve", 2026-11-22: decide whether the boot CPU should
+still enable PPIs for CPUs it has not started).
+
+**Problem [F].** #202 re-enables, on a started CPU, every PPI the
+ownership table holds for it. That is not what HAVEN programmed in two
+cases: W31 (the boot CPU enabled the PPI on the wrong CPU) is repaired
+instead of shown (F5), and a PPI that HAVEN disabled on purpose for a
+CPU not yet running (Linux partition A: the GIC models start with the
+partition's interrupts disabled, `part_a_hw_enable`; an undeliverable PPI,
+`arch/arm64/irq.c`) would be enabled again, against the guest's own
+enable state [I, not observed: the Linux job passed on #202].
+
+**Options considered.**
+
+- (a) Keep #202: the ownership table decides. Simple; wrong for the two
+  cases above.
+- (b) Write a PPI only from its own CPU: `ppi_assign` defers to the
+  CPU's start. One writer per redistributor, as Linux does with per-CPU
+  interrupts; but every other place that writes another CPU's PPI
+  (the GIC models' set-up, read-back's expectations of the boot state)
+  would change too, and W31 becomes equivalent (its line no longer runs
+  for a started CPU).
+- (c) **Chosen**: the GIC driver keeps, per CPU, what HAVEN last wrote to
+  that CPU's PPI enables and priorities (a shadow), and
+  `gic_v3_cpu_online` replays it after setting the redistributor up
+  again. The redistributor then ends as HAVEN programmed it, whoever
+  reset it in between, so a started CPU behaves the same with and
+  without firmware, and a fault in what HAVEN programmed shows again.
+  `hv_irq_cpu_online` only calls `gic_v3_cpu_online`; the ownership walk
+  (`hv_irq_ppis_on`) goes.
+
+**Left for the board [P, G3].** HAVEN's boot CPU still writes the
+redistributors of CPUs that are powered down (at `gic_v3_init` and for
+PPIs it assigns). Under TF-A in QEMU those writes are lost, not harmful;
+whether a powered-down core's redistributor accepts them on CIX P1's
+GIC-700 is a board question. Option (b) is the change if it does not.
+
+| Row | Check | Expected |
+| - | - | - |
+| A1 | host tests | pass (the driver is not in the host build; `hv_irq_ppis_on`'s assertions go with it) |
+| A2 | `partition-b-check.py` with and without `--tfa`, both CPU models | pass (the CI job and the ARM64 job) |
+| A3 | the Linux job (2 and 3 vCPUs) | passes |
+| A4 | M7 on the unchanged tree | no finding (as F3) |
+| A5 | campaign scenario 1, 106 cases | every verdict as in F5 (run 45042879186) except **W31's M4, back to finding** (as before #202); M7 and M6 agree on 100 |
