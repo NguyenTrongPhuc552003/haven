@@ -17,6 +17,13 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v17 (2026-11-23, the board path): the addresses come from a
+platform table (tools/readback/platforms.py, checked against the
+platforms' headers), --platform NAME (default qemu-virt); redistributor
+frames are found by GICR_TYPER affinity, as HAVEN finds them, instead of a
+fixed stride; --dump FILE reads a saved EL3 dump without booting anything
+(docs/methodology/stage2/20261123-readback-board-path/).
+
 Changes in v16 (2026-11-23, M7's W14, R60 and H2): a granted stream that
 no DMA master in the list covers is checked through its own stream-table
 entry. In EL3 mode there is no device list, so an entry that aborts is
@@ -168,10 +175,36 @@ import sys
 import time
 
 import grant as grant_file  # tools/readback/grant.py
+import platforms  # tools/readback/platforms.py (v17)
 
+# v17: set from platforms.PLATFORMS by use_platform(); qemu-virt by default
 IMG_PA, IMG_SIZE = 0x80000000, 0x800000
 SMMU_BASE = 0x09050000
-GICD_BASE, GICR_BASE, GICR_STRIDE, NCPUS = 0x08000000, 0x080A0000, 0x20000, 4  # QEMU virt, -smp 4
+GICD_BASE, GICR_BASE, NCPUS = 0x08000000, 0x080A0000, 4  # QEMU virt, -smp 4
+CPU_MPIDR = [0x0, 0x1, 0x2, 0x3]
+
+
+class ProbeFailure(Exception):
+    """The state could not be read (v17: a CPU without a redistributor frame)."""
+
+
+def use_platform(name):
+    """v17: the addresses of platform name."""
+    global IMG_PA, IMG_SIZE, SMMU_BASE, GICD_BASE, GICR_BASE, NCPUS, CPU_MPIDR
+    p = platforms.PLATFORMS[name]
+    IMG_PA, IMG_SIZE = p["image"]
+    SMMU_BASE, GICD_BASE, GICR_BASE = p["smmu"], p["gicd"], p["gicr"]
+    CPU_MPIDR = list(p["mpidr"])
+    NCPUS = len(CPU_MPIDR)
+
+
+def frames_or_fail(read_typer):
+    """v17: each logical CPU's redistributor frame by affinity, or ProbeFailure."""
+    frames = platforms.gicr_frames(read_typer, GICR_BASE, CPU_MPIDR)
+    for c, rd in enumerate(frames):
+        if rd is None:
+            raise ProbeFailure(f"no redistributor frame for logical CPU {c} (MPIDR {CPU_MPIDR[c]:#x})")
+    return frames
 MARKER = "Post-fault check OK"  # default; --marker overrides
 EVT_NAMES = {0x02: "bad StreamID", 0x03: "STE fetch fault", 0x04: "bad STE", 0x06: "stream disabled",
              0x10: "translation fault", 0x11: "address size fault", 0x12: "access fault",
@@ -540,8 +573,7 @@ def el3_snapshot(text):
          "irouter": [words[GICD_BASE + 0x6000 + 8 * irq] if is_ns(ns, irq) else 0 for irq in range(32, nirq)],
          "ipriorityr": prio_words([words[GICD_BASE + 0x400 + 4 * i] for i in range(nirq // 4)], ns, 0),
          "cpus": [], "secure_ctlr": ctlr_s}
-    for c in range(NCPUS):
-        rd = GICR_BASE + c * GICR_STRIDE
+    for rd in frames_or_fail(lambda r: words.get(r + 0x8)):  # v17
         sgi = rd + 0x10000
         ns0 = [words[sgi + 0x80] & ~words[sgi + 0xD00] & 0xFFFFFFFF]
         g["cpus"].append({"typer": words[rd + 0x8], "igroupr0": ns0[0], "isenabler0": words[sgi + 0x100] & ns0[0],
@@ -572,8 +604,7 @@ def read_gic(m):
          "isenabler": m.read_words(GICD_BASE + 0x100, nirq // 32),
          "irouter": m.read_words(GICD_BASE + 0x6000 + 8 * 32, nirq - 32, "g"),
          "ipriorityr": m.read_words(GICD_BASE + 0x400, nirq // 4), "cpus": []}
-    for c in range(NCPUS):
-        base = GICR_BASE + c * GICR_STRIDE
+    for base in frames_or_fail(lambda r: m.read64(r + 0x8)):  # v17
         g["cpus"].append({"typer": m.read64(base + 0x8), "igroupr0": m.read32(base + 0x10080),
                           "isenabler0": m.read32(base + 0x10100),
                           "ipriorityr": m.read_words(base + 0x10400, 8)})
@@ -1229,7 +1260,15 @@ def main():
                     help="second -serial for HAVEN_CONSOLE_UART=1 builds, into haven-uart.log (v13)")
     ap.add_argument("--tfa", metavar="DIR", help="boot HAVEN under TF-A from DIR (bl1.bin, bl2.bin, bl31.bin) (v11)")
     ap.add_argument("--el3", action="store_true", help="read the EL3 read-back dump instead of the monitor (v11)")
+    ap.add_argument("--platform", default="qemu-virt", choices=sorted(platforms.PLATFORMS),
+                    help="the platform's addresses (v17)")
+    ap.add_argument("--dump", metavar="FILE", help="read a saved EL3 dump (RB lines); boots nothing (v17)")
     a = ap.parse_args()
+    if a.dump and (a.tfa or a.el3):
+        ap.error("--dump reads a saved dump: no --tfa or --el3")
+    if a.platform != "qemu-virt" and not a.dump:
+        ap.error(f"--platform {a.platform} has no QEMU machine: use --dump")
+    use_platform(a.platform)
     if a.el3 and not a.tfa:
         ap.error("--el3 needs --tfa")
     if a.haven_uart and a.tfa:  # v13: with TrustZone the second PL011 is Secure world's
@@ -1238,7 +1277,16 @@ def main():
         a.tfa = os.path.abspath(a.tfa)
     os.makedirs(a.out, exist_ok=True)
     grant = grant_file.load(a.grant)  # format 1 or 2 (FF-A vocabulary)
-    snap = capture(a, a.out)
+    try:
+        if a.dump:  # v17: a dump captured elsewhere, by any channel
+            snap = el3_snapshot(open(a.dump, errors="replace").read())
+        else:
+            snap = capture(a, a.out)
+    except ProbeFailure as e:
+        json.dump({"cpu": a.cpu, "findings": [], "probe_failure": str(e)},
+                  open(os.path.join(a.out, "readback.json"), "w"), indent=1)
+        print(f"probe failure: {e}")
+        return 2
     if snap is None or len(snap.get("image", b"")) != IMG_SIZE:
         print("probe failure: QEMU exited before the memory could be read")
         return 2
@@ -1280,7 +1328,10 @@ def main():
             if p1 != p2 and a1 < a2 + s2 and a2 < a1 + s1:
                 findings.append(("*", "cross-partition alias", f"PA {max(a1, a2):#x} reachable from {p1} and {p2}"))
     if "smmu" in grant:
-        pcie_maps, mmio_with_iommu = dt_smmu_coverage(device_tree(a.build, a.cpu, a.device, a.out, a.smmu_stage))
+        if a.dump:  # v17: no QEMU to describe the machine; no DMA-master list (v16 covers granted streams)
+            pcie_maps, mmio_with_iommu = [], "n/a (dump)"
+        else:
+            pcie_maps, mmio_with_iommu = dt_smmu_coverage(device_tree(a.build, a.cpu, a.device, a.out, a.smmu_stage))
         masters = dma_masters(snap, pcie_maps)
         parts = {int(p): [{k: int(x[k], 16) for k in ("ipa", "pa", "size")} for x in d["H"]]
                  for p, d in report["partitions"].items()}
