@@ -46,3 +46,14 @@ findings and their evidence do not change. The version line and
 | V4 | M7 and M6 on scenario 1 | agree on **102 of 106**: the four left are W09 and R42 (per-CPU VTTBR_EL2) and W27 and R19 (groups under TF-A) |
 | V5 | scenario 3, M7 | H2 found (stream 255); every other verdict as in run 44999284558 |
 | V6 | other read-back users (the Linux CI job, the R1 demo, the UEFI checks) | unchanged: they read in monitor mode with their devices present |
+
+## Code and V1 (2026-11-23) [F]
+
+`compare_smmu` as designed. V1: the four new tests pass (71 read-back
+tests in all). **V1 holds.** A preview on the Mac (QEMU 11.1.3, the
+local TF-A build, `--el3`): the unchanged tree matches the grant; W14
+gives `granted stream not translated (SID 8: entry abort, granted to
+partition 1)`; H2 on the grant-2 build gives `DMA enforcement drift (SID
+255: translated:unknown (S2TTB 0x100008001a000, table outside the dumped
+image), expected translated:1)`. V2 to V6 are judged on the campaign
+runs after merge.
