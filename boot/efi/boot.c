@@ -20,6 +20,8 @@ void haven_handoff(uint64_t entry, uint64_t uart) __attribute__((noreturn));
 
 static const struct boot_range ranges[] = {BOOT_RANGES};
 #define NR_RANGES (sizeof(ranges) / sizeof(ranges[0]))
+static const struct boot_range loads[] = {BOOT_LOADS};
+#define NR_LOADS (sizeof(loads) / sizeof(loads[0]))
 
 static uint8_t map_buf[32768] __attribute__((aligned(8)));
 
@@ -199,6 +201,8 @@ static efi_status load_ranges(efi_handle image, struct efi_boot_services *bs,
 	for (i = 0; s == EFI_SUCCESS && i < NR_RANGES; i++)
 		if (ranges[i].file[0])
 			s = load_file(root, &ranges[i]);
+	for (i = 0; s == EFI_SUCCESS && i < NR_LOADS; i++)
+		s = load_file(root, &loads[i]);
 	return s;
 }
 

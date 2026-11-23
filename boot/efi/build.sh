@@ -5,12 +5,13 @@
 #   haven-boot-seed-mmu.efi    test-only: leaves the MMU on (never for a board)
 #   haven-boot-seed-e2h.efi    test-only: sets HCR_EL2.E2H (never for a board)
 #
-# Usage: boot/efi/build.sh OUTDIR [CROSS_PREFIX]
+# Usage: [PLATFORM=cix-p1] boot/efi/build.sh OUTDIR [CROSS_PREFIX]
+#   PLATFORM      qemu-virt (default) or cix-p1 (boot/efi/layout.h)
 #   CROSS_PREFIX  default: aarch64-linux-gnu- if found, else
 #                 aarch64-unknown-linux-gnu-
 # Fails if an ELF needs any relocation or has a .got, or if objcopy cannot
-# write an AArch64 PE/COFF file. The loader's layout comes from HAVEN's
-# qemu-virt platform header (boot/efi/layout.h).
+# write an AArch64 PE/COFF file. The loader's layout comes from HAVEN's own
+# platform header (boot/efi/layout.h; PLATFORM selects it).
 set -euo pipefail
 
 OUT="${1:?usage: build.sh OUTDIR [CROSS_PREFIX]}"
@@ -24,7 +25,12 @@ mkdir -p "$OUT"
 
 CFLAGS=(-std=gnu11 -Os -Wall -Wextra -Werror -ffreestanding -fno-builtin
 	-fpie -fvisibility=hidden -fno-stack-protector -fno-asynchronous-unwind-tables
-	-mgeneral-regs-only -mstrict-align -I"$SRC" -I"$ROOT/src/platform/qemu-virt")
+	-mgeneral-regs-only -mstrict-align -I"$SRC")
+case "${PLATFORM:-qemu-virt}" in
+	qemu-virt) CFLAGS+=(-I"$ROOT/src/platform/qemu-virt") ;;
+	cix-p1) CFLAGS+=(-I"$ROOT/src/platform/cix-p1" -DHAVEN_PLATFORM_CIX_P1) ;;
+	*) echo "build.sh: unknown PLATFORM ${PLATFORM}" >&2; exit 1 ;;
+esac
 
 cc() { "${CROSS}gcc" "${CFLAGS[@]}" "$@"; }
 

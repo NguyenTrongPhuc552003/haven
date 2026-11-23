@@ -87,6 +87,22 @@
  * 0xD100_0000 to 0xF000_0000 of the loading study (to confirm with probe
  * P1); IPA 0x6000_0000 as on qemu-virt, so guest_b.bin is the same image.
  * No UART, no shared memory. */
+/* Partition A's Linux images, loaded by haven-boot.efi inside A's RAM
+ * (docs/methodology/stage2/20261124-loader-cix-p1): the kernel Image at
+ * A's base (HAVEN enters A there), the device tree 8-byte aligned and at
+ * most 2 MiB (arm64 boot protocol), the initramfs after it. HAVEN's
+ * HAVEN_PART_A_DTB_IPA must be CIX_PART_A_DTB_IPA on this platform. */
+#define CIX_PART_A_KERNEL_MAX 0x08000000UL /* 128 MiB */
+#define CIX_PART_A_DTB_IPA 0x110000000UL
+#define CIX_PART_A_DTB_MAX 0x00200000UL
+#define CIX_PART_A_INITRD_IPA 0x111000000UL
+#define CIX_PART_A_INITRD_MAX 0x20000000UL /* 512 MiB */
+#if defined(HAVEN_PART_A_DTB_IPA) && !defined(__ASSEMBLER__)
+_Static_assert(HAVEN_PART_A_DTB_IPA == CIX_PART_A_DTB_IPA,
+	       "cix-p1: HAVEN_PART_A_DTB_IPA must be CIX_PART_A_DTB_IPA, "
+	       "where haven-boot.efi loads the device tree");
+#endif
+
 #define PART_B_CPU 8U
 #define PART_B_IPA_BASE 0x60000000UL
 #define PART_B_PA_BASE 0xE0000000UL

@@ -65,3 +65,20 @@ and KDAL's module, as for the Linux CI job, is the obvious source).
 | L3 | a host test of both tables | every load lies inside one claimed range; no two loads overlap; claims 2 MiB aligned; the kernel at partition A's base; the device tree 8-byte aligned and at most 2 MiB |
 | L4 | HAVEN's cix-p1 Linux build | builds with `HAVEN_PART_A_DTB_IPA` equal to `CIX_PART_A_DTB_IPA`; fails to build with another value |
 | L5 | `gen_partition_a.py --initrd` | the tree's `/chosen` has both properties; `dt_check.py` still passes on it |
+
+## Code and L1 to L5 (2026-11-24, on the Mac) [F]
+
+`boot/efi/layout.h` (both tables per platform), `boot.c` (the loads
+after the claims, through the same `load_file`), `build.sh` (`PLATFORM`),
+cix-p1's `memory.h` (`CIX_PART_A_DTB_IPA` 0x1_1000_0000,
+`CIX_PART_A_INITRD_IPA` 0x1_1100_0000, the maximum sizes, and the check
+on `HAVEN_PART_A_DTB_IPA`), `tests/unit/test_boot_layout.c` (built for
+each platform), `gen_partition_a.py --initrd`.
+
+| Row | Result |
+| - | - |
+| L1 | `uefi-boot-check.py` on cortex-a72 and max (QEMU 11.1.3, Homebrew's EDK2): PASS; the console lists the same five claims and the same three loads (`haven.bin`, `guest_a.bin`, `guest_b.bin`) at the same addresses as before. **Holds** on the Mac; CI runs all four |
+| L2 | `PLATFORM=cix-p1 build.sh`: all four EFI files build with the relocation and `.got` checks; `haven-boot.efi` differs from qemu-virt's. **Holds** |
+| L3 | `test_boot_layout` and `test_boot_layout_cix` pass. **Holds** |
+| L4 | cix-p1 Linux build with `HAVEN_PART_A_DTB_IPA=0x110000000`: builds; with `0x120000000`: stops at the static assertion. **Holds** |
+| L5 | with `--initrd 0x111000000 12345678`, `/chosen` has `linux,initrd-start = <0x1 0x11000000>` and `-end = <0x1 0x11bc614e>`; `dt_check.py` against grant v1: matches the grant; without `--initrd` the generated tree is the committed one. **Holds** |
