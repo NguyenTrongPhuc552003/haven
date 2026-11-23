@@ -1,0 +1,31 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "docs/methodology/stage2/20261124-r40-repeat/: scenario 2's control once, then S2-R40 three times",
+ "grant": "docs/methodology/stage2/20261119-evaluation-campaign/s2/grant-s2-qemu82.json",
+ "expect": {},
+ "cases": [
+  {
+   "case": "S2-BASE-1",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "S2-R40-a",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R40.patch"
+  },
+  {
+   "case": "S2-R40-b",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R40.patch"
+  },
+  {
+   "case": "S2-R40-c",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R40.patch"
+  }
+ ]
+}
