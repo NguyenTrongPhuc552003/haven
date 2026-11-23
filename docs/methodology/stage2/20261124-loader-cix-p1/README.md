@@ -82,3 +82,13 @@ each platform), `gen_partition_a.py --initrd`.
 | L3 | `test_boot_layout` and `test_boot_layout_cix` pass. **Holds** |
 | L4 | cix-p1 Linux build with `HAVEN_PART_A_DTB_IPA=0x110000000`: builds; with `0x120000000`: stops at the static assertion. **Holds** |
 | L5 | with `--initrd 0x111000000 12345678`, `/chosen` has `linux,initrd-start = <0x1 0x11000000>` and `-end = <0x1 0x11bc614e>`; `dt_check.py` against grant v1: matches the grant; without `--initrd` the generated tree is the committed one. **Holds** |
+
+## L1 in CI (2026-11-24) [F]
+
+#220's head ran CI twice (push run 45234819011, pull-request run
+45234882003). In both, the UEFI step passes all four checks: the probe,
+then `uefi-boot-check` on cortex-a72, max, and max with the seeded MMU.
+The console shows the five `claim` lines and then the three `load` lines
+(`haven.bin` at 0x8000_0000, `guest_a.bin` at 0x8080_0000, `guest_b.bin`
+at 0xA080_0000), now from the load table. **L1 holds.** Merged as
+`e6445e1`.
