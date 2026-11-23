@@ -192,7 +192,7 @@ def cpu_node(src):
     return n
 
 
-def build(b, facts, g, seed=None):
+def build(b, facts, g, seed=None, initrd=None):
     pid = "1"
     regions = g["partitions"][pid]
     ram = [(int(r["ipa"], 16), int(r["size"], 16)) for r in regions if r["attrs"] in NORMAL]
@@ -233,6 +233,9 @@ def build(b, facts, g, seed=None):
             aliases.s(alias_of[path], path)
     chosen = root.add(N("chosen"))
     chosen.s("bootargs", "earlycon panic=-1")
+    if initrd:  # --initrd START SIZE (20261124-loader-cix-p1): where haven-boot.efi loads it
+        chosen.c("linux,initrd-start", hi_lo(initrd[0]))
+        chosen.c("linux,initrd-end", hi_lo(initrd[0] + initrd[1]))
     stdout = alias_of.get(prop_str(node(b, "/chosen"), "stdout-path"))
     if stdout and any("/soc@0/" + u["name"] == prop_str(node(b, "/chosen"), "stdout-path") for u in granted_uarts):
         chosen.s("stdout-path", f"{stdout}:115200n8")
@@ -322,6 +325,8 @@ def main():
     ap.add_argument("grant")
     ap.add_argument("outdir")
     ap.add_argument("--seeds", action="store_true")
+    ap.add_argument("--initrd", nargs=2, metavar=("START", "SIZE"), type=lambda x: int(x, 0),
+                    help="the initramfs's address and size, for /chosen (main tree only)")
     a = ap.parse_args()
     b = load_board(a.linux_dts_dir)
     facts = check_board(b)
@@ -341,7 +346,10 @@ def main():
     status = 0
     for seed, base in jobs:
         h = header + ([f"SEEDED FAULT {seed} (README.md, Expectations): not a tree to boot"] if seed else [])
-        rc, err = write_tree(build(b, facts, g, seed), h, base)
+        rd = tuple(a.initrd) if a.initrd and not seed else None
+        if rd:
+            h = h + [f"initramfs at {rd[0]:#x}, {rd[1]} bytes (--initrd)"]
+        rc, err = write_tree(build(b, facts, g, seed, rd), h, base)
         ncpu, nmem, devs = summary(base + ".dtb") if rc == 0 else (0, 0, [])
         print(f"{os.path.relpath(base, a.outdir)}: dtc exit {rc}, warnings: {err or 'none'}; "
               f"{ncpu} cpu nodes, {nmem} memory node(s), devices with reg besides the GIC: {', '.join(devs) or 'none'}")

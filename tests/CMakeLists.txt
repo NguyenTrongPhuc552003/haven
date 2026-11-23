@@ -85,6 +85,15 @@ haven_test(test_partition_layout_cix8
     DEFINES HAVEN_PLATFORM_CIX_P1 HAVEN_PART_A_DTB_IPA=0x110000000
             HAVEN_PART_A_VCPUS=8
 )
+# haven-boot.efi's tables per platform (docs/methodology/stage2/
+# 20261124-loader-cix-p1, row L3)
+haven_test(test_boot_layout SRCS ${_T}/unit/test_boot_layout.c)
+target_include_directories(test_boot_layout PRIVATE
+    ${CMAKE_SOURCE_DIR}/boot/efi ${_S}/platform/qemu-virt)
+haven_test(test_boot_layout_cix SRCS ${_T}/unit/test_boot_layout.c
+    DEFINES HAVEN_PLATFORM_CIX_P1)
+target_include_directories(test_boot_layout_cix PRIVATE
+    ${CMAKE_SOURCE_DIR}/boot/efi ${_S}/platform/cix-p1)
 haven_test(test_sysreg_trap
     SRCS ${_T}/unit/test_sysreg_trap.c
          ${_S}/core/exc/sysreg_trap.c
