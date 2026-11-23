@@ -90,6 +90,11 @@ pass every method; of the 40 random cases, M2 finds 5 (R4, R7, R39,
 R40, R53), M6 finds 2 (R39, R40), none is found by M6 alone
 (`s2/README.md`).
 
+R40 was later repeated (`../20261124-r40-repeat/`): the same code
+found and passed it, so it is a timing-dependent case and its verdict is
+counted neither way. Of the other 39 random cases, M2 finds 4 (R4, R7,
+R39, R53) and M6 finds 1 (R39).
+
 ## The expectations E1 to E5
 
 | Row | Expected (fixed in C0) | Result |
