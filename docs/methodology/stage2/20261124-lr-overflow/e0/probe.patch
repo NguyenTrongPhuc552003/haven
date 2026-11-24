@@ -1,0 +1,117 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 34ecb50..719f2e3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -192,6 +192,10 @@ if(HAVEN_ARCH_ARM64)
+     # Partition A with more than one vCPU (docs/architecture/multi-vcpu.md):
+     # vCPU i runs on the platform's PART_A_CPU(i): at most 3 on qemu-virt
+     # (CPU 2 is partition B's), 8 on cix-p1. Linux only.
++    set(HAVEN_TEST_LRS 0 CACHE STRING "E0 probe: use at most this many list registers (0: all)")
++    if(NOT HAVEN_TEST_LRS STREQUAL "0")
++        target_compile_definitions(haven PRIVATE HAVEN_TEST_LRS=${HAVEN_TEST_LRS})
++    endif()
+     set(HAVEN_PART_A_VCPUS 1 CACHE STRING "vCPUs of partition A (1 to the platform's maximum; more than 1 needs HAVEN_PART_A_DTB_IPA)")
+     if(NOT HAVEN_PART_A_VCPUS STREQUAL "1")
+         if(HAVEN_PART_A_DTB_IPA STREQUAL "0")
+diff --git a/arch/arm64/irq.c b/arch/arm64/irq.c
+index 22c9dfc..eb66ee4 100644
+--- a/arch/arm64/irq.c
++++ b/arch/arm64/irq.c
+@@ -54,9 +54,41 @@ static unsigned int nr_lrs(void)
+ 	uint64_t vtr;
+ 
+ 	__asm__ volatile("mrs %0, ich_vtr_el2" : "=r"(vtr));
++#ifdef HAVEN_TEST_LRS
++	if ((vtr & 0x1fU) + 1U > HAVEN_TEST_LRS)
++		return HAVEN_TEST_LRS;
++#endif
+ 	return (unsigned int)(vtr & 0x1fU) + 1U;
+ }
+ 
++/* E0 probe (not for merge): per CPU, injections that found the same
++ * vINTID already Pending (or Pending and active), or Active; hardware
++ * interrupts with no free LR; SGIs left in the request word. */
++static uint64_t read_ich_lr(unsigned int n);
++static uint32_t e0_dup_id[8], e0_dup_p[8], e0_dup_a[8], e0_hw_full[8],
++	e0_sgi_left[8];
++
++static void e0_scan(unsigned int n, uint32_t virq)
++{
++	extern uint32_t hv_arch_cpu_id(void);
++	uint32_t c = hv_arch_cpu_id();
++
++	if (c >= 8U)
++		return;
++	for (unsigned int i = 0; i < n; i++) {
++		uint64_t lr = read_ich_lr(i);
++		uint64_t st = (lr >> 62) & 3ULL;
++
++		if (st == 0ULL || (lr & 0x3FFULL) != virq)
++			continue;
++		e0_dup_id[c] = virq | ((uint32_t)st << 16);
++		if (st & 1ULL)
++			e0_dup_p[c]++;
++		else
++			e0_dup_a[c]++;
++	}
++}
++
+ static uint64_t read_ich_lr(unsigned int n)
+ {
+ 	uint64_t val = 0;
+@@ -316,6 +348,13 @@ void hv_arch_irq_report(uint32_t cpu)
+ 
+ 	if (cpu >= HV_ARCH_IRQ_MAX_CPUS)
+ 		return;
++	if (cpu < 8U)
++		hv_printk(
++			"HAVEN: E0 CPU %u LRs %u dup-pending %u dup-active %u "
++			"hw-no-lr %u sgi-left %u last-dup 0x%x\n",
++			(unsigned)cpu, nr_lrs(), (unsigned)e0_dup_p[cpu],
++			(unsigned)e0_dup_a[cpu], (unsigned)e0_hw_full[cpu],
++			(unsigned)e0_sgi_left[cpu], (unsigned)e0_dup_id[cpu]);
+ 	hv_printk("HAVEN: virtual interrupts delivered on CPU %u:",
+ 		  (unsigned)cpu);
+ 	for (uint32_t i = 0; i < HV_IRQ_COUNT_IDS; i++)
+@@ -329,8 +368,10 @@ void hv_arch_irq_report(uint32_t cpu)
+  * list register.  Returns HV_OK or HV_ENOSPC. */
+ static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
+ {
++	extern uint32_t hv_arch_cpu_id(void);
+ 	unsigned int n = nr_lrs();
+ 
++	e0_scan(n, intid);
+ 	for (unsigned int i = 0; i < n; i++) {
+ 		if ((read_ich_lr(i) & HV_LR_STATE_MASK) != HV_LR_STATE_INVALID)
+ 			continue;
+@@ -343,6 +384,8 @@ static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
+ 		count_delivery(intid);
+ 		return HV_OK;
+ 	}
++	if (hv_arch_cpu_id() < 8U)
++		e0_hw_full[hv_arch_cpu_id()]++;
+ 	return HV_ENOSPC;
+ }
+ 
+@@ -447,8 +490,12 @@ static void take_requests(uint32_t here)
+ 		if ((req & (1U << i)) != 0U &&
+ 		    hv_arch_inject_virtual_irq(i, 0xa0U) != HV_OK)
+ 			left |= 1U << i;
+-	if (left != 0U)
++	if (left != 0U) {
++		if (here < 8U)
++			for (uint32_t k = 0; k < 16U; k++)
++				e0_sgi_left[here] += (left >> k) & 1U;
+ 		__atomic_fetch_or(&cpu_requests[here], left, __ATOMIC_RELAXED);
++	}
+ }
+ 
+ void hv_arch_handle_phys_irq(void)
+@@ -528,6 +575,7 @@ hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
+ 	unsigned int i;
+ 	unsigned int n = nr_lrs();
+ 
++	e0_scan(n, virq);
+ 	for (i = 0; i < n; i++) {
+ 		uint64_t lr = read_ich_lr(i);
+ 
