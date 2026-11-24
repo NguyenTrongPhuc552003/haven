@@ -9,7 +9,7 @@
   },
   "kdal": {
     "repository": "NguyenTrongPhuc552003/kdal",
-    "commit": "583b329e4aae6f3f92bfbca82141d9d1c2b867ee"
+    "commit": "859644252df7921d8deea07a2e921a054cc1a0ed"
   },
   "ci": {
     "runner": "ubuntu-24.04",
