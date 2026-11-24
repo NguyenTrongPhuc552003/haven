@@ -116,6 +116,8 @@ def to_v2(v1, level_spis=()):
         haven["guest-enabled"] = {str(c): sorted(v) for c, v in gic["guest_enabled"].items()}
     if gic.get("cpus_on_request"):  # CPUs started on the guest's PSCI CPU_ON (read-back v12)
         haven["cpus-on-request"] = sorted(int(c) for c in gic["cpus_on_request"])
+    if gic.get("maintenance_ppi") is not None:  # HAVEN's GIC maintenance interrupt (v18)
+        haven["maintenance-ppi"] = int(gic["maintenance_ppi"])
     placed = {c for p in parts for c in p.get("haven,mpidr", {})}
     rest = {c: m for c, m in gic.get("mpidr", {}).items() if str(c) not in placed}
     if rest:  # MPIDRs of CPUs no partition owns
@@ -198,6 +200,8 @@ def to_v1(v2):
             gic["guest_enabled"] = haven["guest-enabled"]
         if haven.get("cpus-on-request"):
             gic["cpus_on_request"] = haven["cpus-on-request"]
+        if haven.get("maintenance-ppi") is not None:
+            gic["maintenance_ppi"] = haven["maintenance-ppi"]
         if mpidr:
             gic["mpidr"] = mpidr
         v1["gic"] = gic

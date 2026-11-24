@@ -17,6 +17,13 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v18 (2026-11-24, LR overflow): a grant's "gic" section may name
+"maintenance_ppi", HAVEN's GIC maintenance interrupt (25). That PPI may be
+enabled on any CPU, at HAVEN's priority ("interrupt priority drift"
+otherwise); a CPU running a partition with it disabled is an observation,
+not a finding. Without the field it is read as before
+(docs/methodology/stage2/20261124-lr-overflow/).
+
 Changes in v17 (2026-11-23, the board path): the addresses come from a
 platform table (tools/readback/platforms.py, checked against the
 platforms' headers), --platform NAME (default qemu-virt); redistributor
@@ -1166,11 +1173,15 @@ def compare_gic(g, expected, model=None, groups_visible=True, waiting_cpus=None)
         f.append(("GIC", "interrupt enable drift", f"{len(extra)} SPI(s) enabled without a grant: {ranges(extra)}"))
     ppis = {int(c): set(v) for c, v in expected.get("ppis", {}).items()}
     hppis = {int(c): set(v) for c, v in expected.get("haven_ppis", {}).items()}  # v6
+    maint = expected.get("maintenance_ppi")  # v18
+    report["maintenance_off"] = []
     for i, cpu in enumerate(g["cpus"]):
         en = [b for b in range(16, 32) if (cpu["isenabler0"] >> b) & 1]
         report["cpus"].append({"cpu": i, "affinity": hex(cpu["typer"] >> 32), "ppis_enabled": en,
                                "sgis_enabled": [b for b in range(16) if (cpu["isenabler0"] >> b) & 1]})
-        bad = [b for b in en if b not in ppis.get(i, set()) | hppis.get(i, set())]
+        if maint is not None and maint not in en and int(cpu_part.get(i, 0)) != 0:
+            report["maintenance_off"].append(i)  # v18: an observation
+        bad = [b for b in en if b not in ppis.get(i, set()) | hppis.get(i, set()) and b != maint]
         if bad:
             f.append((f"CPU {i} PPIs", "interrupt enable drift", f"enabled without a grant: {ranges(bad)}"))
         for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):  # v4 RB2, v6
@@ -1194,11 +1205,12 @@ def compare_gic(g, expected, model=None, groups_visible=True, waiting_cpus=None)
                 why = " (outranks HAVEN)" if want["partition"] != 0 and got <= want_h else ""
                 f.append((f"SPI {irq}", "interrupt priority drift", f"priority {got:#x}, granted {exp:#x}{why}"))
         for i, cpu in enumerate(g["cpus"]):
-            for b in sorted(ppis.get(i, set()) | hppis.get(i, set())):
+            mine = hppis.get(i, set()) | ({maint} if maint is not None else set())  # v18
+            for b in sorted(ppis.get(i, set()) | mine):
                 if not (cpu["isenabler0"] >> b) & 1:
-                    continue  # v7, RB3: already a missing binding
+                    continue  # v7, RB3: already a missing binding; v18: maint may be off
                 got = prio(cpu["ipriorityr"], b)
-                exp = want_h if b in hppis.get(i, set()) else want_p
+                exp = want_h if b in mine else want_p
                 report["priorities"].append({"irq": b, "cpu": i, "priority": hex(got), "expected": hex(exp)})
                 if got != exp:
                     why = " (outranks HAVEN)" if exp == want_p and got <= want_h else ""
@@ -1377,6 +1389,8 @@ def main():
             print(f"  guest-enabled INTID {x['irq']} on CPU {x['cpu']}: {state}")
         for x in rep.get("waiting_ppis", []):
             print(f"  CPU {x['cpu']} PPI {x['irq']}: off, CPU waiting for the guest")
+        for c in rep.get("maintenance_off", []):
+            print(f"  CPU {c}: maintenance PPI off (observation: an interrupt waiting for a list register would wait for ever)")
         for x in rep.get("priorities", []):
             where = f"CPU {x['cpu']} PPI" if "cpu" in x else "SPI"
             print(f"  {where} {x['irq']}: priority {x['priority']} (granted {x['expected']})")

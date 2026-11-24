@@ -82,6 +82,7 @@ set(HAVEN_CORE_SRCS
     src/core/irq/ownership.c
     src/core/irq/vgic.c
     src/core/irq/gicr_frames.c
+    src/core/irq/lr.c
     src/core/sched/budget.c
     src/core/dma/smmu.c
     src/core/iommu/iommu_policy.c
@@ -192,6 +193,18 @@ if(HAVEN_ARCH_ARM64)
     # Partition A with more than one vCPU (docs/architecture/multi-vcpu.md):
     # vCPU i runs on the platform's PART_A_CPU(i): at most 3 on qemu-virt
     # (CPU 2 is partition B's), 8 on cix-p1. Linux only.
+    # Test aids for the LR overflow path (docs/methodology/stage2/
+    # 20261124-lr-overflow): use at most HAVEN_TEST_LRS list registers;
+    # send every HAVEN_TEST_LR_FULL-th hardware interrupt through the
+    # overflow path. 0 (the default) leaves the build as it is.
+    set(HAVEN_TEST_LRS 0 CACHE STRING "Test aid: use at most this many list registers (0: all)")
+    set(HAVEN_TEST_LR_FULL 0 CACHE STRING "Test aid: every N-th hardware interrupt waits (0: none)")
+    if(NOT HAVEN_TEST_LRS STREQUAL "0")
+        target_compile_definitions(haven PRIVATE HAVEN_TEST_LRS=${HAVEN_TEST_LRS}U)
+    endif()
+    if(NOT HAVEN_TEST_LR_FULL STREQUAL "0")
+        target_compile_definitions(haven PRIVATE HAVEN_TEST_LR_FULL=${HAVEN_TEST_LR_FULL}U)
+    endif()
     set(HAVEN_PART_A_VCPUS 1 CACHE STRING "vCPUs of partition A (1 to the platform's maximum; more than 1 needs HAVEN_PART_A_DTB_IPA)")
     if(NOT HAVEN_PART_A_VCPUS STREQUAL "1")
         if(HAVEN_PART_A_DTB_IPA STREQUAL "0")
