@@ -116,3 +116,46 @@ and A520 cores, and the maintenance INTID in the board's firmware tables.
 
 Verdict rule as before: a row that does not hold is recorded before any
 change, then fixed or explained.
+
+## E0 results (2026-11-24, on the Mac) [F]
+
+Owner-approved ("Approve", 2026-11-24). Probe on a local branch (counters
+in `arch/arm64/irq.c` and a `HAVEN_TEST_LRS` cache option; not pushed),
+at `main` `f7ccbc0`; `run_n.py`'s free boot (QEMU 11.1.3, cortex-a72,
+qemu-psci) with a Linux v6.18 SDK kernel and KUnit's init; 52 boots.
+
+| LRs | vCPUs | Boots | Same vINTID already Active | Same vINTID Pending | Hardware interrupt with no LR | SGI left waiting | Linux reached the demand |
+| - | - | - | - | - | - | - | - |
+| all (4) | 2 | 13 | 0 | 0 | 0 | 0 | 13 |
+| all (4) | 3 | 3 | 0 | 0 | 0 | 0 | 3 |
+| 2 | 2 | 23 | **5**, all on CPU 1 | 0 | **1** (PPI 27, CPU 0) | 0 | 23 |
+| 2 | 3 | 13 | 0 | 0 | **1** (PPI 27, CPU 0) | 0 | 13 |
+
+- **Defect 1 happens.** The probe named the duplicate in the last run:
+  vINTID 1 (an SGI; Linux's function-call IPI by its arm64 numbering [I])
+  written into a second LR
+  while the first copy was Active. That is the case the design's table
+  turns into "pending and active". Why it shows only with two LRs is not
+  known [?]; the 16 boots with all LRs are too few to say it cannot
+  happen there.
+- **Defect 2 happens.** 2 of 36 boots with two LRs disabled CPU 0's timer
+  PPI (`PPI 27 on CPU 0 not delivered, disabled`). **H1 holds in part**:
+  overflow and the `not delivered` line, but no stall; Linux reached the
+  demand in all 52 boots (the boot ends within seconds of the loss).
+- Defect 3 (an SGI left waiting) was not seen.
+
+**What changes before any code [P].** One overflow in 18 boots is too
+rare to test the overflow path with two LRs alone (20 boots would miss it
+about one time in three). A second test aid forces it:
+`-DHAVEN_TEST_LR_FULL=K` makes every K-th hardware injection behave as if
+no LR were free, so it takes the waiting set and the maintenance
+interrupt even with all LRs free. HAVEN's report gains three counts per
+CPU: interrupts that waited, waiting interrupts delivered, and
+"already Active, made pending and active". Rows Q2 and Q2b replace Q2:
+
+| Row | Check | Expected |
+| - | - | - |
+| Q2 | `HAVEN_TEST_LR_FULL=4`, Linux on 2 and 3 vCPUs, 5 boots each | every boot: all CPUs up, `KDAL-DEMAND-END`, power-off, no `not delivered`; waited more than 0 and delivered equal to waited on every CPU |
+| Q2b | `HAVEN_TEST_LRS=2`, Linux on 2 vCPUs, 20 boots | every boot reaches the demand with no `not delivered`; the "made pending and active" count is reported (more than 0 expected in some boots, as E0 saw 5 in 23) |
+
+The other rows stay as written.
