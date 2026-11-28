@@ -19,7 +19,7 @@ static enum hv_lr_action choose(const hv_u64 *lrs, unsigned int n, hv_u32 id,
 				unsigned int *slot)
 {
 	*slot = 99U;
-	return hv_lr_choose(lrs, n, id, slot);
+	return hv_lr_choose(id, lrs, n, slot);
 }
 
 /* U1: each row of the design's table */

@@ -380,7 +380,7 @@ static hv_status_t inject_hw(uint32_t intid, uint32_t priority)
 	unsigned int n = nr_lrs(), slot = 0U;
 
 	read_lrs(lrs, n);
-	switch (hv_lr_choose(lrs, n, intid, &slot)) {
+	switch (hv_lr_choose(intid, lrs, n, &slot)) {
 	case HV_LR_NOTHING: /* already pending, linked to it */
 		return HV_OK;
 	case HV_LR_WRITE:
@@ -430,15 +430,39 @@ static int lr_wait_hw(uint32_t here, uint32_t intid)
 static uint32_t lr_test_tick[HV_ARCH_IRQ_MAX_CPUS];
 #endif
 
-static hv_status_t inject_hw_first(uint32_t here, uint32_t intid)
+static hv_status_t inject_hw_first(uint32_t intid)
 {
 #ifdef HAVEN_TEST_LR_FULL
-	if (++lr_test_tick[here] % HAVEN_TEST_LR_FULL == 0U)
+	extern uint32_t hv_arch_cpu_id(void);
+	uint32_t here = hv_arch_cpu_id();
+
+	if (here < HV_ARCH_IRQ_MAX_CPUS &&
+	    ++lr_test_tick[here] % HAVEN_TEST_LR_FULL == 0U)
 		return HV_ENOSPC;
-#else
-	(void)here;
 #endif
 	return inject_hw(intid, 0xa0U);
+}
+
+/* An interrupt for the partition running on this CPU (its owner is
+ * checked against the running partition, not inferred from the routing):
+ * injected, or waiting for an LR. Then its priority is dropped and the
+ * guest's EOI deactivates it. 1 if so, 0 if it is not this partition's or
+ * cannot wait. */
+static int deliver_owned(uint64_t iar)
+{
+	extern uint32_t hv_arch_cpu_id(void);
+	uint32_t here = hv_arch_cpu_id();
+	extern hv_u32 hv_irq_owner_on(hv_u32 irq_id, hv_u32 cpu);
+	uint32_t intid = (uint32_t)(iar & 0xffffffU);
+	hv_u32 owner = hv_irq_owner_on(intid, here);
+
+	if (owner == 0U || here >= HV_ARCH_IRQ_MAX_CPUS ||
+	    owner != cpu_partition[here] ||
+	    (inject_hw_first(intid) != HV_OK && !lr_wait_hw(here, intid)))
+		return 0;
+	write_sysreg(iar, icc_eoir1_el1); /* drop only */
+	isb();
+	return 1;
 }
 
 /* -----------------------------------------------------------------------
@@ -572,7 +596,6 @@ void hv_arch_handle_phys_irq(void)
 	extern void hv_printk(const char *fmt, ...);
 	extern void smmu_v3_service_irq(void);
 	extern uint32_t hv_arch_cpu_id(void);
-	extern hv_u32 hv_irq_owner_on(hv_u32 irq_id, hv_u32 cpu);
 	extern int hv_arch_budget_expired(uint32_t cpu);
 	extern hv_status_t gic_v3_disable_irq(uint32_t irq);
 	extern hv_status_t gic_v3_disable_ppi(uint32_t cpu, uint32_t irq);
@@ -583,7 +606,6 @@ void hv_arch_handle_phys_irq(void)
 	for (;;) {
 		uint64_t iar = read_sysreg(icc_iar1_el1);
 		uint32_t intid = (uint32_t)(iar & 0xffffffU);
-		hv_u32 owner;
 		uint32_t here = hv_arch_cpu_id();
 
 		if (intid >= 1020U && intid <= 1023U)
@@ -597,30 +619,19 @@ void hv_arch_handle_phys_irq(void)
 			take_requests(here);
 		} else if (intid == HV_MAINT_PPI) {
 			lr_drain(here);
-		} else {
-			owner = hv_irq_owner_on(intid, here);
-			if (owner != 0U && here < HV_ARCH_IRQ_MAX_CPUS &&
-			    owner == cpu_partition[here] &&
-			    (inject_hw_first(here, intid) == HV_OK ||
-			     lr_wait_hw(here, intid))) {
-				write_sysreg(iar,
-					     icc_eoir1_el1); /* drop only */
-				isb();
-				continue;
-			}
-			if (intid >= 32U) {
-				(void)gic_v3_disable_irq(intid);
-				hv_printk("HAVEN: IRQ %u not delivered, "
-					  "disabled\n",
-					  (unsigned)intid);
-			} else if (intid >= 16U) {
-				/* A PPI is private: disable it on this
-				 * CPU only (a level timer would storm). */
-				(void)gic_v3_disable_ppi(here, intid);
-				hv_printk("HAVEN: PPI %u on CPU %u not "
-					  "delivered, disabled\n",
-					  (unsigned)intid, (unsigned)here);
-			}
+		} else if (deliver_owned(iar)) {
+			continue;
+		} else if (intid >= 32U) {
+			(void)gic_v3_disable_irq(intid);
+			hv_printk("HAVEN: IRQ %u not delivered, disabled\n",
+				  (unsigned)intid);
+		} else if (intid >= 16U) {
+			/* A PPI is private: disable it on this CPU only (a
+			 * level timer would storm). */
+			(void)gic_v3_disable_ppi(here, intid);
+			hv_printk("HAVEN: PPI %u on CPU %u not delivered, "
+				  "disabled\n",
+				  (unsigned)intid, (unsigned)here);
 		}
 		write_sysreg(iar, icc_eoir1_el1);
 		write_sysreg(iar, icc_dir_el1);
@@ -631,9 +642,10 @@ void hv_arch_handle_phys_irq(void)
 /* -----------------------------------------------------------------------
  * hv_arch_inject_virtual_irq - inject a virtual IRQ into the current guest.
  *
- * Scans the implemented list registers (ICH_VTR_EL2.ListRegs + 1, at most
- * 16) for an Invalid slot, writes the LR
- * with State=Pending, Group1, and the requested priority and vINTID.
+ * One decision over the list registers HAVEN uses (hv_lr_choose): a vINTID
+ * already pending is left as it is, one Active is made pending and active,
+ * otherwise the first Invalid LR is written with State=Pending, Group1,
+ * and the requested priority and vINTID.
  *
  * @virq:     virtual INTID to deliver to the guest (bits [9:0])
  * @priority: GIC priority byte; 0x00 = highest, 0xFF = lowest
@@ -652,7 +664,7 @@ hv_status_t hv_arch_inject_virtual_irq(uint32_t virq, uint32_t priority)
 	/* The LRs belong to this CPU's vCPU, which does not run while HAVEN
 	 * is here: read and write cannot race with the guest. */
 	read_lrs(lrs, n);
-	switch (hv_lr_choose(lrs, n, virq, &slot)) {
+	switch (hv_lr_choose(virq, lrs, n, &slot)) {
 	case HV_LR_NOTHING: /* already pending */
 		return HV_OK;
 	case HV_LR_MAKE_PA: /* being handled: pending again */

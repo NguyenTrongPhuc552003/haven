@@ -19,11 +19,11 @@
 #include <haven/types.h>
 
 /* ICH_LR<n>_EL2 fields used here */
-#define HV_LR_STATE_SHIFT 62
+#define HV_LR_STATE_SHIFT 62U
 #define HV_LR_STATE_FIELD (3ULL << HV_LR_STATE_SHIFT)
 #define HV_LR_ST_PENDING (1ULL << HV_LR_STATE_SHIFT)
 #define HV_LR_ST_ACTIVE (2ULL << HV_LR_STATE_SHIFT)
-#define HV_LR_HW_BIT (1ULL << 61)
+#define HV_LR_HW_BIT (1ULL << 61U)
 #define HV_LR_VINTID_FIELD 0xFFFFFFFFULL
 
 enum hv_lr_action {
@@ -33,8 +33,9 @@ enum hv_lr_action {
 	HV_LR_FULL, /* no free list register (or a hardware copy active) */
 };
 
-/* What injecting `vintid` does, given the n list-register values. */
-enum hv_lr_action hv_lr_choose(const hv_u64 *lrs, unsigned int n, hv_u32 vintid,
+/* What injecting `vintid` does, given the n list-register values; *slot is
+ * the LR to write for HV_LR_WRITE and HV_LR_MAKE_PA. */
+enum hv_lr_action hv_lr_choose(hv_u32 vintid, const hv_u64 *lrs, unsigned int n,
 			       unsigned int *slot);
 
 /* Hardware interrupts waiting for a list register, per CPU: the PPIs as a

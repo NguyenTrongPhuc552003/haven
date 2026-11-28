@@ -7,7 +7,7 @@
 
 #include <haven/lr.h>
 
-enum hv_lr_action hv_lr_choose(const hv_u64 *lrs, unsigned int n, hv_u32 vintid,
+enum hv_lr_action hv_lr_choose(hv_u32 vintid, const hv_u64 *lrs, unsigned int n,
 			       unsigned int *slot)
 {
 	unsigned int free_slot = n;
