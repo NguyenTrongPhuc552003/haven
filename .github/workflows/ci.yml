@@ -39,12 +39,10 @@ jobs:
             echo "code=true" | tee -a "$GITHUB_OUTPUT"
           fi
 
-  # Runs on every pull request until the ruleset requires "ci ok" alone: a
-  # skipped matrix job never reports the "host unit tests (OS)" names the
-  # ruleset still requires (owner's setting).
   host-tests:
     name: host unit tests (${{ matrix.os }})
     needs: changes
+    if: needs.changes.outputs.code == 'true'
     strategy:
       fail-fast: false
       matrix:
