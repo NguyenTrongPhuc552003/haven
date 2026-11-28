@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index 2f074e4..8305969 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -608,7 +608,7 @@ partition_a_secondary_cpu_init(uint64_t cpu_id)
+ 
+ 	hv_arch_cpu_init();
+ 	hv_arch_phys_irq_cpu_init();
+-	hv_arch_stage2_enable(PARTITION_A_ID, PARTITION_A_ID);
++	hv_arch_stage2_enable(index == 2 ? PARTITION_B_ID : PARTITION_A_ID, PARTITION_A_ID);
+ 	/* The guest sees the vCPU's MPIDR from the table (bit 31 is RES1),
+ 	 * whichever physical CPU it is pinned to. */
+ 	if (index > 0)

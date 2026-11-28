@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index 2f074e4..beb2143 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -868,7 +868,7 @@ void partitions_launch(void)
+ #if defined(HAVEN_PART_A_DTB_IPA) && HAVEN_PART_A_VCPUS > 1
+ 	/* vCPUs 1 to N-1: the virtual timer PPI on their CPUs, before the
+ 	 * GIC models are set up (they disable what the partition owns). */
+-	for (i = 1U; i < HAVEN_PART_A_VCPUS; ++i) {
++	for (i = 1U; i < HAVEN_PART_A_VCPUS - 1U; ++i) {
+ 		const struct hv_irq_route vtimer = {
+ 			.irq_id = 27U,
+ 			.owner_partition_id = PARTITION_A_ID,

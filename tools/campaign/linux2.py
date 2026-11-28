@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Scenario 2 of the campaign: Linux in partition A with two vCPUs.
+"""Scenario 2 of the campaign: Linux in partition A with two vCPUs, and
+its three-vCPU form, scenario linux3 (docs/methodology/stage2/
+20261128-readback-n3/): N = 3, vCPU 2 on CPU 3, the grant from the cases
+file.
 
 docs/methodology/stage2/20261119-evaluation-campaign/s2/README.md. The
 setup is SMP3's (docs/methodology/stage2/20261108-multi-vcpu/run_smp3.py):
@@ -59,10 +62,13 @@ def _lpc():
     return _load("lpc", os.path.join(REPO, "scripts", "qemu", "linux-partition-check.py"))
 
 
-def m2_verdict(text):
-    """The free boot's UART text into M2's (verdict, evidence)."""
-    bad = _lpc().problems(text, 2) + [f"missing: {m}" for m in HOTPLUG if m not in text]
-    return ("finding", bad) if bad else ("pass", ["Linux, two vCPUs, hotplug, demand, power-off, B started"])
+WORDS = {2: "two", 3: "three"}
+
+
+def m2_verdict(text, n=2):
+    """The free boot's UART text into M2's (verdict, evidence), for N vCPUs."""
+    bad = _lpc().problems(text, n) + [f"missing: {m}" for m in HOTPLUG if m not in text]
+    return ("finding", bad) if bad else ("pass", [f"Linux, {WORDS[n]} vCPUs, hotplug, demand, power-off, B started"])
 
 
 def demand(text):
@@ -86,15 +92,20 @@ def m5_verdict(rc, output):
     return "pass", ["demand as the unchanged setup's (KDAL's GPIO not granted)"]
 
 
-def build(src, out, log):
+def build(src, out, log, n=2):
     cmd = (f"cmake --preset arm64-qemu -B {out} -DHAVEN_BOOT_PROFILE=qemu-psci "
-           f"-DHAVEN_PART_A_DTB_IPA=0x50000000 -DHAVEN_PART_A_VCPUS=2 && cmake --build {out}")
+           f"-DHAVEN_PART_A_DTB_IPA=0x50000000 -DHAVEN_PART_A_VCPUS={n} && cmake --build {out}")
     with open(log, "w") as f:
         return subprocess.run(cmd, shell=True, cwd=src, stdout=f, stderr=subprocess.STDOUT).returncode == 0
 
 
-def guest_files(work, kdal, ko):
-    """The hotplug init's initramfs and partition A's DTB, as run_smp3.py."""
+def _run_n():
+    return _load("run_n", os.path.join(REPO, "docs", "methodology", "stage2", "20261112-multi-vcpu-n", "run_n.py"))
+
+
+def guest_files(work, kdal, ko, n=2):
+    """The hotplug init's initramfs and partition A's DTB, as run_smp3.py
+    (N = 2) or with run_n.py's tree of N cpu nodes and frames."""
     smp1 = _smp1()
     init, cpio = os.path.join(work, "init"), os.path.join(work, "initramfs.cpio")
     subprocess.run(["clang", "--target=aarch64-linux-gnu", "-ffreestanding", "-nostdlib", "-static", "-O2",
@@ -103,26 +114,28 @@ def guest_files(work, kdal, ko):
     subprocess.run([sys.executable, os.path.join(kdal, "scripts/ci/mkcpio.py"), cpio, init, ko], check=True)
     dts, dtb = os.path.join(work, "smp.dts"), os.path.join(work, "smp.dtb")
     with open(dts, "w") as f:
-        f.write(smp1.smp_dts(smp1.rc.dts(smp1.rc.CASES["B0"][2], IPA, IPA + os.path.getsize(cpio))))
+        base = smp1.rc.dts(smp1.rc.CASES["B0"][2], IPA, IPA + os.path.getsize(cpio))
+        f.write(smp1.smp_dts(base) if n == 2 else _run_n().tree(base, n))
     subprocess.run(["dtc", "-q", "-I", "dts", "-O", "dtb", "-o", dtb, dts], check=True)
     return cpio, dtb
 
 
-def methods(src, cdir, image, kdal, ko, m6_verdict):
-    """M2, M4, M5 and M6 of one case; m6_verdict is run_case.py's."""
+def methods(src, cdir, image, kdal, ko, m6_verdict, n=2, grant=GRANT):
+    """M2, M4, M5 and M6 of one case with N vCPUs; m6_verdict is
+    run_case.py's."""
     smp1 = _smp1()
     b = os.path.join(src, "build-linux")
-    if not build(src, b, os.path.join(cdir, "build-linux.log")):
+    if not build(src, b, os.path.join(cdir, "build-linux.log"), n):
         failed = {"verdict": "finding", "evidence": ["Linux-profile build failed"]}
         return {"M2": failed, "M4": {"verdict": "n/a", "evidence": ["no Linux mode"]},
                 "M5": {"verdict": "error", "evidence": ["build failed: no demand"]},
                 "M6": {"verdict": "error", "evidence": ["build failed: nothing to read"]}}
-    cpio, dtb = guest_files(src, kdal, ko)
+    cpio, dtb = guest_files(src, kdal, ko, n)
     initrd_pa = IPA + smp1.rc.PA_OFFSET
     uart = os.path.join(cdir, "uart-linux2.log")
     smp1.free_boot(b, image, dtb, cpio, initrd_pa, uart)
     text = open(uart, errors="replace").read()
-    v, ev = m2_verdict(text)
+    v, ev = m2_verdict(text, n)
     res = {"M2": {"verdict": v, "evidence": ev},
            "M4": {"verdict": "n/a", "evidence": ["partition B's check has no Linux mode; B's start is in M2"]}}
     d = demand(text)
@@ -132,7 +145,7 @@ def methods(src, cdir, image, kdal, ko, m6_verdict):
         path = os.path.join(cdir, "demand.json")
         with open(path, "w") as f:
             f.write(d + "\n")
-        r = subprocess.run([sys.executable, os.path.join(REPO, "tools/readback/demand_check.py"), GRANT, path,
+        r = subprocess.run([sys.executable, os.path.join(REPO, "tools/readback/demand_check.py"), grant, path,
                             "--partition", "1"], capture_output=True, text=True)
         v, ev = m5_verdict(r.returncode, r.stdout)
         res["M5"] = {"verdict": v, "evidence": ev}
@@ -141,7 +154,7 @@ def methods(src, cdir, image, kdal, ko, m6_verdict):
     start = time.monotonic()
     with open(log, "w") as f:
         try:
-            rc = subprocess.run([sys.executable, os.path.join(REPO, "tools/readback/readback.py"), b, GRANT, out,
+            rc = subprocess.run([sys.executable, os.path.join(REPO, "tools/readback/readback.py"), b, grant, out,
                                  "--cpu", "cortex-a72", "--wait", "90", "--device", smp1.rc.DEV, "--guest-a", image,
                                  "--load", f"{dtb}@{smp1.rc.DTB_PA:#x}", "--load", f"{cpio}@{initrd_pa:#x}",
                                  "--marker", "KDAL-DEMAND-END"], stdout=f, stderr=subprocess.STDOUT,

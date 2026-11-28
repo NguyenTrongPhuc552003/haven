@@ -255,7 +255,7 @@ def run(args):
         if args.patch and not apply_patch(src, os.path.abspath(args.patch), os.path.join(cdir, "patch.log")):
             raise SystemExit(f"{args.case}: the patch does not apply")
         grant = os.path.abspath(args.grant)
-        if args.scenario == "linux2":
+        if args.scenario in ("linux2", "linux3"):
             methods = linux2_methods(args, src, cdir, grant)
         else:
             methods = boot_methods(src, cdir, grant, args.tfa, args.scenario == "grant2")
@@ -338,11 +338,17 @@ def m7(src, cdir, grant, tfa, flag="", devices=(DEVICE,)):
 
 
 def linux2_methods(args, src, cdir, grant):
-    """Scenario 2 (s2/README.md): Linux in partition A with two vCPUs."""
+    """Scenario 2 (s2/README.md): Linux in partition A with two vCPUs; linux3
+    (20261128-readback-n3/): three, with the cases file's grant."""
     import linux2
     methods = {"M1": m1(src, cdir), "M3": m3(grant)}
-    methods.update(linux2.methods(src, cdir, os.path.abspath(args.image), os.path.abspath(args.kdal),
-                                  os.path.abspath(args.ko), m6_verdict))
+    if args.scenario == "linux3":
+        more = linux2.methods(src, cdir, os.path.abspath(args.image), os.path.abspath(args.kdal),
+                              os.path.abspath(args.ko), m6_verdict, n=3, grant=grant)
+    else:
+        more = linux2.methods(src, cdir, os.path.abspath(args.image), os.path.abspath(args.kdal),
+                              os.path.abspath(args.ko), m6_verdict)
+    methods.update(more)
     methods["M7"] = {"verdict": "n/a", "evidence": ["EL3 read-back not wired yet"]}
     return {m: methods[m] for m in ("M1", "M2", "M3", "M4", "M5", "M6", "M7")}
 
@@ -355,8 +361,9 @@ def main(argv=None):
     ap.add_argument("--grant", required=True)
     ap.add_argument("--patch")
     ap.add_argument("--repo", default=os.path.join(HERE, "..", ".."))
-    ap.add_argument("--scenario", choices=["boot", "linux2", "grant2"], default="boot",
+    ap.add_argument("--scenario", choices=["boot", "linux2", "linux3", "grant2"], default="boot",
                     help="boot: scenario 1; linux2: Linux in A with two vCPUs (needs --image, --kdal, --ko); "
+                         "linux3: the same with three vCPUs (20261128-readback-n3/); "
                          "grant2: scenario 3, scenario 1 with grant 2 (s3/README.md)")
     ap.add_argument("--tfa", help="boot: TF-A release directory with the EL3 read-back service, for M7")
     ap.add_argument("--image", help="linux2: the SDK kernel Image")
@@ -364,8 +371,8 @@ def main(argv=None):
     ap.add_argument("--ko", help="linux2: kdal.ko built against the SDK kernel")
     ap.add_argument("out")
     args = ap.parse_args(argv)
-    if args.scenario == "linux2" and not (args.image and args.kdal and args.ko):
-        ap.error("--scenario linux2 needs --image, --kdal and --ko")
+    if args.scenario in ("linux2", "linux3") and not (args.image and args.kdal and args.ko):
+        ap.error(f"--scenario {args.scenario} needs --image, --kdal and --ko")
     run(args)
     return 0
 
