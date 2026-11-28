@@ -1,0 +1,282 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "docs/methodology/stage2/20261124-lr-overflow/, row Q7: scenario 2's case set (s2-linux2.json) after the LR change, without S2-R38, whose patch no longer applies (its line was rewritten)",
+ "grant": "docs/methodology/stage2/20261119-evaluation-campaign/s2/grant-s2-qemu82.json",
+ "cases": [
+  {
+   "case": "S2-BASE-1",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "S2-BASE-2",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "S2-BASE-3",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "S2-R3",
+   "class": "GIC-GROUP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R3.patch"
+  },
+  {
+   "case": "S2-R4",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R4.patch"
+  },
+  {
+   "case": "S2-R6",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R6.patch"
+  },
+  {
+   "case": "S2-R7",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R7.patch"
+  },
+  {
+   "case": "S2-R8",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R8.patch"
+  },
+  {
+   "case": "S2-R10",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R10.patch"
+  },
+  {
+   "case": "S2-R12",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R12.patch"
+  },
+  {
+   "case": "S2-R14",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R14.patch"
+  },
+  {
+   "case": "S2-R17",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R17.patch"
+  },
+  {
+   "case": "S2-R18",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R18.patch"
+  },
+  {
+   "case": "S2-R20",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R20.patch"
+  },
+  {
+   "case": "S2-R21",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R21.patch"
+  },
+  {
+   "case": "S2-R22",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R22.patch"
+  },
+  {
+   "case": "S2-R23",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R23.patch"
+  },
+  {
+   "case": "S2-R24",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R24.patch"
+  },
+  {
+   "case": "S2-R26",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R26.patch"
+  },
+  {
+   "case": "S2-R28",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R28.patch"
+  },
+  {
+   "case": "S2-R29",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R29.patch"
+  },
+  {
+   "case": "S2-R30",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R30.patch"
+  },
+  {
+   "case": "S2-R33",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R33.patch"
+  },
+  {
+   "case": "S2-R34",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R34.patch"
+  },
+  {
+   "case": "S2-R35",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R35.patch"
+  },
+  {
+   "case": "S2-R36",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R36.patch"
+  },
+  {
+   "case": "S2-R39",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R39.patch"
+  },
+  {
+   "case": "S2-R40",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R40.patch"
+  },
+  {
+   "case": "S2-R44",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R44.patch"
+  },
+  {
+   "case": "S2-R45",
+   "class": "SMMU-TAG",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R45.patch"
+  },
+  {
+   "case": "S2-R46",
+   "class": "SMMU-UNBOUND",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R46.patch"
+  },
+  {
+   "case": "S2-R47",
+   "class": "OUTSIDE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R47.patch"
+  },
+  {
+   "case": "S2-R48",
+   "class": "GIC-ROUTE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R48.patch"
+  },
+  {
+   "case": "S2-R49",
+   "class": "GIC-PRIO",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R49.patch"
+  },
+  {
+   "case": "S2-R51",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R51.patch"
+  },
+  {
+   "case": "S2-R52",
+   "class": "EL2-MAP",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R52.patch"
+  },
+  {
+   "case": "S2-R53",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R53.patch"
+  },
+  {
+   "case": "S2-R55",
+   "class": "CPU-ASSIGN",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R55.patch"
+  },
+  {
+   "case": "S2-R56",
+   "class": "GIC-ENABLE",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R56.patch"
+  },
+  {
+   "case": "S2-R57",
+   "class": "S2-EXTENT",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R57.patch"
+  },
+  {
+   "case": "S2-R58",
+   "class": "S2-MISSING",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R58.patch"
+  },
+  {
+   "case": "S2-R59",
+   "class": "S2-EXTRA",
+   "source": "random",
+   "patch": "tools/campaign/cases/c2r/R59.patch"
+  }
+ ],
+ "expect": {
+  "S2-BASE-1": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "S2-BASE-2": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "S2-BASE-3": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  }
+ }
+}
