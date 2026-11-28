@@ -73,11 +73,12 @@ def m2_verdict(text, n=2):
 
 def demand(text):
     """KDAL's demand (JSON text) from the UART, or None."""
-    m = re.search(r"KDAL-DEMAND-BEGIN\n(.*?)\nKDAL-DEMAND-END", text.replace("\r", ""), re.S)
+    m = re.search(r"KDAL-DEMAND-BEGIN(.*?)\nKDAL-DEMAND-END", text.replace("\r", ""), re.S)
     if not m:
         return None
-    # the other vCPU's kernel log can land inside the block (row S2b, R49)
-    return "\n".join(line for line in m.group(1).split("\n") if not KLOG.match(line))
+    # another vCPU's kernel log can land inside the block (row S2b, R49) or
+    # on the marker's own line (20261128-readback-n3, N3-BASE-2)
+    return "\n".join(line for line in m.group(1).split("\n") if line and not KLOG.match(line))
 
 
 def m5_verdict(rc, output):

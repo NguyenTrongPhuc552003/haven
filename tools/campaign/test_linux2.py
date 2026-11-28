@@ -47,6 +47,14 @@ class M2(unittest.TestCase):
         self.assertEqual(linux2.m2_verdict(text)[0], "finding")
 
 
+class DemandOnTheMarkerLine(unittest.TestCase):  # 20261128-readback-n3, N3-BASE-2
+    def test_a_kernel_line_after_the_begin_marker(self):
+        text = fixture().replace("KDAL-DEMAND-BEGIN\n", "KDAL-DEMAND-BEGIN[    4.098657] kdal: gpu0 probed\n", 1)
+        self.assertNotEqual(text, fixture())
+        self.assertEqual(linux2.demand(text), linux2.demand(fixture()))
+        self.assertEqual(demand_check(text)[0], "pass")
+
+
 class M2ThreeVcpus(unittest.TestCase):  # linux3, 20261128-readback-n3/
     def test_a_two_vcpu_run_is_a_finding_for_three(self):
         v, ev = linux2.m2_verdict(fixture(), 3)
