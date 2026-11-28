@@ -35,16 +35,16 @@ Against the grant:
 
 HAVEN's own interrupts (`haven_ppis`, `maintenance_ppi`, SPIs granted to
 partition 0) are not in the partition tables and are not checked here.
-The EL3 path (M7, `--dump`) has no HAVEN memory and skips the rule with
-an observation, as it does for the model. An image without the symbols
-(an older build) skips it with an observation too.
+The EL3 path (M7) dumps HAVEN's image as well, so the rule runs there
+too. An image without the symbols (an older build) skips it with an
+observation.
 
 ## Expectations
 
 | Row | Check | Expected |
 | - | - | - |
-| V1 | read-back unit tests | a table that matches: no finding; each row of the table above gives its finding; a missing symbol or the EL3 path: an observation, no finding; all earlier tests pass |
-| V2 | the controls: scenario 1 (six), scenario 2 (three), `linux3` (three) | every method passes, M6 included (no false finding from the new rule) |
+| V1 | read-back unit tests | a table that matches: no finding; each row of the table above gives its finding; a missing symbol: an observation, no finding; all earlier tests pass |
+| V2 | the controls: scenario 1 (six), scenario 2 (three), `linux3` (three) | every method passes, M6 and (scenario 1) M7 included (no false finding from the new rule) |
 | V3 | N3-W1 again | M6 finds it: `CPU 3 PPI 27` missing interrupt binding, HAVEN's table holding no owner |
 | V4 | the campaign's case sets again with v19 (scenario 1, 106 cases; scenario 2 without S2-R38, 42) | every M6 verdict that changes from v18 is listed and explained; the frozen campaign's figures stay as recorded, v19's are reported beside them [?: no prediction of the count] |
 | V5 | read-back's time | the M6 median rises by less than 1 s |
