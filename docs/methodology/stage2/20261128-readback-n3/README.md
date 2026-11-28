@@ -56,3 +56,44 @@ demand) passes where the boot reaches it, else is an error.
 | N5 | time | under 10 minutes per case, setup included |
 
 A row that does not hold is recorded before anything changes.
+
+## Results (2026-11-28) [F]
+
+At `4952608` (pull request #229). Mac: QEMU 11.1.3, one control with a
+Mac grant (the SMP grant with CPU 3 added, kept out of the repository,
+since QEMU 11 has the SMMU stage 2 that CI's QEMU 8.2.2 lacks). CI:
+campaign run 46125619906 (`linux3`, `n3.json`, six shards) and run
+46125622042 (`linux2`, scenario 2's controls).
+
+| Row | Result |
+| - | - |
+| N1 | host and Python tests pass (13 in `test_linux2`); scenario 2's three controls pass every method. **Holds** |
+| N2 | Mac control: Linux brings up 3 CPUs; read-back matches the grant, reads a vCPU table of 3 entries, all on, and CPU 3 has PPIs 25, 26 and 27 enabled. **Holds** |
+| N3 | N3-BASE-1 and -3 pass every method; **N3-BASE-2's M5 is an error**: `no demand printed`. The demand was printed; a kernel line from another CPU landed on the marker's own line (`KDAL-DEMAND-BEGIN[    4.098657] kdal: gpu0 probed`), and `linux2.demand()` expects a line break right after the marker. A harness defect (as R49's in scenario 2), not a verdict. **Does not hold as written** |
+| N4 | N3-W2: M2 and M6 find it (CPU 3: CPU stage-2 drift), as predicted. N3-W3: M2 finds it, M6 passes (CPU 3 on request, never started), as predicted. **N3-W1 differs twice**: M6 passes (predicted: finding) and M1 finds it (predicted: pass) |
+| N5 | the slowest shard took 5.2 minutes, setup included (N3-W1, whose read-back waits 90 s for a marker that never comes). **Holds** |
+
+**Why read-back misses N3-W1 [F].** Read-back reports `guest-enabled
+INTID 27 on CPU 3: waiting for the guest`. Its rule for interrupts the
+guest enables (v8) takes "did the guest ask?" from HAVEN's GIC model. The
+model ignores an enable write for an interrupt the partition does not own
+(`src/core/irq/vgic.c`, `set_enable`: "not this partition's: WI"). With
+the route missing, HAVEN believes the partition does not own PPI 27 on
+CPU 3, so the guest's enable never reaches the model, and read-back reads
+"not asked yet". **The fault hides behind HAVEN's own ownership table**,
+the state it corrupts. This is a limit of read-back v8's rule that no
+case had shown, distinct from E5 (a CPU never started).
+
+**Why M1 finds N3-W1 [F].** The host test of the 8-vCPU cix-p1 layout
+(`test_partition_layout_cix8`) counts partition A's interrupt routes; one
+loop iteration fewer is one route fewer. My prediction assumed the host
+tests do not cover the routing loop.
+
+**Proposal [P], for the owner.** Read-back could compare the grant's PPIs
+with HAVEN's ownership table (as it reads the GIC model and the vCPU
+table) and report a granted PPI that HAVEN does not hold for that
+partition as "missing interrupt binding". It is a new rule (v19) with its
+own expectations; not done here.
+
+**Next [P].** The demand parse is fixed with a test built from
+N3-BASE-2's log, and the six cases run again; the rerun is recorded below.
