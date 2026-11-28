@@ -11,8 +11,35 @@ permissions:
   contents: read
 
 jobs:
+  # A pull request that changes only Markdown that no code reads skips the
+  # build, boot and host-test jobs (scripts/ci/docs_only.py); pushes run
+  # everything. "ci ok" is the one check the main branch's rule requires,
+  # so skipped jobs need no names of their own.
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    outputs:
+      code: ${{ steps.d.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: d
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            python3 scripts/ci/docs_only.py "$BASE" "$HEAD" | tee -a "$GITHUB_OUTPUT"
+          else
+            echo "code=true" | tee -a "$GITHUB_OUTPUT"
+          fi
+
   host-tests:
     name: host unit tests (${{ matrix.os }})
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -78,6 +105,8 @@ jobs:
 
   arm64-qemu:
     name: ARM64 build and QEMU boot
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -140,6 +169,8 @@ jobs:
   # (docs/methodology/stage2/20261122-firmware-redistributor/, rows F0, F2).
   partition-b-tfa:
     name: Partition B under TF-A (QEMU)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -173,6 +204,8 @@ jobs:
   # (docs/methodology/stage2/20261114-console-drain).
   linux-partition:
     name: Linux in partition A (QEMU, ELMOS SDK kernel)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -195,3 +228,21 @@ jobs:
       - name: Show the UART logs on failure
         if: failure()
         run: for f in build/linux-runs/N*/uart.log; do echo "== $f"; tail -60 "$f"; done
+
+  ci-ok:
+    name: ci ok
+    needs: [changes, host-tests, quality-gate, arm64-qemu, partition-b-tfa, linux-partition]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          bad = {j: n["result"] for j, n in json.loads(os.environ["RESULTS"]).items()
+                 if n["result"] not in ("success", "skipped")}
+          for j, r in sorted(bad.items()):
+              print(f"{j}: {r}")
+          sys.exit(1 if bad or json.loads(os.environ["RESULTS"])["changes"]["result"] != "success" else 0)
+          PY
