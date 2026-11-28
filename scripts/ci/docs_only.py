@@ -14,7 +14,8 @@ Anything else, deleted or renamed files included, prints code=true.
 import subprocess
 import sys
 
-SEARCHED = ["scripts", "tests", "tools", ".github", "cmake", "CMakeLists.txt", "CMakePresets.json"]
+SEARCHED = ["scripts", "tests", "tools", ".github", "cmake", "CMakeLists.txt", "CMakePresets.json",
+            ":(exclude)scripts/ci/test_docs_only.py"]  # its examples are data, not reads
 
 
 def changed(base, head):
