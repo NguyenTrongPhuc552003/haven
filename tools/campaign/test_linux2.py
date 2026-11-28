@@ -47,6 +47,34 @@ class M2(unittest.TestCase):
         self.assertEqual(linux2.m2_verdict(text)[0], "finding")
 
 
+class DemandOnTheMarkerLine(unittest.TestCase):  # 20261128-readback-n3, N3-BASE-2
+    def test_a_kernel_line_after_the_begin_marker(self):
+        text = fixture().replace("KDAL-DEMAND-BEGIN\n", "KDAL-DEMAND-BEGIN[    4.098657] kdal: gpu0 probed\n", 1)
+        self.assertNotEqual(text, fixture())
+        self.assertEqual(linux2.demand(text), linux2.demand(fixture()))
+        self.assertEqual(demand_check(text)[0], "pass")
+
+
+class M2ThreeVcpus(unittest.TestCase):  # linux3, 20261128-readback-n3/
+    def test_a_two_vcpu_run_is_a_finding_for_three(self):
+        v, ev = linux2.m2_verdict(fixture(), 3)
+        self.assertEqual(v, "finding")
+        self.assertTrue(any("missing" in e for e in ev))
+
+    def test_two_vcpu_evidence_unchanged(self):
+        self.assertEqual(linux2.m2_verdict(fixture())[1],
+                         ["Linux, two vCPUs, hotplug, demand, power-off, B started"])
+
+
+class Tree(unittest.TestCase):
+    def test_three_cpu_nodes_and_frames(self):
+        smp1 = linux2._smp1()
+        base = smp1.rc.dts(smp1.rc.CASES["B0"][2], linux2.IPA, linux2.IPA + 0x1000)
+        t = linux2._run_n().tree(base, 3)
+        self.assertEqual(t.count('device_type = "cpu"'), 3)
+        self.assertIn("GICR, 3 CPUs", t)
+
+
 class M5(unittest.TestCase):
     def test_recorded_demand_is_the_baseline(self):
         self.assertEqual(demand_check(fixture())[0], "pass")

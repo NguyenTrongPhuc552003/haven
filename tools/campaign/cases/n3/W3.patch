@@ -1,0 +1,13 @@
+diff --git a/src/core/partition.c b/src/core/partition.c
+index 2f074e4..3c267bb 100644
+--- a/src/core/partition.c
++++ b/src/core/partition.c
+@@ -757,7 +757,7 @@ static void part_a_vgic_setup(void)
+ 			     hv_arch_logical_mpidr(c), &hooks);
+ 		part_a_vgic[c - 1U].last_frame = 0U;
+ 		part_a_peers[c] = &part_a_vgic[c];
+-		part_a_vcpus.mpidr[c] = hv_arch_logical_mpidr(c);
++		part_a_vcpus.mpidr[c] = hv_arch_logical_mpidr(c == 2U ? 1U : c);
+ 		part_a_vcpus.state[c] = HV_VCPU_OFF;
+ 	}
+ 	hv_vgic_set_peers(part_a_peers, HAVEN_PART_A_VCPUS);

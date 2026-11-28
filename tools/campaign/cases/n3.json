@@ -1,0 +1,89 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "docs/methodology/stage2/20261128-readback-n3/: three controls and three written faults on vCPU 2, scenario linux3",
+ "grant": "docs/methodology/stage2/20261128-readback-n3/grant-n3.json",
+ "expect": {
+  "N3-BASE-1": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "N3-BASE-2": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "N3-BASE-3": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "N3-W1": {
+   "M1": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M6": "finding"
+  },
+  "N3-W2": {
+   "M1": "pass",
+   "M2": "finding",
+   "M3": "pass",
+   "M4": "n/a",
+   "M6": "finding"
+  },
+  "N3-W3": {
+   "M1": "pass",
+   "M2": "finding",
+   "M3": "pass",
+   "M4": "n/a",
+   "M6": "pass"
+  }
+ },
+ "cases": [
+  {
+   "case": "N3-BASE-1",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "N3-BASE-2",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "N3-BASE-3",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "N3-W1",
+   "class": "GIC-PPI",
+   "source": "written",
+   "patch": "tools/campaign/cases/n3/W1.patch",
+   "m6": "CPU 3 PPI 27 missing binding"
+  },
+  {
+   "case": "N3-W2",
+   "class": "S2-OWNER",
+   "source": "written",
+   "patch": "tools/campaign/cases/n3/W2.patch",
+   "m6": "CPU 3 runs partition 2's stage-2 tables"
+  },
+  {
+   "case": "N3-W3",
+   "class": "CPU-ASSIGN",
+   "source": "written",
+   "patch": "tools/campaign/cases/n3/W3.patch",
+   "m6": "expected pass: CPU 3 on request, never started (E5)"
+  }
+ ]
+}

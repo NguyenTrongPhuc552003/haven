@@ -1,0 +1,109 @@
+{
+ "source": "Claude, 2026-11-28, read-back of a partition with three vCPUs (docs/methodology/stage2/20261128-readback-n3/): grant-s2-qemu82.json with CPU 3 for partition 1 (vCPU 2), its PPI 27 (enabled by the guest), HAVEN's PPI 26, and CPU 3 on request with CPU 1.",
+ "partitions": {
+  "1": [
+   {
+    "name": "A RAM",
+    "ipa": "0x40000000",
+    "pa": "0x80800000",
+    "size": "0x20000000",
+    "attrs": "RWX"
+   },
+   {
+    "name": "A UART",
+    "ipa": "0x09000000",
+    "pa": "0x09000000",
+    "size": "0x1000",
+    "attrs": "DEVICE_RW"
+   },
+   {
+    "name": "A RO",
+    "ipa": "0x70000000",
+    "pa": "0xA4C00000",
+    "size": "0x200000",
+    "attrs": "R"
+   }
+  ],
+  "2": [
+   {
+    "name": "B RAM",
+    "ipa": "0x60000000",
+    "pa": "0xA0800000",
+    "size": "0x04000000",
+    "attrs": "RWX"
+   }
+  ]
+ },
+ "smmu": {
+  "enabled": true,
+  "streams": {},
+  "allowed_unenforced": []
+ },
+ "gic": {
+  "maintenance_ppi": 25,
+  "cpus": {
+   "0": 1,
+   "1": 1,
+   "2": 2,
+   "3": 1
+  },
+  "spis": {
+   "33": {
+    "partition": 1,
+    "cpu": 0
+   },
+   "106": {
+    "partition": 0,
+    "cpu": 0
+   }
+  },
+  "ppis": {
+   "0": [
+    27
+   ],
+   "1": [
+    27
+   ],
+   "2": [
+    27
+   ],
+   "3": [
+    27
+   ]
+  },
+  "priority": {
+   "haven": "0x40",
+   "partition": "0xa0"
+  },
+  "haven_ppis": {
+   "0": [
+    26
+   ],
+   "1": [
+    26
+   ],
+   "2": [
+    26
+   ],
+   "3": [
+    26
+   ]
+  },
+  "guest_enabled": {
+   "0": [
+    27,
+    33
+   ],
+   "1": [
+    27
+   ],
+   "3": [
+    27
+   ]
+  },
+  "cpus_on_request": [
+   1,
+   3
+  ]
+ }
+}
