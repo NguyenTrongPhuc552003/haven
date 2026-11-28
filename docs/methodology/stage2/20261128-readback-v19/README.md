@@ -51,8 +51,8 @@ observation.
 
 ## Results (2026-11-28) [F]
 
-Code on pull request #233 (branch `feat/readback-v19`), at `9a1c5b8`
-and the next commit (a cases file only). Campaign runs: 46130034849
+Code on pull request #233 (branch `feat/readback-v19`); the runs are
+at `d091e36` (the code, `f46ec81`, and a cases file). Campaign runs: 46130034849
 (scenario 1's six controls), 46130037381 (scenario 2's three),
 46130040417 (`linux3`, `n3.json`), 46130043081 (scenario 1, 103 cases)
 and 46130046780 (scenario 2, 42 cases).
