@@ -720,8 +720,19 @@ void hv_partition_stop_vcpus(hv_u32 cpu)
 	}
 }
 #else
+/* One vCPU: as part_a_gicr without the lock (one CPU reaches the model);
+ * an enable write delivers the SGIs kept pending while disabled. */
+static int part_a_gicr(void *ctx, hv_u64 off, hv_u32 size, int write,
+		       hv_u64 *val)
+{
+	int r = hv_vgic_gicr_access(ctx, off, size, write, val);
+
+	if (write)
+		hv_vgic_deliver_sgis(ctx, ctx, hv_vgic_sgi_take(ctx));
+	return r;
+}
 #define PART_A_GICD hv_vgic_gicd_access
-#define PART_A_GICR hv_vgic_gicr_access
+#define PART_A_GICR part_a_gicr
 #endif
 
 static void part_a_vgic_setup(void)

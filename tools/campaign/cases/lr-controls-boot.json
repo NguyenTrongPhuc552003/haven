@@ -1,0 +1,85 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "docs/methodology/stage2/20261124-lr-overflow/, row Q4: scenario 1's six controls (as in c4-boot.json) with the grant that names maintenance_ppi",
+ "grant": "docs/methodology/stage2/20261108-el3-readback/grant-demo-cpus.json",
+ "expect": {
+  "C2-W35": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-W36": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-V3-C6": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-V3-C7": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  },
+  "C2-BASELINE": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "pass",
+   "M6": "pass"
+  }
+ },
+ "cases": [
+  {
+   "case": "C2-W35",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W35.patch",
+   "m6": "control: the same bit for an unsigned irq"
+  },
+  {
+   "case": "C2-W36",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/c2/W36.patch",
+   "m6": "control: the same bits through an if"
+  },
+  {
+   "case": "C2-V3-C6",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C6.patch",
+   "m6": "control"
+  },
+  {
+   "case": "C2-V3-C7",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": "tools/campaign/cases/v3-C7.patch",
+   "m6": "control"
+  },
+  {
+   "case": "C2-BASELINE",
+   "class": "CONTROL",
+   "source": "written",
+   "patch": null,
+   "m6": "the unchanged tree"
+  },
+  {
+   "case": "C3-H6",
+   "class": "CONTROL",
+   "source": "historical",
+   "patch": "tools/campaign/cases/hist/H6.patch"
+  }
+ ]
+}

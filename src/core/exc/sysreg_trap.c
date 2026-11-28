@@ -56,7 +56,6 @@ void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu)
 		struct hv_vgic *v = hv_vgic_for_cpu(cpu);
 		struct hv_vgic *const *peers;
 		hv_u32 n = 0U, sgi_id, mask;
-		int sgi;
 
 		peers = v ? hv_vgic_peers(v, &n) : NULL;
 		if (peers != NULL) { /* a vCPU of several (multi-vcpu.md) */
@@ -76,11 +75,21 @@ void hv_handle_sysreg_trap(hv_u64 esr, hv_u64 *frame, hv_u32 cpu)
 								 sgi_id);
 				hv_vgic_deliver_sgis(v, peers[i], ready);
 			}
-		} else {
-			sgi = v ? hv_vgic_sgi(v, hv_frame_get(frame, rt)) : -1;
-			if (sgi >= 0 && hv_arch_inject_virtual_irq != NULL)
-				(void)hv_arch_inject_virtual_irq(
-					(uint32_t)sgi, HV_VIRT_IRQ_PRIORITY);
+		} else if (v != NULL) {
+			/* One vCPU: a self-SGI it has disabled is kept pending
+			 * as in the multi-vCPU path (20261124-lr-overflow). */
+			struct hv_vgic *self[1] = {v};
+
+			if ((hv_vgic_sgi_addressed(v, hv_frame_get(frame, rt),
+						   self, 1U, &sgi_id) &
+			     1U) != 0U)
+				hv_vgic_deliver_sgis(
+					v, v,
+					(__atomic_load_n(&v->enabled[0],
+							 __ATOMIC_RELAXED) &
+					 (1U << sgi_id)) != 0U ?
+						(1U << sgi_id) :
+						hv_vgic_sgi_hold(v, sgi_id));
 		}
 	} else {
 		if (read)

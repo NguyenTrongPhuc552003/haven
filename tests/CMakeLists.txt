@@ -58,6 +58,11 @@ haven_test(test_gicr_frames
     SRCS ${_T}/unit/test_gicr_frames.c
          ${_S}/core/irq/gicr_frames.c
 )
+# List-register decisions (docs/methodology/stage2/20261124-lr-overflow)
+haven_test(test_lr
+    SRCS ${_T}/unit/test_lr.c
+         ${_S}/core/irq/lr.c
+)
 haven_test(test_vgic
     SRCS ${_T}/unit/test_vgic.c
          ${_S}/core/irq/vgic.c

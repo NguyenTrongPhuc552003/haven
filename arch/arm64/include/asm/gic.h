@@ -171,6 +171,9 @@
  * data/common/cix-bios, not overridden for Sky1). */
 #define HV_CNTHP_PPI 26U /* EL2 physical timer: Haven's budgets */
 #define HV_CNTV_PPI 27U /* EL1 virtual timer: the partition's */
+/* GIC maintenance interrupt, PPI 9: QEMU virt, and CIX P1's sky1.dtsi
+ * (interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_LOW 0>). */
+#define HV_MAINT_PPI 25U
 
 #define GIC_PRIO_HIGHEST 0x00 /* Highest priority */
 #define GIC_PRIO_HYPERVISOR 0x40 /* Haven EL2 handlers */

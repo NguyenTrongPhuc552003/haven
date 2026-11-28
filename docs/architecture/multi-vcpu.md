@@ -102,8 +102,11 @@ Built only with `-DHAVEN_PART_A_VCPUS=2` and a Linux guest; the default
   request word (bits 0 to 15: virtual SGIs; bit 31: stop). An SGI to a
   vCPU that has it disabled is kept pending in that vCPU's model and
   delivered once when it is enabled (since SMP3; SMP0 to SMP2 dropped it).
-  One that finds no free list register waits for the next physical
-  interrupt on that CPU. The one-vCPU path still drops a disabled
-  self-SGI.
+  One that finds no free list register waits, and since 2026-11-28 the
+  GIC maintenance interrupt (INTID 25) delivers it once an LR is free; a
+  hardware interrupt with no free LR waits the same way instead of being
+  disabled, and a vINTID already in an LR is not written into a second one
+  (`../methodology/stage2/20261124-lr-overflow/`). The one-vCPU path keeps
+  a disabled self-SGI pending too.
 - **Trusted code:** +425 code lines for SMP0 and SMP1 (6,762 to 7,187,
   estimate 250), +29 for SMP2, +126 for SMP3 (estimate 40): 7,342 in all.

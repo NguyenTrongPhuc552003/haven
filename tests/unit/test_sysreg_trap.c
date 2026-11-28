@@ -164,9 +164,33 @@ static void test_pending_cross_cpu_sgi(void)
 	printf("[PASS] SGI for a vCPU with it disabled kept pending\n");
 }
 
+/* U3 (20261124-lr-overflow): one vCPU, a self-SGI it has disabled is
+ * not injected but kept pending; enabling it makes the take return it
+ * once, then nothing. */
+static void test_pending_self_sgi(void)
+{
+	static struct hv_vgic v;
+	hv_u64 en = 1U << 6;
+
+	hv_vgic_init(&v, 0, 0x80000000ULL, &hooks);
+	inject_calls = 0;
+	frame[HV_FRAME_ELR] = 0x5000;
+	frame[5] = (6ULL << 24) | 1U; /* SGI 6 to self, disabled */
+	hv_handle_sysreg_trap(esr(3, 0, 12, 11, 5, 5, 0), frame, 0);
+	assert(inject_calls == 0 && frame[HV_FRAME_ELR] == 0x5004);
+	assert(hv_vgic_gicr_access(&v, 0x10000U + 0x0100U, 4, 1, &en) == 0);
+	assert(hv_vgic_sgi_take(&v) == (1U << 6));
+	assert(hv_vgic_sgi_take(&v) == 0U);
+	/* enabled now: injected at once */
+	hv_handle_sysreg_trap(esr(3, 0, 12, 11, 5, 5, 0), frame, 0);
+	assert(inject_calls == 1 && injected == 6);
+	printf("[PASS] one vCPU: disabled self-SGI kept pending\n");
+}
+
 int main(void)
 {
 	test_self_sgi();
+	test_pending_self_sgi();
 	test_read_as_zero();
 	test_log_cap();
 	test_cross_cpu_sgi();

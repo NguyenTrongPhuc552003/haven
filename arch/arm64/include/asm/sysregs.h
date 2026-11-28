@@ -240,7 +240,7 @@
 
 /* ICH_HCR_EL2 - Interrupt Controller Hypervisor Control Register */
 #define ICH_HCR_EN (UINT64_C(1) << 0) /* Virtual CPU interface enable */
-#define ICH_HCR_UIE (UINT64_C(1) << 1) /* Underflow Interrupt Enable */
+#define ICH_HCR_UIE (UINT64_C(1) << 1U) /* Underflow Interrupt Enable */
 #define ICH_HCR_LRENPIE \
 	(UINT64_C(1) << 2) /* List Register Entry Not Present IE */
 #define ICH_HCR_NPIE (UINT64_C(1) << 3) /* No Pending Interrupt Enable */

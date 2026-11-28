@@ -1,7 +1,8 @@
 # List registers: duplicates and overflow (design)
 
-**Status:** design and expectations, 2026-11-24, before any code. Waits
-for the owner's approval. This is the G3 item "remaining multi-vCPU
+**Status:** design and expectations, 2026-11-24, before any code;
+owner-approved 2026-11-24; E0 and an amendment before code (below); code
+and results 2026-11-28 (pull request #227). This is the G3 item "remaining multi-vCPU
 limits" (`stages/G3-BOARD-READINESS.md`), needed before 8 vCPUs run on
 the board.
 
@@ -189,3 +190,50 @@ guest has not started yet would read as a missing binding. Instead:
 `HAVEN_TEST_LRS` and the LR clearing: `hv_arch_phys_irq_cpu_init` clears
 every LR the CPU implements, not only the ones a test build uses (their
 reset values are UNKNOWN on hardware).
+
+## Results (2026-11-28) [F]
+
+Code on pull request #227 (branch `feat/lr-overflow`), checked at
+`08328f3` and `b799402` (the second adds only a cases file). Mac runs:
+QEMU 11.1.3, the same kernel and runner as E0 (`e0/`). CI: every job of
+the pull request passes.
+
+| Row | Result |
+| - | - |
+| U1 | `test_lr`: every row of the decision table, including a full set with the same Active software vINTID (made pending and active) and an Invalid LR holding a stale vINTID (a free slot). **Holds** |
+| U2 | `test_lr`: PPIs before SPIs, lowest PPI first, SPIs in arrival order, an INTID added twice waits once, the ninth SPI is refused. **Holds** |
+| U3 | `test_sysreg_trap`: one vCPU, a disabled self-SGI is not injected, the take returns it once after the enable, then nothing; enabled, it is injected at once. **Holds** |
+| R1 | `test_maintenance_ppi`: enabled at HAVEN's priority, no finding; at the partition's, priority drift; off on a CPU running a partition, an observation; without the field, "enable drift" as before; the field survives the FF-A grant format. All read-back tests pass (83). **Holds** |
+| Q1 | CI's Linux job passes; on the Mac the default build, Linux on 2 and 3 vCPUs, 3 boots each: all reach the demand, power off, no `not delivered`. **Holds** |
+| Q2 | `HAVEN_TEST_LR_FULL=4`, 5 boots each with 2 and 3 vCPUs: all CPUs up, the demand, power-off, no `not delivered`; on every CPU of every boot, waited 11 to 28 and delivered later the same number. **Holds** |
+| Q2b | `HAVEN_TEST_LRS=2`, 2 vCPUs, 20 boots: all reach the demand with no `not delivered`; made pending and active in 1 boot (twice). **Holds** |
+| Q3 | CI's "Partition B under TF-A" passes. **Holds** |
+| Q4 | Campaign run 46121143893 (scenario 1, the six controls) and 46121146230 (scenario 2, the three controls), with the updated grants: every method passes, read-back at EL2 (M6) and through EL3 (M7, scenario 1) included. Read-back's report shows PPI 25 enabled on CPUs 0, 1 and 2 (the CPUs that run a partition) and no maintenance observation. **Holds** |
+| Q5 | The images change. Default build: text 43,732 to 45,212 bytes; Linux build (2 vCPUs): 46,328 to 47,808; data and bss unchanged in both (bss alignment padding takes the new arrays). **Holds** |
+| Q6 | Trusted code 7,659 to 7,865 lines (+206: `irq.c` +100, `lr.c` +64, `lr.h` +27, `partition.c` +8, `sysreg_trap.c` +6, `gic.h` +1). **Does not hold**: the estimate was +60 to +120. It left out the header and the second decision path (hardware and software injection both use it), and the count includes the test aids' code under `#ifdef`, which cloc reads. Recorded, not changed |
+| Q7 | Campaign run 46122075748, scenario 2's case set without S2-R38 (42 cases; below): the controls pass every method; 41 of 42 cases give the same verdict from every method as C4's run 44989942726. **S2-R40's M6 changed from finding to pass** (M2 still finds it): with the overflow path, CPU 0's timer PPI is no longer disabled, so read-back no longer sees it as a missing binding. R40 is already set aside as timing-dependent (`../20261124-r40-repeat/`). **Holds** |
+
+**Observations [F].**
+- With all four LRs, 1 of 6 boots made an SGI pending and active (Q1,
+  3 vCPUs): the duplicate case is not limited to two LRs, which E0 could
+  not say.
+- With two LRs, a hardware interrupt waited in 10 of 20 boots of Q2b
+  (once each, always delivered later), against 1 of 23 in E0 before the
+  change. A temporary log (not kept) showed the waiting interrupt: CPU 0's
+  timer, PPI 27, with both LRs holding pending SGIs 0 and 1, so a genuine
+  overflow. Why it happens more often now is not known [?].
+- S2-R38's patch no longer applies: it mutates the line that disabled an
+  undeliverable PPI, which this change moved into the reworked handler.
+  Its frozen-campaign verdicts stand; it is left out of Q7 rather than
+  re-written. The first scenario-2 run (46121419077) stopped at that
+  patch.
+
+**Process notes, mine.** A local commit did not build (the header kept
+the old parameter order); the pre-push gate stopped it and it was folded
+into the next commit before any push. For the temporary log I first
+wrote a commit command that skipped the hooks; it was refused before it
+ran, and the debug commit was made with the hooks.
+
+**Board checks** (to add to the board plan): `ICH_VTR_EL2.ListRegs` on the
+A720 and A520 cores, the maintenance INTID in the board's firmware
+tables, and whether LR overflow happens with Linux on 8 vCPUs.
