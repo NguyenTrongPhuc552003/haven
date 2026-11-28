@@ -203,7 +203,7 @@ the pull request passes.
 | U1 | `test_lr`: every row of the decision table, including a full set with the same Active software vINTID (made pending and active) and an Invalid LR holding a stale vINTID (a free slot). **Holds** |
 | U2 | `test_lr`: PPIs before SPIs, lowest PPI first, SPIs in arrival order, an INTID added twice waits once, the ninth SPI is refused. **Holds** |
 | U3 | `test_sysreg_trap`: one vCPU, a disabled self-SGI is not injected, the take returns it once after the enable, then nothing; enabled, it is injected at once. **Holds** |
-| R1 | `test_maintenance_ppi`: enabled at HAVEN's priority, no finding; at the partition's, priority drift; off on a CPU running a partition, an observation; without the field, "enable drift" as before; the field survives the FF-A grant format. All read-back tests pass (88). **Holds** |
+| R1 | `test_maintenance_ppi`: enabled at HAVEN's priority, no finding; at the partition's, priority drift; off on a CPU running a partition, an observation; without the field, "enable drift" as before; the field survives the FF-A grant format. All read-back tests pass (83). **Holds** |
 | Q1 | CI's Linux job passes; on the Mac the default build, Linux on 2 and 3 vCPUs, 3 boots each: all reach the demand, power off, no `not delivered`. **Holds** |
 | Q2 | `HAVEN_TEST_LR_FULL=4`, 5 boots each with 2 and 3 vCPUs: all CPUs up, the demand, power-off, no `not delivered`; on every CPU of every boot, waited 11 to 28 and delivered later the same number. **Holds** |
 | Q2b | `HAVEN_TEST_LRS=2`, 2 vCPUs, 20 boots: all reach the demand with no `not delivered`; made pending and active in 1 boot (twice). **Holds** |
