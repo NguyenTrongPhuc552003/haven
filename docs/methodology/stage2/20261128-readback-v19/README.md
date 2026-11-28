@@ -48,3 +48,25 @@ observation.
 | V3 | N3-W1 again | M6 finds it: `CPU 3 PPI 27` missing interrupt binding, HAVEN's table holding no owner |
 | V4 | the campaign's case sets again with v19 (scenario 1, 106 cases; scenario 2 without S2-R38, 42) | every M6 verdict that changes from v18 is listed and explained; the frozen campaign's figures stay as recorded, v19's are reported beside them [?: no prediction of the count] |
 | V5 | read-back's time | the M6 median rises by less than 1 s |
+
+## Results (2026-11-28) [F]
+
+Code on pull request #233 (branch `feat/readback-v19`), at `9a1c5b8`
+and the next commit (a cases file only). Campaign runs: 46130034849
+(scenario 1's six controls), 46130037381 (scenario 2's three),
+46130040417 (`linux3`, `n3.json`), 46130043081 (scenario 1, 103 cases)
+and 46130046780 (scenario 2, 42 cases).
+
+| Row | Result |
+| - | - |
+| V1 | 8 new tests (`test_ownership.py`): a matching table, a missing PPI route (N3-W1's), a PPI held for the wrong partition, a PPI the grant does not give, an SPI with the wrong owner, the wrong target, an extra SPI, a missing SPI, HAVEN's own interrupts left out, reading the arrays from an image, an image without them. All 91 read-back tests pass. **Holds** |
+| V2 | all twelve controls pass every method: scenario 1's six with M6 and M7 (EL3), scenario 2's three, `linux3`'s three. Read-back reports HAVEN's table on every run (for example CPUs 0 to 3 holding PPI 27 for their partitions, SPI 33 to partition 1 on CPU 0). **Holds** |
+| V3 | N3-W1: M6 now finds it, `CPU 3 PPI 27: missing interrupt binding (HAVEN's ownership table holds no owner, granted partition 1)`. **Holds** |
+| V4 | Scenario 1 against the v17 run 45052417129 (at `25be49b`): 102 of 103 cases give the same verdict from every method. **C2-R41 changes: M6 and M7 from pass to finding.** R41 starts HAVEN's owner map with every interrupt owned by partition 1 (`irq_owner_map[i] = 1U`); v19 reports every SPI the grant does not give as "interrupt ownership drift". The campaign had R41 as found by M1 alone in scenario 1 (`../20261119-evaluation-campaign/c2/random/`); its open question "why read-back passes R41" now has its answer: read-back did not read the table. Six other cases (R11, R13, R31, R37, W30; R32 through M7 only) also get v19 findings, but were findings already. Scenario 2 against the run before v19 (46122075748): 42 of 42 same verdicts; only S2-R39, a finding already, gains one evidence line. **Holds**: every change listed and explained |
+| V5 | M6's median 0.8 s over 102 scenario-1 runs (v17's run: 1.0 s over 105). **Holds** |
+
+The V4 comparison with the v17 run also spans the LR change (#227); none
+of the 103 verdicts changed by it in scenario 1. Three scenario-1 cases
+(C2-V3-P2, C2-R38, C3-H3) were left out because their patches no longer
+apply after that change; their frozen verdicts stand. The frozen
+campaign's figures stay as recorded; v19's are these.
