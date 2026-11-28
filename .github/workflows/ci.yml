@@ -4,7 +4,10 @@
 name: ci
 
 on:
+  # Branches are checked through their pull requests (a push to a branch
+  # would start a second, full run beside the pull request's); main on push.
   push:
+    branches: [main]
   pull_request:
 
 permissions:
