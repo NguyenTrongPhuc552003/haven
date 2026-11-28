@@ -95,6 +95,10 @@ found and passed it, so it is a timing-dependent case and its verdict is
 counted neither way. Of the other 39 random cases, M2 finds 4 (R4, R7,
 R39, R53) and M6 finds 1 (R39).
 
+Read-back v19 (`../20261128-readback-v19/`), which also reads HAVEN's
+interrupt ownership table, finds C2-R41 in scenario 1 (M6 and M7); the
+counts above are the frozen campaign's and stay as recorded.
+
 ## The expectations E1 to E5
 
 | Row | Expected (fixed in C0) | Result |

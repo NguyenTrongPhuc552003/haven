@@ -17,6 +17,17 @@ HAVEN:
     behind the SMMU comes from QEMU's own device tree, not from HAVEN.
 It compares what it reads with the grant and reports drift.
 
+Changes in v19 (2026-11-28, N3-W1): HAVEN's interrupt ownership table
+(ppi_owner_map, irq_owner_map, irq_target_cpu_map in
+src/core/irq/ownership.c) is read and compared with the grant: a PPI or
+SPI granted to a partition that the table does not hold for it is a
+"missing interrupt binding" (an SPI with another target CPU: "interrupt
+routing drift"); a table entry the grant does not give is "interrupt
+ownership drift". HAVEN's own interrupts are not demanded from the table;
+an entry giving one of them to a partition is ownership drift.
+Without the symbols (an older image) the rule is skipped, an observation
+(docs/methodology/stage2/20261128-readback-v19/).
+
 Changes in v18 (2026-11-24, LR overflow): a grant's "gic" section may name
 "maintenance_ppi", HAVEN's GIC maintenance interrupt (25). That PPI may be
 enabled on any CPU, at HAVEN's priority ("interrupt priority drift"
@@ -1044,6 +1055,72 @@ def read_cpu_partitions(mem, nm, elf):
     return [struct.unpack_from("<I", mem, table + 4 * c - IMG_PA)[0] for c in range(NCPUS)]
 
 
+def read_ownership(mem, nm, elf):
+    """v19: HAVEN's interrupt ownership table, or None for an image without
+    it: {"ppis": {cpu: {intid: partition}}, "spis": {intid: (partition, cpu)}},
+    entries with no owner left out."""
+    try:
+        ppi, spi, tgt = (symbol(nm, elf, n) for n in ("ppi_owner_map", "irq_owner_map", "irq_target_cpu_map"))
+    except SystemExit:
+        return None
+
+    def u(addr):
+        return struct.unpack_from("<I", mem, addr - IMG_PA)[0]
+    ppis = {}
+    for c in range(16):  # HV_MAX_PPI_CPU x HV_IRQ_NR_PPI
+        row = {16 + i: u(ppi + 4 * (16 * c + i)) for i in range(16)}
+        row = {k: v for k, v in row.items() if v}
+        if row:
+            ppis[c] = row
+    # SPIs only: 1020 to 1023 are special INTIDs, not interrupts
+    spis = {i: (u(spi + 4 * i), u(tgt + 4 * i)) for i in range(32, 1020) if u(spi + 4 * i)}
+    return {"ppis": ppis, "spis": spis}
+
+
+def granted_ppis(expected):
+    """v19: {(cpu, intid): partition} of the PPIs the grant gives partitions."""
+    cpu_part = {int(c): int(p) for c, p in expected.get("cpus", {}).items()}
+    out = {}
+    for key in ("ppis", "guest_enabled"):
+        for c, irqs in expected.get(key, {}).items():
+            for b in irqs:
+                if 16 <= int(b) < 32 and cpu_part.get(int(c), 0):
+                    out[(int(c), int(b))] = cpu_part[int(c)]
+    return out
+
+
+def held(got):
+    return "no owner" if not got else f"partition {got}"
+
+
+def compare_ownership(own, expected):
+    """v19: HAVEN's ownership table against the grant's gic section."""
+    f = []
+    granted = granted_ppis(expected)
+    for (c, b), p in sorted(granted.items()):
+        got = own["ppis"].get(c, {}).get(b, 0)
+        if got != p:
+            f.append((f"CPU {c} PPI {b}", "missing interrupt binding",
+                      f"HAVEN's ownership table holds {held(got)}, granted partition {p}"))
+    f += [(f"CPU {c} PPI {b}", "interrupt ownership drift",
+           f"HAVEN's ownership table gives it to partition {p}, not granted")
+          for c, row in sorted(own["ppis"].items()) for b, p in sorted(row.items()) if (c, b) not in granted]
+    spis = {int(k): v for k, v in expected.get("spis", {}).items() if int(v["partition"]) != 0}
+    for irq, want in sorted(spis.items()):
+        got = own["spis"].get(irq)
+        if got is None or got[0] != int(want["partition"]):
+            f.append((f"SPI {irq}", "missing interrupt binding",
+                      f"HAVEN's ownership table holds {held(got and got[0])}, granted partition {want['partition']}"))
+        elif got[1] != int(want["cpu"]):
+            f.append((f"SPI {irq}", "interrupt routing drift",
+                      f"HAVEN's ownership table targets CPU {got[1]}, granted CPU {want['cpu']}"))
+    f += [(f"SPI {irq}", "interrupt ownership drift", f"HAVEN's ownership table gives it to partition {p}, not granted")
+          for irq, (p, _) in sorted(own["spis"].items()) if irq not in spis]
+    rep = {"ppis": {str(c): {str(b): p for b, p in row.items()} for c, row in own["ppis"].items()},
+           "spis": {str(i): {"partition": p, "cpu": t} for i, (p, t) in own["spis"].items()}}
+    return f, rep
+
+
 VCPU_OFF = 1  # HV_VCPU_OFF
 
 
@@ -1374,6 +1451,17 @@ def main():
         idle = {x["cpu"] for x in cpu_rep if x.get("waiting")}
         f, rep = compare_gic(snap["gic"], grant["gic"], model, groups_visible, idle)
         rep["groups_visible"] = groups_visible
+        own = read_ownership(snap["image"], a.nm, os.path.join(a.build, "haven.elf"))  # v19
+        if own is None:
+            report["ownership"] = None
+            print("  HAVEN's interrupt ownership table not in this image (observation; v19 rule skipped)")
+        else:
+            of, report["ownership"] = compare_ownership(own, grant["gic"])
+            f += of
+            print("  HAVEN's ownership table: PPIs " + (", ".join(
+                f"CPU {c}: {sorted(r)}" for c, r in sorted(own["ppis"].items())) or "none")
+                + "; SPIs " + (", ".join(f"{i} -> partition {p}, CPU {t}" for i, (p, t) in sorted(own["spis"].items()))
+                               or "none"))
         if not groups_visible:
             print("  interrupt groups not observable: two security states, Non-secure monitor view (use --el3)")
         findings += f
