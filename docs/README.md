@@ -9,6 +9,7 @@ working research question is enforcement read-back (see the repository
 | Document | What it holds |
 | - | - |
 | [`methodology/stage0/20261025-corrections/FINDINGS.md`](methodology/stage0/20261025-corrections/FINDINGS.md) | Every known defect and tool gap, with status, evidence and the commit that resolved it |
+| [`diagrams/`](diagrams/README.md) | Architecture diagrams in Mermaid (layers, containers, evaluation, deployments, sequences, states, resource model) with evidence marks; state as of 2026-11-28 |
 | `methodology/stage0/` to `stage2/` | Dated experiment records: changes, expectations fixed before the run, raw runs (large dumps listed by hash), limits |
 | [`methodology/stage2/20261102-readback-v4/`](methodology/stage2/20261102-readback-v4/README.md) | Read-back v4 and its grants (v5 adds the EL2 map check, see `el2-memory`) |
 | [`methodology/stage2/20261102-a1-cases-v3/`](methodology/stage2/20261102-a1-cases-v3/RESULTS.md) | Frozen seeded-fault case set, random held-out faults, scores |
