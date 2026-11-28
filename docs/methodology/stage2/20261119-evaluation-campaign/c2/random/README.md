@@ -320,3 +320,9 @@ Both are "not exercised" in the sense of D5, not read-back blind spots:
 
 So M1 finds both because the unit tests run code or inputs the boot
 scenario lacks. They join the "not exercised" kind.
+
+**Revised 2026-11-28 for R41** (`../../20261128-readback-v19/`): what
+the GIC holds is as granted, as said above, but HAVEN's own ownership
+table is not: it gives every SPI to partition 1. Read-back v17 did not
+read that table, so for R41 "not a read-back blind spot" does not hold;
+read-back v19 reads it and finds R41 (M6 and M7). R15 stands as written.

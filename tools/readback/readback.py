@@ -23,7 +23,8 @@ src/core/irq/ownership.c) is read and compared with the grant: a PPI or
 SPI granted to a partition that the table does not hold for it is a
 "missing interrupt binding" (an SPI with another target CPU: "interrupt
 routing drift"); a table entry the grant does not give is "interrupt
-ownership drift". HAVEN's own interrupts are not in the partition tables.
+ownership drift". HAVEN's own interrupts are not demanded from the table;
+an entry giving one of them to a partition is ownership drift.
 Without the symbols (an older image) the rule is skipped, an observation
 (docs/methodology/stage2/20261128-readback-v19/).
 
@@ -1071,7 +1072,8 @@ def read_ownership(mem, nm, elf):
         row = {k: v for k, v in row.items() if v}
         if row:
             ppis[c] = row
-    spis = {i: (u(spi + 4 * i), u(tgt + 4 * i)) for i in range(32, 1024) if u(spi + 4 * i)}
+    # SPIs only: 1020 to 1023 are special INTIDs, not interrupts
+    spis = {i: (u(spi + 4 * i), u(tgt + 4 * i)) for i in range(32, 1020) if u(spi + 4 * i)}
     return {"ppis": ppis, "spis": spis}
 
 

@@ -43,9 +43,28 @@ class Ownership(unittest.TestCase):
         self.assertEqual(found(table(spis={33: (1, 0), 40: (1, 0)})), [("SPI 40", "interrupt ownership drift")])
         self.assertEqual(found(table(spis={})), [("SPI 33", "missing interrupt binding")])
 
-    def test_havens_own_interrupts_are_not_checked(self):
-        # PPI 26 (haven_ppis) and SPI 106 (partition 0) are not partition entries
-        self.assertEqual(found(table()), [])
+    def test_havens_own_interrupts_given_to_a_partition_are_drift(self):
+        # SPI 106 is HAVEN's (partition 0): not demanded from the table, but a
+        # table entry giving it to a partition is drift (review of 2026-11-28)
+        self.assertEqual(found(table(spis={33: (1, 0), 106: (1, 0)})), [("SPI 106", "interrupt ownership drift")])
+        # PPI 26 (haven_ppis) held for a partition: drift as well
+        own = table(ppis={0: {26: 1, 27: 1}, 1: {27: 1}, 2: {27: 2}, 3: {27: 1}})
+        self.assertEqual(found(own), [("CPU 0 PPI 26", "interrupt ownership drift")])
+
+    def test_special_intids_are_not_read(self):
+        import struct
+        mem = bytearray(readback.IMG_SIZE)
+        base = readback.IMG_PA + 0x1000
+        syms = {"ppi_owner_map": base, "irq_owner_map": base + 0x1000, "irq_target_cpu_map": base + 0x2000}
+        for i in (1019, 1020, 1023):
+            struct.pack_into("<I", mem, syms["irq_owner_map"] - readback.IMG_PA + 4 * i, 1)
+        orig = readback.symbol
+        readback.symbol = lambda nm, elf, name: syms[name]
+        try:
+            own = readback.read_ownership(bytes(mem), None, "haven.elf")
+        finally:
+            readback.symbol = orig
+        self.assertEqual(sorted(own["spis"]), [1019])
 
     def test_read_from_an_image(self):
         import struct
