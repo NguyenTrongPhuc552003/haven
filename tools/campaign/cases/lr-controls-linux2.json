@@ -1,0 +1,48 @@
+{
+ "schema": "haven-campaign-cases/1",
+ "source": "docs/methodology/stage2/20261124-lr-overflow/, row Q4: scenario 2's three controls (as in s2-linux2.json) with the grant that names maintenance_ppi",
+ "grant": "docs/methodology/stage2/20261119-evaluation-campaign/s2/grant-s2-qemu82.json",
+ "expect": {
+  "S2-BASE-1": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "S2-BASE-2": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  },
+  "S2-BASE-3": {
+   "M1": "pass",
+   "M2": "pass",
+   "M3": "pass",
+   "M4": "n/a",
+   "M5": "pass",
+   "M6": "pass"
+  }
+ },
+ "cases": [
+  {
+   "case": "S2-BASE-1",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "S2-BASE-2",
+   "class": "CONTROL",
+   "source": "written"
+  },
+  {
+   "case": "S2-BASE-3",
+   "class": "CONTROL",
+   "source": "written"
+  }
+ ]
+}
