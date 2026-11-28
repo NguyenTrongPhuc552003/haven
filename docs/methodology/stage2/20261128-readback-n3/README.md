@@ -97,3 +97,21 @@ own expectations; not done here.
 
 **Next [P].** The demand parse is fixed with a test built from
 N3-BASE-2's log, and the six cases run again; the rerun is recorded below.
+
+## The rerun (2026-11-28) [F]
+
+At `60e9d6b` (the demand parse fixed, with a test built from N3-BASE-2's
+log line), campaign run 46126289067: all three controls pass every
+method, so **N3 holds after the harness fix**. The rerun alone does not
+show that the fix was exercised (the line may simply not have been glued
+this time); the test does. The written cases give the same verdicts as
+run 46125619906: N3-W2 and N3-W3 as predicted, N3-W1 with its two
+recorded disagreements (M1 finding, M6 pass), which the run's summary
+lists and which stay as they are.
+
+| Case | M1 | M2 | M3 | M5 | M6 |
+| - | - | - | - | - | - |
+| N3-BASE-1 to -3 | pass | pass | pass | pass | pass |
+| N3-W1 (vCPU 2's timer PPI) | **F** layout test | **F** no demand | pass | error | pass (hidden by the ownership table) |
+| N3-W2 (vCPU 2 on B's tables) | pass | **F** CPU 2 offline | pass | pass | **F** CPU 3 stage-2 drift |
+| N3-W3 (vCPU 2's MPIDR) | pass | **F** CPU 2 offline | pass | pass | pass (E5: never started) |
